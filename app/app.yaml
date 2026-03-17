@@ -1,0 +1,10 @@
+command:
+  - python
+  - app.py
+env:
+  - name: LAKEBASE_INSTANCE_NAME
+    value: YOUR_LAKEBASE_INSTANCE_NAME
+  - name: LAKEBASE_DATABASE
+    value: databricks_postgres
+  - name: DATABRICKS_APP_NAME
+    value: YOUR_APP_NAME
