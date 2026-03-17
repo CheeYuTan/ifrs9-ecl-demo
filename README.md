@@ -48,28 +48,26 @@ The calculation follows a three-stage methodology:
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Databricks App                        │
-│                                                         │
-│  ┌──────────────┐    ┌──────────────┐   ┌────────────┐ │
-│  │ React SPA    │───▶│ FastAPI      │──▶│ Lakebase   │ │
-│  │ (Vite+TS+TW) │    │ (app.py)     │   │ (Postgres) │ │
-│  │ 7-step wizard│    │              │   └────────────┘ │
-│  └──────────────┘    │ backend.py   │                   │
-│                      │ ecl_engine.py│   Monte Carlo     │
-│                      └──────────────┘   Simulation      │
-└─────────────────────────────────────────────────────────┘
-         ▲                    ▲
-         │                    │
-    Vite builds to        Reads from
-    app/static/           Lakebase tables
-                              │
-┌─────────────────────────────┴───────────────────────────┐
-│  Data Pipeline (Databricks Jobs / Notebooks)             │
-│  01_generate_data → 02_data_processing →                 │
-│  03_ecl_calculation → 04_sync_to_lakebase                │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph app["Databricks App"]
+        react["React SPA<br/>(Vite + TS + Tailwind)<br/>7-step wizard"]
+        api["FastAPI<br/>app.py<br/>backend.py<br/>ecl_engine.py"]
+        db["Lakebase<br/>(Managed PostgreSQL)"]
+        mc["Monte Carlo<br/>Simulation"]
+        react -->|REST API| api
+        api --> db
+        api --> mc
+    end
+
+    subgraph pipeline["Data Pipeline (Databricks Jobs)"]
+        s1["01_generate_data"] --> s2["02_data_processing"]
+        s2 --> s3["03_ecl_calculation"]
+        s3 --> s4["04_sync_to_lakebase"]
+    end
+
+    build["npm run build"] -->|"Vite builds to<br/>app/static/"| react
+    s4 -->|"Syncs Delta tables<br/>to Lakebase"| db
 ```
 
 | Component | Technology | Purpose |
