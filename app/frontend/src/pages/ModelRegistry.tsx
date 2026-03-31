@@ -25,7 +25,7 @@ import { fmtPct, fmtDateTime, fmtNumber } from '../lib/format';
 const MODEL_TYPES = ['PD', 'LGD', 'EAD', 'Staging'] as const;
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  draft:          { label: 'Draft',          color: 'text-slate-600 dark:text-slate-400',   bg: 'bg-slate-50 border-slate-200',    icon: FileText },
+  draft:          { label: 'Draft',          color: 'text-slate-600 dark:text-slate-400',   bg: 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600',    icon: FileText },
   pending_review: { label: 'Pending Review', color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',    icon: Clock },
   approved:       { label: 'Approved',       color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-200',      icon: CheckCircle2 },
   active:         { label: 'Active',         color: 'text-emerald-700',bg: 'bg-emerald-50 border-emerald-200', icon: Activity },

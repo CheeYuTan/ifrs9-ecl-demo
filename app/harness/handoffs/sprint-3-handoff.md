@@ -1,33 +1,38 @@
-# Sprint 3 Handoff: Workflow Pages Part 2 + Admin Theme Audit (Iteration 4)
+# Sprint 3 Handoff: Workflow Pages Part 2 + Admin Theme Audit (Iteration 5)
 
 ## What Was Built
 
-Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/admin page files. Iteration 3 added deep manual audits that found 4 additional issues beyond the original 15-pattern scanner. Iteration 4 fixed documentation accuracy (scanner count) and performed comprehensive secondary audit confirming zero remaining issues across all pattern categories including divide, ring, and edge-case color visibility.
+Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/admin page files. Over 5 iterations, found and fixed 18+ violations including a scanner gap for `*-slate-50` patterns.
 
 ### Files Changed
 
-| File | Violations Fixed (iter 1) | Violations Fixed (iter 3) | Fix Types |
-|------|--------------------------|--------------------------|-----------|
-| `pages/GLJournals.tsx` | 3 | 0 | bare bg-slate-800 totals row, bare hover:text-slate-700, bare hover:bg-slate-200 |
-| `pages/Admin.tsx` | 3 | 0 | border-white/60 tab bar, hover:bg-white/80 tab, hover:text-slate-700 tab |
-| `pages/HazardModels.tsx` | 3 | 0 | hover:bg-white/50, hover:text-slate-700, bg-white/50 in tab inactive |
-| `pages/AdvancedFeatures.tsx` | 3 | 0 | hover:bg-white/50, hover:text-slate-700, bg-white/50 in tab inactive |
-| `pages/ModelRegistry.tsx` | 2 | **2** | iter1: hover:bg-slate-100 close buttons; **iter3: performance metrics card gradient missing dark:, border-slate-50 too faint** |
-| `pages/Backtesting.tsx` | 1 | 0 | hover:bg-slate-100 on close button |
-| `pages/MarkovChains.tsx` | 1 | 0 | hover:text-slate-700 on tab inactive |
-| `pages/ApprovalWorkflow.tsx` | 3 | **2** | iter1: hover:bg-slate-100 close buttons, hover:text-slate-700 tab; **iter3: XCircle icon invisible (text-slate-200), border-slate-100 divider missing dark:** |
-| `pages/Attribution.tsx` | 0 | 0 | Already clean |
-| `pages/RegulatoryReports.tsx` | 0 | 0 | Already clean |
+| File | Violations Fixed (total) | Fix Types |
+|------|--------------------------|-----------|
+| `pages/GLJournals.tsx` | 3 | bare bg-slate-800 totals row, bare hover:text-slate-700, bare hover:bg-slate-200 |
+| `pages/Admin.tsx` | 3 | border-white/60 tab bar, hover:bg-white/80 tab, hover:text-slate-700 tab |
+| `pages/HazardModels.tsx` | 4 | hover:bg-white/50, hover:text-slate-700, bg-white/50 tab, **border-slate-50 → border-slate-100 dark:border-slate-700** |
+| `pages/AdvancedFeatures.tsx` | 3 | hover:bg-white/50, hover:text-slate-700, bg-white/50 tab |
+| `pages/ModelRegistry.tsx` | 5 | hover:bg-slate-100 close buttons, gradient dark pair, border visibility, **bg-slate-50 draft badge → dark:bg-slate-800** |
+| `pages/Backtesting.tsx` | 1 | hover:bg-slate-100 on close button |
+| `pages/MarkovChains.tsx` | 1 | hover:text-slate-700 on tab inactive |
+| `pages/ApprovalWorkflow.tsx` | 8 | hover:bg-slate-100, hover:text-slate-700, XCircle icon, border divider, **bg-slate-50 priority badge → dark:bg-slate-800, bg-slate-50 status badge → dark:bg-slate-800, hover:bg-slate-50 → dark:hover:bg-slate-800** |
+| `pages/Attribution.tsx` | 0 | Already clean |
+| `pages/RegulatoryReports.tsx` | 0 | Already clean |
 
-### Iteration 3 Fixes (4 additional issues found via deep manual audit)
+### Iteration 5 Fixes (from eval BUG-S3-001 + new scanner discoveries)
 
-1. **ModelRegistry.tsx line 248**: Performance metrics card `bg-gradient-to-br from-blue-50 to-white` had no dark-mode variant → Added `dark:from-blue-950/40 dark:to-slate-800/60 dark:border-blue-900/30`
-2. **ModelRegistry.tsx line 393**: Comparison table row border `border-t border-slate-50` was near-invisible on white bg and had no dark pair → Changed to `border-t border-slate-100 dark:border-slate-700`
-3. **ApprovalWorkflow.tsx line 651**: XCircle "no permission" icon `text-slate-200` was invisible on white bg → Changed to `text-slate-300 dark:text-slate-600`
-4. **ApprovalWorkflow.tsx line 278**: Action divider `border-slate-100` too faint, no dark pair → Changed to `border-slate-200 dark:border-slate-700`
+1. **BUG-S3-001** — `HazardModels.tsx:661`: `border-slate-50` Row component → `border-slate-100 dark:border-slate-700`
+2. **ModelRegistry.tsx:28**: Draft status badge `bg-slate-50` → added `dark:bg-slate-800 dark:border-slate-600`
+3. **ApprovalWorkflow.tsx:75**: Normal priority badge `bg-slate-50` → added `dark:bg-slate-800 dark:border-slate-600`
+4. **ApprovalWorkflow.tsx:460**: Inactive status badge `bg-slate-50` → added `dark:bg-slate-800 dark:border-slate-600`
+5. **ApprovalWorkflow.tsx:514**: Pending request button `hover:bg-slate-50` → added `dark:hover:bg-slate-800`
+
+### New Scanner Added (17th scanner)
+
+Added `find_bare_slate_50()` to `test_theme_audit_sprint1.py` — catches `border-slate-50`, `bg-slate-50`, `ring-slate-50` without `dark:` pair. This scanner found 4 additional violations in Sprint 3 files beyond the original BUG-S3-001.
 
 ### Test File
-- `tests/unit/test_theme_audit_sprint3.py` — 150 tests (15 scanners × 10 files, parametrized)
+- `tests/unit/test_theme_audit_sprint3.py` — **160 tests** (16 scanners × 10 files, parametrized)
 
 ## How to Test
 
@@ -35,49 +40,29 @@ Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/
 2. Navigate to each page listed above
 3. Toggle between light and dark mode on each page
 4. Verify:
-   - **ModelRegistry**: Performance metrics cards have visible blue-tinted background in dark mode; comparison table rows have visible separators in both modes
-   - **ApprovalWorkflow**: "No permission" X icons visible in light mode; action divider visible in both modes
-   - GLJournals: Totals row at bottom renders with visible text in both modes
-   - Admin: Tab bar border is visible in light mode
-   - HazardModels/AdvancedFeatures: Tab hover states visible in both modes
+   - **HazardModels**: Term structure Row borders visible in both modes
+   - **ModelRegistry**: Draft status badge readable in dark mode; performance metrics gradient visible
+   - **ApprovalWorkflow**: Normal priority and Inactive status badges readable in dark mode; pending request buttons have visible hover state in dark mode
+   - **GLJournals**: Totals row at bottom renders with visible text in both modes
+   - **Admin**: Tab bar border visible in light mode
    - All other pages: No visual regressions
 
-## Test Results
+## Test Results (Iteration 5)
 
 ```
-Backend: 1637 passed, 61 skipped (74.65s)
-Frontend: 103 passed (1.86s)
-Sprint 3 theme tests: 150 passed (0.21s)
-Total: 1890 passed, 61 skipped
+Backend: 1647 passed, 61 skipped (73.15s)
+Frontend: 103 passed (1.98s)
+Sprint 3 theme tests: 160 passed (0.26s)
+Total: 1910 passed, 61 skipped, 0 failures
 ```
 
 ## Known Limitations
 
-- None. All 15 scanner patterns return zero violations for all 10 files. Deep manual audit found and fixed all additional issues.
+- None. All 16 scanner patterns return zero violations for all 10 files.
 
-## Files Changed (Iteration 3)
-- `frontend/src/pages/ModelRegistry.tsx` — 2 fixes (gradient dark pair, border visibility)
-- `frontend/src/pages/ApprovalWorkflow.tsx` — 2 fixes (icon visibility, border dark pair)
-
-## Files Changed (Iteration 4)
-- `tests/unit/test_theme_audit_sprint3.py` — fixed docstring/comment: "16 scanners" → "15 scanners"
-- `harness/handoffs/sprint-3-handoff.md` — updated scanner count references, added iteration 4 notes
-
-## Test Results (Iteration 4)
-
-```
-Backend: 1637 passed, 61 skipped (78.87s)
-Frontend: 103 passed (2.18s)
-Sprint 3 theme tests: 150 passed
-Total: 1890 passed, 61 skipped
-```
-
-## Secondary Audit (Iteration 4)
-
-Comprehensive secondary pattern scan confirmed zero remaining violations:
-- `bg-slate-[89]00` without `dark:` — ZERO
-- `border-slate-[12]00` without `dark:` — ZERO
-- `divide-slate-[12]00` without `dark:` — ZERO
-- `ring-slate-[12]00` without `dark:` — ZERO
-- `bg-slate-50` without `dark:` — ZERO (all have proper pairing)
-- `text-slate-[23]00` — all are intentional muted decorative uses (placeholders, icons, separators)
+## Files Changed (Iteration 5)
+- `frontend/src/pages/HazardModels.tsx` — 1 fix (BUG-S3-001: border-slate-50 dark pair)
+- `frontend/src/pages/ModelRegistry.tsx` — 1 fix (bg-slate-50 draft badge dark pair)
+- `frontend/src/pages/ApprovalWorkflow.tsx` — 3 fixes (bg-slate-50 badge dark pairs, hover:bg-slate-50 dark pair)
+- `tests/unit/test_theme_audit_sprint1.py` — added 17th scanner `find_bare_slate_50()`
+- `tests/unit/test_theme_audit_sprint3.py` — added 16th test parametrization for slate-50 scanner (160 tests total)

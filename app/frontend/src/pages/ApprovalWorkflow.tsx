@@ -72,7 +72,7 @@ function PriorityBadge({ priority }: { priority: string }) {
   const isUrgent = priority === 'urgent';
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-      isUrgent ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-50 text-slate-500 border border-slate-200'
+      isUrgent ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-600'
     }`}>
       <Flag size={9} /> {isUrgent ? 'Urgent' : 'Normal'}
     </span>
@@ -457,7 +457,7 @@ export default function ApprovalWorkflow() {
     { key: 'department', label: 'Department' },
     { key: 'is_active', label: 'Status', format: (v: boolean) => (
       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-        v ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-50 text-slate-400 border border-slate-200'
+        v ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-600'
       }`}>
         <div className={`w-1.5 h-1.5 rounded-full ${v ? 'bg-emerald-500' : 'bg-slate-300'}`} /> {v ? 'Active' : 'Inactive'}
       </span>
@@ -511,7 +511,7 @@ export default function ApprovalWorkflow() {
                     <div className="space-y-2">
                       {pending.slice(0, 5).map(req => (
                         <button key={req.request_id} onClick={() => setSelectedRequest(req)}
-                          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition text-left group">
+                          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left group">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <TypeBadge type={req.request_type} />

@@ -15,7 +15,7 @@ Known exceptions (intentionally always-dark):
   - text-white inside hero gradient or brand-colored buttons/badges
   - Classes already paired with a dark: prefix on the same element
 
-Scanner inventory (16 total):
+Scanner inventory (17 total):
   1. bg-slate-[6-9]00 without dark:
   2. bg-white/N without light pair
   3. border-white/N without light pair
@@ -32,6 +32,7 @@ Scanner inventory (16 total):
   14. CSS scrollbar rgba(255,255,255) without .dark scope
   15. hover:bg-slate-100/200 (plain, non-opacity) without dark:hover: or CSS override
   16. hover:text-slate-[6-8]00 without dark:hover: or CSS override
+  17. border/bg/ring-slate-50 without dark: pair (near-white, invisible on dark bg)
 """
 import os
 import re
@@ -444,6 +445,31 @@ def find_bare_hover_text_slate_dark(relpath: str) -> list[str]:
             if "dark:" in before:
                 continue
             if "dark:hover:text-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_slate_50(relpath: str) -> list[str]:
+    """Find border-slate-50 / bg-slate-50 / ring-slate-50 without dark: pair.
+
+    slate-50 (#f8fafc) is near-white — invisible as border/bg on dark backgrounds.
+    Matches like `border-slate-50` that lack a `dark:border-` on the same line.
+    Excludes:
+      - Lines where `dark:` pair already exists (e.g. `border-slate-50 dark:border-slate-700`)
+      - Opacity variants like `bg-slate-50/40` used inside `dark:bg-...` context
+    """
+    violations = []
+    pat = re.compile(r'(?:border|bg|ring)-slate-50(?!\d|/)')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if _has_dark_pair(line, m.group()):
                 continue
             violations.append(f"{relpath}:{lineno}: {m.group()}")
     return violations

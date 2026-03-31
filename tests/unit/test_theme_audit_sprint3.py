@@ -36,6 +36,7 @@ from tests.unit.test_theme_audit_sprint1 import (
     find_bare_hover_bg_slate_light_opacity,
     find_bare_hover_bg_slate_light_plain,
     find_bare_hover_text_slate_dark,
+    find_bare_slate_50,
 )
 
 # ── Sprint 3 file manifest ──────────────────────────────────────────────
@@ -53,7 +54,7 @@ ALL_SPRINT3_FILES = [
     "pages/ApprovalWorkflow.tsx",
 ]
 
-# ── Tests (15 scanners × 10 files) ──────────────────────────────────────
+# ── Tests (16 scanners × 10 files) ──────────────────────────────────────
 
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT3_FILES)
@@ -165,5 +166,15 @@ def test_no_bare_hover_text_slate_dark(relpath):
     violations = find_bare_hover_text_slate_dark(relpath)
     assert violations == [], (
         f"hover:text-slate-[6-8]00 without explicit dark:hover: pair:\n"
+        + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT3_FILES)
+def test_no_bare_slate_50(relpath):
+    """No border/bg/ring-slate-50 without dark: pair (near-white, invisible on dark bg)."""
+    violations = find_bare_slate_50(relpath)
+    assert violations == [], (
+        f"*-slate-50 without dark: pair (BUG-S3-001 regression guard):\n"
         + "\n".join(violations)
     )

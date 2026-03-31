@@ -138,7 +138,7 @@ export default function HazardModels() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Hazard Models</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Hazard Models</h2>
           <p className="text-sm text-slate-500 mt-1">Survival analysis for PD term structure — 12-month and lifetime PD estimation per IFRS 9.5.5.9</p>
         </div>
         <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ export default function HazardModels() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -501,9 +501,9 @@ function PDTermTab({ termStructure, modelType }: { termStructure: any; modelType
             const prevCpd = bucket.idx > 11 ? (termStructure.cumulative_pd[bucket.idx - 12] || 0) : 0;
             const periodPd = cpd - prevCpd;
             return (
-              <div key={bucket.label} className="bg-slate-50 rounded-xl p-3 text-center">
+              <div key={bucket.label} className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 text-center">
                 <p className="text-[10px] text-slate-400 font-semibold uppercase">{bucket.label}</p>
-                <p className="text-sm font-bold text-slate-700 mt-1">{fmtPct(periodPd * 100, 2)}</p>
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">{fmtPct(periodPd * 100, 2)}</p>
                 <p className="text-[10px] text-slate-400">Cum: {fmtPct(cpd * 100, 2)}</p>
               </div>
             );
@@ -658,9 +658,9 @@ function CompareTab({ compareData, compareIds, onCompare }: {
 
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex justify-between items-center py-1.5 border-b border-slate-50 last:border-0">
+    <div className="flex justify-between items-center py-1.5 border-b border-slate-100 dark:border-slate-700 last:border-0">
       <span className="text-slate-400 text-xs font-medium">{label}</span>
-      <span className="text-slate-700 text-xs font-semibold font-mono">{value}</span>
+      <span className="text-slate-700 dark:text-slate-200 text-xs font-semibold font-mono">{value}</span>
     </div>
   );
 }
