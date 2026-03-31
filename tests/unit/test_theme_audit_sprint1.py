@@ -88,6 +88,8 @@ KNOWN_EXCEPTIONS = [
     "info: 'bg-slate-800 text-white border-slate-700'",
     # HelpTooltip bubble body — intentionally always-dark
     "bg-slate-800 text-white",
+    # AdminThemeConfig dark mode button icon — intentionally dark gradient
+    "from-slate-700 to-slate-900",
 ]
 
 # Files + patterns for always-dark contexts where text-white/* is correct:
@@ -96,6 +98,7 @@ KNOWN_EXCEPTIONS = [
 ALWAYS_DARK_TEXT_WHITE_FILES = {
     "App.tsx",            # Hero section and sidebar stepper — always dark gradient
     "components/HelpTooltip.tsx",  # Tooltip bubble — always dark bg
+    "pages/admin/AdminThemeConfig.tsx",  # Live preview on brand gradient bg
 }
 
 # Files where bg-white/*, border-white/*, hover:bg-white/* are in always-dark
