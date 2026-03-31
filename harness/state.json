@@ -4,18 +4,20 @@
   "quality_target": 9.0,
   "current_sprint": 1,
   "remaining_spec_items": [
-    "QA: Test all 18 pages - every click, interaction, button, form, navigation",
+    "QA: Full browser test all 18 pages - every click, interaction, button, form, navigation",
     "QA: Verify SimulationPanel dual buttons (Run In-App + Run as Databricks Job)",
     "QA: Test simulation configuration panel sliders, inputs, scenario weights",
     "QA: Verify all sidebar navigation links",
     "QA: Test all DataTable components",
     "QA: Test all chart components (DrillDownChart, ThreeLevelDrillDown, ScenarioProductBarChart)"
   ],
-  "bugs_found": 32,
-  "bugs_fixed": 32,
+  "dev_server_command": "echo 'Server already running on port 8000'",
+  "dev_server_port": 8000,
+  "bugs_found": 0,
+  "bugs_fixed": 0,
   "pages_tested": [],
   "components_tested": [],
   "frontend_build": "SUCCESS",
   "current_iteration": 1,
-  "last_updated": "2026-03-31T10:15:00"
+  "last_updated": "2026-03-31T12:00:00"
 }

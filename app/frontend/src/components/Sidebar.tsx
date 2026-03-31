@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Zap, Database, FlaskConical, GitBranch, Activity,
+  Zap, Database, FlaskConical, GitBranch, Activity, BarChart3,
   BookOpen, ClipboardList, Shield, Sparkles, Settings,
   ChevronLeft, ChevronRight, Menu, X, Workflow, Upload,
 } from 'lucide-react';
@@ -9,6 +9,7 @@ import {
 export type ViewType =
   | 'workflow'
   | 'data-mapping'
+  | 'attribution'
   | 'models'
   | 'backtesting'
   | 'markov'
@@ -41,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Analytics',
     items: [
+      { id: 'attribution', label: 'Attribution', icon: BarChart3 },
       { id: 'models', label: 'Models', icon: Database },
       { id: 'backtesting', label: 'Backtesting', icon: FlaskConical },
       { id: 'markov', label: 'Markov Chains', icon: GitBranch },

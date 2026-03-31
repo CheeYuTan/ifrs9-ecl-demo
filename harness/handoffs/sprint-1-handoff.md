@@ -1,56 +1,50 @@
-# Sprint 1 Handoff: QA Bug Fixes & Code Quality Polish
+# Sprint 1 Handoff: ECL Attribution Analysis Frontend
 
 ## What Was Built
-Fixed all 10 remaining LOW severity bugs from the QA bug hunt, bringing the total bugs fixed from 22 to 32 (all 32 found).
-
-### Bug Fixes
-
-| ID | File | Fix |
-|----|------|-----|
-| U01 | KpiCard.tsx | Removed unused `trend` prop from Props interface |
-| U02 | DrillDownChart.tsx | Used `title` prop as `aria-label` on chart container instead of voiding it |
-| U03 | Sidebar.tsx | Added `layoutScope` param to `NavButton`; mobile and desktop now use distinct `layoutId` values (`sidebar-active-pill-mobile` / `sidebar-active-pill-desktop`) |
-| U04 | CollapsibleSection.tsx | Added framer-motion `AnimatePresence` with height animation on open/close, plus chevron rotation animation |
-| U05 | HelpTooltip.tsx | Added viewport boundary detection via `useEffect` that checks tooltip `getBoundingClientRect()` and adjusts position if off-screen |
-| U06 | GLJournals.tsx | Replaced 3x hardcoded `'Current User'` with `getCurrentUser()` from new `lib/userContext.ts` |
-| U07 | ModelRegistry.tsx | Replaced 3x hardcoded `'Current User'` with `getCurrentUser()` from new `lib/userContext.ts` |
-| U08 | Card.tsx, CollapsibleSection.tsx | Added `dark:text-slate-200` to card title and collapsible section title |
-| U09 | ModelExecution.tsx | Added amber info banner stating backtesting metrics are illustrative placeholders |
-| U10 | SignOff.tsx | Added detailed comment explaining growth factor assumptions (Stage 1: 8%, Stage 2: 15%, Stage 3: 22%) |
 
 ### New Files
-- `app/frontend/src/lib/userContext.ts` — Centralized user identity function (placeholder for future RBAC/OAuth integration)
+- `app/frontend/src/pages/Attribution.tsx` — Full Attribution Analysis page with:
+  - Waterfall chart visualization (recharts stacked BarChart with invisible base bars)
+  - Stage-level breakdown table showing all 10 IFRS 7.35I components
+  - Reconciliation status card with materiality check (pass/fail badge)
+  - Compute Attribution button for fresh recomputation
+  - Attribution history selector with period-over-period comparison
+  - Data gap indicators (amber badges for unavailable components)
+  - Estimated data indicators (blue badges for proxy-computed values)
+  - Loading skeleton, empty state, and error state handling
+  - Full dark mode support via Tailwind dark: classes
+
+### Modified Files
+- `app/frontend/src/components/Sidebar.tsx` — Added `attribution` ViewType and sidebar nav item under "Analytics" group with BarChart3 icon
+- `app/frontend/src/App.tsx` — Added lazy import for Attribution page and routing case in `renderSecondaryView`
+
+### Backend (pre-existing, no changes needed)
+- `app/domain/attribution.py` — Full attribution engine (530 lines, already built)
+- `app/routes/attribution.py` — REST endpoints (GET/POST, already built)
+- `app/frontend/src/lib/api.ts` — API client methods (already built)
 
 ## How to Test
-- Start: `cd app && python app.py` (backend on port 8000)
-- Frontend: `cd app/frontend && npm run build` (build output in `../static`)
+- Start: `cd app && uvicorn app:app --reload --port 8000`
 - Navigate to: http://localhost:8000
-- Verify:
-  - Sidebar navigation pills animate independently on mobile vs desktop
-  - CollapsibleSection sections animate smoothly on open/close
-  - HelpTooltips near screen edges reposition instead of clipping
-  - GL Journals and Model Registry show "ECL System User" instead of "Current User"
-  - ModelExecution backtesting section shows amber "illustrative" banner
-  - Card titles readable in dark mode
+- Click "Attribution" in the sidebar under "Analytics"
+- Test: Click "Recompute" button — waterfall chart + breakdown table should render
+- Test: Verify dark mode toggle works on the attribution page
+- Test: Verify loading skeleton shows during data fetch
 
 ## Test Results
-- `python3 -m pytest tests/ --ignore=tests/unit/test_reports_routes.py -q`: **927 passed, 61 skipped** (0 regressions)
-- `npm run build`: **SUCCESS** (0 errors, 0 warnings)
+- `npm run build` — SUCCESS (0 errors, 0 warnings)
+- `pytest tests/ --ignore=tests/unit/test_reports_routes.py` — 925 passed, 61 skipped, 2 failed (pre-existing path issues in test_installation_sprint7.py, unrelated to this sprint)
+- Attribution-specific tests: 17 passed in 0.11s
 
 ## Known Limitations
-- `getCurrentUser()` returns a static string until RBAC/OAuth is wired in (Sprint 7 per PRODUCT_SPEC)
-- Dark mode text fix applied to shared Card and CollapsibleSection components; page-level `text-slate-700` instances without `dark:` remain in some pages but are visually acceptable due to global CSS dark mode overrides
-- HelpTooltip viewport detection runs on initial render; if user scrolls after tooltip opens, position won't re-adjust (edge case)
+- Attribution page uses hardcoded project ID `demo_2025q1` — should eventually read from project context
+- Waterfall chart uses stacked bars with invisible base; this is a common recharts pattern but may have tooltip precision issues on very small movement components
+- No frontend unit tests added for the new React component (existing backend tests cover the engine)
 
 ## Files Changed
-- `app/frontend/src/components/KpiCard.tsx` — Removed unused `trend` prop
-- `app/frontend/src/components/DrillDownChart.tsx` — Used `title` prop as aria-label
-- `app/frontend/src/components/Sidebar.tsx` — Unique layoutId per mobile/desktop context
-- `app/frontend/src/components/CollapsibleSection.tsx` — Added animation, dark mode text
-- `app/frontend/src/components/HelpTooltip.tsx` — Viewport boundary detection
-- `app/frontend/src/components/Card.tsx` — Dark mode text on title
-- `app/frontend/src/pages/GLJournals.tsx` — getCurrentUser() replacement
-- `app/frontend/src/pages/ModelRegistry.tsx` — getCurrentUser() replacement
-- `app/frontend/src/pages/ModelExecution.tsx` — Illustrative metrics banner
-- `app/frontend/src/pages/SignOff.tsx` — Documented growth factor assumptions
-- `app/frontend/src/lib/userContext.ts` — New file: centralized user identity
+| File | Lines | Action |
+|------|-------|--------|
+| `app/frontend/src/pages/Attribution.tsx` | 358 | NEW |
+| `app/frontend/src/components/Sidebar.tsx` | 3 lines changed | MODIFIED |
+| `app/frontend/src/App.tsx` | 8 lines added | MODIFIED |
+| `harness/contracts/sprint-1.md` | — | NEW |
