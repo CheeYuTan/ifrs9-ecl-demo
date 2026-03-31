@@ -23,10 +23,10 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 3,
+  "current_iteration": 5,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd frontend && npm run dev",
-  "last_action": "Sprint 1 iteration 3 complete: Enhanced scanners to 193 tests (bracket notation, compound dark: prefixes, 2 new scanners). All tests pass (1231 pytest + 103 vitest). Ready for Visual QA.",
-  "last_updated": "2026-03-31T18:22:00"
+  "last_action": "Sprint 1 iteration 5 complete: Fixed test infrastructure — added app/pytest.ini + app/conftest.py so tests are discoverable from app/ directory (was causing '0 tests collected'). Fixed 2 pre-existing path bugs in test_installation_sprint7.py. All tests pass: 1303 pytest (from both root and app/), 265 theme audit, 103 vitest. Ready for Visual QA.",
+  "last_updated": "2026-03-31T18:35:00"
 }
