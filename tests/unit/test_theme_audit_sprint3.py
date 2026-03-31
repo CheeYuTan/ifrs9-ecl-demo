@@ -2,7 +2,7 @@
 Sprint 3 Theme Audit — Regression Tests
 
 Verify that the 10 Sprint 3 workflow-page-part-2 + admin .tsx files have no
-dark-mode-only Tailwind CSS violations. Reuses the 16 scanner functions from
+dark-mode-only Tailwind CSS violations. Reuses the 15 scanner functions from
 Sprint 1.
 
 Sprint 3 Files:
@@ -53,7 +53,7 @@ ALL_SPRINT3_FILES = [
     "pages/ApprovalWorkflow.tsx",
 ]
 
-# ── Tests (16 scanners × 10 files) ──────────────────────────────────────
+# ── Tests (15 scanners × 10 files) ──────────────────────────────────────
 
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT3_FILES)

@@ -1,8 +1,8 @@
-# Sprint 3 Handoff: Workflow Pages Part 2 + Admin Theme Audit (Iteration 3)
+# Sprint 3 Handoff: Workflow Pages Part 2 + Admin Theme Audit (Iteration 4)
 
 ## What Was Built
 
-Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/admin page files. Iteration 3 added deep manual audits that found 4 additional issues beyond the original 16-pattern scanner.
+Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/admin page files. Iteration 3 added deep manual audits that found 4 additional issues beyond the original 15-pattern scanner. Iteration 4 fixed documentation accuracy (scanner count) and performed comprehensive secondary audit confirming zero remaining issues across all pattern categories including divide, ring, and edge-case color visibility.
 
 ### Files Changed
 
@@ -27,7 +27,7 @@ Audited and fixed all dark-mode-only Tailwind CSS violations across 10 workflow/
 4. **ApprovalWorkflow.tsx line 278**: Action divider `border-slate-100` too faint, no dark pair → Changed to `border-slate-200 dark:border-slate-700`
 
 ### Test File
-- `tests/unit/test_theme_audit_sprint3.py` — 150 tests (16 scanners × 10 files, parametrized)
+- `tests/unit/test_theme_audit_sprint3.py` — 150 tests (15 scanners × 10 files, parametrized)
 
 ## How to Test
 
@@ -53,9 +53,31 @@ Total: 1890 passed, 61 skipped
 
 ## Known Limitations
 
-- None. All 16 scanner patterns return zero violations for all 10 files. Deep manual audit found and fixed all additional issues.
+- None. All 15 scanner patterns return zero violations for all 10 files. Deep manual audit found and fixed all additional issues.
 
 ## Files Changed (Iteration 3)
 - `frontend/src/pages/ModelRegistry.tsx` — 2 fixes (gradient dark pair, border visibility)
 - `frontend/src/pages/ApprovalWorkflow.tsx` — 2 fixes (icon visibility, border dark pair)
-- `harness/handoffs/sprint-3-handoff.md` — updated
+
+## Files Changed (Iteration 4)
+- `tests/unit/test_theme_audit_sprint3.py` — fixed docstring/comment: "16 scanners" → "15 scanners"
+- `harness/handoffs/sprint-3-handoff.md` — updated scanner count references, added iteration 4 notes
+
+## Test Results (Iteration 4)
+
+```
+Backend: 1637 passed, 61 skipped (78.87s)
+Frontend: 103 passed (2.18s)
+Sprint 3 theme tests: 150 passed
+Total: 1890 passed, 61 skipped
+```
+
+## Secondary Audit (Iteration 4)
+
+Comprehensive secondary pattern scan confirmed zero remaining violations:
+- `bg-slate-[89]00` without `dark:` — ZERO
+- `border-slate-[12]00` without `dark:` — ZERO
+- `divide-slate-[12]00` without `dark:` — ZERO
+- `ring-slate-[12]00` without `dark:` — ZERO
+- `bg-slate-50` without `dark:` — ZERO (all have proper pairing)
+- `text-slate-[23]00` — all are intentional muted decorative uses (placeholders, icons, separators)
