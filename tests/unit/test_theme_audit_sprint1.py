@@ -1,5 +1,5 @@
 """
-Sprint 1 Theme Audit — Regression Tests (Iteration 5)
+Sprint 1 Theme Audit — Regression Tests (Iteration 4)
 
 Verify that the 19 Sprint 1 .tsx files have no dark-mode-only Tailwind CSS
 violations.  Each test reads the file source and checks for patterns that
@@ -15,7 +15,7 @@ Known exceptions (intentionally always-dark):
   - text-white inside hero gradient or brand-colored buttons/badges
   - Classes already paired with a dark: prefix on the same element
 
-Scanner inventory (14 total):
+Scanner inventory (16 total):
   1. bg-slate-[6-9]00 without dark:
   2. bg-white/N without light pair
   3. border-white/N without light pair
@@ -30,6 +30,8 @@ Scanner inventory (14 total):
   12. focus:bg-slate-[6-9]00 without dark:focus:
   13. hover:bg-slate-50|100/N without dark:hover: (CSS overrides miss opacity)
   14. CSS scrollbar rgba(255,255,255) without .dark scope
+  15. hover:bg-slate-100/200 (plain, non-opacity) without dark:hover: or CSS override
+  16. hover:text-slate-[6-8]00 without dark:hover: or CSS override
 """
 import os
 import re
@@ -399,6 +401,54 @@ def find_css_scrollbar_theme_issues() -> list[str]:
     return violations
 
 
+def find_bare_hover_bg_slate_light_plain(relpath: str) -> list[str]:
+    """Find hover:bg-slate-100 or hover:bg-slate-200 (plain, no opacity) without
+    dark:hover: pair on the same line.
+
+    CSS override .dark .hover\\:bg-slate-100:hover now exists as a safety net,
+    but files should still have explicit dark:hover: pairs for clarity.
+    This scanner checks for files that rely ONLY on the CSS safety net
+    without having an explicit dark:hover: pair — acceptable but flagged.
+    """
+    violations = []
+    pat = re.compile(r'hover:bg-slate-(?:100|200)(?!\/)(?!\d)')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:hover:bg-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_hover_text_slate_dark(relpath: str) -> list[str]:
+    """Find hover:text-slate-[6-8]00 without dark:hover: pair on the same line.
+
+    CSS override .dark .hover\\:text-slate-{600,700,800}:hover now exists,
+    but explicit dark:hover: pairs are preferred. This scanner flags
+    missing explicit pairs in Sprint 1 files.
+    """
+    violations = []
+    pat = re.compile(r'hover:text-slate-[678]00')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:hover:text-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
 # ── Tests ────────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
@@ -495,6 +545,38 @@ def test_no_bare_hover_bg_slate_light_opacity(relpath):
     )
 
 
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_hover_bg_slate_light_plain(relpath):
+    """No hover:bg-slate-100/200 (plain) without dark:hover: pair or CSS safety net.
+
+    Scanner #15: CSS now provides .dark .hover\\:bg-slate-100:hover override,
+    so this is advisory — files relying only on CSS are functionally correct
+    but ideally should have explicit pairs.
+    """
+    violations = find_bare_hover_bg_slate_light_plain(relpath)
+    assert violations == [], (
+        f"hover:bg-slate-100/200 without explicit dark:hover: pair "
+        f"(CSS safety net exists but explicit pair preferred):\n"
+        + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_hover_text_slate_dark(relpath):
+    """No hover:text-slate-[6-8]00 without dark:hover: pair or CSS safety net.
+
+    Scanner #16: CSS now provides .dark .hover\\:text-slate-{6,7,8}00:hover,
+    so files relying on CSS are functionally correct. This scanner flags
+    missing explicit pairs.
+    """
+    violations = find_bare_hover_text_slate_dark(relpath)
+    assert violations == [], (
+        f"hover:text-slate-[6-8]00 without explicit dark:hover: pair "
+        f"(CSS safety net exists but explicit pair preferred):\n"
+        + "\n".join(violations)
+    )
+
+
 def test_no_css_scrollbar_white_without_dark_scope():
     """No scrollbar styles using rgba(255,255,255) outside .dark scope.
 
@@ -587,6 +669,11 @@ CSS_OVERRIDE_DEPENDENCIES = [
     (".dark .text-slate-500", "text-slate-500 → dark text override"),
     (".dark .text-slate-400", "text-slate-400 → dark text override"),
     (".dark .text-slate-300", "text-slate-300 → dark text override"),
+    # Hover state CSS safety nets (iteration 4)
+    (".dark .hover\\:bg-slate-100:hover", "hover:bg-slate-100 → dark hover bg override"),
+    (".dark .hover\\:text-slate-600:hover", "hover:text-slate-600 → dark hover text override"),
+    (".dark .hover\\:text-slate-700:hover", "hover:text-slate-700 → dark hover text override"),
+    (".dark .hover\\:text-slate-800:hover", "hover:text-slate-800 → dark hover text override"),
 ]
 
 

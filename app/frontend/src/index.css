@@ -577,6 +577,18 @@ input[type="range"].brand-range { accent-color: var(--color-brand); }
 .dark .bg-yellow-100 { background: rgba(234,179,8,0.15); }
 .dark .border-purple-200 { border-color: rgba(139,92,246,0.2); }
 
+/* Dark mode: hover:bg-slate-100 (plain, non-opacity) safety net.
+   Sprint 1 files have explicit dark:hover: pairs, but later files may not.
+   CSS override catches hover:bg-slate-100:hover so it doesn't flash white in dark mode. */
+.dark .hover\:bg-slate-100:hover { background: rgba(255,255,255,0.04); }
+
+/* Dark mode: hover:text-slate-600/700/800 safety net.
+   Tailwind hover:text-slate-700 generates a DIFFERENT class from text-slate-700,
+   so the text-slate-* CSS overrides don't cover hover variants. */
+.dark .hover\:text-slate-600:hover { color: #CBD5E1; }
+.dark .hover\:text-slate-700:hover { color: #E2E8F0; }
+.dark .hover\:text-slate-800:hover { color: #F1F5F9; }
+
 /* Dark mode for border-{color}-100 with opacity variants (used by KpiCard, DataProcessing) */
 .dark [class*="border-blue-100"] { border-color: rgba(59,130,246,0.15); }
 .dark [class*="border-emerald-100"] { border-color: rgba(16,185,129,0.15); }
