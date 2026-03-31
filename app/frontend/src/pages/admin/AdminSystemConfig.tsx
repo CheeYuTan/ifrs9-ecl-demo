@@ -77,8 +77,8 @@ export default function AdminSystemConfig({ config, onReload }: AdminSystemConfi
           </div>
           {connStatus?.connected && (
             <div className="ml-6 text-xs text-slate-400 space-y-0.5">
-              <p>Schema: <span className="font-mono text-slate-600">{connStatus.schema}</span></p>
-              <p>Prefix: <span className="font-mono text-slate-600">{connStatus.prefix}</span></p>
+              <p>Schema: <span className="font-mono text-slate-600 dark:text-slate-300">{connStatus.schema}</span></p>
+              <p>Prefix: <span className="font-mono text-slate-600 dark:text-slate-300">{connStatus.prefix}</span></p>
             </div>
           )}
         </div>
@@ -112,7 +112,7 @@ export default function AdminSystemConfig({ config, onReload }: AdminSystemConfi
       </Card>
 
       <Card icon={<Info size={16} />} title="About">
-        <div className="space-y-2 text-xs text-slate-500">
+        <div className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
           {[
             ['Application', config.app_settings.app_title],
             ['Framework', config.app_settings.framework],

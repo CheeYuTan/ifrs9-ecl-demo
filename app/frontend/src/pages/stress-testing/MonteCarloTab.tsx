@@ -62,10 +62,10 @@ export default function MonteCarloTab({
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-                        <span className="text-xs font-semibold text-slate-700">{d.scenario}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono">{(d.weight * 100).toFixed(0)}%</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{d.scenario}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono">{(d.weight * 100).toFixed(0)}%</span>
                       </div>
-                      <span className="text-xs font-mono text-slate-500">{fmtCurrency(d.mean)}</span>
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{fmtCurrency(d.mean)}</span>
                     </div>
                     <div className="relative h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
@@ -93,12 +93,12 @@ export default function MonteCarloTab({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="text-left py-2 px-2 text-xs font-semibold text-slate-500">Plausible Scenario</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500">Stressed PD ×</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500">PD σ</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500">Stressed LGD ×</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500">LGD σ</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500">MC Sims</th>
+                    <th className="text-left py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Plausible Scenario</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed PD ×</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">PD σ</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed LGD ×</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">LGD σ</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">MC Sims</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,14 +110,14 @@ export default function MonteCarloTab({
                           <span className="text-xs font-medium text-slate-700 dark:text-slate-200">{d.scenario}</span>
                         </div>
                       </td>
-                      <td className={`py-2 px-2 text-right text-xs font-mono ${d.pd_mult > 1.1 ? 'text-red-600' : d.pd_mult < 0.95 ? 'text-emerald-600' : 'text-slate-600'}`}>
+                      <td className={`py-2 px-2 text-right text-xs font-mono ${d.pd_mult > 1.1 ? 'text-red-600' : d.pd_mult < 0.95 ? 'text-emerald-600' : 'text-slate-600 dark:text-slate-300'}`}>
                         {d.pd_mult.toFixed(3)}
                       </td>
-                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-500">{(d.pd_vol * 100).toFixed(1)}%</td>
-                      <td className={`py-2 px-2 text-right text-xs font-mono ${d.lgd_mult > 1.05 ? 'text-red-600' : 'text-slate-600'}`}>
+                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-500 dark:text-slate-400">{(d.pd_vol * 100).toFixed(1)}%</td>
+                      <td className={`py-2 px-2 text-right text-xs font-mono ${d.lgd_mult > 1.05 ? 'text-red-600' : 'text-slate-600 dark:text-slate-300'}`}>
                         {d.lgd_mult.toFixed(3)}
                       </td>
-                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-500">{(d.lgd_vol * 100).toFixed(1)}%</td>
+                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-500 dark:text-slate-400">{(d.lgd_vol * 100).toFixed(1)}%</td>
                       <td className="py-2 px-2 text-right text-xs font-mono text-slate-400">{fmtNumber(d.n_sims)}</td>
                     </tr>
                   ))}

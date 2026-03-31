@@ -62,10 +62,10 @@ export default function SensitivityTab({
             <div key={s.label}>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <span className="text-sm font-bold text-slate-700">{s.label}</span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{s.label}</span>
                   <span className="text-xs text-slate-400 ml-2">{s.desc}</span>
                 </div>
-                <span className={`text-lg font-bold font-mono ${s.value > 0 ? 'text-red-500' : s.value < 0 ? 'text-emerald-500' : 'text-slate-500'}`}>
+                <span className={`text-lg font-bold font-mono ${s.value > 0 ? 'text-red-500' : s.value < 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`}>
                   {s.value > 0 ? '+' : ''}{s.value}%
                 </span>
               </div>
@@ -79,7 +79,7 @@ export default function SensitivityTab({
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <button onClick={() => { setPdShock(0); setLgdShock(0); setEadShock(0); }}
-            className="px-3 py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition">Reset</button>
+            className="px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition">Reset</button>
           <button onClick={() => { setPdShock(20); setLgdShock(10); setEadShock(5); }}
             className="px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition">Adverse</button>
           <button onClick={() => { setPdShock(50); setLgdShock(25); setEadShock(15); }}
@@ -93,19 +93,19 @@ export default function SensitivityTab({
       <div className="flex items-center gap-3 bg-white dark:bg-slate-800/80 rounded-xl shadow-sm p-3">
         <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
           <button onClick={() => setSensMode('quick')}
-            className={`px-4 py-2 text-xs font-semibold rounded-md transition-all ${sensMode === 'quick' ? 'bg-white dark:bg-slate-700 text-navy dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+            className={`px-4 py-2 text-xs font-semibold rounded-md transition-all ${sensMode === 'quick' ? 'bg-white dark:bg-slate-700 text-navy dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>
             <Activity size={12} className="inline mr-1.5 -mt-0.5" />Quick Estimate
           </button>
           <button onClick={() => setSensMode('full')}
-            className={`px-4 py-2 text-xs font-semibold rounded-md transition-all ${sensMode === 'full' ? 'bg-white dark:bg-slate-700 text-navy dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+            className={`px-4 py-2 text-xs font-semibold rounded-md transition-all ${sensMode === 'full' ? 'bg-white dark:bg-slate-700 text-navy dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}>
             <Dice5 size={12} className="inline mr-1.5 -mt-0.5" />Full Simulation
           </button>
         </div>
         <div className="flex items-start gap-1.5 text-xs text-slate-400">
           <Info size={14} className="flex-shrink-0 mt-0.5" />
           {sensMode === 'quick'
-            ? <span><strong className="text-slate-600">Quick Estimate:</strong> Instant multiplicative approximation — ECL is scaled proportionally by the shock factors. Useful for rapid what-if exploration.</span>
-            : <span><strong className="text-slate-600">Full Simulation:</strong> Runs the Monte Carlo engine with stressed PD/LGD bounds. More accurate but takes ~1–2 min. EAD shock is still applied as a multiplier.</span>
+            ? <span><strong className="text-slate-600 dark:text-slate-300">Quick Estimate:</strong> Instant multiplicative approximation — ECL is scaled proportionally by the shock factors. Useful for rapid what-if exploration.</span>
+            : <span><strong className="text-slate-600 dark:text-slate-300">Full Simulation:</strong> Runs the Monte Carlo engine with stressed PD/LGD bounds. More accurate but takes ~1–2 min. EAD shock is still applied as a multiplier.</span>
           }
         </div>
       </div>
@@ -172,9 +172,9 @@ export default function SensitivityTab({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <th className="text-left py-2 px-3 text-xs font-semibold text-slate-500">Parameter</th>
-                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500">Base Value</th>
-                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500">Stressed Value</th>
+                        <th className="text-left py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Parameter</th>
+                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Base Value</th>
+                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed Value</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -188,8 +188,8 @@ export default function SensitivityTab({
                       ].map(p => (
                         <tr key={p.label} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
                           <td className="py-2 px-3 text-xs font-medium text-slate-700 dark:text-slate-200">{p.label}</td>
-                          <td className="py-2 px-3 text-right text-xs font-mono text-slate-500">{p.fmt(p.base)}</td>
-                          <td className={`py-2 px-3 text-right text-xs font-mono font-semibold ${p.stressed > p.base ? 'text-red-600' : p.stressed < p.base ? 'text-emerald-600' : 'text-slate-600'}`}>
+                          <td className="py-2 px-3 text-right text-xs font-mono text-slate-500 dark:text-slate-400">{p.fmt(p.base)}</td>
+                          <td className={`py-2 px-3 text-right text-xs font-mono font-semibold ${p.stressed > p.base ? 'text-red-600' : p.stressed < p.base ? 'text-emerald-600' : 'text-slate-600 dark:text-slate-300'}`}>
                             {p.fmt(p.stressed)}
                           </td>
                         </tr>
@@ -263,11 +263,11 @@ export default function SensitivityTab({
               <Card title="Quick Estimate vs Full Simulation" subtitle="Side-by-side comparison of the two approaches">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-bold text-slate-700 mb-3">Quick Estimate (Multiplicative)</h4>
+                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">Quick Estimate (Multiplicative)</h4>
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between"><span className="text-slate-500">Stressed ECL</span><span className="font-mono font-semibold">{fmtCurrency(totalStressedEcl)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Delta</span><span className="font-mono font-semibold">{totalDelta >= 0 ? '+' : ''}{fmtCurrency(totalDelta)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Delta %</span><span className="font-mono font-semibold">{deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(1)}%</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Stressed ECL</span><span className="font-mono font-semibold">{fmtCurrency(totalStressedEcl)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Delta</span><span className="font-mono font-semibold">{totalDelta >= 0 ? '+' : ''}{fmtCurrency(totalDelta)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Delta %</span><span className="font-mono font-semibold">{deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(1)}%</span></div>
                     </div>
                   </div>
                   <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
@@ -294,7 +294,7 @@ export default function SensitivityTab({
           {!fullSimResult && !fullSimLoading && (
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center">
               <Dice5 size={32} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-sm text-slate-500 font-medium">Configure shocks above and click "Run Stressed Simulation"</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Configure shocks above and click "Run Stressed Simulation"</p>
               <p className="text-xs text-slate-400 mt-1">The engine will re-run the full Monte Carlo with stressed PD/LGD bounds</p>
             </div>
           )}

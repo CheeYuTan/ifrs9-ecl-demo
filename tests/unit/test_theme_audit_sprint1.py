@@ -478,6 +478,118 @@ def find_bare_slate_50(relpath: str) -> list[str]:
     return violations
 
 
+def find_bare_text_slate_600(relpath: str) -> list[str]:
+    """Find text-slate-600 without dark:text-slate- pair on the same line.
+
+    text-slate-600 is medium-dark gray — hard to read on dark backgrounds.
+    Must have a dark:text-slate-300 (or similar) pair.
+    Excludes:
+      - hover:text-slate-600 WITH dark:hover:text-slate- (hover pairs are valid)
+      - group-hover:text-slate-600 WITH dark:group-hover:text-slate- pair
+      - Already inside a dark: compound prefix
+    """
+    violations = []
+    pat = re.compile(r'text-slate-600')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 30):col]
+            # Skip if preceded by dark: (already in dark: context)
+            if "dark:" in before:
+                continue
+            # Skip if preceded by hover: and has dark:hover:text-slate- pair
+            if "hover:" in before and "dark:hover:text-slate-" in line:
+                continue
+            if "group-hover:" in before and "dark:group-hover:text-slate-" in line:
+                continue
+            # Check for any dark:text-slate- pair on the line
+            if "dark:text-slate-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_text_slate_700(relpath: str) -> list[str]:
+    """Find text-slate-700 without dark:text-slate- pair on the same line.
+
+    text-slate-700 is dark gray — very hard to read on dark backgrounds.
+    Must have a dark:text-slate-200 (or similar) pair.
+    """
+    violations = []
+    pat = re.compile(r'text-slate-700')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 30):col]
+            if "dark:" in before:
+                continue
+            if "hover:" in before and "dark:hover:text-slate-" in line:
+                continue
+            if "group-hover:" in before and "dark:group-hover:text-slate-" in line:
+                continue
+            if "dark:text-slate-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_text_slate_500(relpath: str) -> list[str]:
+    """Find text-slate-500 without dark:text-slate- pair on the same line.
+
+    text-slate-500 has marginal readability on dark backgrounds.
+    Must have a dark:text-slate-400 (or similar) pair.
+    Excludes:
+      - Lines where dark:text-slate- already present
+      - Lines used as dark: target (e.g. dark:text-slate-500)
+      - hover:text-slate-500 with dark:hover:text-slate- pair
+      - group-hover: variants with dark:group-hover: pair
+    """
+    violations = []
+    pat = re.compile(r'text-slate-500')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 30):col]
+            if "dark:" in before:
+                continue
+            if "hover:" in before and "dark:hover:text-slate-" in line:
+                continue
+            if "group-hover:" in before and "dark:group-hover:text-slate-" in line:
+                continue
+            if "dark:text-slate-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_border_slate_100(relpath: str) -> list[str]:
+    """Find border-slate-100 without dark:border-slate- pair on the same line.
+
+    border-slate-100 is near-white — invisible on dark backgrounds.
+    Must have a dark:border-slate-700 (or similar) pair.
+    """
+    violations = []
+    pat = re.compile(r'border-slate-100(?!\d|/)')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:border-slate-" in line or "dark:border-" in line:
+                continue
+            violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
 # ── Tests ────────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)

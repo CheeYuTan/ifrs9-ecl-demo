@@ -266,7 +266,7 @@ export default function StressTesting({ project, onApprove, onReject }: Props) {
         {SUB_TABS.map(t => (
           <button key={t.key} onClick={() => setActiveSubTab(t.key)}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-              activeSubTab === t.key ? 'bg-navy text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
+              activeSubTab === t.key ? 'bg-navy text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}>
             {t.icon} {t.label}
           </button>

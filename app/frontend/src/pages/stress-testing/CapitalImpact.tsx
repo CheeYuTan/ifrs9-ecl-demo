@@ -17,7 +17,7 @@ export default function CapitalImpact({ baseEcl }: Props) {
               { label: 'After Base ECL', value: '13.8%', color: 'text-emerald-600', bar: 82 },
               { label: 'After Adverse Stress', value: '12.1%', color: 'text-amber-600', bar: 72 },
               { label: 'After Severely Adverse', value: '10.5%', color: 'text-red-600', bar: 63 },
-              { label: 'Regulatory Minimum', value: '10.0%', color: 'text-slate-500', bar: 60 },
+              { label: 'Regulatory Minimum', value: '10.0%', color: 'text-slate-500 dark:text-slate-400', bar: 60 },
             ].map(item => (
               <div key={item.label}>
                 <div className="flex justify-between text-xs mb-1">

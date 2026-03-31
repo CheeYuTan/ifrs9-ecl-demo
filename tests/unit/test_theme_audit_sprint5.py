@@ -41,6 +41,10 @@ from tests.unit.test_theme_audit_sprint1 import (
     find_bare_hover_bg_slate_light_plain,
     find_bare_hover_text_slate_dark,
     find_bare_slate_50,
+    find_bare_text_slate_600,
+    find_bare_text_slate_700,
+    find_bare_text_slate_500,
+    find_bare_border_slate_100,
 )
 
 ALL_SPRINT5_FILES = [
@@ -161,4 +165,40 @@ def test_no_bare_slate_50(relpath):
     violations = find_bare_slate_50(relpath)
     assert violations == [], (
         f"*-slate-50 without dark: pair:\n" + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT5_FILES)
+def test_no_bare_text_slate_600(relpath):
+    """No text-slate-600 without dark:text-slate- pair (BUG-S5-001 regression)."""
+    violations = find_bare_text_slate_600(relpath)
+    assert violations == [], (
+        f"text-slate-600 without dark pair:\n" + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT5_FILES)
+def test_no_bare_text_slate_700(relpath):
+    """No text-slate-700 without dark:text-slate- pair (BUG-S5-002 regression)."""
+    violations = find_bare_text_slate_700(relpath)
+    assert violations == [], (
+        f"text-slate-700 without dark pair:\n" + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT5_FILES)
+def test_no_bare_text_slate_500(relpath):
+    """No text-slate-500 without dark:text-slate- pair (BUG-S5-003 regression)."""
+    violations = find_bare_text_slate_500(relpath)
+    assert violations == [], (
+        f"text-slate-500 without dark pair:\n" + "\n".join(violations)
+    )
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT5_FILES)
+def test_no_bare_border_slate_100(relpath):
+    """No border-slate-100 without dark:border-slate- pair (BUG-S5-004 regression)."""
+    violations = find_bare_border_slate_100(relpath)
+    assert violations == [], (
+        f"border-slate-100 without dark pair:\n" + "\n".join(violations)
     )

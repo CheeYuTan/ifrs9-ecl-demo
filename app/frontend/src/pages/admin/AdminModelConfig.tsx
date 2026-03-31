@@ -12,7 +12,7 @@ import type { AdminConfig, LgdAssumption } from './types';
 function Tooltip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex ml-1 cursor-help">
-      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 transition" />
+      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition" />
       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 text-[10px] leading-tight bg-slate-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none w-52 z-50 text-center">
         {text}
       </span>
@@ -104,7 +104,7 @@ export default function AdminModelConfig({ config, onChange }: AdminModelConfigP
             <button key={key} onClick={() => toggleModel(key)}
               className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${m.enabled ? 'border-brand/30 bg-brand/5 shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 opacity-60'}`}>
               {m.enabled ? <ToggleRight size={20} className="text-brand" /> : <ToggleLeft size={20} className="text-slate-400" />}
-              <span className={`text-xs font-semibold ${m.enabled ? 'text-brand-dark' : 'text-slate-500'}`}>{m.label}</span>
+              <span className={`text-xs font-semibold ${m.enabled ? 'text-brand-dark' : 'text-slate-500 dark:text-slate-400'}`}>{m.label}</span>
             </button>
           ))}
         </div>
@@ -134,7 +134,7 @@ export default function AdminModelConfig({ config, onChange }: AdminModelConfigP
       >
         {!showSicr ? (
           <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-            <span className="text-xs text-slate-500">Using IFRS 9 standard defaults (DPD 30/90/90, PD relative 2x, PD absolute 0.5%). These rarely need changing.</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Using IFRS 9 standard defaults (DPD 30/90/90, PD relative 2x, PD absolute 0.5%). These rarely need changing.</span>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -166,7 +166,7 @@ export default function AdminModelConfig({ config, onChange }: AdminModelConfigP
             <p className="text-xs text-brand-dark font-semibold mb-1">Discovered {discoveredProducts.length} products from loan data:</p>
             <div className="flex flex-wrap gap-2">
               {discoveredProducts.map(p => (
-                <span key={p.product_type} className="text-[10px] font-mono bg-white dark:bg-slate-800 rounded-lg px-2 py-1 border border-brand/15 text-slate-600">
+                <span key={p.product_type} className="text-[10px] font-mono bg-white dark:bg-slate-800 rounded-lg px-2 py-1 border border-brand/15 text-slate-600 dark:text-slate-300">
                   {p.product_type} <span className="text-slate-400">({p.loan_count.toLocaleString()} loans)</span>
                 </span>
               ))}

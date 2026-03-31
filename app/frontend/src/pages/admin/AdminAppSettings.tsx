@@ -10,7 +10,7 @@ import type { AdminConfig, ScenarioRow } from './types';
 function Tooltip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex ml-1 cursor-help">
-      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 transition" />
+      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition" />
       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 text-[10px] leading-tight bg-slate-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none w-52 z-50 text-center">
         {text}
       </span>
@@ -194,7 +194,7 @@ export default function AdminAppSettings({ config, onChange }: AdminAppSettingsP
               {(settings.scenarios || []).map((sc, i) => (
                 <tr key={sc.key} className="border-b border-slate-50 dark:border-slate-800 hover:bg-brand/3 transition">
                   <td className="py-1.5 px-2"><input type="color" value={sc.color} onChange={e => updateScenario(i, 'color', e.target.value)} className="w-6 h-6 rounded cursor-pointer border-0" /></td>
-                  <td className="py-1.5 px-2"><span className="text-xs font-mono text-slate-500">{sc.key}</span></td>
+                  <td className="py-1.5 px-2"><span className="text-xs font-mono text-slate-500 dark:text-slate-400">{sc.key}</span></td>
                   <td className="py-1.5 px-2"><input value={sc.name} onChange={e => updateScenario(i, 'name', e.target.value)} className="w-full px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-brand/30 outline-none" /></td>
                   <td className="py-1.5 px-2"><input type="number" step={0.01} min={0} max={1} value={sc.weight} onChange={e => updateScenario(i, 'weight', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-mono focus:ring-2 focus:ring-brand/30 outline-none" /></td>
                   <td className="py-1.5 px-2"><input type="number" step={0.05} min={0} value={sc.pd_multiplier} onChange={e => updateScenario(i, 'pd_multiplier', parseFloat(e.target.value) || 0)} className="w-20 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-mono focus:ring-2 focus:ring-brand/30 outline-none" /></td>

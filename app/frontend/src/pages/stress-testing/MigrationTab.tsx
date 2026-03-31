@@ -34,10 +34,10 @@ export default function MigrationTab({
         <div className="max-w-lg">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <span className="text-sm font-bold text-slate-700">Stage 1 → Stage 2 Migration</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Stage 1 → Stage 2 Migration</span>
               <span className="text-xs text-slate-400 ml-2">% of Stage 1 loans downgraded</span>
             </div>
-            <span className={`text-lg font-bold font-mono ${migrationPct > 0 ? 'text-red-500' : 'text-slate-500'}`}>
+            <span className={`text-lg font-bold font-mono ${migrationPct > 0 ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'}`}>
               {migrationPct}%
             </span>
           </div>
@@ -47,7 +47,7 @@ export default function MigrationTab({
             <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
           </div>
           <div className="mt-3 flex gap-2">
-            <button onClick={() => setMigrationPct(0)} className="px-3 py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition">Reset</button>
+            <button onClick={() => setMigrationPct(0)} className="px-3 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition">Reset</button>
             <button onClick={() => setMigrationPct(5)} className="px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition">Mild (+5%)</button>
             <button onClick={() => setMigrationPct(10)} className="px-3 py-1.5 text-xs font-semibold text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition">Moderate (+10%)</button>
             <button onClick={() => setMigrationPct(20)} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">Severe (+20%)</button>

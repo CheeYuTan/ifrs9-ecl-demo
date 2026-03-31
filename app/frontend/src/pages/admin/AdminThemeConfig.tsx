@@ -129,7 +129,7 @@ export default function AdminThemeConfig() {
           </div>
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <p className="text-sm font-bold" style={{ color: theme.colors.brand }}>Accent Text</p>
-            <p className="text-xs text-slate-500 mt-1">Secondary content</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Secondary content</p>
           </div>
           <div className="p-4 rounded-xl border-2" style={{ borderColor: theme.colors.brand + '40', background: theme.colors.brandLight }}>
             <p className="text-sm font-bold" style={{ color: theme.colors.brandDark }}>Highlight Card</p>

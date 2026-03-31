@@ -28,7 +28,7 @@ function Badge({ variant, children }: { variant: 'green' | 'yellow' | 'red' | 'g
 function Tooltip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex ml-1 cursor-help">
-      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 transition" />
+      <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition" />
       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 text-[10px] leading-tight bg-slate-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none w-52 z-50 text-center">
         {text}
       </span>
@@ -203,7 +203,7 @@ function VisualDataMapper({ config }: { config: AdminConfig }) {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl overflow-hidden border border-slate-100">
+      <div className="glass-card rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-700">
         <svg width="100%" viewBox={`0 0 1000 ${svgHeight}`} className="select-none">
           <defs>
             <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -538,7 +538,7 @@ export default function AdminDataMappings({ config, onChange }: AdminDataMapping
               ) : (
                 <input value={config.data_sources.lakebase_schema} onChange={e => handleSourceChange('lakebase_schema', e.target.value)} className={`${inputCls} flex-1`} />
               )}
-              <button onClick={loadSchemas} disabled={loadingSchemas} className="px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-slate-500 disabled:opacity-40" title="Refresh schemas">
+              <button onClick={loadSchemas} disabled={loadingSchemas} className="px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-slate-500 dark:text-slate-400 disabled:opacity-40" title="Refresh schemas">
                 <RefreshCw size={14} className={loadingSchemas ? 'animate-spin' : ''} />
               </button>
             </div>
@@ -625,7 +625,7 @@ export default function AdminDataMappings({ config, onChange }: AdminDataMapping
                       </div>
                     )}
                     <div className="mb-4 flex items-center gap-3">
-                      <label className="text-xs font-semibold text-slate-500 uppercase whitespace-nowrap">Source Table:</label>
+                      <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Source Table:</label>
                       {lbTableNames.length > 0 ? (
                         <select value={tbl.source_table} onChange={e => handleSourceTableChange(key, e.target.value)}
                           className="form-input flex-1 max-w-xs text-xs font-mono py-1.5">
@@ -688,7 +688,7 @@ export default function AdminDataMappings({ config, onChange }: AdminDataMapping
                         Preview
                       </button>
                       <button onClick={() => loadColumnsForTable(key)} disabled={isLoadingCols}
-                        className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition disabled:opacity-40">
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition disabled:opacity-40">
                         <RefreshCw size={12} className={isLoadingCols ? 'animate-spin' : ''} /> Refresh
                       </button>
                     </div>

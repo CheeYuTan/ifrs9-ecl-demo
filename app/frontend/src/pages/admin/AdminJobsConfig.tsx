@@ -80,7 +80,7 @@ export default function AdminJobsConfig({ config, onChange }: AdminJobsConfigPro
         {jobs.workspace_url && (
           <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>Connected to <span className="font-mono text-slate-600">{jobs.workspace_url.replace('https://', '')}</span></span>
+            <span>Connected to <span className="font-mono text-slate-600 dark:text-slate-300">{jobs.workspace_url.replace('https://', '')}</span></span>
           </div>
         )}
       </Card>
