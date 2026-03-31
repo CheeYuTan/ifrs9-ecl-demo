@@ -1,4 +1,4 @@
-# Sprint 2 Handoff: Workflow Pages Part 1 — Theme Audit (Iteration 3)
+# Sprint 2 Handoff: Workflow Pages Part 1 — Theme Audit (Iteration 4)
 
 ## What Was Built
 
@@ -14,24 +14,30 @@ Audited 8 workflow page .tsx files for dark-mode-only Tailwind CSS violations us
 7. `pages/Overlays.tsx` — CLEAN (all `bg-slate-800/60` properly paired)
 8. `pages/SignOff.tsx` — CLEAN (all `bg-slate-800/60`, `bg-slate-800/40` properly paired)
 
-### Iteration 3 Fixes (SatelliteModel.tsx)
+### Iteration 4 Deep Audit
 
-Fixed 3 locations where light-only base colors (`bg-slate-100`, `bg-slate-50`) lacked dark-mode pairs, causing light gray backgrounds on dark pages:
+Performed comprehensive re-audit of all 8 files across all 16 scanner patterns plus additional contrast analysis:
 
-1. **Line 280** — "Run History" toggle button (inactive state):
-   - Added `dark:bg-slate-800 dark:text-slate-400` to base + `dark:bg-indigo-900/40 dark:text-indigo-300` to active state
+1. **All 16 scanner patterns**: Zero violations confirmed across all 8 files
+2. **Dark-mode text contrast audit**: Verified that `text-slate-600/700/800` classes used throughout these files are handled by global CSS overrides in `index.css` (lines 498-503):
+   - `.dark .text-slate-800 { color: #F1F5F9; }` (remapped to slate-50)
+   - `.dark .text-slate-700 { color: #E2E8F0; }` (remapped to slate-200)
+   - `.dark .text-slate-600 { color: #CBD5E1; }` (remapped to slate-300)
+   - `.dark .text-slate-500 { color: #94A3B8; }` (remapped to slate-400)
 
-2. **Line 315** — Run history list item (inactive state):
-   - Added `dark:bg-slate-800 dark:border-slate-700` to base + `dark:bg-indigo-900/30 dark:border-indigo-700` to active state
+   These global overrides ensure readable contrast on dark backgrounds without needing per-element `dark:text-*` classes.
 
-3. **Line 460** — Product tab button (inactive state):
-   - Added `dark:bg-slate-800 dark:text-slate-400` to base
+3. **Light-mode background overrides**: Verified global overrides handle light-mode backgrounds:
+   - `.dark .bg-slate-100 { background: #1E293B; }`
+   - `.dark .bg-slate-50 { background: #0F172A; }`
+   - `.dark .bg-white { background: #1E293B; }`
 
 ### Prior Iteration Fixes (SatelliteModel.tsx)
 
 - **Iteration 1**: Added `dark:hover:` pairs to 3 hover states (lines 280, 315, 460)
 - **Iteration 2**: Deep audit confirmed 0 violations across all 16 scanner patterns
 - **Iteration 3**: Added dark-mode base state pairs to 3 light-only conditional classes
+- **Iteration 4**: Full re-audit with contrast analysis — confirmed zero remaining issues
 
 ### All 16 Scanner Patterns — Zero Violations
 
@@ -52,17 +58,21 @@ Fixed 3 locations where light-only base colors (`bg-slate-100`, `bg-slate-50`) l
 - `hover:text-slate-[6-8]00` without `dark:hover:` — **zero violations**
 
 ### Files Changed
-- `frontend/src/pages/SatelliteModel.tsx` (3 lines modified in iter 3, 3 lines in iter 1)
+- `frontend/src/pages/SatelliteModel.tsx` (6 lines modified across iterations 1-3)
 - `tests/unit/test_theme_audit_sprint2.py` (new file, 165 lines, created in iter 1)
 - `harness/contracts/sprint-2.md` (new file, created in iter 1)
 
 ## How to Test
 - Start dev server: `cd frontend && npm run dev` (port 5173)
 - Navigate to each page in light mode and dark mode
-- **Key visual check**: SatelliteModel page — toggle "Run History" button, check product tabs in both modes
-- Run Sprint 2 tests: `python -m pytest tests/unit/test_theme_audit_sprint2.py -v`
-- Run Sprint 1 regression: `python -m pytest tests/unit/test_theme_audit_sprint1.py -v`
-- Run full backend suite: `python -m pytest tests/ -v`
+- **Key visual checks**:
+  - SatelliteModel page — toggle "Run History" button, check product tabs in both modes
+  - ModelExecution page — verify scenario tables, comparison panels
+  - Overlays page — check overlay cards, submission form
+  - SignOff page — verify attestation sections, approval workflow
+- Run Sprint 2 tests: `pytest tests/unit/test_theme_audit_sprint2.py -v`
+- Run Sprint 1 regression: `pytest tests/unit/test_theme_audit_sprint1.py -v`
+- Run full backend suite: `pytest tests/ -v`
 - Run frontend tests: `cd frontend && npx vitest run`
 
 ## Test Results
@@ -74,4 +84,5 @@ Fixed 3 locations where light-only base colors (`bg-slate-100`, `bg-slate-50`) l
 
 ## Known Limitations
 - 7 of 8 files were already clean — only SatelliteModel.tsx needed fixes
-- Visual QA was blocked by Chrome DevTools MCP permissions in iterations 1-2; needs browser access for VQA
+- Visual QA was blocked by Chrome DevTools MCP permissions in iterations 1-3; needs browser access for visual verification
+- Dark-mode text contrast is handled globally by CSS overrides in `index.css`, not per-element `dark:text-*` classes
