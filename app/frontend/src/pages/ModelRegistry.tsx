@@ -598,7 +598,7 @@ export default function ModelRegistry() {
       return auc != null ? <span className="font-mono font-semibold">{fmtNumber(auc, 4)}</span> : '—';
     }},
     { key: '_gini', label: 'Gini', align: 'right' as const, format: (_: any, row: ModelRegistryEntry) => {
-      const gini = row.performance_metrics?.gini;
+      const gini = row.performance_metrics?.gini as number | null | undefined;
       return gini != null ? <span className="font-mono font-semibold">{fmtNumber(gini, 4)}</span> : '—';
     }},
     { key: 'created_at', label: 'Created', format: (v: string) => (

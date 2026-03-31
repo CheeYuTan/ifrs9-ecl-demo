@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ChevronUp, ChevronDown, Download, Search } from 'lucide-react';
 
 interface Column {
   key: string;
-  label: string;
+  label: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   format?: (v: any, row: any) => string | React.ReactNode;
   align?: 'left' | 'center' | 'right';
   className?: string;
@@ -11,9 +12,12 @@ interface Column {
 
 interface Props {
   columns: Column[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[];
   pageSize?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onRowClick?: (row: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedRow?: any;
   compact?: boolean;
   exportName?: string;
@@ -25,13 +29,11 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [search, setSearch] = useState('');
 
+  // Reset page when data changes
+  useEffect(() => { setPage(0); }, [data]);
+
   const filtered = search
-    ? data.filter(row =>
-        columns.some(c => {
-          const v = row[c.key];
-          return v != null && String(v).toLowerCase().includes(search.toLowerCase());
-        })
-      )
+    ? data.filter(row => columns.some(c => { const v = row[c.key]; return v != null && String(v).toLowerCase().includes(search.toLowerCase()); }))
     : data;
 
   const sorted = sortKey
@@ -50,11 +52,11 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const py = compact ? 'py-2' : 'py-2.5';
+  const py = compact ? 'py-2' : 'py-3';
 
   const exportCsv = useCallback(() => {
-    const header = columns.map(c => c.label).join(',');
-    const rows = data.map(row =>
+    const header = columns.map(c => typeof c.label === 'string' ? c.label : c.key).join(',');
+    const rows = sorted.map(row =>
       columns.map(c => {
         const v = row[c.key];
         const s = v == null ? '' : (typeof v === 'object' ? JSON.stringify(v) : String(v));
@@ -65,11 +67,9 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `${exportName || 'export'}_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+    a.href = url; a.download = `${exportName || 'export'}_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
     URL.revokeObjectURL(url);
-  }, [columns, data, exportName]);
+  }, [columns, data, sorted, exportName]);
 
   return (
     <div>
@@ -77,31 +77,28 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
         <div className="flex items-center justify-between mb-3 gap-3">
           <div className="relative flex-1 max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-            <input
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(0); }}
-              placeholder="Search..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition"
-            />
+            <label htmlFor={`table-search-${exportName || 'default'}`} className="sr-only">Search table</label>
+            <input id={`table-search-${exportName || 'default'}`} value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search..."
+              className="form-input pl-9 text-xs" />
           </div>
-          <button onClick={exportCsv} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition" title="Export to CSV">
-            <Download size={12} /> CSV
+          <button onClick={exportCsv} aria-label={`Export ${exportName || 'data'} as CSV`}
+            className="btn-secondary text-xs shadow-sm">
+            <Download size={12} /> Export CSV
           </button>
         </div>
       )}
-      <div className="overflow-x-auto rounded-lg border border-slate-100">
+      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-navy text-white">
+            <tr className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
               {columns.map(c => (
-                <th
-                  key={c.key}
-                  onClick={() => toggleSort(c.key)}
-                  className={`${py} px-3 text-[11px] font-semibold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'}`}
-                >
-                  <span className="inline-flex items-center gap-1">
+                <th key={c.key} onClick={() => toggleSort(c.key)}
+                  className={`${py} px-4 text-[10px] font-bold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'}`}
+                  scope="col" aria-sort={sortKey === c.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined}
+                  tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSort(c.key); } }}>
+                  <span className="inline-flex items-center gap-1 opacity-90 hover:opacity-100 transition">
                     {c.label}
-                    {sortKey === c.key && (sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}
+                    {sortKey === c.key && (sortDir === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
                   </span>
                 </th>
               ))}
@@ -109,17 +106,17 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
           </thead>
           <tbody>
             {paged.map((row, ri) => (
-              <tr
-                key={ri}
-                onClick={() => onRowClick?.(row)}
+              <tr key={ri} onClick={() => onRowClick?.(row)}
+                role="row"
+                tabIndex={onRowClick ? 0 : undefined}
+                onKeyDown={onRowClick ? (e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(row); } }) : undefined}
                 className={`border-b border-slate-50 transition-colors ${
-                  onRowClick ? 'cursor-pointer hover:bg-blue-50' : ''
-                } ${ri % 2 === 1 ? 'bg-slate-50/50' : ''} ${
-                  selectedRow && JSON.stringify(selectedRow) === JSON.stringify(row) ? 'bg-blue-50 ring-1 ring-blue-200' : ''
-                }`}
-              >
+                  onRowClick ? 'cursor-pointer hover:bg-brand/5' : 'hover:bg-slate-50/80'
+                } ${ri % 2 === 1 ? 'bg-slate-50/40 dark:bg-white/[0.02]' : 'bg-white dark:bg-transparent'} ${
+                  selectedRow && JSON.stringify(selectedRow) === JSON.stringify(row) ? 'bg-brand/8 ring-1 ring-brand/20' : ''
+                }`}>
                 {columns.map(c => (
-                  <td key={c.key} className={`${py} px-3 ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'} ${c.className || ''}`}>
+                  <td key={c.key} className={`${py} px-4 ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'} ${c.className || ''}`}>
                     {c.format ? c.format(row[c.key], row) : row[c.key]}
                   </td>
                 ))}
@@ -132,9 +129,11 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
         <div className="flex items-center justify-between mt-3 text-xs text-slate-400">
           <span>{sorted.length} rows</span>
           <div className="flex gap-1">
-            <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-40">Prev</button>
-            <span className="px-2 py-1">{page + 1} / {totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-40">Next</button>
+            <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} aria-label="Previous page"
+              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition shadow-sm focus-visible:ring-2 focus-visible:ring-brand">Prev</button>
+            <span className="px-3 py-1.5 font-semibold text-slate-600" aria-live="polite">Page {page + 1} of {totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} aria-label="Next page"
+              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition shadow-sm focus-visible:ring-2 focus-visible:ring-brand">Next</button>
           </div>
         </div>
       )}

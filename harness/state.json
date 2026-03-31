@@ -44,12 +44,11 @@
     "Loading states"
   ],
   "frontend_build": "SUCCESS",
-  "current_iteration": 3,
+  "current_iteration": 4,
   "test_results": {
-    "passed": 927,
-    "skipped": 61,
-    "failed": 0,
-    "duration": "71.77s"
+    "backend": {"passed": 927, "skipped": 61, "failed": 0, "duration": "72.93s"},
+    "frontend": {"passed": 103, "failed": 0, "duration": "1.74s"}
   },
-  "last_updated": "2026-03-31T11:15:00"
+  "frontend_build": "SUCCESS",
+  "last_updated": "2026-03-31T11:05:00"
 }
