@@ -1,5 +1,5 @@
 """
-Sprint 1 Theme Audit — Regression Tests
+Sprint 1 Theme Audit — Regression Tests (Iteration 4)
 
 Verify that the 19 Sprint 1 .tsx files have no dark-mode-only Tailwind CSS
 violations.  Each test reads the file source and checks for patterns that
@@ -14,6 +14,20 @@ Known exceptions (intentionally always-dark):
   - HelpTooltip arrows: border-[dir]-slate-800 (paired with dark: variant)
   - text-white inside hero gradient or brand-colored buttons/badges
   - Classes already paired with a dark: prefix on the same element
+
+Scanner inventory (12 total):
+  1. bg-slate-[6-9]00 without dark:
+  2. bg-white/N without light pair
+  3. border-white/N without light pair
+  4. text-white/N without light pair
+  5. hover:bg-white/N without dark:hover:
+  6. hover:bg-slate-[6-9]00 without dark:hover:
+  7. from-slate-[78]00 without dark:
+  8. bg-[#0B0F1A] without dark:
+  9. border-[tblr]-slate-800 without dark:
+  10. to-slate-[6-9]00 without dark: (gradient endpoint)
+  11. via-slate-[6-9]00 without dark: (gradient midpoint)
+  12. focus:bg-slate-[6-9]00 without dark:focus:
 """
 import os
 import re
@@ -291,6 +305,57 @@ def find_bare_bg_hex(relpath: str) -> list[str]:
     return violations
 
 
+def find_bare_to_slate_dark(relpath: str) -> list[str]:
+    """Find to-slate-[6-9]00 (gradient endpoint) without dark: prefix."""
+    violations = []
+    pat = re.compile(r'to-slate-[6-9]00')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:to-slate-" not in line:
+                violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_via_slate_dark(relpath: str) -> list[str]:
+    """Find via-slate-[6-9]00 (gradient midpoint) without dark: prefix."""
+    violations = []
+    pat = re.compile(r'via-slate-[6-9]00')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:via-slate-" not in line:
+                violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
+def find_bare_focus_bg_slate_dark(relpath: str) -> list[str]:
+    """Find focus:bg-slate-[6-9]00 without dark:focus: pair."""
+    violations = []
+    pat = re.compile(r'focus:bg-slate-[6-9]00')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:focus:bg-slate-" not in line:
+                violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
 # ── Tests ────────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
@@ -356,6 +421,27 @@ def test_no_bare_border_dir_slate(relpath):
     assert violations == [], f"Bare border-dir-slate violations:\n" + "\n".join(violations)
 
 
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_to_slate_dark(relpath):
+    """No to-slate-[6-9]00 gradient endpoint without dark: prefix."""
+    violations = find_bare_to_slate_dark(relpath)
+    assert violations == [], f"Bare to-slate violations:\n" + "\n".join(violations)
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_via_slate_dark(relpath):
+    """No via-slate-[6-9]00 gradient midpoint without dark: prefix."""
+    violations = find_bare_via_slate_dark(relpath)
+    assert violations == [], f"Bare via-slate violations:\n" + "\n".join(violations)
+
+
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_focus_bg_slate_dark(relpath):
+    """No focus:bg-slate-[6-9]00 without dark:focus: pair."""
+    violations = find_bare_focus_bg_slate_dark(relpath)
+    assert violations == [], f"Bare focus:bg-slate violations:\n" + "\n".join(violations)
+
+
 # ── Specific regression tests for iteration 1 fixes ─────────────────────
 
 def test_error_boundary_button_has_light_dark():
@@ -380,6 +466,103 @@ def test_help_tooltip_arrows_have_dark_variants():
     assert "dark:border-b-slate-700" in content
     assert "dark:border-l-slate-700" in content
     assert "dark:border-r-slate-700" in content
+
+
+# ── CSS dark override dependency tests ────────────────────────────────────
+
+INDEX_CSS_PATH = os.path.join(FRONTEND_SRC, "index.css")
+
+
+def _read_css() -> str:
+    with open(INDEX_CSS_PATH) as f:
+        return f.read()
+
+
+# Classes used in Sprint 1 files that rely on CSS overrides (no explicit dark: prefix).
+# If these CSS overrides are removed, the files will break in dark mode.
+CSS_OVERRIDE_DEPENDENCIES = [
+    (".dark .bg-white", "bg-white → dark bg override"),
+    (".dark .bg-slate-50", "bg-slate-50 → dark bg override"),
+    (".dark .bg-slate-100", "bg-slate-100 → dark bg override"),
+    (".dark .border-slate-100", "border-slate-100 → dark border override"),
+    (".dark .border-slate-200", "border-slate-200 → dark border override"),
+    (".dark .text-slate-800", "text-slate-800 → dark text override"),
+    (".dark .text-slate-700", "text-slate-700 → dark text override"),
+    (".dark .text-slate-600", "text-slate-600 → dark text override"),
+    (".dark .text-slate-500", "text-slate-500 → dark text override"),
+    (".dark .text-slate-400", "text-slate-400 → dark text override"),
+    (".dark .text-slate-300", "text-slate-300 → dark text override"),
+]
+
+
+@pytest.mark.parametrize("css_selector,description", CSS_OVERRIDE_DEPENDENCIES)
+def test_css_dark_override_exists(css_selector, description):
+    """Verify that CSS dark overrides Sprint 1 files depend on still exist."""
+    css = _read_css()
+    assert css_selector in css, (
+        f"Missing CSS dark override: {css_selector} ({description}). "
+        f"Sprint 1 files rely on this for dark mode."
+    )
+
+
+# ── Structural consistency tests ──────────────────────────────────────────
+
+BREADCRUMB_FILES = [
+    "components/ThreeLevelDrillDown.tsx",
+    "components/DrillDownChart.tsx",
+    "components/ScenarioProductBarChart.tsx",
+]
+
+
+def test_breadcrumb_chevrons_consistent_color():
+    """All breadcrumb chevron icons should use the same text color class."""
+    colors = {}
+    pat = re.compile(r'ChevronRight.*?className="([^"]*)"')
+    for relpath in BREADCRUMB_FILES:
+        content = _read(relpath)
+        m = pat.search(content)
+        if m:
+            colors[relpath] = m.group(1)
+    values = list(colors.values())
+    if len(values) > 1:
+        assert all(v == values[0] for v in values), (
+            f"Inconsistent chevron colors across breadcrumb components: {colors}"
+        )
+
+
+CARD_HEADER_FILES = [
+    "components/Card.tsx",
+    "components/CollapsibleSection.tsx",
+    "components/ChartTooltip.tsx",
+    "components/ConfirmDialog.tsx",
+]
+
+
+def test_card_headers_use_dark_text_pair():
+    """Card/section headers using text-slate-700 must have dark:text-slate-200."""
+    for relpath in CARD_HEADER_FILES:
+        content = _read(relpath)
+        if "text-slate-700" in content:
+            assert "dark:text-slate-200" in content, (
+                f"{relpath}: uses text-slate-700 but missing dark:text-slate-200 pair"
+            )
+
+
+def test_datatable_gradient_has_light_dark_pair():
+    """DataTable header gradient must have both light and dark gradient classes."""
+    content = _read("components/DataTable.tsx")
+    assert "from-slate-100" in content or "from-gray-100" in content, (
+        "DataTable missing light gradient (from-slate-100 or from-gray-100)"
+    )
+    assert "dark:from-slate-800" in content, "DataTable missing dark:from-slate-800"
+    assert "dark:to-slate-700" in content, "DataTable missing dark:to-slate-700"
+
+
+def test_locked_banner_text_has_dark_pair():
+    """LockedBanner heading text must have dark:text-slate-300."""
+    content = _read("components/LockedBanner.tsx")
+    assert "text-slate-600" in content, "LockedBanner missing text-slate-600"
+    assert "dark:text-slate-300" in content, "LockedBanner missing dark:text-slate-300"
 
 
 # ── File existence test ──────────────────────────────────────────────────
