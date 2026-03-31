@@ -6,8 +6,8 @@
   "remaining_spec_items": [],
   "dev_server_command": "echo 'Server already running on port 8000'",
   "dev_server_port": 8000,
-  "bugs_found": 0,
-  "bugs_fixed": 0,
+  "bugs_found": 32,
+  "bugs_fixed": 22,
   "pages_tested": [
     "CreateProject",
     "DataProcessing",
@@ -44,11 +44,20 @@
     "Loading states"
   ],
   "frontend_build": "SUCCESS",
-  "current_iteration": 4,
+  "current_iteration": 5,
   "test_results": {
-    "backend": {"passed": 927, "skipped": 61, "failed": 0, "duration": "72.93s"},
-    "frontend": {"passed": 103, "failed": 0, "duration": "1.74s"}
+    "backend": {
+      "passed": 927,
+      "skipped": 61,
+      "failed": 0,
+      "duration": "72.93s",
+      "note": "from iteration 4; venv needs pip install to restore pytest"
+    },
+    "frontend": {
+      "passed": 103,
+      "failed": 0,
+      "duration": "2.17s"
+    }
   },
-  "frontend_build": "SUCCESS",
-  "last_updated": "2026-03-31T11:05:00"
+  "last_updated": "2026-03-31T11:13:00"
 }

@@ -175,7 +175,7 @@ export default function StressTesting({ project, onApprove, onReject }: Props) {
       n_sims: Number(d.n_simulations) || 0,
       spread: (Number(d.ecl_p95) || 0) - (Number(d.ecl_p50) || 0),
     })).sort((a, b) => b.weight - a.weight);
-  }, [mcDist]);
+  }, [mcDist, SCENARIO_LABELS]);
 
   const stepSt = project?.step_status?.stress_testing || 'pending';
 
