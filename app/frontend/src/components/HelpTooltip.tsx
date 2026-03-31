@@ -53,10 +53,10 @@ export default function HelpTooltip({
   };
 
   const arrowClasses: Record<string, string> = {
-    top: 'top-full left-1/2 -translate-x-1/2 border-t-slate-800 border-x-transparent border-b-transparent',
-    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-slate-800 border-x-transparent border-t-transparent',
-    left: 'left-full top-1/2 -translate-y-1/2 border-l-slate-800 border-y-transparent border-r-transparent',
-    right: 'right-full top-1/2 -translate-y-1/2 border-r-slate-800 border-y-transparent border-l-transparent',
+    top: 'top-full left-1/2 -translate-x-1/2 border-t-slate-800 dark:border-t-slate-700 border-x-transparent border-b-transparent',
+    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-slate-800 dark:border-b-slate-700 border-x-transparent border-t-transparent',
+    left: 'left-full top-1/2 -translate-y-1/2 border-l-slate-800 dark:border-l-slate-700 border-y-transparent border-r-transparent',
+    right: 'right-full top-1/2 -translate-y-1/2 border-r-slate-800 dark:border-r-slate-700 border-y-transparent border-l-transparent',
   };
 
   const originMap: Record<string, string> = {
@@ -102,7 +102,7 @@ export default function HelpTooltip({
             style={{ transformOrigin: originMap[adjustedPos] }}
             className={`absolute z-50 ${positionClasses[adjustedPos]} w-72 max-w-[90vw]`}
           >
-            <div className="relative bg-slate-800 text-white rounded-xl shadow-xl px-4 py-3">
+            <div className="relative bg-slate-800 dark:bg-slate-700 text-white rounded-xl shadow-xl px-4 py-3">
               <button
                 onClick={(e) => { e.stopPropagation(); setOpen(false); }}
                 aria-label="Close"

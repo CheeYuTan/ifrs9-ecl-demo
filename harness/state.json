@@ -1,63 +1,35 @@
 {
   "status": "IN_PROGRESS",
   "current_phase": "BUILD_AGENT",
-  "quality_target": 9.0,
+  "quality_target": 9.5,
   "current_sprint": 1,
-  "remaining_spec_items": [],
+  "remaining_spec_items": ["Sprint 2: Workflow Pages Part 1", "Sprint 3: Workflow Pages Part 2 + Admin", "Sprint 4: Data Mapping Module", "Sprint 5: Admin Sub-pages + Stress Testing Tabs", "Sprint 6: Remaining Components + SetupWizard", "Sprint 7: Final Regression + Visual Verification"],
   "dev_server_command": "echo 'Server already running on port 8000'",
   "dev_server_port": 8000,
   "bugs_found": 32,
-  "bugs_fixed": 22,
-  "pages_tested": [
-    "CreateProject",
-    "DataProcessing",
-    "DataControl",
-    "SatelliteModel",
-    "ModelExecution",
-    "StressTesting",
-    "Overlays",
-    "SignOff",
-    "DataMapping",
-    "Admin",
-    "ModelRegistry",
-    "Backtesting",
-    "HazardModels",
-    "MarkovChains",
-    "GLJournals",
-    "RegulatoryReports",
-    "ApprovalWorkflow",
-    "AdvancedFeatures",
-    "Attribution"
-  ],
-  "components_tested": [
-    "SimulationPanel (dual buttons: Run In-App + Run as Databricks Job)",
-    "DataTable (sorting, filtering, pagination, CSV export)",
-    "DrillDownChart",
-    "ThreeLevelDrillDown",
-    "ScenarioProductBarChart",
-    "Sidebar navigation",
-    "Workflow tabs (0-7)",
-    "Form inputs, sliders, dropdowns, checkboxes",
-    "Modal dialogs",
-    "Collapsible sections",
-    "Dark mode theming",
-    "Loading states"
-  ],
+  "bugs_fixed": 25,
+  "pages_tested": [],
+  "components_tested": [],
   "frontend_build": "SUCCESS",
-  "current_iteration": 5,
+  "current_iteration": 1,
   "test_results": {
     "backend": {
-      "passed": 927,
+      "passed": 1038,
       "skipped": 61,
       "failed": 0,
-      "duration": "72.93s",
-      "note": "from iteration 4; venv needs pip install to restore pytest"
+      "duration": "74.17s"
     },
     "frontend": {
       "passed": 103,
       "failed": 0,
-      "duration": "2.17s"
+      "duration": "2.54s"
     }
   },
-  "last_updated": "2026-03-31T11:13:00"
+  "last_updated": "2026-03-31T18:10:00",
+  "sprints_completed": [],
+  "feature_sprints_since_doc_sprint": 0,
+  "score_trajectory": [],
+  "last_action": "Sprint 1 Build Agent complete. 3 violations fixed + 1 test bug fixed. Awaiting Visual QA.",
+  "min_iterations_before_debt": 4,
+  "max_iterations": 5
 }
