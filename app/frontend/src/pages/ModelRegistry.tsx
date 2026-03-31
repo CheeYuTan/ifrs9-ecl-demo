@@ -25,7 +25,7 @@ import { fmtPct, fmtDateTime, fmtNumber } from '../lib/format';
 const MODEL_TYPES = ['PD', 'LGD', 'EAD', 'Staging'] as const;
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  draft:          { label: 'Draft',          color: 'text-slate-600',   bg: 'bg-slate-50 border-slate-200',    icon: FileText },
+  draft:          { label: 'Draft',          color: 'text-slate-600 dark:text-slate-400',   bg: 'bg-slate-50 border-slate-200',    icon: FileText },
   pending_review: { label: 'Pending Review', color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',    icon: Clock },
   approved:       { label: 'Approved',       color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-200',      icon: CheckCircle2 },
   active:         { label: 'Active',         color: 'text-emerald-700',bg: 'bg-emerald-50 border-emerald-200', icon: Activity },
@@ -199,7 +199,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
             <Box size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">{model.model_name}</h3>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-white">{model.model_name}</h3>
             <p className="text-[10px] text-slate-400">v{model.version} &middot; {model.model_type} &middot; {model.algorithm}</p>
           </div>
         </div>
@@ -215,27 +215,27 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
         {model.description && (
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Description</p>
-            <p className="text-sm text-slate-600">{model.description}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">{model.description}</p>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Product</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{model.product_type || '—'}</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.product_type || '—'}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Created By</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{model.created_by}</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.created_by}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Created</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{fmtDateTime(model.created_at)}</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{fmtDateTime(model.created_at)}</p>
           </div>
           {model.approved_by && (
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
               <p className="text-[10px] font-bold text-slate-400 uppercase">Approved By</p>
-              <p className="text-sm font-semibold text-slate-700 mt-0.5">{model.approved_by}</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.approved_by}</p>
             </div>
           )}
         </div>
@@ -245,9 +245,9 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Performance Metrics</p>
             <div className="grid grid-cols-3 gap-2">
               {metricEntries.map(([key, val]) => (
-                <div key={key} className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-white border border-blue-100/50 text-center">
+                <div key={key} className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/40 dark:to-slate-800/60 border border-blue-100/50 dark:border-blue-900/30 text-center">
                   <p className="text-[10px] font-bold text-blue-400 uppercase">{key.replace(/_/g, ' ')}</p>
-                  <p className="text-lg font-extrabold text-slate-800 mt-0.5">
+                  <p className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">
                     {typeof val === 'number' ? (val < 1 && val > 0 ? fmtPct(val * 100, 1) : fmtNumber(val, 4)) : String(val)}
                   </p>
                 </div>
@@ -275,7 +275,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
         )}
 
         {(actions.length > 0 || (model.status === 'approved' || model.status === 'active') && !model.is_champion) && (
-          <div className="border-t border-slate-100 pt-5">
+          <div className="border-t border-slate-100 dark:border-slate-700 pt-5">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Actions</p>
             <label htmlFor="model-action-comment" className="sr-only">Action comment</label>
             <textarea id="model-action-comment" value={comment} onChange={e => setComment(e.target.value)}
@@ -301,7 +301,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
           </div>
         )}
 
-        <div className="border-t border-slate-100 pt-5">
+        <div className="border-t border-slate-100 dark:border-slate-700 pt-5">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Audit Trail</p>
           {audit.length === 0 ? (
             <p className="text-xs text-slate-400 italic">No audit entries yet</p>
@@ -310,13 +310,13 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
               {audit.map(a => (
                 <div key={a.audit_id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
                       <User size={12} className="text-slate-400" />
                     </div>
-                    <div className="w-px flex-1 bg-slate-100 mt-1" />
+                    <div className="w-px flex-1 bg-slate-100 dark:bg-slate-700 mt-1" />
                   </div>
                   <div className="pb-3 min-w-0">
-                    <p className="text-xs font-semibold text-slate-700">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {a.action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                     </p>
                     <p className="text-[10px] text-slate-400 mt-0.5">
@@ -372,10 +372,10 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Metrics Comparison</p>
-          <div className="overflow-x-auto rounded-xl border border-slate-100">
+          <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-slate-50">
+                <tr className="bg-slate-50 dark:bg-slate-800/60">
                   <th className="px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase">Metric</th>
                   {models.map((m, i) => (
                     <th key={m.model_id} className="px-3 py-2 text-right text-[10px] font-bold uppercase" style={{ color: COLORS[i] }}>
@@ -390,12 +390,12 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
                   const numVals = vals.filter(v => typeof v === 'number') as number[];
                   const bestVal = key === 'rmse' ? Math.min(...numVals) : Math.max(...numVals);
                   return (
-                    <tr key={key} className="border-t border-slate-50">
-                      <td className="px-3 py-2 font-semibold text-slate-600">{key.replace(/_/g, ' ').toUpperCase()}</td>
+                    <tr key={key} className="border-t border-slate-100 dark:border-slate-700">
+                      <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{key.replace(/_/g, ' ').toUpperCase()}</td>
                       {vals.map((v, i) => {
                         const isBest = typeof v === 'number' && v === bestVal && numVals.length > 1;
                         return (
-                          <td key={i} className={`px-3 py-2 text-right font-mono ${isBest ? 'font-bold text-emerald-600' : 'text-slate-600'}`}>
+                          <td key={i} className={`px-3 py-2 text-right font-mono ${isBest ? 'font-bold text-emerald-600' : 'text-slate-600 dark:text-slate-300'}`}>
                             {typeof v === 'number' ? fmtNumber(v, 4) : '—'}
                             {isBest && <Star size={10} className="inline ml-1 text-emerald-500" />}
                           </td>
@@ -432,14 +432,14 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
         {models.map((m, i) => (
-          <div key={m.model_id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+          <div key={m.model_id} className="p-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
-              <span className="text-xs font-bold text-slate-700">{m.model_name} v{m.version}</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{m.model_name} v{m.version}</span>
             </div>
             <div className="space-y-1 text-[10px] text-slate-500">
-              <p>Type: <span className="font-semibold text-slate-600">{m.model_type}</span></p>
-              <p>Algorithm: <span className="font-semibold text-slate-600">{m.algorithm}</span></p>
+              <p>Type: <span className="font-semibold text-slate-600 dark:text-slate-300">{m.model_type}</span></p>
+              <p>Algorithm: <span className="font-semibold text-slate-600 dark:text-slate-300">{m.algorithm}</span></p>
               <p>Status: <ModelStatusBadge status={m.status} /></p>
               {m.is_champion && <ChampionBadge />}
             </div>
@@ -584,12 +584,12 @@ export default function ModelRegistry() {
     },
     { key: 'model_name', label: 'Model Name', format: (v: string, row: ModelRegistryEntry) => (
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-slate-700">{v}</span>
+        <span className="font-semibold text-slate-700 dark:text-slate-200">{v}</span>
         {row.is_champion && <ChampionBadge />}
       </div>
     )},
     { key: 'model_type', label: 'Type', format: (v: string) => (
-      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">{v}</span>
+      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
     )},
     { key: 'version', label: 'Version', align: 'center' as const, format: (v: number) => `v${v}` },
     { key: 'algorithm', label: 'Algorithm' },
@@ -655,14 +655,14 @@ export default function ModelRegistry() {
               <label className="sr-only" htmlFor="model-filter-type">Filter by model type</label>
               <select id="model-filter-type" value={filterType} onChange={e => setFilterType(e.target.value)}
                 onClick={e => e.stopPropagation()}
-                className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 focus:ring-1 focus:ring-brand/20">
+                className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-brand/20">
                 <option value="">All Types</option>
                 {MODEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
               <label className="sr-only" htmlFor="model-filter-status">Filter by status</label>
               <select id="model-filter-status" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
                 onClick={e => e.stopPropagation()}
-                className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 focus:ring-1 focus:ring-brand/20">
+                className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-brand/20">
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>

@@ -114,7 +114,7 @@ function CreateRequestModal({ users, onSubmit, onClose }: CreateRequestModalProp
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
         className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
-          <h3 className="text-sm font-bold text-slate-700">New Approval Request</h3>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">New Approval Request</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={16} className="text-slate-400" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -215,7 +215,7 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
         className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div>
-            <h3 className="text-sm font-bold text-slate-700">Approval Request</h3>
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Approval Request</h3>
             <p className="text-[10px] text-slate-400 font-mono mt-0.5">{request.request_id}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={16} className="text-slate-400" /></button>
@@ -232,7 +232,7 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Entity</p>
-              <p className="text-xs font-semibold text-slate-700">{request.entity_id}</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.entity_id}</p>
               {request.entity_type && <p className="text-[10px] text-slate-400">{request.entity_type}</p>}
             </div>
             <div>
@@ -241,25 +241,25 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Requested By</p>
-              <p className="text-xs font-semibold text-slate-700">{request.requested_by_name || request.requested_by}</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.requested_by_name || request.requested_by}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Assigned To</p>
-              <p className="text-xs font-semibold text-slate-700">{request.assigned_to_name || request.assigned_to || '—'}</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.assigned_to_name || request.assigned_to || '—'}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Created</p>
-              <p className="text-xs text-slate-600">{fmtDateTime(request.created_at)}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{fmtDateTime(request.created_at)}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Due Date</p>
-              <p className="text-xs text-slate-600">{request.due_date || '—'}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{request.due_date || '—'}</p>
             </div>
           </div>
           {request.comments && (
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Comments</p>
-              <p className="text-xs text-slate-600 bg-slate-50 rounded-xl p-3">{request.comments}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">{request.comments}</p>
             </div>
           )}
           {request.status === 'approved' && request.approved_by_name && (
@@ -275,7 +275,7 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
             </div>
           )}
           {request.status === 'pending' && (
-            <div className="border-t border-slate-100 pt-4 space-y-3">
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Action By</label>
                 <select value={actionUser} onChange={e => setActionUser(e.target.value)} className="form-input text-xs w-full">
@@ -409,17 +409,17 @@ export default function ApprovalWorkflow() {
     { key: 'request_type', label: 'Type', format: (v: string) => <TypeBadge type={v} /> },
     { key: 'entity_id', label: 'Entity', format: (v: string, row: any) => (
       <div>
-        <p className="font-semibold text-slate-700">{v}</p>
+        <p className="font-semibold text-slate-700 dark:text-slate-300">{v}</p>
         {row.entity_type && <p className="text-[10px] text-slate-400">{row.entity_type}</p>}
       </div>
     )},
-    { key: 'requested_by_name', label: 'Requested By', format: (v: string) => <span className="text-slate-600">{v || '—'}</span> },
-    { key: 'assigned_to_name', label: 'Assigned To', format: (v: string) => <span className="text-slate-600">{v || '—'}</span> },
+    { key: 'requested_by_name', label: 'Requested By', format: (v: string) => <span className="text-slate-600 dark:text-slate-400">{v || '—'}</span> },
+    { key: 'assigned_to_name', label: 'Assigned To', format: (v: string) => <span className="text-slate-600 dark:text-slate-400">{v || '—'}</span> },
     { key: 'priority', label: 'Priority', format: (v: string) => <PriorityBadge priority={v} /> },
     { key: 'due_date', label: 'Due Date', format: (v: string) => {
       if (!v) return <span className="text-slate-300">—</span>;
       const isOverdue = new Date(v) < new Date();
-      return <span className={`text-xs ${isOverdue ? 'text-red-600 font-bold' : 'text-slate-600'}`}>{v}</span>;
+      return <span className={`text-xs ${isOverdue ? 'text-red-600 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>{v}</span>;
     }},
     { key: 'created_at', label: 'Created', format: (v: string) => <span className="text-slate-500 text-[11px]">{fmtDateTime(v)}</span> },
     { key: '_actions', label: '', format: (_: any, row: ApprovalRequest) => (
@@ -444,11 +444,11 @@ export default function ApprovalWorkflow() {
   const userColumns = [
     { key: 'display_name', label: 'Name', format: (v: string, row: RbacUser) => (
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 font-bold text-xs">
           {v.split(' ').map(n => n[0]).join('')}
         </div>
         <div>
-          <p className="font-semibold text-slate-700">{v}</p>
+          <p className="font-semibold text-slate-700 dark:text-slate-300">{v}</p>
           <p className="text-[10px] text-slate-400">{row.email}</p>
         </div>
       </div>
@@ -475,7 +475,7 @@ export default function ApprovalWorkflow() {
       </PageHeader>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`flex-1 px-4 py-2 rounded-lg text-xs font-semibold transition ${
@@ -517,7 +517,7 @@ export default function ApprovalWorkflow() {
                               <TypeBadge type={req.request_type} />
                               <PriorityBadge priority={req.priority} />
                             </div>
-                            <p className="text-xs font-semibold text-slate-700 truncate">{req.entity_id}</p>
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{req.entity_id}</p>
                             <p className="text-[10px] text-slate-400">by {req.requested_by_name || req.requested_by}</p>
                           </div>
                           <ChevronRight size={14} className="text-slate-300 group-hover:text-brand transition" />
@@ -530,12 +530,12 @@ export default function ApprovalWorkflow() {
                 <Card title="User Directory" subtitle="Team roles and permissions" icon={<Users size={16} />} accent="blue">
                   <div className="space-y-2">
                     {users.map(user => (
-                      <div key={user.user_id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 font-bold text-xs">
+                      <div key={user.user_id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/40">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-xs">
                           {user.display_name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-700">{user.display_name}</p>
+                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{user.display_name}</p>
                           <p className="text-[10px] text-slate-400">{user.department}</p>
                         </div>
                         <RoleBadge role={user.role} />
@@ -556,7 +556,7 @@ export default function ApprovalWorkflow() {
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${cfg.bg} ${cfg.color} mb-3`}>
                           <Icon size={12} /> {cfg.label}
                         </div>
-                        <p className="text-2xl font-extrabold text-slate-800">{items.length}</p>
+                        <p className="text-2xl font-extrabold text-slate-800 dark:text-white">{items.length}</p>
                         <p className="text-[10px] text-slate-400 mt-1">
                           {items.filter(a => a.priority === 'urgent').length} urgent
                         </p>
@@ -634,7 +634,7 @@ export default function ApprovalWorkflow() {
                         'manage_users', 'manage_config',
                       ].map((perm, i) => (
                         <tr key={perm} className={i % 2 === 1 ? 'bg-slate-50/40 dark:bg-white/[0.02]' : ''}>
-                          <td className="py-2 px-4 font-medium text-slate-700">{perm.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
+                          <td className="py-2 px-4 font-medium text-slate-700 dark:text-slate-300">{perm.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
                           {['analyst', 'reviewer', 'approver', 'admin'].map(role => {
                             const perms: Record<string, Set<string>> = {
                               analyst: new Set(['create_models', 'run_backtests', 'generate_journals', 'create_overlays', 'view_portfolio', 'view_reports']),
@@ -648,7 +648,7 @@ export default function ApprovalWorkflow() {
                                 {has ? (
                                   <CheckCircle2 size={14} className="text-emerald-500 mx-auto" />
                                 ) : (
-                                  <XCircle size={14} className="text-slate-200 mx-auto" />
+                                  <XCircle size={14} className="text-slate-300 dark:text-slate-600 mx-auto" />
                                 )}
                               </td>
                             );
