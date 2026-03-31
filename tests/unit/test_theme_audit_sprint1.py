@@ -1,5 +1,5 @@
 """
-Sprint 1 Theme Audit — Regression Tests (Iteration 4)
+Sprint 1 Theme Audit — Regression Tests (Iteration 5)
 
 Verify that the 19 Sprint 1 .tsx files have no dark-mode-only Tailwind CSS
 violations.  Each test reads the file source and checks for patterns that
@@ -15,7 +15,7 @@ Known exceptions (intentionally always-dark):
   - text-white inside hero gradient or brand-colored buttons/badges
   - Classes already paired with a dark: prefix on the same element
 
-Scanner inventory (13 total):
+Scanner inventory (14 total):
   1. bg-slate-[6-9]00 without dark:
   2. bg-white/N without light pair
   3. border-white/N without light pair
@@ -29,6 +29,7 @@ Scanner inventory (13 total):
   11. via-slate-[6-9]00 without dark: (gradient midpoint)
   12. focus:bg-slate-[6-9]00 without dark:focus:
   13. hover:bg-slate-50|100/N without dark:hover: (CSS overrides miss opacity)
+  14. CSS scrollbar rgba(255,255,255) without .dark scope
 """
 import os
 import re
@@ -379,6 +380,25 @@ def find_bare_hover_bg_slate_light_opacity(relpath: str) -> list[str]:
     return violations
 
 
+def find_css_scrollbar_theme_issues() -> list[str]:
+    """Find CSS scrollbar styles using rgba(255,255,255) not scoped under .dark.
+
+    Scrollbar thumb/track with white rgba are invisible on light backgrounds.
+    They must be scoped under .dark, with a base rule using dark rgba for light mode.
+    """
+    css = _read_css()
+    violations = []
+    for lineno, line in enumerate(css.splitlines(), start=1):
+        stripped = line.strip()
+        if 'scrollbar' not in stripped or 'rgba(255,255,255' not in stripped:
+            continue
+        # If the line itself contains .dark, it's properly scoped
+        if '.dark' in stripped:
+            continue
+        violations.append(f"index.css:{lineno}: {stripped}")
+    return violations
+
+
 # ── Tests ────────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
@@ -475,6 +495,19 @@ def test_no_bare_hover_bg_slate_light_opacity(relpath):
     )
 
 
+def test_no_css_scrollbar_white_without_dark_scope():
+    """No scrollbar styles using rgba(255,255,255) outside .dark scope.
+
+    White-rgba scrollbar thumbs are invisible on light backgrounds (white-on-white).
+    Base styles should use dark rgba; .dark scope should use white rgba.
+    """
+    violations = find_css_scrollbar_theme_issues()
+    assert violations == [], (
+        f"CSS scrollbar styles with white rgba not scoped under .dark:\n"
+        + "\n".join(violations)
+    )
+
+
 # ── Specific regression tests for iteration 1 fixes ─────────────────────
 
 def test_error_boundary_button_has_light_dark():
@@ -511,6 +544,22 @@ def test_datatable_hover_row_has_dark_pair():
     content = _read("components/DataTable.tsx")
     assert "dark:hover:bg-white/[0.04]" in content, (
         "DataTable missing dark:hover:bg-white/[0.04] pair for row hover"
+    )
+
+
+def test_sidebar_scrollbar_has_light_dark_css():
+    """Regression: Sidebar scrollbar must have distinct light and dark thumb colors.
+
+    BUG: Sidebar scrollbar-thumb used rgba(255,255,255,0.08) without .dark scope,
+    making it invisible on the white sidebar background in light mode.
+    Fix: Base uses dark rgba (rgba(0,0,0,0.12)), .dark override uses white rgba.
+    """
+    css = _read_css()
+    # Base (light mode) scrollbar should use dark-colored thumb
+    assert "sidebar-scrollbar" in css, "sidebar-scrollbar class missing from CSS"
+    assert ".dark .sidebar-scrollbar" in css, (
+        "Missing .dark .sidebar-scrollbar override — "
+        "scrollbar thumb will be invisible in light mode"
     )
 
 
