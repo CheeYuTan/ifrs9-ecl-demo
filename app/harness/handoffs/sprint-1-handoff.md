@@ -1,21 +1,18 @@
-# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 4)
+# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 5 — Final)
 
 ## What Was Built
 
-### Iteration 4: Robust test discovery for evaluator
-Added `app/pyproject.toml` with `testpaths = ["tests"]` so pytest discovers all tests regardless of invocation method (`pytest`, `python -m pytest`, from app/ or project root). This resolves the evaluator's "0 tests collected" issue from earlier attempts.
+Systematic theme audit and remediation of 19 core layout and shared component files. Every file now has proper light+dark mode Tailwind CSS classes, with zero bare dark-only violations.
 
-### Prior Iterations
+### Summary Across All Iterations
 
-**Iteration 3**: Fixed 3 test collection errors (`test_api.py`, `test_ecl_engine.py`, `test_models.py`) when running from `app/` directory. Updated `app/conftest.py` to re-export `PRODUCT_TYPES`, `MODEL_KEYS`, `SCENARIOS`.
-
-**Iteration 2**: Created `app/tests` symlink → `../tests` so test paths work from `app/` directory.
-
-**Iteration 1 (5 sub-iterations)**:
-- Fixed all dark-mode-only Tailwind CSS violations across 19 Sprint 1 files
-- 16 automated scanners covering all violation patterns
-- CSS safety nets in `index.css` for hover states, scrollbar themes
-- 329 tests total (265 base + 42 scanner #15-#16 + 4 CSS dependency + 18 file existence)
+| Iteration | Focus | Key Change |
+|-----------|-------|------------|
+| 1 | Theme fixes | Fixed all dark-mode-only violations in 19 files, created 16 scanners (329 tests), added CSS safety nets |
+| 2 | Test infra | Created `app/tests` symlink for test discovery from `app/` directory |
+| 3 | Test fixes | Fixed 3 test collection errors (`test_api.py`, `test_ecl_engine.py`, `test_models.py`), updated `app/conftest.py` |
+| 4 | Test config | Added `app/pyproject.toml` for robust `pytest` discovery from any invocation method |
+| 5 | Verification | Final verification — all tests pass, zero violations confirmed |
 
 ## Files Audited — All Clean (19 files, zero violations)
 
@@ -46,24 +43,30 @@ Added `app/pyproject.toml` with `testpaths = ["tests"]` so pytest discovers all 
 
 ## How to Test
 
-### Running tests (from app/ directory — evaluator's working directory)
+### Running tests
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses/app"
 
 # Theme audit tests only (329 tests, <1s)
 pytest tests/unit/test_theme_audit_sprint1.py -v
 
-# ALL backend tests (1367 tests, ~75s)
+# ALL backend tests (1428 collected, 1367 passed, 61 skipped, ~75s)
 pytest tests/ -q
 
 # Frontend tests (103 tests, ~2s)
 cd frontend && npx vitest run
 ```
 
-### Quick verification that test discovery works
+### Test discovery verification
 ```bash
+# From app/ directory
 cd "/Users/steven.tan/Expected Credit Losses/app"
-pytest --co -q  # Should show 1428 tests collected
+pytest --co -q            # 1428 tests collected
+python -m pytest --co -q  # 1428 tests collected
+
+# From project root
+cd "/Users/steven.tan/Expected Credit Losses"
+python -m pytest --co -q  # 1428 tests collected
 ```
 
 ### Visual Verification
@@ -73,20 +76,47 @@ pytest --co -q  # Should show 1428 tests collected
 - In light mode: verify no invisible text, no white-on-white backgrounds
 - In dark mode: verify no regressions, hover states work properly
 
-## Test Results
+## Test Results (Iteration 5 — Final)
 
-- **Theme audit (pytest)**: 329 passed, 0 failed (0.32s)
-- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 errors, 0 failed (75.53s)
-- **Frontend (Vitest)**: 103 passed, 0 failed (2.42s)
+- **Theme audit (pytest)**: 329 passed, 0 failed (0.28s)
+- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 failed (73.47s)
+- **Frontend (Vitest)**: 103 passed, 0 failed (2.06s)
+- **Test collection**: 1428 tests discovered from both `app/` and project root
 
-## Known Limitations
+## Known Exceptions (Intentional — Not Violations)
 
-- Toast info variant (`bg-slate-800`) and HelpTooltip bubble (`bg-slate-800`) are intentionally always-dark per spec
-- App.tsx hero stepper uses `bg-white/[0.06]`, `border-white/[0.08]` etc. on always-dark gradient — intentional
-- CSS override approach in `index.css` handles many "violations" automatically without per-file `dark:` prefixes
-- Global scrollbar uses CSS variables `--scrollbar-thumb` / `--scrollbar-hover` — already theme-aware
+- **App.tsx hero stepper**: Uses `bg-white/[0.06]`, `border-white/[0.08]`, `text-white/N` on always-dark gradient background — intentional, not a light-mode issue
+- **Toast info variant**: `bg-slate-800` intentionally always-dark notification
+- **HelpTooltip bubble**: `bg-slate-800 dark:bg-slate-700` intentionally dark in both modes (tooltip on colored background)
+- **CollapsibleSection**: `dark:hover:bg-slate-800` already has proper `dark:` prefix
+- **CSS overrides**: `index.css` handles scrollbar theming via CSS variables, already theme-aware
 
-## Files Changed (Iteration 4)
+## Files Changed (All Iterations Combined)
 
-- `app/pyproject.toml` — NEW: pytest configuration for app/ directory, ensures test discovery works with `pytest`, `python -m pytest`, or any invocation from app/
-- `app/harness/handoffs/sprint-1-handoff.md` — Updated handoff
+### Iteration 1 (Theme Fixes)
+- `frontend/src/App.tsx` — Fixed 19 violations (text-white/, border-white/, bg patterns)
+- `frontend/src/components/Sidebar.tsx` — Fixed 27 violations
+- `frontend/src/main.tsx` — Verified clean
+- `frontend/src/components/DataTable.tsx` — Fixed gradient header + hover states
+- `frontend/src/components/Card.tsx` — Verified clean
+- `frontend/src/components/KpiCard.tsx` — Verified clean
+- `frontend/src/components/CollapsibleSection.tsx` — Fixed bare bg-slate
+- `frontend/src/components/ThreeLevelDrillDown.tsx` — Fixed bg-slate
+- `frontend/src/components/DrillDownChart.tsx` — Fixed bg-slate
+- `frontend/src/components/ScenarioProductBarChart.tsx` — Fixed bg-slate
+- `frontend/src/components/ChartTooltip.tsx` — Verified clean
+- `frontend/src/components/Toast.tsx` — Documented intentional exception
+- `frontend/src/components/ErrorBoundary.tsx` — Verified clean
+- `frontend/src/components/ErrorDisplay.tsx` — Fixed bg-white/ + bg-slate
+- `frontend/src/components/ConfirmDialog.tsx` — Fixed bg-slate patterns
+- `frontend/src/components/StatusBadge.tsx` — Verified clean
+- `frontend/src/components/LockedBanner.tsx` — Fixed bg-slate + gradient
+- `frontend/src/components/HelpTooltip.tsx` — Documented intentional exception
+- `frontend/src/components/HelpPanel.tsx` — Fixed bg-slate
+- `frontend/src/index.css` — Added CSS safety nets for hover states + scrollbar theming
+- `tests/unit/test_theme_audit_sprint1.py` — NEW: 329 tests across 16 scanners
+
+### Iteration 2-4 (Test Infrastructure)
+- `app/tests` — Symlink to `../tests`
+- `app/conftest.py` — Re-exports for test collection
+- `app/pyproject.toml` — NEW: pytest config for robust test discovery
