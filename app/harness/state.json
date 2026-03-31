@@ -27,7 +27,7 @@
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd frontend && npm run dev",
-  "last_action": "Sprint 1 BUILD_AGENT iteration 2: Fixed test discovery issue. Created app/tests symlink so evaluator can run tests from app/ directory. All 329 theme audit tests pass, 1367 backend tests pass, 103 frontend tests pass. Updated handoff with correct test commands.",
-  "last_updated": "2026-03-31T19:37:00",
+  "last_action": "Sprint 1 BUILD_AGENT iteration 3: Fixed 3 test collection errors (test_api.py, test_ecl_engine.py, test_models.py) when running from app/ directory. Updated app/conftest.py to re-export PRODUCT_TYPES, MODEL_KEYS, SCENARIOS from root conftest. All 1367 backend tests pass with 0 errors from app/ directory. 329 theme audit + 103 frontend tests also pass.",
+  "last_updated": "2026-03-31T19:43:00",
   "dev_server_port": 5173
 }

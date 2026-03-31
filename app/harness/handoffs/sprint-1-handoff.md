@@ -1,26 +1,18 @@
-# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 2)
+# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 3)
 
 ## What Was Built
 
-### Iteration 2: Test Infrastructure Fix
+### Iteration 3: Fix test collection errors from app/ directory
 
-**Root cause**: The evaluator ran `python -m pytest tests/unit/test_theme_audit_sprint1.py` from the `app/` directory, but `tests/` lives at the project root (`../tests/` relative to `app/`). This resulted in "collected 0 items" — the test file wasn't found.
+**Root cause**: Three test files (`test_api.py`, `test_ecl_engine.py`, `test_models.py`) use `from conftest import PRODUCT_TYPES` / `MODEL_KEYS` / `SCENARIOS`. When pytest runs from `app/`, it finds `app/conftest.py` first (which didn't export these symbols) instead of the root `tests/conftest.py`.
 
-**Fix**: Created a symlink `app/tests -> ../tests` so that test paths work correctly from the `app/` working directory. Now both of these work:
+**Fix**: Updated `app/conftest.py` to dynamically load the root `tests/conftest.py` and re-export `PRODUCT_TYPES`, `MODEL_KEYS`, and `SCENARIOS`. This resolves all 3 collection errors.
 
-```bash
-# From project root (original — always worked)
-cd "/Users/steven.tan/Expected Credit Losses"
-python -m pytest tests/unit/test_theme_audit_sprint1.py -v
+**Result**: All 1367 backend tests now pass from `app/` directory with zero collection errors.
 
-# From app/ directory (NEW — now works via symlink)
-cd "/Users/steven.tan/Expected Credit Losses/app"
-python -m pytest tests/unit/test_theme_audit_sprint1.py -v
-```
+### Prior Iterations
 
-All 329 theme audit tests pass from both locations.
-
-### Prior Iterations (preserved from iteration 1)
+**Iteration 2**: Created `app/tests` symlink → `../tests` so test paths work from `app/` directory.
 
 **Iteration 1 (5 sub-iterations)**:
 - Fixed all dark-mode-only Tailwind CSS violations across 19 Sprint 1 files
@@ -49,53 +41,45 @@ All 329 theme audit tests pass from both locations.
 | 10 | `find_bare_to_slate_dark` | `to-slate-[6-9]00` without `dark:` | 19 |
 | 11 | `find_bare_via_slate_dark` | `via-slate-[6-9]00` without `dark:` | 19 |
 | 12 | `find_bare_focus_bg_slate_dark` | `focus:bg-slate-[6-9]00` without `dark:focus:` | 19 |
-| 13 | `find_bare_hover_bg_slate_light_opacity` | `hover:bg-slate-50\|100/N` without `dark:hover:` | 19 |
+| 13 | `find_bare_hover_bg_slate_light_opacity` | `hover:bg-slate-50|100/N` without `dark:hover:` | 19 |
 | 14 | `find_css_scrollbar_theme_issues` | CSS scrollbar `rgba(255,255,255)` without `.dark` scope | 1 |
 | 15 | `find_bare_hover_bg_slate_light_plain` | `hover:bg-slate-100/200` (plain) without `dark:hover:` | 19 |
 | 16 | `find_bare_hover_text_slate_dark` | `hover:text-slate-[6-8]00` without `dark:hover:` | 19 |
 
 ## How to Test
 
-### Running theme audit tests
-
-**From app/ directory** (evaluator's working directory):
+### Running all tests from app/ directory (evaluator's working directory)
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses/app"
+
+# Theme audit tests only
 python -m pytest tests/unit/test_theme_audit_sprint1.py -v
+
+# ALL backend tests (including previously-failing test_api, test_ecl_engine, test_models)
+python -m pytest tests/ -q
+
+# Frontend tests
+cd frontend && npx vitest run
 ```
 
-**From project root** (alternative):
-```bash
-cd "/Users/steven.tan/Expected Credit Losses"
-python -m pytest tests/unit/test_theme_audit_sprint1.py -v
-```
-
-### Running all backend tests
+### Running from project root (alternative)
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses"
 python -m pytest tests/ -q
 ```
 
-### Running frontend tests
-```bash
-cd "/Users/steven.tan/Expected Credit Losses/app/frontend"
-npx vitest run
-```
-
 ### Visual Verification
 - Start dev server: `cd "/Users/steven.tan/Expected Credit Losses/app/frontend" && npm run dev`
-- Navigate to `http://localhost:5173` (or whatever port Vite assigns)
+- Navigate to `http://localhost:5173`
 - Toggle light/dark mode on any page
 - In light mode: verify no invisible text, no white-on-white backgrounds
 - In dark mode: verify no regressions, hover states work properly
-- DataTable hover in dark mode: subtle `white/[0.04]` hover, NOT white flash
-- Sidebar scrollbar in light mode: visible dark gray thumb
 
 ## Test Results
 
 - **Theme audit (pytest)**: 329 passed, 0 failed (0.30s)
-- **Full backend (pytest)**: 1367 passed, 61 skipped, 0 failed (74.52s)
-- **Frontend (Vitest)**: 103 passed, 0 failed (2.30s)
+- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 errors, 0 failed (73.32s)
+- **Frontend (Vitest)**: 103 passed, 0 failed (2.07s)
 
 ## Known Limitations
 
@@ -103,9 +87,7 @@ npx vitest run
 - App.tsx hero stepper uses `bg-white/[0.06]`, `border-white/[0.08]` etc. on always-dark gradient — intentional
 - CSS override approach in `index.css` handles many "violations" automatically without per-file `dark:` prefixes
 - Global scrollbar uses CSS variables `--scrollbar-thumb` / `--scrollbar-hover` — already theme-aware
-- CSS hover safety nets are defensive — Sprint 1 files already have explicit `dark:hover:` pairs, but the CSS ensures later sprints are also covered
-- 3 pre-existing test collection errors (`test_api.py`, `test_ecl_engine.py`, `test_models.py`) when running via symlink from `app/` due to conftest.py resolution — these are NOT Sprint 1 issues and pass normally from the project root
 
-## Files Changed (Iteration 2)
+## Files Changed (Iteration 3)
 
-- `app/tests` — NEW symlink → `../tests` (enables test discovery from `app/` working directory)
+- `app/conftest.py` — Updated to re-export `PRODUCT_TYPES`, `MODEL_KEYS`, `SCENARIOS` from root `tests/conftest.py`, fixing 3 test collection errors when running from `app/` directory
