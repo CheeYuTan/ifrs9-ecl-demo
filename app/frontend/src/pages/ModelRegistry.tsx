@@ -203,7 +203,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
             <p className="text-[10px] text-slate-400">v{model.version} &middot; {model.model_type} &middot; {model.algorithm}</p>
           </div>
         </div>
-        <button onClick={onClose} aria-label="Close model details" className="p-2 rounded-lg hover:bg-slate-100 transition focus-visible:ring-2 focus-visible:ring-brand"><X size={18} className="text-slate-400" /></button>
+        <button onClick={onClose} aria-label="Close model details" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition focus-visible:ring-2 focus-visible:ring-brand"><X size={18} className="text-slate-400" /></button>
       </div>
 
       <div className="p-6 space-y-6">
@@ -368,7 +368,7 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
   return (
     <Card title="Model Comparison" subtitle={`Comparing ${models.length} models`} accent="purple"
       icon={<GitCompare size={16} />}
-      action={<button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 transition"><X size={16} className="text-slate-400" /></button>}>
+      action={<button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={16} className="text-slate-400" /></button>}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Metrics Comparison</p>
@@ -578,6 +578,7 @@ export default function ModelRegistry() {
       format: (_: any, row: ModelRegistryEntry) => (
         <input type="checkbox" checked={compareIds.has(row.model_id)}
           onChange={() => toggleCompare(row.model_id)}
+          onClick={(e) => e.stopPropagation()}
           className="w-3.5 h-3.5 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer" />
       ),
     },
@@ -653,12 +654,14 @@ export default function ModelRegistry() {
               <Filter size={13} className="text-slate-400" />
               <label className="sr-only" htmlFor="model-filter-type">Filter by model type</label>
               <select id="model-filter-type" value={filterType} onChange={e => setFilterType(e.target.value)}
+                onClick={e => e.stopPropagation()}
                 className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 focus:ring-1 focus:ring-brand/20">
                 <option value="">All Types</option>
                 {MODEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
               <label className="sr-only" htmlFor="model-filter-status">Filter by status</label>
               <select id="model-filter-status" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+                onClick={e => e.stopPropagation()}
                 className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 text-slate-600 focus:ring-1 focus:ring-brand/20">
                 <option value="">All Statuses</option>
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}

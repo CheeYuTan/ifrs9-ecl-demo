@@ -5,10 +5,9 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 2,
+  "current_sprint": 3,
   "planned_sprints": 7,
   "remaining_spec_items": [
-    "Sprint 3: Workflow Pages Part 2 + Admin (ModelRegistry, Backtesting, MarkovChains, HazardModels, AdvancedFeatures, Attribution, Admin, GLJournals, RegulatoryReports, ApprovalWorkflow)",
     "Sprint 4: Data Mapping Module (index, SourceBrowser, ColumnMapper, ValidationStep, ApplyStep, StatusCards, types, DataMapping)",
     "Sprint 5: Admin Sub-pages + Stress Testing Tabs (AdminAppSettings, AdminDataMappings, AdminModelConfig, AdminSystemConfig, AdminThemeConfig, AdminJobsConfig, stress-testing/index, SensitivityTab, MonteCarloTab, ConcentrationTab, MigrationTab, VintageTab, CapitalImpact)",
     "Sprint 6: Remaining Components + SetupWizard (SetupWizard, SimulationPanel, SimulationResults, SimulationProgress, ApprovalForm, Stepper, PageHeader, PageLoader, EmptyState, ScenarioChecklist, StepDescription, NotebookLink, JobRunLink)",
@@ -30,20 +29,27 @@
       "trajectory": [],
       "iterations": 5,
       "tests": 120
+    },
+    {
+      "sprint": 2,
+      "score": 0.0,
+      "debt": true,
+      "trajectory": [],
+      "iterations": 0
     }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 2,
-  "last_doc_sprint": 0,
-  "last_install_test": 0,
-  "last_integration_test": 0,
+  "feature_sprints_since_doc_sprint": 0,
+  "last_doc_sprint": 2,
+  "last_install_test": 2,
+  "last_integration_test": 2,
   "context_resets": 0,
-  "current_iteration": 5,
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd frontend && npm run dev",
-  "last_action": "Sprint 2 BUILD_AGENT iteration 5: All 2039 tests passing (1487 backend + 103 frontend + 329 Sprint 1 theme + 120 Sprint 2 theme). All 16 scanner patterns show zero violations across all 8 files. Code is solid — ready for Visual QA + Evaluator. VQA was previously blocked by Chrome DevTools MCP permissions (not a code issue).",
-  "last_updated": "2026-03-31T20:52:00",
+  "last_action": "Sprint 3 BUILD_AGENT iteration 1: Fixed 14 theme violations across 8 files (GLJournals, Admin, HazardModels, AdvancedFeatures, ModelRegistry, Backtesting, MarkovChains, ApprovalWorkflow). All 1740 tests passing (1637 backend + 103 frontend). 150 Sprint 3 scanner tests all pass. Ready for Visual QA + Evaluator.",
+  "last_updated": "2026-03-31T21:16:00",
   "dev_server_port": 5173,
   "score_trajectory": []
 }

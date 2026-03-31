@@ -226,7 +226,7 @@ export default function GLJournals({ project }: { project: Project | null }) {
           return (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                active ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                active ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}>
               <Icon size={15} />
               {t.label}
@@ -371,7 +371,7 @@ function JournalDetail({
             </button>
           )}
           <button onClick={onClose}
-            className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition">
+            className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">
             <XCircle size={13} /> Close
           </button>
         </div>
@@ -502,7 +502,7 @@ function TrialBalanceView({ data }: { data: GLTrialBalanceRow[] }) {
       />
 
       {/* Totals Row */}
-      <div className="mt-4 flex justify-end gap-8 bg-slate-800 text-white rounded-xl px-6 py-3 text-sm">
+      <div className="mt-4 flex justify-end gap-8 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-6 py-3 text-sm border border-slate-200 dark:border-transparent">
         <div>
           <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider mr-3">Total Debits</span>
           <span className="font-mono font-extrabold">{fmt(totalDebit)}</span>
