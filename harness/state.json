@@ -9,22 +9,47 @@
   "bugs_found": 0,
   "bugs_fixed": 0,
   "pages_tested": [
-    "CreateProject", "DataProcessing", "DataControl", "SatelliteModel",
-    "ModelExecution", "StressTesting", "Overlays", "SignOff",
-    "DataMapping", "Admin", "ModelRegistry", "Backtesting",
-    "HazardModels", "MarkovChains", "GLJournals", "RegulatoryReports",
-    "ApprovalWorkflow", "AdvancedFeatures", "Attribution"
+    "CreateProject",
+    "DataProcessing",
+    "DataControl",
+    "SatelliteModel",
+    "ModelExecution",
+    "StressTesting",
+    "Overlays",
+    "SignOff",
+    "DataMapping",
+    "Admin",
+    "ModelRegistry",
+    "Backtesting",
+    "HazardModels",
+    "MarkovChains",
+    "GLJournals",
+    "RegulatoryReports",
+    "ApprovalWorkflow",
+    "AdvancedFeatures",
+    "Attribution"
   ],
   "components_tested": [
     "SimulationPanel (dual buttons: Run In-App + Run as Databricks Job)",
     "DataTable (sorting, filtering, pagination, CSV export)",
-    "DrillDownChart", "ThreeLevelDrillDown", "ScenarioProductBarChart",
-    "Sidebar navigation", "Workflow tabs (0-7)",
+    "DrillDownChart",
+    "ThreeLevelDrillDown",
+    "ScenarioProductBarChart",
+    "Sidebar navigation",
+    "Workflow tabs (0-7)",
     "Form inputs, sliders, dropdowns, checkboxes",
-    "Modal dialogs", "Collapsible sections",
-    "Dark mode theming", "Loading states"
+    "Modal dialogs",
+    "Collapsible sections",
+    "Dark mode theming",
+    "Loading states"
   ],
   "frontend_build": "SUCCESS",
-  "current_iteration": 2,
-  "last_updated": "2026-03-31T11:45:00"
+  "current_iteration": 3,
+  "test_results": {
+    "passed": 927,
+    "skipped": 61,
+    "failed": 0,
+    "duration": "71.77s"
+  },
+  "last_updated": "2026-03-31T11:15:00"
 }
