@@ -90,7 +90,7 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
       <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+            <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">
               {columns.map(c => (
                 <th key={c.key} onClick={() => toggleSort(c.key)}
                   className={`${py} px-4 text-[10px] font-bold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'}`}
@@ -111,7 +111,7 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={onRowClick ? (e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(row); } }) : undefined}
                 className={`border-b border-slate-50 transition-colors ${
-                  onRowClick ? 'cursor-pointer hover:bg-brand/5' : 'hover:bg-slate-50/80'
+                  onRowClick ? 'cursor-pointer hover:bg-brand/5' : 'hover:bg-slate-50/80 dark:hover:bg-white/[0.04]'
                 } ${ri % 2 === 1 ? 'bg-slate-50/40 dark:bg-white/[0.02]' : 'bg-white dark:bg-transparent'} ${
                   selectedRow && JSON.stringify(selectedRow) === JSON.stringify(row) ? 'bg-brand/8 ring-1 ring-brand/20' : ''
                 }`}>

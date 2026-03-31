@@ -15,7 +15,7 @@ Known exceptions (intentionally always-dark):
   - text-white inside hero gradient or brand-colored buttons/badges
   - Classes already paired with a dark: prefix on the same element
 
-Scanner inventory (12 total):
+Scanner inventory (13 total):
   1. bg-slate-[6-9]00 without dark:
   2. bg-white/N without light pair
   3. border-white/N without light pair
@@ -28,6 +28,7 @@ Scanner inventory (12 total):
   10. to-slate-[6-9]00 without dark: (gradient endpoint)
   11. via-slate-[6-9]00 without dark: (gradient midpoint)
   12. focus:bg-slate-[6-9]00 without dark:focus:
+  13. hover:bg-slate-50|100/N without dark:hover: (CSS overrides miss opacity)
 """
 import os
 import re
@@ -356,6 +357,28 @@ def find_bare_focus_bg_slate_dark(relpath: str) -> list[str]:
     return violations
 
 
+def find_bare_hover_bg_slate_light_opacity(relpath: str) -> list[str]:
+    """Find hover:bg-slate-50/N or hover:bg-slate-100/N without dark:hover: pair.
+
+    CSS overrides for .dark .bg-slate-50 do NOT match hover:bg-slate-50/80
+    because Tailwind generates a separate class. These light-shade hovers
+    would flash bright in dark mode.
+    """
+    violations = []
+    pat = re.compile(r'hover:bg-slate-(?:50|100)/(?:\d+|\[\d*\.?\d+\])')
+    for lineno, line in _lines(relpath):
+        if _is_exception(line):
+            continue
+        for m in pat.finditer(line):
+            col = m.start()
+            before = line[max(0, col - 20):col]
+            if "dark:" in before:
+                continue
+            if "dark:hover:bg-" not in line:
+                violations.append(f"{relpath}:{lineno}: {m.group()}")
+    return violations
+
+
 # ── Tests ────────────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
@@ -442,6 +465,16 @@ def test_no_bare_focus_bg_slate_dark(relpath):
     assert violations == [], f"Bare focus:bg-slate violations:\n" + "\n".join(violations)
 
 
+@pytest.mark.parametrize("relpath", ALL_SPRINT1_FILES)
+def test_no_bare_hover_bg_slate_light_opacity(relpath):
+    """No hover:bg-slate-50/N or hover:bg-slate-100/N without dark:hover: pair."""
+    violations = find_bare_hover_bg_slate_light_opacity(relpath)
+    assert violations == [], (
+        f"Bare hover:bg-slate-light-opacity violations "
+        f"(CSS overrides don't catch hover+opacity):\n" + "\n".join(violations)
+    )
+
+
 # ── Specific regression tests for iteration 1 fixes ─────────────────────
 
 def test_error_boundary_button_has_light_dark():
@@ -466,6 +499,19 @@ def test_help_tooltip_arrows_have_dark_variants():
     assert "dark:border-b-slate-700" in content
     assert "dark:border-l-slate-700" in content
     assert "dark:border-r-slate-700" in content
+
+
+def test_datatable_hover_row_has_dark_pair():
+    """Regression: DataTable hover:bg-slate-50/80 must have dark:hover: pair.
+
+    BUG: hover:bg-slate-50/80 was used without dark:hover: pair.
+    CSS override .dark .bg-slate-50 does NOT match hover:bg-slate-50/80.
+    This caused rows to flash white-ish on hover in dark mode.
+    """
+    content = _read("components/DataTable.tsx")
+    assert "dark:hover:bg-white/[0.04]" in content, (
+        "DataTable missing dark:hover:bg-white/[0.04] pair for row hover"
+    )
 
 
 # ── CSS dark override dependency tests ────────────────────────────────────

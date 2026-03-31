@@ -1,26 +1,27 @@
-# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 5)
+# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 2)
 
 ## What Was Built
 
-### Iterations 1-4 (preserved)
+### Iteration 2: Dark Mode Hover Bug Fix + New Scanner
 
-1. **ErrorBoundary.tsx:33** — "Try Again" button light mode fix
-2. **ErrorDisplay.tsx:74** — Dark mode technical details bg fix
-3. **HelpTooltip.tsx:56-59** — Arrow CSS dark: variants
-4. **test_attribution_audit_routes_sprint4c.py:29-35** — Pre-existing test bug fix
-5. **tests/unit/test_theme_audit_sprint1.py** — 265 automated regression tests (12 scanners x 19 files + CSS dependency + structural consistency)
+**BUG FIX: DataTable row hover flashes white in dark mode**
 
-### Iteration 5: Test Infrastructure Fix
+`DataTable.tsx` line 114 used `hover:bg-slate-50/80` without a `dark:hover:` pair. The CSS override `.dark .bg-slate-50` does NOT match Tailwind's `hover:bg-slate-50/80` because it's a different generated class. This caused non-clickable table rows to flash a nearly-white background on hover in dark mode.
 
-**Root cause of "0 tests collected" failure**: The evaluator ran `pytest` from the `app/` subdirectory, but the test file lives at `tests/unit/test_theme_audit_sprint1.py` relative to the project root (`/Users/steven.tan/Expected Credit Losses/`). The `app/` directory had no pytest configuration, so pytest couldn't discover tests.
+**Fix**: Added `dark:hover:bg-white/[0.04]` to provide a subtle dark-mode hover.
 
-**Fixes applied:**
+**New test scanner (#13)**: `find_bare_hover_bg_slate_light_opacity` — catches `hover:bg-slate-50/N` or `hover:bg-slate-100/N` without `dark:hover:` pairs. CSS overrides don't match hover+opacity combinations.
 
-6. **app/pytest.ini** (NEW) — Added pytest configuration for the `app/` subdirectory that points `testpaths` to `../tests`, enabling test discovery when pytest is run from `app/`.
+**New regression test**: `test_datatable_hover_row_has_dark_pair` — ensures DataTable's row hover has a dark mode variant.
 
-7. **app/conftest.py** (NEW) — Adds the project root to `sys.path` so test imports resolve correctly when running from `app/`.
+### Prior Iterations (preserved)
 
-8. **tests/unit/test_installation_sprint7.py** — Fixed 2 pre-existing test failures (`test_scipy_in_requirements`, `test_fpdf2_in_requirements`) that hardcoded `app/requirements.txt` as a relative path (only worked from project root). Changed to use `os.path.dirname(__file__)` for directory-agnostic resolution.
+1. **ErrorBoundary.tsx** — "Try Again" button light mode fix
+2. **ErrorDisplay.tsx** — Dark mode technical details bg fix
+3. **HelpTooltip.tsx** — Arrow CSS dark: variants
+4. **test_theme_audit_sprint1.py** — 285 automated regression tests (13 scanners x 19 files + CSS dependency + structural + regression)
+5. **pytest.ini / conftest.py** — Test infrastructure for app/ directory
+6. **test_installation_sprint7.py** — Fixed hardcoded path resolution
 
 ### Files Verified Clean (No Violations)
 
@@ -28,7 +29,7 @@
 **Batch 1B — Data Display:** DataTable.tsx, Card.tsx, KpiCard.tsx, CollapsibleSection.tsx, ThreeLevelDrillDown.tsx, DrillDownChart.tsx, ScenarioProductBarChart.tsx, ChartTooltip.tsx
 **Batch 1C — Feedback Components:** Toast.tsx, ErrorBoundary.tsx, ErrorDisplay.tsx, ConfirmDialog.tsx, StatusBadge.tsx, LockedBanner.tsx, HelpTooltip.tsx, HelpPanel.tsx
 
-## Scanner Inventory (12 scanners, 265 tests)
+## Scanner Inventory (13 scanners, 285 tests)
 
 | # | Scanner | Pattern | Files |
 |---|---------|---------|-------|
@@ -44,6 +45,7 @@
 | 10 | `find_bare_to_slate_dark` | `to-slate-[6-9]00` without `dark:` | 19 |
 | 11 | `find_bare_via_slate_dark` | `via-slate-[6-9]00` without `dark:` | 19 |
 | 12 | `find_bare_focus_bg_slate_dark` | `focus:bg-slate-[6-9]00` without `dark:focus:` | 19 |
+| 13 | `find_bare_hover_bg_slate_light_opacity` | `hover:bg-slate-50\|100/N` without `dark:hover:` | 19 |
 
 ## How to Test
 
@@ -53,43 +55,31 @@ cd "/Users/steven.tan/Expected Credit Losses"
 python -m pytest tests/unit/test_theme_audit_sprint1.py -v
 ```
 
-### From app/ directory (also works now)
+### From app/ directory (also works)
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses/app"
 python -m pytest -k "test_theme_audit_sprint1" -v
-# OR run all tests:
-python -m pytest -q
 ```
 
 ### Visual Verification
-- Navigate to any page in **light mode** — verify no dark backgrounds or invisible text
-- Toggle to **dark mode** — verify no regressions
-- Trigger error boundary — verify "Try Again" button readable in both modes
-- Hover over any `?` help icon — verify tooltip renders correctly in both modes
+- Navigate to any page with a DataTable in **dark mode** — hover non-clickable rows → should show subtle `white/[0.04]` hover, NOT a white flash
+- Toggle to **light mode** — hover should show `slate-50/80` (very subtle gray)
+- All other pages in both light and dark mode — no regressions
 
 ## Test Results
 
-- **Theme audit (pytest)**: 265 passed, 0 failed (0.25s)
-- **Full backend (pytest from app/)**: 1303 passed, 61 skipped, 0 failed (75.17s)
-- **Full backend (pytest from root/)**: 1303 passed, 61 skipped, 0 failed (74.24s)
-- **Frontend (Vitest)**: 103 passed, 0 failed (3.22s)
+- **Theme audit (pytest)**: 285 passed, 0 failed (0.27s)
+- **Full backend (pytest from app/)**: 1323 passed, 61 skipped, 0 failed (74s)
+- **Frontend (Vitest)**: 103 passed, 0 failed (1.97s)
 
 ## Known Limitations
 
 - Toast info variant (`bg-slate-800`) and HelpTooltip bubble (`bg-slate-800`) are intentionally always-dark per spec
 - App.tsx hero stepper uses `bg-white/[0.06]`, `border-white/[0.08]` etc. on always-dark gradient — intentional
+- KpiCard `border-[color]-100/50` and `bg-[color]-500/10` are not caught by CSS overrides, but at low opacity they render acceptably in both modes (10% tint on any background is subtle)
 - The CSS override approach in `index.css` handles many "violations" automatically without per-file `dark:` prefixes
 
-## Files Changed
+## Files Changed (Iteration 2)
 
-### Iteration 5
-- `app/pytest.ini` — NEW: pytest config for app/ subdirectory (testpaths, asyncio_mode, markers)
-- `app/conftest.py` — NEW: sys.path setup for test imports from app/
-- `tests/unit/test_installation_sprint7.py` — Fixed hardcoded `app/requirements.txt` path to use `__file__`-relative resolution
-
-### Iterations 1-4
-- `app/frontend/src/components/ErrorBoundary.tsx` — Light mode button colors
-- `app/frontend/src/components/ErrorDisplay.tsx` — Dark mode technical details bg
-- `app/frontend/src/components/HelpTooltip.tsx` — Arrow dark: variants
-- `tests/unit/test_attribution_audit_routes_sprint4c.py` — Pre-existing test bug fix
-- `tests/unit/test_theme_audit_sprint1.py` — 265 theme audit regression tests
+- `app/frontend/src/components/DataTable.tsx` — Added `dark:hover:bg-white/[0.04]` for row hover
+- `tests/unit/test_theme_audit_sprint1.py` — Added scanner #13 (`find_bare_hover_bg_slate_light_opacity`) + regression test `test_datatable_hover_row_has_dark_pair` (285 total tests, up from 265)

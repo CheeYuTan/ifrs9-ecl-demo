@@ -23,10 +23,11 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 5,
+  "current_iteration": 2,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd frontend && npm run dev",
-  "last_action": "Sprint 1 iteration 5 complete: Fixed test infrastructure — added app/pytest.ini + app/conftest.py so tests are discoverable from app/ directory (was causing '0 tests collected'). Fixed 2 pre-existing path bugs in test_installation_sprint7.py. All tests pass: 1303 pytest (from both root and app/), 265 theme audit, 103 vitest. Ready for Visual QA.",
-  "last_updated": "2026-03-31T18:35:00"
+  "last_action": "Sprint 1 BUILD_AGENT iteration 2: Fixed DataTable hover:bg-slate-50/80 dark mode bug (flashed white on hover). Added scanner #13 + regression test. 285 theme audit tests pass, 1323 pytest pass, 103 vitest pass.",
+  "last_updated": "2026-03-31T19:00:00",
+  "dev_server_port": 5173
 }
