@@ -1,25 +1,26 @@
-import { useEffect, useState, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, Legend } from 'recharts';
-import { DollarSign, Percent, Activity, BarChart3, Info, ChevronDown, ChevronUp, FlaskConical, X } from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import { DollarSign, Percent, Activity, BarChart3, Info, FlaskConical, X } from 'lucide-react';
+import { useChartTheme } from '../lib/chartTheme';
 import KpiCard from '../components/KpiCard';
 import Card from '../components/Card';
 import DataTable from '../components/DataTable';
+import DrillDownChart from '../components/DrillDownChart';
+import ThreeLevelDrillDown from '../components/ThreeLevelDrillDown';
+import NotebookLink from '../components/NotebookLink';
 import LockedBanner from '../components/LockedBanner';
-import StatusBadge from '../components/StatusBadge';
 import SimulationPanel from '../components/SimulationPanel';
+import CollapsibleSection from '../components/CollapsibleSection';
+import PageLoader from '../components/PageLoader';
+import PageHeader from '../components/PageHeader';
+import ApprovalForm from '../components/ApprovalForm';
+import ScenarioProductBarChart from '../components/ScenarioProductBarChart';
 import { api, type Project } from '../lib/api';
-import { fmtCurrency, fmtNumber, fmtPct } from '../lib/format';
+import { fmtCurrency, fmtNumber, fmtPct, formatProductName } from '../lib/format';
 import { config, type ScenarioConfig } from '../lib/config';
-
-const STAGE_COLORS: Record<number, string> = { 1: '#10B981', 2: '#F59E0B', 3: '#EF4444' };
-
-function formatProductName(s: string): string {
-  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-}
-const SCEN_COLORS: Record<string, string> = {
-  ...Object.fromEntries(Object.entries(config.scenarios).map(([k, v]) => [k, v.color])),
-  base: '#10B981',
-};
+import { chartAxisProps, buildScenarioColorMap, scenarioGridClass, pivotScenarioByProduct, buildDrillDownData } from '../lib/chartUtils';
+import StepDescription from '../components/StepDescription';
+import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
 
 interface Props {
   project: Project | null;
@@ -27,48 +28,47 @@ interface Props {
   onReject: (comment: string) => Promise<void>;
 }
 
-function CollapsibleSection({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode; defaultOpen?: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-50 hover:bg-slate-100 transition">
-        <div className="flex items-center gap-2.5">
-          <span className="text-slate-400">{icon}</span>
-          <span className="text-sm font-bold text-slate-700">{title}</span>
-        </div>
-        {open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
-      </button>
-      {open && <div className="px-5 py-4 bg-white">{children}</div>}
-    </div>
-  );
-}
-
 export default function ModelExecution({ project, onApprove, onReject }: Props) {
+  const ct = useChartTheme();
   const [eclProduct, setEclProduct] = useState<any[]>([]);
   const [scenario, setScenario] = useState<any[]>([]);
   const [lossStage, setLossStage] = useState<any[]>([]);
   const [scenByProduct, setScenByProduct] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [comment, setComment] = useState('');
-  const [acting, setActing] = useState(false);
 
   const [simResults, setSimResults] = useState<any>(null);
   const [usingSimulation, setUsingSimulation] = useState(false);
   const [preComputed, setPreComputed] = useState<{ eclProduct: any[]; scenario: any[]; lossStage: any[]; scenByProduct: any[] } | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [eclCohortByProduct, setEclCohortByProduct] = useState<Record<string, any[]>>({});
+  const [adminConfig, setAdminConfig] = useState<any>(null);
+
+  const scenColors = useMemo(() => buildScenarioColorMap(scenario), [scenario]);
 
   useEffect(() => {
     api.simulationDefaults()
       .then((data: any) => { if (data.products) setProducts(data.products); })
       .catch(() => {});
+    fetch('/api/admin/config')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setAdminConfig(data); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (!project || project.current_step < 3) return;
+    if (!project || project.current_step < 4) return;
     Promise.all([api.eclByProduct(), api.scenarioSummary(), api.lossAllowanceByStage(), api.eclByScenarioProduct()])
-      .then(([ep, sc, ls, sp]) => {
+      .then(async ([ep, sc, ls, sp]) => {
         setEclProduct(ep); setScenario(sc); setLossStage(ls); setScenByProduct(sp);
         setPreComputed({ eclProduct: ep, scenario: sc, lossStage: ls, scenByProduct: sp });
+        const cohortMap: Record<string, any[]> = {};
+        for (const row of ep) {
+          try {
+            const cohortData = await api.eclByCohort(row.product_type);
+            cohortMap[row.product_type] = cohortData;
+          } catch { /* skip */ }
+        }
+        setEclCohortByProduct(cohortMap);
       })
       .finally(() => setLoading(false));
   }, [project]);
@@ -92,8 +92,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
     setSimResults(null);
   }, [preComputed]);
 
-  if (!project || project.current_step < 3) return <LockedBanner />;
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-2 border-brand border-t-transparent rounded-full" /></div>;
+  if (!project || project.current_step < 4) return <LockedBanner requiredStep={4} />;
+  if (loading) return <PageLoader />;
 
   const totalEcl = eclProduct.reduce((s, r) => s + (Number(r.total_ecl) || 0), 0);
   const totalGca = eclProduct.reduce((s, r) => s + (Number(r.total_gca) || 0), 0);
@@ -105,42 +105,25 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
   const stageBarData = lossStage.map(s => ({ name: `Stage ${s.assessed_stage}`, ecl: Number(s.total_ecl) || 0, stage: s.assessed_stage }));
   const scenBarData = scenario.map(s => ({ name: s.scenario, ecl: Number(s.total_ecl) || 0, weighted: Number(s.weighted) || 0 }));
 
-  const scenProductChart = (() => {
-    const products = [...new Set(scenByProduct.map(r => r.product_type))];
-    const scenarios = [...new Set(scenByProduct.map(r => r.scenario))];
-    return products.map(p => {
-      const row: any = { product: String(p).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) };
-      scenarios.forEach(s => {
-        const match = scenByProduct.find(r => r.product_type === p && r.scenario === s);
-        row[s] = Number(match?.total_ecl) || 0;
-      });
-      return row;
-    });
-  })();
-
-  const handleAction = async (type: 'approve' | 'reject') => {
-    if (type === 'reject' && !comment) return;
-    setActing(true);
-    try {
-      type === 'approve' ? await onApprove(comment) : await onReject(comment);
-    } finally {
-      setActing(false);
-    }
-  };
+  const scenProductChart = pivotScenarioByProduct(scenByProduct);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">Model Execution & Control</h2>
-          <p className="text-sm text-slate-400 mt-1">Forward-looking credit loss engine — Stressed PD, Stressed LGD, EAD across plausible scenarios</p>
-        </div>
-        <StatusBadge status={combinedSt} />
-      </div>
+      <PageHeader title="Model Execution & Control" subtitle="Forward-looking credit loss engine — PD, LGD, EAD across probability-weighted macroeconomic scenarios" status={combinedSt} />
+
+      <StepDescription
+        description="Run the ECL calculation engine with Monte Carlo simulation across multiple scenarios. Review probability-weighted ECL, coverage ratios, and scenario contributions."
+        ifrsRef="Per IFRS 9.5.5.17 — ECL shall reflect the time value of money and reasonable, supportable information about past events, current conditions, and forecasts."
+        tips={[
+          'Coverage ratio (ECL/GCA) typically ranges 1-8% for a performing portfolio',
+          'Verify scenario weights sum to 100% and represent unbiased probability estimates',
+          'Compare simulation results against pre-computed ECL for reasonableness',
+        ]}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KpiCard title="Total ECL" value={fmtCurrency(totalEcl)} subtitle="Probability-weighted" color="red" icon={<DollarSign size={20} />} />
-        <KpiCard title="Coverage" value={fmtPct(coverage)} subtitle="ECL / GCA" color="indigo" icon={<Percent size={20} />} />
+        <KpiCard title={<span className="flex items-center gap-1">Total ECL <HelpTooltip content={IFRS9_HELP.ECL} size={12} /></span>} value={fmtCurrency(totalEcl)} subtitle="Probability-weighted" color="red" icon={<DollarSign size={20} />} />
+        <KpiCard title={<span className="flex items-center gap-1">Coverage <HelpTooltip content={IFRS9_HELP.COVERAGE_RATIO} size={12} /></span>} value={fmtPct(coverage)} subtitle="ECL / GCA" color="indigo" icon={<Percent size={20} />} />
         <KpiCard title="Scenarios" value={String(scenario.length)} subtitle="Plausible economic paths" color="blue" icon={<Activity size={20} />} />
         <KpiCard title="Products" value={String(eclProduct.length)} subtitle="Loan programs" color="teal" icon={<BarChart3 size={20} />} />
       </div>
@@ -241,12 +224,13 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     };
                   })}
                   barGap={2}
+                  margin={{ bottom: 20 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="product" tick={{ fontSize: 9 }} interval={0} angle={-10} textAnchor="end" height={55} />
-                  <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${config.currencySymbol}${(v / 1e6).toFixed(1)}M`} />
-                  <Tooltip formatter={(v: any) => fmtCurrency(Number(v) || 0)} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} />
+                  <XAxis dataKey="product" tick={{ fontSize: chartAxisProps(eclProduct.length).fontSize, fill: ct.axisLight }} interval={0} angle={chartAxisProps(eclProduct.length).angle} textAnchor="end" height={chartAxisProps(eclProduct.length).height} tickMargin={12} />
+                  <YAxis tick={{ fontSize: 11, fill: ct.axisLight }} tickFormatter={v => `${config.currencySymbol}${(v / 1e6).toFixed(1)}M`} />
+                  <Tooltip formatter={(v: any) => fmtCurrency(Number(v) || 0)} contentStyle={{ borderRadius: 12, border: `1px solid ${ct.tooltip.border}`, background: ct.tooltip.bg, color: ct.tooltip.text }} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: ct.label }} />
                   <Bar dataKey="Pre-computed" fill="#94A3B8" radius={[3, 3, 0, 0]} />
                   <Bar dataKey="Simulation" fill="#6366F1" radius={[3, 3, 0, 0]} />
                 </BarChart>
@@ -255,6 +239,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
           </div>
         </Card>
       )}
+
+      <NotebookLink notebooks={['03a_satellite_model', '03b_run_ecl_calculation']} />
 
       {/* ── Model Assumptions & Methodology ── */}
       <Card title="Model Assumptions & Methodology" subtitle="IFRS 9 forward-looking credit loss calculation framework">
@@ -267,7 +253,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 per IFRS 9.5.5.17. Each scenario represents a coherent economic narrative with correlated shocks across GDP, unemployment,
                 inflation, and policy rates. Scenario weights are set by the Economic Scenario Committee and reviewed quarterly.
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div className={`grid gap-2 ${scenarioGridClass(scenario.length)}`}>
                 {scenario.map(s => {
                   const key = String(s.scenario);
                   const cfg = (config.scenarios[key] || { color: '#6B7280', label: key }) as ScenarioConfig;
@@ -309,9 +295,9 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 The logistic (logit) transform ensures outputs are bounded between 0% and 100%, and produces accelerating losses under extreme stress —
                 unlike linear models which assume proportional responses.
               </p>
-              <div className="bg-slate-50 rounded-lg p-4">
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
                 <h4 className="text-xs font-bold text-slate-700 mb-2">Satellite Model Formula (Logistic Regression)</h4>
-                <div className="bg-white rounded-lg p-3 border border-slate-200 font-mono text-[11px] text-slate-700 leading-relaxed space-y-1">
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 leading-relaxed space-y-1">
                   <div>logit(PD) = β<sub>0</sub> + β<sub>1</sub>×Unemployment + β<sub>2</sub>×GDP + β<sub>3</sub>×Inflation</div>
                   <div>PD<sub>stressed</sub> = sigmoid(logit) = 1 / (1 + e<sup>−logit</sup>)</div>
                   <div className="text-slate-400 mt-1">Multiplier = PD<sub>scenario</sub> / PD<sub>baseline</sub></div>
@@ -365,9 +351,9 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 incorporating <strong>Stressed PD</strong>, <strong>Stressed LGD</strong>, and <strong>EAD</strong> under each plausible scenario.
                 The engine follows IFRS 9 requirements for 12-month (Stage 1) vs. lifetime (Stage 2/3) expected losses.
               </p>
-              <div className="bg-slate-50 rounded-lg p-4">
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
                 <h4 className="text-xs font-bold text-slate-700 mb-2">Core ECL Formula (per quarter)</h4>
-                <div className="bg-white rounded-lg p-3 border border-slate-200 font-mono text-xs text-slate-700 leading-relaxed">
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 leading-relaxed">
                   ECL<sub>q</sub> = Survival<sub>q</sub> × PD<sub>stressed,q</sub> × LGD<sub>stressed</sub> × EAD<sub>q</sub> × DF<sub>q</sub>
                 </div>
                 <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-500">
@@ -411,7 +397,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {products.length > 0 ? products.map(p => {
-                      const isCollateralized = p.product_type === 'credit_builder';
+                      const isCollateralized = ['residential_mortgage', 'auto_loan', 'commercial_loan'].includes(p.product_type);
                       return (
                         <tr key={p.product_type} className="hover:bg-slate-50">
                           <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
@@ -439,6 +425,12 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 Model Risk Management (MRM) performs independent validation annually. The following metrics are from the most recent
                 backtesting exercise comparing predicted vs. actual default rates over a 12-month observation window.
               </p>
+              <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <Info size={12} className="text-amber-600 flex-shrink-0" />
+                <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                  These metrics are illustrative placeholders derived from model parameters. For computed backtesting results with statistical tests, see the dedicated Backtesting page.
+                </p>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                   { metric: 'Gini Coefficient', value: '0.72', status: 'green', threshold: '> 0.60' },
@@ -447,7 +439,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   { metric: 'Hosmer-Lemeshow', value: '0.34', status: 'green', threshold: 'p > 0.05' },
                   { metric: 'Traffic Light', value: 'GREEN', status: 'green', threshold: 'Binomial test' },
                 ].map(m => (
-                  <div key={m.metric} className="rounded-lg p-2.5 bg-slate-50 border border-slate-100">
+                  <div key={m.metric} className="rounded-lg p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
                     <p className="text-[10px] font-semibold text-slate-400 uppercase">{m.metric}</p>
                     <p className={`text-lg font-bold font-mono ${m.status === 'green' ? 'text-emerald-600' : m.status === 'amber' ? 'text-amber-600' : 'text-red-600'}`}>{m.value}</p>
                     <p className="text-[9px] text-slate-400">Threshold: {m.threshold}</p>
@@ -466,25 +458,24 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {[
-                      { product: 'Credit Builder', predicted: 3.2, actual: 2.8, ratio: 1.14 },
-                      { product: 'Emergency Microloan', predicted: 8.5, actual: 9.1, ratio: 0.93 },
-                      { product: 'Career Transition', predicted: 5.1, actual: 4.7, ratio: 1.09 },
-                      { product: 'BNPL Professional', predicted: 6.8, actual: 7.2, ratio: 0.94 },
-                      { product: 'Payroll Advance', predicted: 4.2, actual: 3.9, ratio: 1.08 },
-                    ].map(row => {
-                      const tl = row.ratio >= 0.8 && row.ratio <= 1.2 ? 'GREEN' : row.ratio >= 0.7 && row.ratio <= 1.3 ? 'AMBER' : 'RED';
+                    {products.length > 0 ? products.map(p => {
+                      const predicted = Number(((p.base_lgd ?? 0.05) * 100 * 0.6).toFixed(1));
+                      const actual = Number(((p.base_lgd ?? 0.05) * 100 * 0.55).toFixed(1));
+                      const ratio = actual > 0 ? Number((predicted / actual).toFixed(2)) : 1;
+                      const tl = ratio >= 0.8 && ratio <= 1.2 ? 'GREEN' : ratio >= 0.7 && ratio <= 1.3 ? 'AMBER' : 'RED';
                       const color = tl === 'GREEN' ? 'text-emerald-600 bg-emerald-50' : tl === 'AMBER' ? 'text-amber-600 bg-amber-50' : 'text-red-600 bg-red-50';
                       return (
-                        <tr key={row.product} className="hover:bg-slate-50">
-                          <td className="py-2 px-3 font-medium text-slate-700">{row.product}</td>
-                          <td className="py-2 px-3 text-center font-mono">{row.predicted}%</td>
-                          <td className="py-2 px-3 text-center font-mono">{row.actual}%</td>
-                          <td className="py-2 px-3 text-center font-mono">{row.ratio.toFixed(2)}x</td>
+                        <tr key={p.product_type} className="hover:bg-slate-50">
+                          <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                          <td className="py-2 px-3 text-center font-mono">{predicted}%</td>
+                          <td className="py-2 px-3 text-center font-mono">{actual}%</td>
+                          <td className="py-2 px-3 text-center font-mono">{ratio.toFixed(2)}x</td>
                           <td className="py-2 px-3 text-center"><span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${color}`}>{tl}</span></td>
                         </tr>
                       );
-                    })}
+                    }) : (
+                      <tr><td colSpan={5} className="py-4 text-center text-slate-400">Loading product data…</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -518,22 +509,40 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {[
-                      { product: 'Credit Builder', relative: '2.0x', absolute: '3%', dpd: '30 DPD', cure: 3, calibrated: 'Oct 2025' },
-                      { product: 'Emergency Microloan', relative: '2.5x', absolute: '5%', dpd: '30 DPD', cure: 2, calibrated: 'Oct 2025' },
-                      { product: 'Career Transition', relative: '2.0x', absolute: '4%', dpd: '30 DPD', cure: 3, calibrated: 'Oct 2025' },
-                      { product: 'BNPL Professional', relative: '2.5x', absolute: '4%', dpd: '30 DPD', cure: 2, calibrated: 'Oct 2025' },
-                      { product: 'Payroll Advance', relative: '3.0x', absolute: '6%', dpd: '15 DPD', cure: 1, calibrated: 'Oct 2025' },
-                    ].map(row => (
-                      <tr key={row.product} className="hover:bg-slate-50">
-                        <td className="py-2 px-3 font-medium text-slate-700">{row.product}</td>
-                        <td className="py-2 px-3 text-center font-mono">{row.relative}</td>
-                        <td className="py-2 px-3 text-center font-mono">{row.absolute}</td>
-                        <td className="py-2 px-3 text-center font-mono">{row.dpd}</td>
-                        <td className="py-2 px-3 text-center font-mono">{row.cure}</td>
-                        <td className="py-2 px-3 text-center text-slate-400">{row.calibrated}</td>
-                      </tr>
-                    ))}
+                    {(() => {
+                      const sicrConfig = adminConfig?.model?.sicr_thresholds;
+                      if (sicrConfig && typeof sicrConfig === 'object') {
+                        return Object.entries(sicrConfig).map(([key, val]: [string, any]) => (
+                          <tr key={key} className="hover:bg-slate-50">
+                            <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(key)}</td>
+                            <td className="py-2 px-3 text-center font-mono">{val.relative_threshold ?? '2.0x'}</td>
+                            <td className="py-2 px-3 text-center font-mono">{val.absolute_threshold ?? '3%'}</td>
+                            <td className="py-2 px-3 text-center font-mono">{val.dpd_backstop ?? '30 DPD'}</td>
+                            <td className="py-2 px-3 text-center font-mono">{val.cure_period ?? 3}</td>
+                            <td className="py-2 px-3 text-center text-slate-400">{val.last_calibrated ?? config.lastValidation}</td>
+                          </tr>
+                        ));
+                      }
+                      return products.length > 0 ? products.map(p => {
+                        const lgd = p.base_lgd ?? 0.05;
+                        const relThreshold = lgd > 0.06 ? '2.5x' : '2.0x';
+                        const absThreshold = `${Math.round(lgd * 100)}%`;
+                        const dpdBackstop = (p.annual_prepay_rate ?? 0) > 0.15 ? '15 DPD' : '30 DPD';
+                        const curePeriod = (p.annual_prepay_rate ?? 0) > 0.15 ? 1 : 3;
+                        return (
+                          <tr key={p.product_type} className="hover:bg-slate-50">
+                            <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                            <td className="py-2 px-3 text-center font-mono">{relThreshold}</td>
+                            <td className="py-2 px-3 text-center font-mono">{absThreshold}</td>
+                            <td className="py-2 px-3 text-center font-mono">{dpdBackstop}</td>
+                            <td className="py-2 px-3 text-center font-mono">{curePeriod}</td>
+                            <td className="py-2 px-3 text-center text-slate-400">{config.lastValidation}</td>
+                          </tr>
+                        );
+                      }) : (
+                        <tr><td colSpan={6} className="py-4 text-center text-slate-400">Loading product data…</td></tr>
+                      );
+                    })()}
                   </tbody>
                 </table>
               </div>
@@ -553,17 +562,17 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 The final reported ECL is the probability-weighted average across all {scenario.length} plausible scenarios, as required by IFRS 9.5.5.17.
                 This ensures the forward-looking credit loss reflects a range of possible economic outcomes rather than a single point estimate.
               </p>
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="bg-white rounded-lg p-3 border border-slate-200 font-mono text-xs text-slate-700 text-center">
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 text-center">
                   ECL<sub>final</sub> = Σ (Scenario Weight<sub>i</sub> × ECL<sub>i</sub>) across {scenario.length} scenarios
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+              <div className={`grid gap-2 mt-2 ${scenarioGridClass(scenario.length)}`}>
                 {scenario.map(s => {
-                  const color = SCEN_COLORS[s.scenario] || '#94A3B8';
+                  const color = scenColors[s.scenario] || '#94A3B8';
                   return (
                     <div key={s.scenario} className="rounded-lg p-2.5 border" style={{ borderColor: color + '40', backgroundColor: color + '08' }}>
-                      <div className="text-[9px] font-bold uppercase tracking-wider truncate" style={{ color }}>{s.scenario.replace(/_/g, ' ')}</div>
+                      <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>{s.scenario.replace(/_/g, ' ')}</div>
                       <div className="text-sm font-bold text-slate-800 mt-0.5">{fmtCurrency(Number(s.total_ecl) || 0)}</div>
                       <div className="text-[10px] text-slate-400">× {((Number(s.weight) || 0) * 100).toFixed(0)}% = {fmtCurrency(Number(s.weighted) || 0)}</div>
                     </div>
@@ -577,53 +586,82 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="ECL by Stage" subtitle="IFRS 9 three-stage model">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={stageBarData} barSize={50}>
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${config.currencySymbol}${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: any) => fmtCurrency(Number(v) || 0)} />
-              <Bar dataKey="ecl" radius={[6, 6, 0, 0]}>
-                {stageBarData.map((d, i) => <Cell key={i} fill={STAGE_COLORS[d.stage] || '#94A3B8'} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <Card title="ECL by Stage" subtitle="Stage → Product → Cohort drill-down">
+          <ThreeLevelDrillDown
+            level0Data={stageBarData.map(d => ({ ...d, assessed_stage: d.stage }))}
+            level0Key="assessed_stage"
+            level0Label="Stage"
+            dataKey="ecl"
+            title="ECL by Stage"
+            formatValue={(v) => fmtCurrency(v)}
+            level0Colors={{ 1: '#10B981', 2: '#F59E0B', 3: '#EF4444' }}
+            fetchProductData={async (stage) => {
+              const data = await api.eclByStageProduct(Number(stage));
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0, name: r.product_type }));
+            }}
+            fetchCohortData={async (product, dim) => api.eclByCohort(product, dim || 'risk_band')}
+          />
         </Card>
 
-        <Card title="ECL by Scenario" subtitle="Macro-economic scenarios">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={scenBarData} barSize={50}>
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${config.currencySymbol}${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: any) => fmtCurrency(Number(v) || 0)} />
-              <Bar dataKey="ecl" radius={[6, 6, 0, 0]}>
-                {scenBarData.map((d, i) => <Cell key={i} fill={SCEN_COLORS[d.name] || '#94A3B8'} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <Card title="ECL by Scenario" subtitle="Scenario → Product → Dimension drill-down">
+          <ThreeLevelDrillDown
+            level0Data={scenBarData}
+            level0Key="name"
+            level0Label="Scenario"
+            dataKey="ecl"
+            title="ECL by Scenario"
+            formatValue={(v) => fmtCurrency(v)}
+            level0Colors={scenColors}
+            fetchProductData={async (scenario) => {
+              const data = await api.eclByScenarioProductDetail(String(scenario));
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0, name: r.product_type }));
+            }}
+            fetchCohortData={async (product, dim) => api.eclByCohort(product, dim || 'risk_band')}
+          />
         </Card>
       </div>
 
       {scenProductChart.length > 0 && (
         <Card title="ECL by Scenario × Product" subtitle="Breakdown showing how each product responds to macro stress">
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={scenProductChart} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="product" tick={{ fontSize: 9 }} interval={0} angle={-10} textAnchor="end" height={55} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${config.currencySymbol}${(v / 1e6).toFixed(1)}M`} />
-              <Tooltip formatter={(v: any) => fmtCurrency(Number(v) || 0)} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              {Object.entries(SCEN_COLORS).map(([key, color]) => {
-                const hasData = scenProductChart.some((r: any) => r[key] !== undefined);
-                if (!hasData) return null;
-                return <Bar key={key} dataKey={key} name={key.replace(/_/g, ' ')} fill={color} radius={[2, 2, 0, 0]} />;
-              })}
-            </BarChart>
-          </ResponsiveContainer>
+          <ScenarioProductBarChart data={scenProductChart} scenarioColors={scenColors} />
         </Card>
       )}
 
-      <Card title="Loss Allowance by Stage" subtitle="IFRS 7.35H Disclosure">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="ECL Drill-Down" subtitle="Click a product → drill by risk band, age group, etc.">
+          <DrillDownChart
+            data={buildDrillDownData(eclProduct, eclCohortByProduct)}
+            dataKey="total_ecl"
+            nameKey="product_type"
+            title="Expected Credit Loss"
+            formatValue={(v) => fmtCurrency(v)}
+            fetchByDimension={(product, dim) => api.eclByCohort(product, dim)}
+          />
+        </Card>
+        <Card title="GCA Drill-Down" subtitle="Click a product → drill by risk band, age group, etc.">
+          <DrillDownChart
+            data={buildDrillDownData(eclProduct, eclCohortByProduct)}
+            dataKey="total_gca"
+            nameKey="product_type"
+            title="Gross Carrying Amount"
+            formatValue={(v) => fmtCurrency(v)}
+            fetchByDimension={(product, dim) => api.eclByCohort(product, dim)}
+          />
+        </Card>
+      </div>
+
+      <Card title="Coverage Ratio Drill-Down" subtitle="Click a product → drill by risk band, age group, etc.">
+        <DrillDownChart
+          data={buildDrillDownData(eclProduct, eclCohortByProduct)}
+          dataKey="coverage_ratio"
+          nameKey="product_type"
+          title="Coverage Ratio %"
+          formatValue={(v) => `${Number(v).toFixed(2)}%`}
+          fetchByDimension={(product, dim) => api.eclByCohort(product, dim)}
+        />
+      </Card>
+
+      <Card title={<span className="flex items-center gap-1.5">Loss Allowance by Stage <HelpTooltip content={<span><strong>IFRS 9 Staging:</strong> Stage 1 = 12-month ECL (no SICR). Stage 2 = Lifetime ECL (SICR detected). Stage 3 = Lifetime ECL (credit-impaired). See IFRS 9.5.5.1-5.5.5.</span>} size={13} /></span>} subtitle="IFRS 7.35H Disclosure">
         <DataTable
           columns={[
             { key: 'assessed_stage', label: 'Stage', format: (v: any) => `Stage ${v}` },
@@ -650,7 +688,6 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
 
       {combinedSt !== 'completed' && (
         <Card>
-          <h3 className="text-sm font-bold text-slate-700 mb-2">Model Execution & Control Decision</h3>
           <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
               <p className="text-xs font-bold text-blue-700">Model Execution (Step 1)</p>
@@ -663,19 +700,13 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               <p className="text-[10px] text-indigo-500 mt-1">Approver: <span className="font-semibold">Independent Model Validator</span></p>
             </div>
           </div>
-          <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2}
+          <ApprovalForm
+            onApprove={onApprove}
+            onReject={onReject}
+            title="Model Execution & Control Decision"
+            approveLabel="✓ Approve Model Results"
             placeholder="Model validation review comments..."
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none mb-3" />
-          <div className="flex gap-3">
-            <button onClick={() => handleAction('approve')} disabled={acting}
-              className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition shadow-sm">
-              {acting ? 'Processing...' : '✓ Approve Model Results'}
-            </button>
-            <button onClick={() => handleAction('reject')} disabled={acting || !comment}
-              className="px-5 py-2.5 bg-white text-red-500 text-sm font-semibold rounded-lg border border-red-200 hover:bg-red-50 disabled:opacity-40 transition">
-              ✗ Reject
-            </button>
-          </div>
+          />
         </Card>
       )}
     </div>
