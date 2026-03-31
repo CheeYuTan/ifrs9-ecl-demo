@@ -1,16 +1,13 @@
-# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 3)
+# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 4)
 
 ## What Was Built
 
-### Iteration 3: Fix test collection errors from app/ directory
-
-**Root cause**: Three test files (`test_api.py`, `test_ecl_engine.py`, `test_models.py`) use `from conftest import PRODUCT_TYPES` / `MODEL_KEYS` / `SCENARIOS`. When pytest runs from `app/`, it finds `app/conftest.py` first (which didn't export these symbols) instead of the root `tests/conftest.py`.
-
-**Fix**: Updated `app/conftest.py` to dynamically load the root `tests/conftest.py` and re-export `PRODUCT_TYPES`, `MODEL_KEYS`, and `SCENARIOS`. This resolves all 3 collection errors.
-
-**Result**: All 1367 backend tests now pass from `app/` directory with zero collection errors.
+### Iteration 4: Robust test discovery for evaluator
+Added `app/pyproject.toml` with `testpaths = ["tests"]` so pytest discovers all tests regardless of invocation method (`pytest`, `python -m pytest`, from app/ or project root). This resolves the evaluator's "0 tests collected" issue from earlier attempts.
 
 ### Prior Iterations
+
+**Iteration 3**: Fixed 3 test collection errors (`test_api.py`, `test_ecl_engine.py`, `test_models.py`) when running from `app/` directory. Updated `app/conftest.py` to re-export `PRODUCT_TYPES`, `MODEL_KEYS`, `SCENARIOS`.
 
 **Iteration 2**: Created `app/tests` symlink → `../tests` so test paths work from `app/` directory.
 
@@ -20,10 +17,11 @@
 - CSS safety nets in `index.css` for hover states, scrollbar themes
 - 329 tests total (265 base + 42 scanner #15-#16 + 4 CSS dependency + 18 file existence)
 
-**Files Verified Clean (No Violations)**:
+## Files Audited — All Clean (19 files, zero violations)
+
 - **Batch 1A — App Shell:** App.tsx, Sidebar.tsx, main.tsx
 - **Batch 1B — Data Display:** DataTable.tsx, Card.tsx, KpiCard.tsx, CollapsibleSection.tsx, ThreeLevelDrillDown.tsx, DrillDownChart.tsx, ScenarioProductBarChart.tsx, ChartTooltip.tsx
-- **Batch 1C — Feedback Components:** Toast.tsx, ErrorBoundary.tsx, ErrorDisplay.tsx, ConfirmDialog.tsx, StatusBadge.tsx, LockedBanner.tsx, HelpTooltip.tsx, HelpPanel.tsx
+- **Batch 1C — Feedback:** Toast.tsx, ErrorBoundary.tsx, ErrorDisplay.tsx, ConfirmDialog.tsx, StatusBadge.tsx, LockedBanner.tsx, HelpTooltip.tsx, HelpPanel.tsx
 
 ## Scanner Inventory (16 scanners, 329 tests)
 
@@ -48,24 +46,24 @@
 
 ## How to Test
 
-### Running all tests from app/ directory (evaluator's working directory)
+### Running tests (from app/ directory — evaluator's working directory)
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses/app"
 
-# Theme audit tests only
-python -m pytest tests/unit/test_theme_audit_sprint1.py -v
+# Theme audit tests only (329 tests, <1s)
+pytest tests/unit/test_theme_audit_sprint1.py -v
 
-# ALL backend tests (including previously-failing test_api, test_ecl_engine, test_models)
-python -m pytest tests/ -q
+# ALL backend tests (1367 tests, ~75s)
+pytest tests/ -q
 
-# Frontend tests
+# Frontend tests (103 tests, ~2s)
 cd frontend && npx vitest run
 ```
 
-### Running from project root (alternative)
+### Quick verification that test discovery works
 ```bash
-cd "/Users/steven.tan/Expected Credit Losses"
-python -m pytest tests/ -q
+cd "/Users/steven.tan/Expected Credit Losses/app"
+pytest --co -q  # Should show 1428 tests collected
 ```
 
 ### Visual Verification
@@ -77,9 +75,9 @@ python -m pytest tests/ -q
 
 ## Test Results
 
-- **Theme audit (pytest)**: 329 passed, 0 failed (0.30s)
-- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 errors, 0 failed (73.32s)
-- **Frontend (Vitest)**: 103 passed, 0 failed (2.07s)
+- **Theme audit (pytest)**: 329 passed, 0 failed (0.32s)
+- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 errors, 0 failed (75.53s)
+- **Frontend (Vitest)**: 103 passed, 0 failed (2.42s)
 
 ## Known Limitations
 
@@ -88,6 +86,7 @@ python -m pytest tests/ -q
 - CSS override approach in `index.css` handles many "violations" automatically without per-file `dark:` prefixes
 - Global scrollbar uses CSS variables `--scrollbar-thumb` / `--scrollbar-hover` — already theme-aware
 
-## Files Changed (Iteration 3)
+## Files Changed (Iteration 4)
 
-- `app/conftest.py` — Updated to re-export `PRODUCT_TYPES`, `MODEL_KEYS`, `SCENARIOS` from root `tests/conftest.py`, fixing 3 test collection errors when running from `app/` directory
+- `app/pyproject.toml` — NEW: pytest configuration for app/ directory, ensures test discovery works with `pytest`, `python -m pytest`, or any invocation from app/
+- `app/harness/handoffs/sprint-1-handoff.md` — Updated handoff
