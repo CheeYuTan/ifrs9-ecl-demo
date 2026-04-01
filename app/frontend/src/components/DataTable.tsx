@@ -131,7 +131,7 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
           <div className="flex gap-1">
             <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} aria-label="Previous page"
               className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition shadow-sm focus-visible:ring-2 focus-visible:ring-brand">Prev</button>
-            <span className="px-3 py-1.5 font-semibold text-slate-600" aria-live="polite">Page {page + 1} of {totalPages}</span>
+            <span className="px-3 py-1.5 font-semibold text-slate-600 dark:text-slate-300" aria-live="polite">Page {page + 1} of {totalPages}</span>
             <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} aria-label="Next page"
               className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition shadow-sm focus-visible:ring-2 focus-visible:ring-brand">Next</button>
           </div>

@@ -515,7 +515,7 @@ def find_bare_text_slate_700(relpath: str) -> list[str]:
     """Find text-slate-700 without dark:text-slate- pair on the same line.
 
     text-slate-700 is dark gray — very hard to read on dark backgrounds.
-    Must have a dark:text-slate-200 (or similar) pair.
+    Must have a dark:text-slate-200 (or similar) or dark:text-white pair.
     """
     violations = []
     pat = re.compile(r'text-slate-700')
@@ -531,7 +531,7 @@ def find_bare_text_slate_700(relpath: str) -> list[str]:
                 continue
             if "group-hover:" in before and "dark:group-hover:text-slate-" in line:
                 continue
-            if "dark:text-slate-" in line:
+            if "dark:text-slate-" in line or "dark:text-white" in line:
                 continue
             violations.append(f"{relpath}:{lineno}: {m.group()}")
     return violations

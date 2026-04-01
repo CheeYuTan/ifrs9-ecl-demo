@@ -91,7 +91,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-extrabold text-slate-800">Create ECL Project</h2>
+        <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">Create ECL Project</h2>
         <p className="text-sm text-slate-400 mt-1">Define the {config.framework} ECL run parameters for {config.bankName}</p>
       </div>
 
@@ -106,7 +106,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
                   {p.signed_off_by ? <CheckCircle2 size={14} /> : <Clock size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-700">{p.project_name || p.project_id}</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{p.project_name || p.project_id}</p>
                   <p className="text-[11px] text-slate-400">
                     {p.project_id} &middot; {p.reporting_date} &middot; Step {(p.current_step ?? 0) + 1}/8
                     {p.signed_off_by && <span className="text-emerald-500 ml-1">Signed by {p.signed_off_by}</span>}
@@ -222,7 +222,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
                   <User size={14} className="text-slate-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-slate-700">{a.action}</p>
+                  <p className="font-medium text-slate-700 dark:text-slate-200">{a.action}</p>
                   <p className="text-xs text-slate-400">{a.user} &middot; {fmtDateTime(a.ts)}</p>
                   {a.detail && <p className="text-xs text-slate-500 mt-0.5">{a.detail}</p>}
                 </div>

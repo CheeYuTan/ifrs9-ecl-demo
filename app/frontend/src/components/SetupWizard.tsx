@@ -68,7 +68,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
                   isComplete
                     ? 'gradient-brand text-white'
                     : isActive
-                    ? 'bg-white text-slate-800 ring-2 ring-brand/50'
+                    ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 ring-2 ring-brand/50'
                     : 'bg-slate-100 dark:bg-white/[0.06] text-slate-400 dark:text-white/30 border border-slate-200 dark:border-white/[0.08]'
                 }`}
               >

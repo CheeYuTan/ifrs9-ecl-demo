@@ -87,7 +87,7 @@ function ProjectSelector({
                         {isSigned ? <CheckCircle2 size={14} /> : <Clock size={14} />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-slate-700 truncate">{p.project_name || p.project_id}</p>
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{p.project_name || p.project_id}</p>
                         <p className="text-[10px] text-slate-400">
                           {p.reporting_date} &middot; Step {(p.current_step ?? 0) + 1}/8
                           {isSigned && <span className="text-emerald-700 ml-1 font-semibold">Signed</span>}
@@ -501,7 +501,7 @@ export default function App() {
                     <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center flex-shrink-0">
                       <FolderOpen size={12} className="text-white" />
                     </div>
-                    <span className="font-bold text-slate-700">{project.project_name || project.project_id}</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{project.project_name || project.project_id}</span>
                     <span className="h-3 w-px bg-slate-200" />
                     <span className="text-slate-400 font-mono">{project.project_id}</span>
                     <span className="h-3 w-px bg-slate-200" />

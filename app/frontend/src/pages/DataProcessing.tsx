@@ -127,7 +127,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-800">Data Processing</h2>
+          <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">Data Processing</h2>
           <p className="text-sm text-slate-500 mt-1">
             Review portfolio data loaded from the loan tape
             {loadedAt && <span className="ml-2 text-[11px] text-slate-500">Data loaded at {loadedAt}</span>}
@@ -158,7 +158,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
               <item.icon size={16} className={`${item.color} mt-0.5 flex-shrink-0`} />
               <div>
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</p>
-                <p className="text-xs font-bold text-slate-700 mt-0.5">{item.value}</p>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-0.5">{item.value}</p>
                 <p className="text-[10px] text-slate-500 mt-0.5">{item.detail}</p>
               </div>
             </div>
@@ -297,7 +297,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
         <Card accent="brand">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-700">Ready to proceed?</h3>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Ready to proceed?</h3>
               <p className="text-xs text-slate-500 mt-1">Review the portfolio data above. If correct, mark complete to proceed to Data Control.</p>
             </div>
             <button onClick={handleComplete} disabled={acting}

@@ -155,12 +155,12 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-slate-100">
-                    <th className="py-2 px-3 text-left font-semibold text-slate-600">Product</th>
-                    <th className="py-2 px-3 text-right font-semibold text-slate-600">Pre-computed ECL</th>
-                    <th className="py-2 px-3 text-right font-semibold text-slate-600">Simulation ECL</th>
-                    <th className="py-2 px-3 text-right font-semibold text-slate-600">Delta</th>
-                    <th className="py-2 px-3 text-right font-semibold text-slate-600">Delta %</th>
+                  <tr className="bg-slate-100 dark:bg-slate-800">
+                    <th className="py-2 px-3 text-left font-semibold text-slate-600 dark:text-slate-300">Product</th>
+                    <th className="py-2 px-3 text-right font-semibold text-slate-600 dark:text-slate-300">Pre-computed ECL</th>
+                    <th className="py-2 px-3 text-right font-semibold text-slate-600 dark:text-slate-300">Simulation ECL</th>
+                    <th className="py-2 px-3 text-right font-semibold text-slate-600 dark:text-slate-300">Delta</th>
+                    <th className="py-2 px-3 text-right font-semibold text-slate-600 dark:text-slate-300">Delta %</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -172,8 +172,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     const deltaPct = preEcl !== 0 ? (delta / preEcl) * 100 : 0;
                     const deltaColor = delta > 0 ? 'text-red-600' : delta < 0 ? 'text-emerald-600' : 'text-slate-500';
                     return (
-                      <tr key={simRow.product_type} className="hover:bg-slate-50">
-                        <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(simRow.product_type)}</td>
+                      <tr key={simRow.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(simRow.product_type)}</td>
                         <td className="py-2 px-3 text-right font-mono">{fmtCurrency(preEcl)}</td>
                         <td className="py-2 px-3 text-right font-mono">{fmtCurrency(simEcl)}</td>
                         <td className={`py-2 px-3 text-right font-mono font-semibold ${deltaColor}`}>
@@ -194,8 +194,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     const totalDeltaPct = totalPre !== 0 ? (totalDelta / totalPre) * 100 : 0;
                     const totalColor = totalDelta > 0 ? 'text-red-600' : totalDelta < 0 ? 'text-emerald-600' : 'text-slate-500';
                     return (
-                      <tr className="bg-slate-50 font-bold">
-                        <td className="py-2.5 px-3 text-slate-800">Total</td>
+                      <tr className="bg-slate-50 dark:bg-slate-800/50 font-bold">
+                        <td className="py-2.5 px-3 text-slate-800 dark:text-slate-100">Total</td>
                         <td className="py-2.5 px-3 text-right font-mono">{fmtCurrency(totalPre)}</td>
                         <td className="py-2.5 px-3 text-right font-mono">{fmtCurrency(totalSim)}</td>
                         <td className={`py-2.5 px-3 text-right font-mono ${totalColor}`}>
@@ -212,7 +212,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
             </div>
 
             <div className="mt-4">
-              <h4 className="text-xs font-bold text-slate-600 mb-3">Visual Comparison</h4>
+              <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300 mb-3">Visual Comparison</h4>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart
                   data={eclProduct.map(simRow => {
@@ -263,15 +263,15 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.color }} />
                         <span className="text-[10px] font-bold" style={{ color: cfg.color }}>{cfg.label || key}</span>
                       </div>
-                      <div className="text-xs font-mono font-bold text-slate-700 mt-1">{((Number(s.weight) || 0) * 100).toFixed(0)}%</div>
+                      <div className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 mt-1">{((Number(s.weight) || 0) * 100).toFixed(0)}%</div>
                       <div className="text-[10px] text-slate-500 mt-0.5">ECL: {fmtCurrency(Number(s.total_ecl) || 0)}</div>
                       <div className="text-[10px] text-slate-400">Weighted: {fmtCurrency(Number(s.weighted_contribution || s.weighted) || 0)}</div>
                       {'gdp' in cfg && (
                         <div className="mt-1.5 pt-1.5 border-t" style={{ borderColor: cfg.color + '20' }}>
                           <div className="grid grid-cols-3 gap-x-1.5 text-[9px] text-slate-500">
-                            <span>GDP <span className="font-mono font-bold text-slate-600">{cfg.gdp > 0 ? '+' : ''}{cfg.gdp}%</span></span>
-                            <span>Unemp <span className="font-mono font-bold text-slate-600">{cfg.unemployment}%</span></span>
-                            <span>CPI <span className="font-mono font-bold text-slate-600">{cfg.inflation}%</span></span>
+                            <span>GDP <span className="font-mono font-bold text-slate-600 dark:text-slate-300">{cfg.gdp > 0 ? '+' : ''}{cfg.gdp}%</span></span>
+                            <span>Unemp <span className="font-mono font-bold text-slate-600 dark:text-slate-300">{cfg.unemployment}%</span></span>
+                            <span>CPI <span className="font-mono font-bold text-slate-600 dark:text-slate-300">{cfg.inflation}%</span></span>
                           </div>
                           <p className="text-[9px] text-slate-400 italic mt-1 leading-tight">{cfg.narrative}</p>
                         </div>
@@ -296,8 +296,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 unlike linear models which assume proportional responses.
               </p>
               <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
-                <h4 className="text-xs font-bold text-slate-700 mb-2">Satellite Model Formula (Logistic Regression)</h4>
-                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 leading-relaxed space-y-1">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">Satellite Model Formula (Logistic Regression)</h4>
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 dark:text-slate-200 leading-relaxed space-y-1">
                   <div>logit(PD) = β<sub>0</sub> + β<sub>1</sub>×Unemployment + β<sub>2</sub>×GDP + β<sub>3</sub>×Inflation</div>
                   <div>PD<sub>stressed</sub> = sigmoid(logit) = 1 / (1 + e<sup>−logit</sup>)</div>
                   <div className="text-slate-400 mt-1">Multiplier = PD<sub>scenario</sub> / PD<sub>baseline</sub></div>
@@ -311,18 +311,18 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               <div className="overflow-x-auto mt-3">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-slate-100">
-                      <th className="py-2 px-3 text-left font-semibold text-slate-600">Product</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Base LGD</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Recovery Rate</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">PD-LGD ρ</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Prepay Rate</th>
+                    <tr className="bg-slate-100 dark:bg-slate-800">
+                      <th className="py-2 px-3 text-left font-semibold text-slate-600 dark:text-slate-300">Product</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Base LGD</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Recovery Rate</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">PD-LGD ρ</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Prepay Rate</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {products.length > 0 ? products.map(p => (
-                      <tr key={p.product_type} className="hover:bg-slate-50">
-                        <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                      <tr key={p.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(p.product_type)}</td>
                         <td className="py-2 px-3 text-center font-mono">{fmtPct((p.base_lgd ?? 0) * 100)}</td>
                         <td className="py-2 px-3 text-center font-mono">{fmtPct((1 - (p.base_lgd ?? 0)) * 100)}</td>
                         <td className="py-2 px-3 text-center font-mono">{fmtPct((p.pd_lgd_correlation ?? 0) * 100)}</td>
@@ -352,15 +352,15 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 The engine follows IFRS 9 requirements for 12-month (Stage 1) vs. lifetime (Stage 2/3) expected losses.
               </p>
               <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
-                <h4 className="text-xs font-bold text-slate-700 mb-2">Core ECL Formula (per quarter)</h4>
-                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 leading-relaxed">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">Core ECL Formula (per quarter)</h4>
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
                   ECL<sub>q</sub> = Survival<sub>q</sub> × PD<sub>stressed,q</sub> × LGD<sub>stressed</sub> × EAD<sub>q</sub> × DF<sub>q</sub>
                 </div>
                 <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-500">
-                  <div><span className="font-mono font-bold text-slate-700">PD<sub>stressed,q</sub></span> = 1 − (1 − PD<sub>stressed</sub>)<sup>0.25</sup> — quarterly marginal stressed default probability</div>
-                  <div><span className="font-mono font-bold text-slate-700">Survival<sub>q</sub></span> = ∏(1 − PD<sub>stressed,i</sub>) for i &lt; q — probability of surviving to quarter q</div>
-                  <div><span className="font-mono font-bold text-slate-700">EAD<sub>q</sub></span> = GCA × (1 − q×3 / remaining_months) — amortizing exposure at default</div>
-                  <div><span className="font-mono font-bold text-slate-700">DF<sub>q</sub></span> = 1 / (1 + EIR/4)<sup>q</sup> — quarterly discount factor at effective interest rate</div>
+                  <div><span className="font-mono font-bold text-slate-700 dark:text-slate-200">PD<sub>stressed,q</sub></span> = 1 − (1 − PD<sub>stressed</sub>)<sup>0.25</sup> — quarterly marginal stressed default probability</div>
+                  <div><span className="font-mono font-bold text-slate-700 dark:text-slate-200">Survival<sub>q</sub></span> = ∏(1 − PD<sub>stressed,i</sub>) for i &lt; q — probability of surviving to quarter q</div>
+                  <div><span className="font-mono font-bold text-slate-700 dark:text-slate-200">EAD<sub>q</sub></span> = GCA × (1 − q×3 / remaining_months) — amortizing exposure at default</div>
+                  <div><span className="font-mono font-bold text-slate-700 dark:text-slate-200">DF<sub>q</sub></span> = 1 / (1 + EIR/4)<sup>q</sup> — quarterly discount factor at effective interest rate</div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
@@ -386,21 +386,21 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-slate-100">
-                      <th className="py-2 px-3 text-left font-semibold text-slate-600">Product</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Base LGD</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Recovery Rate</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">PD-LGD ρ</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Prepay Rate</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Collateralized</th>
+                    <tr className="bg-slate-100 dark:bg-slate-800">
+                      <th className="py-2 px-3 text-left font-semibold text-slate-600 dark:text-slate-300">Product</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Base LGD</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Recovery Rate</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">PD-LGD ρ</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Prepay Rate</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Collateralized</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {products.length > 0 ? products.map(p => {
                       const isCollateralized = ['residential_mortgage', 'auto_loan', 'commercial_loan'].includes(p.product_type);
                       return (
-                        <tr key={p.product_type} className="hover:bg-slate-50">
-                          <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                        <tr key={p.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(p.product_type)}</td>
                           <td className="py-2 px-3 text-center font-mono">{fmtPct((p.base_lgd ?? 0) * 100)}</td>
                           <td className="py-2 px-3 text-center font-mono">{fmtPct((1 - (p.base_lgd ?? 0)) * 100)}</td>
                           <td className="py-2 px-3 text-center font-mono">{fmtPct((p.pd_lgd_correlation ?? 0) * 100)}</td>
@@ -449,12 +449,12 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               <div className="overflow-x-auto mt-3">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-slate-100">
-                      <th className="py-2 px-3 text-left font-semibold text-slate-600">Product</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Predicted DR</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Actual DR</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Ratio (P/A)</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Traffic Light</th>
+                    <tr className="bg-slate-100 dark:bg-slate-800">
+                      <th className="py-2 px-3 text-left font-semibold text-slate-600 dark:text-slate-300">Product</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Predicted DR</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Actual DR</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Ratio (P/A)</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Traffic Light</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -465,8 +465,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                       const tl = ratio >= 0.8 && ratio <= 1.2 ? 'GREEN' : ratio >= 0.7 && ratio <= 1.3 ? 'AMBER' : 'RED';
                       const color = tl === 'GREEN' ? 'text-emerald-600 bg-emerald-50' : tl === 'AMBER' ? 'text-amber-600 bg-amber-50' : 'text-red-600 bg-red-50';
                       return (
-                        <tr key={p.product_type} className="hover:bg-slate-50">
-                          <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                        <tr key={p.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(p.product_type)}</td>
                           <td className="py-2 px-3 text-center font-mono">{predicted}%</td>
                           <td className="py-2 px-3 text-center font-mono">{actual}%</td>
                           <td className="py-2 px-3 text-center font-mono">{ratio.toFixed(2)}x</td>
@@ -499,13 +499,13 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-slate-100">
-                      <th className="py-2 px-3 text-left font-semibold text-slate-600">Product</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">PD Relative Threshold</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">PD Absolute Threshold</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">DPD Backstop</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Cure Period (Months)</th>
-                      <th className="py-2 px-3 text-center font-semibold text-slate-600">Last Calibrated</th>
+                    <tr className="bg-slate-100 dark:bg-slate-800">
+                      <th className="py-2 px-3 text-left font-semibold text-slate-600 dark:text-slate-300">Product</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">PD Relative Threshold</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">PD Absolute Threshold</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">DPD Backstop</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Cure Period (Months)</th>
+                      <th className="py-2 px-3 text-center font-semibold text-slate-600 dark:text-slate-300">Last Calibrated</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -513,8 +513,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                       const sicrConfig = adminConfig?.model?.sicr_thresholds;
                       if (sicrConfig && typeof sicrConfig === 'object') {
                         return Object.entries(sicrConfig).map(([key, val]: [string, any]) => (
-                          <tr key={key} className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(key)}</td>
+                          <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(key)}</td>
                             <td className="py-2 px-3 text-center font-mono">{val.relative_threshold ?? '2.0x'}</td>
                             <td className="py-2 px-3 text-center font-mono">{val.absolute_threshold ?? '3%'}</td>
                             <td className="py-2 px-3 text-center font-mono">{val.dpd_backstop ?? '30 DPD'}</td>
@@ -530,8 +530,8 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                         const dpdBackstop = (p.annual_prepay_rate ?? 0) > 0.15 ? '15 DPD' : '30 DPD';
                         const curePeriod = (p.annual_prepay_rate ?? 0) > 0.15 ? 1 : 3;
                         return (
-                          <tr key={p.product_type} className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-medium text-slate-700">{formatProductName(p.product_type)}</td>
+                          <tr key={p.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(p.product_type)}</td>
                             <td className="py-2 px-3 text-center font-mono">{relThreshold}</td>
                             <td className="py-2 px-3 text-center font-mono">{absThreshold}</td>
                             <td className="py-2 px-3 text-center font-mono">{dpdBackstop}</td>
@@ -563,7 +563,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 This ensures the forward-looking credit loss reflects a range of possible economic outcomes rather than a single point estimate.
               </p>
               <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
-                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 text-center">
+                <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-700 dark:text-slate-200 text-center">
                   ECL<sub>final</sub> = Σ (Scenario Weight<sub>i</sub> × ECL<sub>i</sub>) across {scenario.length} scenarios
                 </div>
               </div>
@@ -573,7 +573,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   return (
                     <div key={s.scenario} className="rounded-lg p-2.5 border" style={{ borderColor: color + '40', backgroundColor: color + '08' }}>
                       <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>{s.scenario.replace(/_/g, ' ')}</div>
-                      <div className="text-sm font-bold text-slate-800 mt-0.5">{fmtCurrency(Number(s.total_ecl) || 0)}</div>
+                      <div className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">{fmtCurrency(Number(s.total_ecl) || 0)}</div>
                       <div className="text-[10px] text-slate-400">× {((Number(s.weight) || 0) * 100).toFixed(0)}% = {fmtCurrency(Number(s.weighted) || 0)}</div>
                     </div>
                   );

@@ -120,7 +120,7 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-400 uppercase">GL Reconciliation Tolerance</p>
-            <p className="text-lg font-bold text-slate-700">± {config.governance.glReconciliationTolerancePct}%</p>
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-200">± {config.governance.glReconciliationTolerancePct}%</p>
             <p className="text-[10px] text-slate-400">Variance exceeding threshold requires investigation and sign-off by Finance</p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
@@ -130,7 +130,7 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-400 uppercase">Minimum DQ Score</p>
-            <p className="text-lg font-bold text-slate-700">≥ {config.governance.dqScoreThresholdPct}%</p>
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-200">≥ {config.governance.dqScoreThresholdPct}%</p>
             <p className="text-[10px] text-slate-400">Below threshold triggers mandatory review by Data Governance team</p>
           </div>
         </div>

@@ -76,21 +76,21 @@ export default function SimulationResults({
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total ECL</p>
-            <p className="text-lg font-bold text-slate-800 font-mono">{fmtCurrency(totalEcl)}</p>
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{fmtCurrency(totalEcl)}</p>
           </div>
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Coverage</p>
-            <p className="text-lg font-bold text-slate-800 font-mono">{coverage.toFixed(2)}%</p>
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{coverage.toFixed(2)}%</p>
           </div>
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Duration</p>
-            <p className="text-lg font-bold text-slate-800 font-mono">{formatElapsed(durationSec)}</p>
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{formatElapsed(durationSec)}</p>
           </div>
         </div>
 
         {completedTiming && totalTimingSec > 0 && (
-          <div className="text-xs text-slate-600 space-y-1 bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
-            <p className="font-semibold text-slate-700 mb-1.5">Timing Breakdown</p>
+          <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1 bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
+            <p className="font-semibold text-slate-700 dark:text-slate-200 mb-1.5">Timing Breakdown</p>
             {[
               { label: 'Data loading', sec: completedTiming.loading },
               { label: 'Scenario compute', sec: completedTiming.compute },
@@ -120,7 +120,7 @@ export default function SimulationResults({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowLog(!showLog)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition"
           >
             <FileText size={13} />
             {showLog ? 'Hide Log' : 'View Full Log'}

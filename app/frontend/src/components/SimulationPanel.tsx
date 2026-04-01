@@ -398,7 +398,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
             <Settings size={16} className="text-indigo-600" />
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-bold text-slate-700">Simulation Configuration</h3>
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Simulation Configuration</h3>
             <p className="text-xs text-slate-400">Monte Carlo forward-looking credit loss engine</p>
           </div>
         </div>
@@ -432,12 +432,12 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                   <div className="pt-5">
                     <div className="flex items-center gap-2 mb-4">
                       <Sliders size={14} className="text-indigo-500" />
-                      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Monte Carlo Parameters</h4>
+                      <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Monte Carlo Parameters</h4>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1.5">N Simulations</label>
+                        <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1.5">N Simulations</label>
                         <input type="number" min={100} max={5000} step={100} value={nSimulations}
                           onChange={e => setNSimulations(Math.max(100, Math.min(5000, Number(e.target.value) || 100)))}
                           disabled={running}
@@ -446,7 +446,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         <p className="text-[10px] text-slate-400 mt-1">100 – 5,000 paths</p>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1.5">PD-LGD Correlation (ρ)</label>
+                        <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1.5">PD-LGD Correlation (ρ)</label>
                         <div className="flex items-center gap-2">
                           <input type="range" min={0} max={1} step={0.05} value={pdLgdCorrelation}
                             onChange={e => setPdLgdCorrelation(Number(e.target.value))} disabled={running}
@@ -458,7 +458,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1.5">Aging Factor</label>
+                        <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Aging Factor</label>
                         <div className="flex items-center gap-2">
                           <input type="range" min={0} max={0.20} step={0.01} value={agingFactor}
                             onChange={e => setAgingFactor(Number(e.target.value))} disabled={running}
@@ -494,7 +494,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <Sliders size={14} className="text-indigo-500" />
-                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Scenario Weights</h4>
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Scenario Weights</h4>
                       </div>
                       <div className="flex items-center gap-2">
                         <button onClick={equalizeWeights} disabled={running}
@@ -502,7 +502,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           Equalize
                         </button>
                         <button onClick={resetToDefault} disabled={running}
-                          className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-700 px-2 py-1 rounded-md hover:bg-slate-100 transition disabled:opacity-50">
+                          className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-50">
                           <RotateCcw size={10} /> Reset to Default
                         </button>
                       </div>
@@ -513,12 +513,12 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         <div key={sw.key} className="flex items-center gap-3">
                           <div className="flex items-center gap-2 w-36 flex-shrink-0">
                             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: sw.color }} />
-                            <span className="text-xs font-medium text-slate-700 truncate">{sw.label}</span>
+                            <span className="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">{sw.label}</span>
                           </div>
                           <input type="range" min={0} max={60} step={1} value={sw.weight}
                             onChange={e => updateWeight(sw.key, Number(e.target.value))} disabled={running}
                             className="flex-1 accent-indigo-500" />
-                          <span className="w-10 text-right text-xs font-mono font-semibold text-slate-700">{Math.round(sw.weight)}%</span>
+                          <span className="w-10 text-right text-xs font-mono font-semibold text-slate-700 dark:text-slate-200">{Math.round(sw.weight)}%</span>
                         </div>
                       ))}
                     </div>
@@ -552,7 +552,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                             <ArrowRight size={14} /> Proceed Anyway
                           </button>
                           <button onClick={() => { setShowValidationWarnings(false); setValidationResult(null); }}
-                            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                             <Ban size={13} /> Cancel
                           </button>
                         </div>
@@ -643,13 +643,13 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                     <div className="pt-2 border-t border-indigo-100">
                       <div className="flex items-center gap-2 mb-3">
                         <History size={14} className="text-indigo-500" />
-                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Run History</h4>
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Run History</h4>
                         <span className="text-[10px] text-slate-400 ml-auto">{runHistory.length} run{runHistory.length !== 1 ? 's' : ''} (last 10)</span>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-[11px]">
                           <thead>
-                            <tr className="bg-slate-50">
+                            <tr className="bg-slate-50 dark:bg-slate-800/50">
                               <th className="py-1.5 px-2 text-center font-semibold text-slate-500">#</th>
                               <th className="py-1.5 px-2 text-left font-semibold text-slate-500">Time</th>
                               <th className="py-1.5 px-2 text-right font-semibold text-slate-500">N Sims</th>
@@ -664,11 +664,11 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                             {runHistory.map((entry, idx) => (
                               <tr key={idx} className="hover:bg-indigo-50/50 transition">
                                 <td className="py-1.5 px-2 text-center font-mono text-slate-400">{idx + 1}</td>
-                                <td className="py-1.5 px-2 text-left text-slate-600">{entry.timestamp.toLocaleTimeString()}</td>
-                                <td className="py-1.5 px-2 text-right font-mono text-slate-700">{entry.n_sims.toLocaleString()}</td>
-                                <td className="py-1.5 px-2 text-right font-mono text-slate-700">{entry.pd_lgd_correlation.toFixed(2)}</td>
-                                <td className="py-1.5 px-2 text-right font-mono text-slate-700">{(entry.aging_factor * 100).toFixed(0)}%</td>
-                                <td className="py-1.5 px-2 text-right font-mono font-semibold text-slate-800">
+                                <td className="py-1.5 px-2 text-left text-slate-600 dark:text-slate-300">{entry.timestamp.toLocaleTimeString()}</td>
+                                <td className="py-1.5 px-2 text-right font-mono text-slate-700 dark:text-slate-200">{entry.n_sims.toLocaleString()}</td>
+                                <td className="py-1.5 px-2 text-right font-mono text-slate-700 dark:text-slate-200">{entry.pd_lgd_correlation.toFixed(2)}</td>
+                                <td className="py-1.5 px-2 text-right font-mono text-slate-700 dark:text-slate-200">{(entry.aging_factor * 100).toFixed(0)}%</td>
+                                <td className="py-1.5 px-2 text-right font-mono font-semibold text-slate-800 dark:text-slate-100">
                                   {entry.total_ecl >= 1e6 ? `${(entry.total_ecl / 1e6).toFixed(2)}M`
                                     : entry.total_ecl >= 1e3 ? `${(entry.total_ecl / 1e3).toFixed(1)}K`
                                     : entry.total_ecl.toFixed(0)}

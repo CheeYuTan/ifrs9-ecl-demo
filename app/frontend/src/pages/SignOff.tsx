@@ -270,7 +270,7 @@ export default function SignOff({ project, onSignOff }: Props) {
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${(o.amount || 0) > 0 ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
                     {(o.amount || 0) > 0 ? 'Uplift' : 'Reduction'}
                   </span>
-                  <span className="text-sm font-medium text-slate-700 truncate">{o.reason || o.product || `Overlay ${i + 1}`}</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{o.reason || o.product || `Overlay ${i + 1}`}</span>
                   {o.product && <span className="text-xs text-slate-500">{o.product}</span>}
                 </div>
                 <span className={`text-sm font-bold font-mono ${(o.amount || 0) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
@@ -279,7 +279,7 @@ export default function SignOff({ project, onSignOff }: Props) {
               </div>
             ))}
             <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-              <span className="text-sm font-bold text-slate-700">Net Overlay Impact</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Net Overlay Impact</span>
               <span className={`text-sm font-bold font-mono ${netOverlay >= 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                 {netOverlay >= 0 ? '+' : ''}{fmtCurrency(netOverlay)}
               </span>
@@ -374,11 +374,11 @@ export default function SignOff({ project, onSignOff }: Props) {
             <table className="w-full text-sm" aria-label="IFRS 7.35I Loss Allowance Reconciliation">
               <thead>
                 <tr className="border-b-2 border-slate-200">
-                  <th scope="col" className="text-left py-2.5 px-3 text-xs font-semibold text-slate-600">Movement Type</th>
+                  <th scope="col" className="text-left py-2.5 px-3 text-xs font-semibold text-slate-600 dark:text-slate-300">Movement Type</th>
                   <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-emerald-700"><span className="inline-flex items-center gap-1">Stage 1 <HelpTooltip content={IFRS9_HELP.STAGE_1} size={11} position="bottom" /></span></th>
                   <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-amber-700"><span className="inline-flex items-center gap-1">Stage 2 <HelpTooltip content={IFRS9_HELP.STAGE_2} size={11} position="bottom" /></span></th>
                   <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-red-700"><span className="inline-flex items-center gap-1">Stage 3 <HelpTooltip content={IFRS9_HELP.STAGE_3} size={11} position="bottom" /></span></th>
-                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-slate-700">Total</th>
+                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-slate-700 dark:text-slate-200">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -388,7 +388,7 @@ export default function SignOff({ project, onSignOff }: Props) {
                   const isBold = row.bold;
                   return (
                     <tr key={i} className={`border-b ${isClosing ? 'border-t-2 border-slate-300 bg-slate-50' : isOpening ? 'bg-slate-50 border-slate-200' : 'border-slate-100'} hover:bg-slate-50`}>
-                      <td className={`py-2.5 px-3 ${isBold ? 'font-bold text-slate-800' : 'text-slate-600'} flex items-center gap-2`}>
+                      <td className={`py-2.5 px-3 ${isBold ? 'font-bold text-slate-800 dark:text-slate-100' : 'text-slate-600 dark:text-slate-300'} flex items-center gap-2`}>
                         {row.movement === 'Transfers (net stage movements)' && <ArrowRightLeft size={12} className="text-slate-400" />}
                         {row.movement}
                       </td>
@@ -396,7 +396,7 @@ export default function SignOff({ project, onSignOff }: Props) {
                         const val = Number(row[col]) || 0;
                         const isNeg = val < 0;
                         return (
-                          <td key={col} className={`py-2.5 px-3 text-right font-mono text-xs ${isBold ? 'font-bold' : ''} ${col === 'total' ? 'text-slate-800 font-semibold' : isNeg ? 'text-red-600' : 'text-slate-700'}`}>
+                          <td key={col} className={`py-2.5 px-3 text-right font-mono text-xs ${isBold ? 'font-bold' : ''} ${col === 'total' ? 'text-slate-800 dark:text-slate-100 font-semibold' : isNeg ? 'text-red-600' : 'text-slate-700 dark:text-slate-200'}`}>
                             {isBold ? fmtCurrency(val) : `${val >= 0 ? '' : '('}${fmtCurrency(Math.abs(val))}${val < 0 ? ')' : ''}`}
                           </td>
                         );
@@ -549,7 +549,7 @@ export default function SignOff({ project, onSignOff }: Props) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-700">{a.action}</p>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{a.action}</p>
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Clock size={10} /> {fmtDateTime(a.ts)}
                     </div>
@@ -567,7 +567,7 @@ export default function SignOff({ project, onSignOff }: Props) {
         <Card>
           <div className="py-4">
             <Lock size={32} className="mx-auto text-slate-400 mb-3" />
-            <h3 className="text-lg font-bold text-slate-700 mb-1 text-center">Final Sign-Off</h3>
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-1 text-center">Final Sign-Off</h3>
             <p className="text-sm text-slate-500 mb-5 max-w-lg mx-auto text-center">
               By signing off, you confirm the forward-looking credit loss calculation is complete, all management overlays are justified per IFRS 9.B5.5.17, and the results are ready for Board submission and regulatory reporting.
             </p>

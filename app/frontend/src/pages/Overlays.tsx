@@ -181,24 +181,24 @@ export default function Overlays({ project, onSubmit }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-500 uppercase">Overlay Cap</p>
-            <p className="text-lg font-bold text-slate-700">≤ {OVERLAY_CAP_PCT}% of Model ECL</p>
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-200">≤ {OVERLAY_CAP_PCT}% of Model ECL</p>
             <p className={`text-[10px] font-semibold ${Math.abs(net) / Math.max(modelEcl, 1) * 100 > OVERLAY_CAP_PCT ? 'text-red-500' : 'text-emerald-500'}`}>
               Current: {fmtPct(Math.abs(net) / Math.max(modelEcl, 1) * 100, 1)}
             </p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-500 uppercase">Approval Required</p>
-            <p className="text-sm font-bold text-slate-700">Each overlay individually</p>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Each overlay individually</p>
             <p className="text-[10px] text-slate-400">Maker-checker: Risk Analyst → CRO</p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-500 uppercase">Expiry Policy</p>
-            <p className="text-sm font-bold text-slate-700">Temporary: max 2 quarters</p>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Temporary: max 2 quarters</p>
             <p className="text-[10px] text-slate-400">Permanent overlays trigger model redevelopment review</p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-500 uppercase">Classification</p>
-            <p className="text-sm font-bold text-slate-700">{overlays.filter(o => (o as any).classification === 'temporary').length} Temporary / {overlays.filter(o => (o as any).classification !== 'temporary').length} Permanent</p>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{overlays.filter(o => (o as any).classification === 'temporary').length} Temporary / {overlays.filter(o => (o as any).classification !== 'temporary').length} Permanent</p>
             <p className="text-[10px] text-slate-400">Permanent overlays reviewed quarterly by MRM</p>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function Overlays({ project, onSubmit }: Props) {
 
       {stepSt !== 'completed' && (
         <Card>
-          <h3 className="text-sm font-bold text-slate-700 mb-3" id="overlay-submit-heading">Submit Overlays</h3>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3" id="overlay-submit-heading">Submit Overlays</h3>
           <label htmlFor="overlay-justification" className="sr-only">Justification for overlay package</label>
           <textarea id="overlay-justification" value={comment} onChange={e => setComment(e.target.value)} rows={2}
             placeholder="Justification for overlay package..."

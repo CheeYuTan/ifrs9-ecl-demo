@@ -16,7 +16,7 @@ const themes: Record<string, { bg: string; iconBg: string; border: string }> = {
   red: { bg: 'from-red-50 to-white', iconBg: 'bg-red-500/10 text-red-600', border: 'border-red-100/50' },
   purple: { bg: 'from-purple-50 to-white', iconBg: 'bg-purple-500/10 text-purple-600', border: 'border-purple-100/50' },
   indigo: { bg: 'from-indigo-50 to-white', iconBg: 'bg-indigo-500/10 text-indigo-600', border: 'border-indigo-100/50' },
-  navy: { bg: 'from-slate-50 to-white', iconBg: 'bg-slate-500/10 text-slate-600', border: 'border-slate-100/50' },
+  navy: { bg: 'from-slate-50 to-white', iconBg: 'bg-slate-500/10 text-slate-600 dark:text-slate-300', border: 'border-slate-100/50' },
   teal: { bg: 'from-teal-50 to-white', iconBg: 'bg-teal-500/10 text-teal-600', border: 'border-teal-100/50' },
 };
 
@@ -35,7 +35,7 @@ export default function KpiCard({ title, value, subtitle, icon, color = 'blue' }
       <div className="relative flex items-start justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">{title}</p>
-          <p className="text-2xl font-extrabold text-slate-800 tracking-tight">{value}</p>
+          <p className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{value}</p>
           {subtitle && <p className="text-[11px] text-slate-500 mt-1.5">{subtitle}</p>}
         </div>
         {icon && (

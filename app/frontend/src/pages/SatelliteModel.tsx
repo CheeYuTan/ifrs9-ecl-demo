@@ -260,7 +260,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
       <Card>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               <Cpu size={20} className="text-brand" /> Satellite Model Selection
             </h2>
             <p className="text-xs text-slate-400 mt-1">
@@ -268,10 +268,10 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
             </p>
           </div>
           <div className="flex items-center gap-3 text-xs">
-            <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg font-semibold text-slate-600">
+            <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg font-semibold text-slate-600 dark:text-slate-300">
               {selected.length} product-cohort models
             </span>
-            <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg font-semibold text-slate-600">
+            <span className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg font-semibold text-slate-600 dark:text-slate-300">
               {comparison.length} total evaluations
             </span>
             <button
@@ -317,7 +317,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <Clock size={12} className="text-slate-400" />
-                        <span className="text-xs font-mono font-semibold text-slate-700">
+                        <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-200">
                           {run.run_timestamp ? new Date(run.run_timestamp).toLocaleString() : run.run_id.slice(0, 19)}
                         </span>
                         {isActive && <span className="text-[10px] px-1.5 py-0.5 bg-indigo-200 text-indigo-700 rounded-full font-bold">VIEWING</span>}
@@ -417,7 +417,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
                     run.result_state === 'FAILED' ? 'bg-red-500' :
                     run.lifecycle_state === 'RUNNING' ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'
                   }`} />
-                  <span className="font-semibold text-slate-700">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
                     {run.result_state || run.lifecycle_state}
                   </span>
                   <span className="text-slate-400">
@@ -440,7 +440,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
           {modelWinSummary.map(({ model, count }) => (
             <div key={model} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-center">
               <div className="w-3 h-3 rounded-full mx-auto mb-1.5" style={{ background: MODEL_COLORS[model] || '#94A3B8' }} />
-              <div className="text-lg font-bold text-slate-800">{count}</div>
+              <div className="text-lg font-bold text-slate-800 dark:text-slate-100">{count}</div>
               <div className="text-[10px] text-slate-400 font-semibold">{MODEL_LABELS[model] || model}</div>
             </div>
           ))}
@@ -580,12 +580,12 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
               {selectedModel && (
                 <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-bold text-slate-600">Selected Model Formula</h4>
+                    <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300">Selected Model Formula</h4>
                     <span className="text-[10px] font-semibold text-slate-400 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">
                       {MODEL_LABELS[selectedModel.model_type] || selectedModel.model_type}
                     </span>
                   </div>
-                  <code className="text-xs font-mono text-slate-700 block whitespace-pre-wrap break-all">
+                  <code className="text-xs font-mono text-slate-700 dark:text-slate-200 block whitespace-pre-wrap break-all">
                     {selectedModel.formula}
                   </code>
                   <div className="mt-3 grid grid-cols-2 gap-3">
@@ -599,7 +599,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
                               {Object.entries(coeffs).map(([k, v]) => (
                                 <div key={k} className="flex justify-between text-[11px]">
                                   <span className="text-slate-500">{k}</span>
-                                  <span className="font-mono font-semibold text-slate-700">{typeof v === 'number' ? v.toFixed(6) : String(v)}</span>
+                                  <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{typeof v === 'number' ? v.toFixed(6) : String(v)}</span>
                                 </div>
                               ))}
                             </div>
@@ -629,7 +629,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
         <Card>
           <div className="flex items-start gap-4">
             <div className="flex-1">
-              <h3 className="text-sm font-bold text-slate-700 mb-2">Approve Satellite Model Selection</h3>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Approve Satellite Model Selection</h3>
               <p className="text-xs text-slate-400 mb-3">
                 Review the auto-selected models per product-cohort. Once approved, these models will be used in the Monte Carlo ECL calculation.
               </p>

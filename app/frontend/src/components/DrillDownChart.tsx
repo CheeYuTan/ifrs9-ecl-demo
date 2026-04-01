@@ -131,7 +131,7 @@ export default function DrillDownChart({
             <span key={i} className="flex items-center gap-1">
               {i > 0 && <ChevronRight size={10} className="text-slate-300" />}
               <button onClick={() => { if (i === 0) goBack(); }}
-                className={i < breadcrumb.length - 1 ? 'text-brand hover:underline cursor-pointer' : 'font-semibold text-slate-700'}>
+                className={i < breadcrumb.length - 1 ? 'text-brand hover:underline cursor-pointer' : 'font-semibold text-slate-700 dark:text-slate-200'}>
                 {part}
               </button>
             </span>
@@ -143,7 +143,7 @@ export default function DrillDownChart({
               value={activeDimension}
               onChange={e => handleDimensionChange(e.target.value)}
               aria-label="Drill-down dimension"
-              className="text-[10px] px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 font-medium focus:ring-1 focus:ring-brand/30 outline-none"
+              className="text-[10px] px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium focus:ring-1 focus:ring-brand/30 outline-none"
             >
               {dimensions.map(d => (
                 <option key={d.key} value={d.key}>{d.label}</option>
