@@ -615,7 +615,7 @@ export default function ApprovalWorkflow() {
               </Card>
 
               <Card title="Role Permissions Matrix" subtitle="Actions available per role" icon={<Shield size={16} />} accent="brand">
-                <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">

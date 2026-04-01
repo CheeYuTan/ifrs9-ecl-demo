@@ -100,7 +100,7 @@ export default function SimulationResults({
               return (
                 <div key={t.label} className="flex items-center gap-2">
                   <span className="w-32 text-slate-500">{t.label}:</span>
-                  <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="w-16 text-right font-mono">{t.sec.toFixed(1)}s</span>

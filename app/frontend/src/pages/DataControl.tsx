@@ -96,7 +96,7 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
             { key: 'description', label: 'Description' },
             { key: 'severity', label: 'Severity', align: 'center',
               format: (v: string) => (
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${v?.toLowerCase() === 'critical' ? 'bg-red-50 text-red-600' : v?.toLowerCase() === 'high' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'}`}>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${v?.toLowerCase() === 'critical' ? 'bg-red-50 text-red-600' : v?.toLowerCase() === 'high' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-500'}`}>
                   {v}
                 </span>
               )},

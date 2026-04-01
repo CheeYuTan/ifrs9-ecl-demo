@@ -495,7 +495,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
             <div className="overflow-x-auto mt-2">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-slate-400 font-semibold">
+                  <tr className="border-b border-slate-200 dark:border-slate-600 text-left text-slate-400 font-semibold">
                     <th className="py-2 px-3">Cohort</th>
                     <th className="py-2 px-3">Best Model</th>
                     <th className="py-2 px-3 text-right">R²</th>
@@ -509,7 +509,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
                     <tr
                       key={row.cohort_id}
                       onClick={() => setActiveCohort(row.cohort_id)}
-                      className={`border-b border-slate-100 cursor-pointer transition hover:bg-slate-50 ${
+                      className={`border-b border-slate-100 dark:border-slate-700 cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
                         activeCohort === row.cohort_id ? 'bg-brand-light' : ''
                       }`}
                     >
@@ -540,7 +540,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
               <div className="overflow-x-auto mt-2">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-200 text-left text-slate-400 font-semibold">
+                    <tr className="border-b border-slate-200 dark:border-slate-600 text-left text-slate-400 font-semibold">
                       <th className="py-2 px-3">Model</th>
                       <th className="py-2 px-3 text-right">R²</th>
                       <th className="py-2 px-3 text-right">RMSE</th>
@@ -554,7 +554,7 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
                     {cohortModels.map(row => {
                       const isBest = selectedModel?.model_type === row.model_type;
                       return (
-                        <tr key={row.model_type} className={`border-b border-slate-100 ${isBest ? 'bg-emerald-50 font-semibold' : ''}`}>
+                        <tr key={row.model_type} className={`border-b border-slate-100 dark:border-slate-700 ${isBest ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : ''}`}>
                           <td className="py-2 px-3">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full" style={{ background: MODEL_COLORS[row.model_type] || '#94A3B8' }} />

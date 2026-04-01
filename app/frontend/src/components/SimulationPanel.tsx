@@ -441,7 +441,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         <input type="number" min={100} max={5000} step={100} value={nSimulations}
                           onChange={e => setNSimulations(Math.max(100, Math.min(5000, Number(e.target.value) || 100)))}
                           disabled={running}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50"
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50"
                         />
                         <p className="text-[10px] text-slate-400 mt-1">100 – 5,000 paths</p>
                       </div>
@@ -454,7 +454,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <input type="number" min={0} max={1} step={0.05} value={pdLgdCorrelation}
                             onChange={e => setPdLgdCorrelation(Math.max(0, Math.min(1, Number(e.target.value) || 0)))}
                             disabled={running}
-                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
+                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                       </div>
                       <div>
@@ -466,7 +466,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <input type="number" min={0} max={0.20} step={0.01} value={agingFactor}
                             onChange={e => setAgingFactor(Math.max(0, Math.min(0.20, Number(e.target.value) || 0)))}
                             disabled={running}
-                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
+                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                         <p className="text-[10px] text-slate-400 mt-1">+{(agingFactor * 100).toFixed(0)}%/quarter for Stage 2/3</p>
                       </div>
@@ -483,7 +483,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <label className="block text-[10px] font-semibold text-slate-500 mb-1">{p.label}</label>
                           <input type="number" min={p.min} max={p.max} step={p.step} value={p.value}
                             onChange={e => p.set(Number(e.target.value) || p.fallback)} disabled={running}
-                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-xs font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                       ))}
                     </div>

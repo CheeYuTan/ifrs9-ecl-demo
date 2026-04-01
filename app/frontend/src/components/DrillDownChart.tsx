@@ -170,7 +170,7 @@ export default function DrillDownChart({
 
       {!loadingDimension && chartData.length === 0 && level !== 'total' && (
         <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
             <ChevronRight size={16} />
           </div>
           <p className="text-sm font-semibold">No data available for this dimension</p>

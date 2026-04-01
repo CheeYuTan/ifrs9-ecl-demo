@@ -101,7 +101,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
             {allProjects.map(p => (
               <div key={p.project_id} onClick={() => onSelectProject?.(p.project_id)} role="button" tabIndex={0}
                 onKeyDown={e => e.key === 'Enter' && onSelectProject?.(p.project_id)}
-                className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand/3 transition group cursor-pointer">
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-brand/30 hover:bg-brand/3 transition group cursor-pointer">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${p.signed_off_by ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
                   {p.signed_off_by ? <CheckCircle2 size={14} /> : <Clock size={14} />}
                 </div>
@@ -185,7 +185,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-slate-100">
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
               { label: 'Accounting Standard', value: config.regulatoryFramework },
@@ -200,7 +200,7 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-5 pt-4 border-t border-slate-100">
+        <div className="flex items-center gap-3 mt-5 pt-4 border-t border-slate-100 dark:border-slate-700">
           <button onClick={handleSubmit} disabled={loading || !isFormValid} className="btn-primary shadow-md disabled:opacity-40">
             {loading ? 'Creating...' : project ? 'Update Project' : 'Create Project'}
           </button>

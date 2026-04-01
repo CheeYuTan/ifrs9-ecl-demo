@@ -33,7 +33,7 @@ export default function Stepper({ project, activeStep, onStepClick }: Props) {
         const isReachable = i <= cur;
         const Icon = s.icon;
 
-        let circleClass = 'bg-slate-100 text-slate-400 border-2 border-slate-200';
+        let circleClass = 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-2 border-slate-200 dark:border-slate-600';
         let labelClass = 'text-slate-400';
         if (isCompleted) {
           circleClass = 'gradient-brand text-white border-0 shadow-md glow-brand';
@@ -49,7 +49,7 @@ export default function Stepper({ project, activeStep, onStepClick }: Props) {
           labelClass = 'text-slate-500';
         }
 
-        const lineClass = isCompleted ? 'bg-gradient-to-r from-brand to-brand-dark' : 'bg-slate-200';
+        const lineClass = isCompleted ? 'bg-gradient-to-r from-brand to-brand-dark' : 'bg-slate-200 dark:bg-slate-700';
 
         return (
           <div key={s.key} className="flex items-start" style={{ flex: i < STEPS.length - 1 ? 1 : 'none' }}>

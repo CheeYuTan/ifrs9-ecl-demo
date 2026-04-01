@@ -49,7 +49,7 @@ export default function SimulationProgress({
         </div>
 
         <div className="space-y-1.5">
-          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <motion.div
               className="h-full rounded-full"
               style={{ background: 'linear-gradient(90deg, #6366F1, #10B981)' }}

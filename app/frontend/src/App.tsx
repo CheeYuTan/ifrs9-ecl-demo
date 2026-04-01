@@ -73,7 +73,7 @@ function ProjectSelector({
             <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
             <motion.div initial={{ opacity: 0, y: -4, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.97 }} transition={{ duration: 0.15 }}
               className="absolute top-full right-0 mt-2 w-80 glass-card rounded-2xl z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ECL Projects</p>
               </div>
               <div className="max-h-72 overflow-y-auto p-1.5">
@@ -82,7 +82,7 @@ function ProjectSelector({
                   const isSigned = !!p.signed_off_by;
                   return (
                     <button key={p.project_id} onClick={() => { onSelect(p.project_id); setOpen(false); }}
-                      className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 transition ${isCurrent ? 'bg-brand/8 ring-1 ring-brand/20' : 'hover:bg-slate-50'}`}>
+                      className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 transition ${isCurrent ? 'bg-brand/8 ring-1 ring-brand/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
                       <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isSigned ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-600'}`}>
                         {isSigned ? <CheckCircle2 size={14} /> : <Clock size={14} />}
                       </div>
@@ -97,7 +97,7 @@ function ProjectSelector({
                   );
                 })}
               </div>
-              <div className="border-t border-slate-100 p-2">
+              <div className="border-t border-slate-100 dark:border-slate-700 p-2">
                 <button onClick={() => { onNew(); setOpen(false); }}
                   className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-brand hover:bg-brand/5 transition">
                   <Plus size={14} /> New Project

@@ -66,7 +66,7 @@ function TransitionHeatmap({ matrixData, title }: { matrixData: any; title?: str
           </thead>
           <tbody>
             {matrix.map((row: number[], i: number) => (
-              <tr key={i} className="border-b border-slate-100 last:border-0">
+              <tr key={i} className="border-b border-slate-100 dark:border-slate-700 last:border-0">
                 <td className="py-2.5 px-3 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-800/40">
                   {states[i]}
                 </td>

@@ -87,7 +87,7 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
           </button>
         </div>
       )}
-      <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">

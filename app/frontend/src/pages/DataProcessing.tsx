@@ -154,7 +154,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
             { icon: GitBranch, color: 'text-emerald-500', bg: 'bg-emerald-50', label: 'Pipeline', value: 'Lakeflow DLT to Lakebase', detail: 'Bronze to Silver to Gold to Lakebase' },
             { icon: FileCheck, color: 'text-teal-500', bg: 'bg-teal-50', label: 'Completeness', value: `${fmtNumber(totalLoans)} / ${fmtNumber(totalLoans)} loaded`, detail: '100% coverage' },
           ].map(item => (
-            <div key={item.label} className={`flex items-start gap-3 p-3.5 rounded-xl ${item.bg} border border-slate-100/50`}>
+            <div key={item.label} className={`flex items-start gap-3 p-3.5 rounded-xl ${item.bg} border border-slate-100/50 dark:border-slate-700/50`}>
               <item.icon size={16} className={`${item.color} mt-0.5 flex-shrink-0`} />
               <div>
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</p>
@@ -164,7 +164,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
             </div>
           ))}
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3">
           <div className="flex items-center gap-4 text-[10px] text-slate-500">
             <span>UC Catalog: <span className="font-mono font-semibold text-slate-500">{adminConfig?.data_sources?.catalog || 'lakemeter_catalog'}.{adminConfig?.data_sources?.schema || 'expected_credit_loss'}</span></span>
           </div>
@@ -236,7 +236,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
           formatValue={fmtCurrency}
           fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
         />
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4">
         <DataTable
           exportName="portfolio_by_product"
           columns={[
