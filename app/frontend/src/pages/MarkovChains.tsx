@@ -32,7 +32,7 @@ const HEATMAP_COLORS = [
 ];
 
 function getHeatmapClass(value: number, isDiagonal: boolean, isDefault: boolean): string {
-  if (isDefault && isDiagonal) return 'bg-slate-200 text-slate-700 font-bold';
+  if (isDefault && isDiagonal) return 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold';
   if (isDiagonal) return 'bg-blue-100 text-blue-800 font-bold';
   if (value < 0.01) return HEATMAP_COLORS[0];
   if (value < 0.03) return HEATMAP_COLORS[1];
@@ -54,11 +54,11 @@ function TransitionHeatmap({ matrixData, title }: { matrixData: any; title?: str
         <table className="w-full text-sm">
           <thead>
             <tr>
-              <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 rounded-tl-xl">
+              <th className="py-2 px-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 dark:bg-slate-800/60 rounded-tl-xl">
                 From ↓ / To →
               </th>
               {states.map((s: string) => (
-                <th key={s} className="py-2 px-3 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 last:rounded-tr-xl">
+                <th key={s} className="py-2 px-3 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 dark:bg-slate-800/60 last:rounded-tr-xl">
                   {s}
                 </th>
               ))}
@@ -67,7 +67,7 @@ function TransitionHeatmap({ matrixData, title }: { matrixData: any; title?: str
           <tbody>
             {matrix.map((row: number[], i: number) => (
               <tr key={i} className="border-b border-slate-100 last:border-0">
-                <td className="py-2.5 px-3 text-xs font-bold text-slate-600 bg-slate-50/50">
+                <td className="py-2.5 px-3 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-800/40">
                   {states[i]}
                 </td>
                 {row.map((val: number, j: number) => {
@@ -429,7 +429,7 @@ export default function MarkovChains() {
               <Card accent="amber">
                 <div className="text-center py-8">
                   <TrendingUp size={40} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-sm font-semibold text-slate-600">No forecast generated yet</p>
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No forecast generated yet</p>
                   <p className="text-xs text-slate-400 mt-1">Select a matrix and click "Forecast" to project stage distributions</p>
                 </div>
               </Card>
@@ -468,20 +468,20 @@ export default function MarkovChains() {
                       <div key={stage} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: STAGE_COLORS[i] }} />
-                          <span className="text-xs font-bold text-slate-600">{stage}</span>
+                          <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{stage}</span>
                         </div>
                         <div className="space-y-1 text-xs text-slate-500">
                           <div className="flex justify-between">
                             <span>12-month PD:</span>
-                            <span className="font-semibold text-slate-700">{fmtPct(curve[Math.min(12, curve.length - 1)]?.cumulative_pd)}</span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-200">{fmtPct(curve[Math.min(12, curve.length - 1)]?.cumulative_pd)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Mid-point PD:</span>
-                            <span className="font-semibold text-slate-700">{fmtPct(midPoint?.cumulative_pd)}</span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-200">{fmtPct(midPoint?.cumulative_pd)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Lifetime PD:</span>
-                            <span className="font-bold text-slate-800">{fmtPct(lastPoint?.cumulative_pd)}</span>
+                            <span className="font-bold text-slate-800 dark:text-white">{fmtPct(lastPoint?.cumulative_pd)}</span>
                           </div>
                         </div>
                       </div>
@@ -493,7 +493,7 @@ export default function MarkovChains() {
               <Card accent="amber">
                 <div className="text-center py-8">
                   <BarChart3 size={40} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-sm font-semibold text-slate-600">No lifetime PD computed yet</p>
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No lifetime PD computed yet</p>
                   <p className="text-xs text-slate-400 mt-1">Select a matrix and click "Lifetime PD" to compute cumulative default curves</p>
                 </div>
               </Card>
@@ -519,7 +519,7 @@ export default function MarkovChains() {
               <Card accent="amber">
                 <div className="text-center py-8">
                   <ArrowRightLeft size={40} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-sm font-semibold text-slate-600">Select 2+ matrices to compare</p>
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">Select 2+ matrices to compare</p>
                   <p className="text-xs text-slate-400 mt-1">Use the checkboxes in the matrix list below, then click "Compare Selected"</p>
                 </div>
               </Card>

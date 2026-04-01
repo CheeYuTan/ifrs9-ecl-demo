@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Settings, Play, RotateCcw, Sliders, ChevronDown, ChevronUp,
   Loader2, CheckCircle2, AlertCircle, History, Upload,
-  ArrowRight, Ban,
+  ArrowRight, Ban, Server, ExternalLink,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { config } from '../lib/config';
@@ -83,8 +83,12 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
   const [completedTiming, setCompletedTiming] = useState<{ loading: number; compute: number; aggregation: number } | null>(null);
   const [convergenceInfo, setConvergenceInfo] = useState<{ pct: number; at: number } | null>(null);
   const [showValidationWarnings, setShowValidationWarnings] = useState(false);
+  const [jobRunning, setJobRunning] = useState(false);
+  const [jobRunUrl, setJobRunUrl] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<string>('');
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const jobPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const startTimeRef = useRef<number>(0);
   const lastScenarioElapsedRef = useRef<number>(0);
@@ -120,7 +124,10 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(() => () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (jobPollRef.current) clearInterval(jobPollRef.current);
+  }, []);
 
   const totalWeight = scenarioWeights.reduce((s, w) => s + w.weight, 0);
   const weightsValid = Math.abs(totalWeight - 100) < 0.5;
@@ -333,12 +340,54 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
     setCurrentPhase('');
   };
 
+  const runAsJob = async () => {
+    if (!weightsValid) return;
+    const simConfig = buildSimConfig();
+    setError(null);
+    setJobRunning(true);
+    setJobStatus('Submitting to Databricks...');
+    setJobRunUrl(null);
+
+    try {
+      const result = await api.simulateJob(simConfig);
+      setJobRunUrl(result.run_url || null);
+      setJobStatus('Job submitted — polling for completion...');
+
+      const runId = result.run_id;
+      jobPollRef.current = setInterval(async () => {
+        try {
+          const status = await api.jobRunStatus(runId);
+          const state = status.lifecycle_state;
+          const resultState = status.result_state;
+          setJobStatus(`Job ${state}${resultState ? ` (${resultState})` : ''}`);
+
+          if (state === 'TERMINATED' || state === 'SKIPPED' || state === 'INTERNAL_ERROR') {
+            if (jobPollRef.current) clearInterval(jobPollRef.current);
+            setJobRunning(false);
+            if (resultState === 'SUCCESS') {
+              setJobStatus('Job completed successfully — results saved to Delta tables');
+            } else {
+              setError(`Job finished with status: ${resultState || state}`);
+              setJobStatus('');
+            }
+          }
+        } catch {
+          // keep polling
+        }
+      }, 5000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to trigger Databricks job');
+      setJobRunning(false);
+      setJobStatus('');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="bg-white rounded-xl shadow-sm border-2 border-indigo-200"
+      className="glass-card rounded-xl border-2 border-brand/20"
     >
       <button
         onClick={() => setOpen(!open)}
@@ -355,7 +404,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
         </div>
         <div className="flex items-center gap-3">
           {lastRun && (
-            <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
               Last run: {lastRun.duration < 1000 ? `${lastRun.duration}ms` : `${(lastRun.duration / 1000).toFixed(1)}s`}
             </span>
           )}
@@ -392,7 +441,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         <input type="number" min={100} max={5000} step={100} value={nSimulations}
                           onChange={e => setNSimulations(Math.max(100, Math.min(5000, Number(e.target.value) || 100)))}
                           disabled={running}
-                          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition disabled:opacity-50"
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50"
                         />
                         <p className="text-[10px] text-slate-400 mt-1">100 – 5,000 paths</p>
                       </div>
@@ -405,7 +454,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <input type="number" min={0} max={1} step={0.05} value={pdLgdCorrelation}
                             onChange={e => setPdLgdCorrelation(Math.max(0, Math.min(1, Number(e.target.value) || 0)))}
                             disabled={running}
-                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition disabled:opacity-50" />
+                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                       </div>
                       <div>
@@ -417,7 +466,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <input type="number" min={0} max={0.20} step={0.01} value={agingFactor}
                             onChange={e => setAgingFactor(Math.max(0, Math.min(0.20, Number(e.target.value) || 0)))}
                             disabled={running}
-                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition disabled:opacity-50" />
+                            className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                         <p className="text-[10px] text-slate-400 mt-1">+{(agingFactor * 100).toFixed(0)}%/quarter for Stage 2/3</p>
                       </div>
@@ -434,7 +483,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <label className="block text-[10px] font-semibold text-slate-500 mb-1">{p.label}</label>
                           <input type="number" min={p.min} max={p.max} step={p.step} value={p.value}
                             onChange={e => p.set(Number(e.target.value) || p.fallback)} disabled={running}
-                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition disabled:opacity-50" />
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
                       ))}
                     </div>
@@ -475,7 +524,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                     </div>
 
                     <div className={`mt-3 flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold ${
-                      weightsValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+                      weightsValid ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                     }`}>
                       <span>Total: {totalWeight.toFixed(0)}%</span>
                       {weightsValid ? <CheckCircle2 size={14} /> : <span className="text-[10px] font-normal">Must sum to 100%</span>}
@@ -503,7 +552,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                             <ArrowRight size={14} /> Proceed Anyway
                           </button>
                           <button onClick={() => { setShowValidationWarnings(false); setValidationResult(null); }}
-                            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                             <Ban size={13} /> Cancel
                           </button>
                         </div>
@@ -547,10 +596,40 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           <AlertCircle size={14} className="flex-shrink-0" /><span>{error}</span>
                         </div>
                       )}
-                      <button onClick={runSimulation} disabled={running || !weightsValid}
-                        className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-300 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 disabled:shadow-none transition-all">
-                        <Play size={18} /><span>Run Simulation</span>
-                      </button>
+                      {jobRunning && (
+                        <div className="flex items-center gap-2 px-3 py-2.5 mb-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-xs">
+                          <Loader2 size={14} className="animate-spin flex-shrink-0" />
+                          <span>{jobStatus}</span>
+                          {jobRunUrl && (
+                            <a href={jobRunUrl} target="_blank" rel="noopener noreferrer"
+                              className="ml-auto flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold">
+                              <ExternalLink size={12} /> View Job
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      {jobStatus && !jobRunning && !error && (
+                        <div className="flex items-center gap-2 px-3 py-2.5 mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">
+                          <CheckCircle2 size={14} className="flex-shrink-0" />
+                          <span>{jobStatus}</span>
+                          {jobRunUrl && (
+                            <a href={jobRunUrl} target="_blank" rel="noopener noreferrer"
+                              className="ml-auto flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-semibold">
+                              <ExternalLink size={12} /> View Run
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex gap-3">
+                        <button onClick={runSimulation} disabled={running || jobRunning || !weightsValid}
+                          className="btn-primary flex-1 py-3.5 shadow-lg disabled:bg-slate-300 disabled:shadow-none">
+                          <Play size={18} /><span>Run In-App</span>
+                        </button>
+                        <button onClick={runAsJob} disabled={running || jobRunning || !weightsValid}
+                          className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg transition disabled:bg-slate-300 disabled:shadow-none">
+                          <Server size={18} /><span>Run as Databricks Job</span>
+                        </button>
+                      </div>
                       {lastRun && (
                         <p className="text-center text-[10px] text-slate-400 mt-2">
                           Completed at {lastRun.timestamp.toLocaleTimeString()} · {lastRun.duration < 1000 ? `${lastRun.duration}ms` : `${(lastRun.duration / 1000).toFixed(1)}s`}

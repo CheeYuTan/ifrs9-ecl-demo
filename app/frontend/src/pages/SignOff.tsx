@@ -491,9 +491,12 @@ export default function SignOff({ project, onSignOff }: Props) {
             level0Colors={{ 1: '#10B981', 2: '#F59E0B', 3: '#EF4444' }}
             fetchProductData={async (stage) => {
               const data = await api.eclByStageProduct(Number(stage));
-              return data.map((r: any) => ({ ...r, name: r.product_type }));
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0, name: r.product_type }));
             }}
-            fetchCohortData={async (product, dim) => api.eclByCohort(product, dim || 'risk_band')}
+            fetchCohortData={async (product, dim) => {
+              const data = await api.eclByCohort(product, dim || 'risk_band');
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0 }));
+            }}
           />
         </Card>
       )}

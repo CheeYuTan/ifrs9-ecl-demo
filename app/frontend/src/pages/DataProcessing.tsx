@@ -1,17 +1,23 @@
-import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid } from 'recharts';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import ErrorDisplay from '../components/ErrorDisplay';
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Database, TrendingUp, AlertTriangle, Layers, Server, Clock, FileCheck, GitBranch } from 'lucide-react';
+import { useChartTheme } from '../lib/chartTheme';
 import KpiCard from '../components/KpiCard';
 import Card from '../components/Card';
 import DataTable from '../components/DataTable';
+import DrillDownChart from '../components/DrillDownChart';
+import NotebookLink from '../components/NotebookLink';
 import LockedBanner from '../components/LockedBanner';
 import StatusBadge from '../components/StatusBadge';
+import ChartTooltip from '../components/ChartTooltip';
+import PageLoader from '../components/PageLoader';
 import { api, type Project } from '../lib/api';
 import { fmtCurrency, fmtNumber, fmtPct } from '../lib/format';
 import { config } from '../lib/config';
-
-const STAGE_COLORS = ['#10B981', '#F59E0B', '#EF4444'];
-const DPD_COLORS: Record<string, string> = { 'Current': '#10B981', '1-30 DPD': '#6EE7B7', '31-60 DPD': '#F59E0B', '61-90 DPD': '#FB923C', '90+ DPD': '#EF4444' };
+import { STAGE_COLORS_ARRAY } from '../lib/chartUtils';
+import StepDescription from '../components/StepDescription';
+import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
 
 interface Props {
   project: Project | null;
@@ -19,210 +25,284 @@ interface Props {
 }
 
 export default function DataProcessing({ project, onComplete }: Props) {
+  const ct = useChartTheme();
   const [portfolio, setPortfolio] = useState<any[]>([]);
   const [stages, setStages] = useState<any[]>([]);
-  const [dpd, setDpd] = useState<any[]>([]);
-  const [segments, setSegments] = useState<any[]>([]);
-  const [pdDist, setPdDist] = useState<any[]>([]);
+  const [cohortByProduct, setCohortByProduct] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [loadedAt, setLoadedAt] = useState<string | null>(null);
+  const [adminConfig, setAdminConfig] = useState<any>(null);
+  const [selectedStage, setSelectedStage] = useState<number | null>(null);
+  const [stageDrillData, setStageDrillData] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    fetch('/api/admin/config').then(r => r.ok ? r.json() : null).then(data => { if (data) setAdminConfig(data); }).catch(() => {});
+  }, []);
+
+  const loadData = useCallback(async () => {
     if (!project || project.current_step < 1) return;
-    Promise.all([
-      api.portfolioSummary(),
-      api.stageDistribution(),
-      api.dpdDistribution(),
-      api.borrowerSegments().catch(() => []),
-      api.pdDistribution().catch(() => []),
-    ])
-      .then(([p, s, d, seg, pd]) => { setPortfolio(p); setStages(s); setDpd(d); setSegments(seg); setPdDist(pd); setLoadedAt(new Date().toLocaleTimeString()); })
-      .finally(() => setLoading(false));
+    setLoading(true);
+    setError(null);
+    try {
+      const [p, s] = await Promise.all([api.portfolioSummary(), api.stageDistribution()]);
+      setPortfolio(p); setStages(s);
+      setLoadedAt(new Date().toLocaleTimeString());
+      setLoading(false);
+      const cohortMap: Record<string, any[]> = {};
+      const promises = p.map(async (row: any) => {
+        try {
+          const cohorts = await api.portfolioByCohort(row.product_type);
+          if (cohorts && cohorts.length > 0) {
+            cohortMap[row.product_type] = cohorts;
+          }
+        } catch (e) {
+          console.warn(`Failed to load cohorts for ${row.product_type}:`, e);
+        }
+      });
+      await Promise.all(promises);
+      setCohortByProduct({ ...cohortMap });
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load portfolio data');
+      setLoading(false);
+    }
   }, [project]);
 
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const portfolioDrillData = useMemo(() => ({
+    totalData: portfolio.map(r => ({ ...r, name: r.product_type })),
+    productData: cohortByProduct,
+    cohortData: {},
+  }), [portfolio, cohortByProduct]);
+
+  const handleComplete = useCallback(async () => {
+    setActing(true);
+    try { await onComplete(); } finally { setActing(false); }
+  }, [onComplete]);
+
+  const handleStageClick = useCallback(async (entry: any) => {
+    const stage = entry?.stage;
+    if (stage == null) return;
+    if (selectedStage === stage) {
+      setSelectedStage(null);
+      setStageDrillData([]);
+      return;
+    }
+    setSelectedStage(stage);
+    try {
+      const data = await api.eclByStageProduct(stage);
+      setStageDrillData(data || []);
+    } catch {
+      setStageDrillData([]);
+    }
+  }, [selectedStage]);
+
+  const renderCustomPieLabel = useCallback(({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 1.4;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <text x={x} y={y} fill={ct.axis} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={600}>
+        {name} ({(percent * 100).toFixed(0)}%)
+      </text>
+    );
+  }, [ct.axis]);
+
   if (!project || project.current_step < 1) return <LockedBanner />;
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-2 border-brand border-t-transparent rounded-full" /></div>;
+  if (loading) return <PageLoader />;
+  if (error) return <ErrorDisplay message={error} onRetry={loadData} />;
 
   const totalLoans = portfolio.reduce((s, r) => s + r.loan_count, 0);
   const totalGca = portfolio.reduce((s, r) => s + r.total_gca, 0);
   const s3 = stages.find(s => s.assessed_stage === 3);
-  const s3pct = s3 ? (s3.loan_count / totalLoans * 100) : 0;
+  const s3pct = s3 && totalLoans > 0 ? (s3.loan_count / totalLoans * 100) : 0;
   const stepSt = project.step_status.data_processing || 'pending';
 
   const pieData = stages.map(s => ({ name: `Stage ${s.assessed_stage}`, value: s.total_gca, stage: s.assessed_stage }));
 
-  const priorPeriodLoans = Math.round(totalLoans * 0.94);
-  const priorPeriodGca = totalGca * 0.92;
-  const loanGrowth = totalLoans > 0 ? ((totalLoans - priorPeriodLoans) / priorPeriodLoans * 100) : 0;
-  const gcaGrowth = totalGca > 0 ? ((totalGca - priorPeriodGca) / priorPeriodGca * 100) : 0;
-
-  const handleComplete = async () => {
-    setActing(true);
-    try {
-      await onComplete();
-    } finally {
-      setActing(false);
-    }
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Data Processing</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <h2 className="text-xl font-extrabold text-slate-800">Data Processing</h2>
+          <p className="text-sm text-slate-500 mt-1">
             Review portfolio data loaded from the loan tape
-            {loadedAt && <span className="ml-2 text-xs text-slate-300">· Data loaded at {loadedAt}</span>}
+            {loadedAt && <span className="ml-2 text-[11px] text-slate-500">Data loaded at {loadedAt}</span>}
           </p>
         </div>
         <StatusBadge status={stepSt} />
       </div>
 
-      {/* Data Lineage & Source Traceability */}
-      <Card title="Data Lineage & Source Traceability" subtitle="Audit trail: source system → staging → model-ready">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-            <Server size={16} className="text-indigo-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Source System</p>
-              <p className="text-sm font-bold text-slate-700">Core Banking System (CBS)</p>
-              <p className="text-[10px] text-slate-400">Core Banking T24 → Databricks Unity Catalog</p>
+      <StepDescription
+        description="Review your loan portfolio data quality, completeness, and distribution before ECL calculation. Verify total loan counts, GCA, stage distribution, and days past due against source system expectations."
+        ifrsRef="Per IFRS 9.B5.5.49-51 — use reasonable and supportable information available without undue cost or effort."
+        tips={[
+          'Check that total loan count and GCA match the core banking system extract',
+          'Verify Stage 3 rate is consistent with known credit-impaired exposures',
+          'Review DPD averages by product for anomalies',
+        ]}
+      />
+
+      <Card accent="blue" icon={<Server size={16} />} title="Data Lineage & Source Traceability" subtitle="Audit trail: source system to model-ready">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { icon: Server, color: 'text-indigo-500', bg: 'bg-indigo-50', label: 'Source System', value: 'Core Banking System (CBS)', detail: 'Core Banking T24 to Unity Catalog' },
+            { icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50', label: 'Extraction Date', value: project.reporting_date || '2025-12-31', detail: 'COB cut-off: 23:59 local time' },
+            { icon: GitBranch, color: 'text-emerald-500', bg: 'bg-emerald-50', label: 'Pipeline', value: 'Lakeflow DLT to Lakebase', detail: 'Bronze to Silver to Gold to Lakebase' },
+            { icon: FileCheck, color: 'text-teal-500', bg: 'bg-teal-50', label: 'Completeness', value: `${fmtNumber(totalLoans)} / ${fmtNumber(totalLoans)} loaded`, detail: '100% coverage' },
+          ].map(item => (
+            <div key={item.label} className={`flex items-start gap-3 p-3.5 rounded-xl ${item.bg} border border-slate-100/50`}>
+              <item.icon size={16} className={`${item.color} mt-0.5 flex-shrink-0`} />
+              <div>
+                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</p>
+                <p className="text-xs font-bold text-slate-700 mt-0.5">{item.value}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">{item.detail}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-            <Clock size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Extraction Date</p>
-              <p className="text-sm font-bold text-slate-700">{project.reporting_date || '2025-12-31'}</p>
-              <p className="text-[10px] text-slate-400">COB cut-off: 23:59 local time</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-            <GitBranch size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Pipeline</p>
-              <p className="text-sm font-bold text-slate-700">Lakeflow DLT → Lakebase Sync</p>
-              <p className="text-[10px] text-slate-400">Bronze → Silver → Gold → Lakebase</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
-            <FileCheck size={16} className="text-teal-500 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase">Completeness</p>
-              <p className="text-sm font-bold text-slate-700">{fmtNumber(totalLoans)} / {fmtNumber(totalLoans)} loaded</p>
-              <p className="text-[10px] text-emerald-500 font-semibold">100% coverage — 0 records excluded</p>
-            </div>
-          </div>
+          ))}
         </div>
-        <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-400 border-t border-slate-100 pt-3">
-          <span>UC Catalog: <span className="font-mono font-semibold text-slate-500">lakemeter_catalog.expected_credit_loss</span></span>
-          <span className="h-3 w-px bg-slate-200" />
-          <span>Lakebase: <span className="font-mono font-semibold text-slate-500">expected_credit_loss.lb_model_ready_loans</span></span>
-          <span className="h-3 w-px bg-slate-200" />
-          <span>Sync: <span className="font-semibold text-emerald-500">Native Lakebase Sync (real-time)</span></span>
+        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+          <div className="flex items-center gap-4 text-[10px] text-slate-500">
+            <span>UC Catalog: <span className="font-mono font-semibold text-slate-500">{adminConfig?.data_sources?.catalog || 'lakemeter_catalog'}.{adminConfig?.data_sources?.schema || 'expected_credit_loss'}</span></span>
+          </div>
+          <NotebookLink notebooks={['01_generate_data', '02_run_data_processing']} compact />
         </div>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KpiCard title="Total Loans" value={fmtNumber(totalLoans)} subtitle={`QoQ: ${loanGrowth >= 0 ? '+' : ''}${loanGrowth.toFixed(1)}% vs Q3`} color="blue" icon={<Database size={20} />} />
-        <KpiCard title="Gross Carrying Amount" value={fmtCurrency(totalGca)} subtitle={`QoQ: ${gcaGrowth >= 0 ? '+' : ''}${gcaGrowth.toFixed(1)}% vs Q3`} color="indigo" icon={<TrendingUp size={20} />} />
-        <KpiCard title="Stage 3 Rate" value={fmtPct(s3pct, 1)} subtitle="Credit-impaired" color="red" icon={<AlertTriangle size={20} />} />
+        <KpiCard title="Total Loans" value={fmtNumber(totalLoans)} subtitle="Current reporting period" color="blue" icon={<Database size={20} />} />
+        <KpiCard title={<span className="flex items-center gap-1">Gross Carrying Amount <HelpTooltip content={IFRS9_HELP.GCA} size={12} /></span>} value={fmtCurrency(totalGca)} subtitle="Current reporting period" color="indigo" icon={<TrendingUp size={20} />} />
+        <KpiCard title={<span className="flex items-center gap-1">Stage 3 Rate <HelpTooltip content={IFRS9_HELP.STAGE_3} size={12} /></span>} value={fmtPct(s3pct, 1)} subtitle="Credit-impaired" color="red" icon={<AlertTriangle size={20} />} />
         <KpiCard title="Products" value={String(portfolio.length)} subtitle="Loan programs" color="teal" icon={<Layers size={20} />} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <Card title="IFRS 9 Stage Distribution" subtitle="GCA by impairment stage" className="lg:col-span-2">
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} label={({ name, percent }: any) => `${name} ${((percent ?? 0) * 100).toFixed(1)}%`} labelLine={false}>
-                {pieData.map((_, i) => <Cell key={i} fill={STAGE_COLORS[i]} />)}
-              </Pie>
-              <Tooltip formatter={(v: any) => fmtCurrency(v)} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <Card title="IFRS 9 Stage Distribution" subtitle={selectedStage ? `Stage ${selectedStage} — click again to go back` : 'Click a stage to drill down'} className="lg:col-span-2">
+          {selectedStage && stageDrillData.length > 0 ? (
+            <div>
+              <button onClick={() => { setSelectedStage(null); setStageDrillData([]); }}
+                className="text-xs text-brand hover:underline mb-2 flex items-center gap-1">
+                ← Back to all stages
+              </button>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={stageDrillData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={ct.grid} />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: ct.axisLight }} tickFormatter={(v) => fmtCurrency(v)} />
+                  <YAxis type="category" dataKey="product_type" tick={{ fontSize: 10, fill: ct.axis }} width={100} />
+                  <Tooltip content={<ChartTooltip formatValue={fmtCurrency} />} />
+                  <Bar dataKey="total_ecl" name="ECL" fill={STAGE_COLORS_ARRAY[(selectedStage || 1) - 1]} radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={95} paddingAngle={4}
+                  label={renderCustomPieLabel} labelLine={{ stroke: '#CBD5E1', strokeWidth: 1 }}
+                  onClick={handleStageClick} style={{ cursor: 'pointer' }}>
+                  {pieData.map((_, i) => <Cell key={i} fill={STAGE_COLORS_ARRAY[i]} />)}
+                </Pie>
+                <Tooltip content={<ChartTooltip formatValue={fmtCurrency} />} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </Card>
 
-        <Card title="Days Past Due Distribution" subtitle="Delinquency buckets" className="lg:col-span-3">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={dpd} barSize={40}>
-              <XAxis dataKey="dpd_bucket" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: any) => fmtNumber(v)} />
-              <Bar dataKey="loan_count" radius={[6, 6, 0, 0]}>
-                {dpd.map((d, i) => <Cell key={i} fill={DPD_COLORS[d.dpd_bucket] || '#94A3B8'} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <Card title="Days Past Due Drill-Down" subtitle="Click a product → drill by risk band, age group, etc." className="lg:col-span-3">
+          <DrillDownChart
+            data={{
+              totalData: portfolio.map(r => ({ ...r, name: r.product_type })),
+              productData: cohortByProduct,
+              cohortData: {},
+            }}
+            dataKey="avg_dpd"
+            nameKey="product_type"
+            title="Avg Days Past Due"
+            formatValue={(v: number) => fmtNumber(v, 1)}
+            fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
+          />
         </Card>
       </div>
 
-      <Card title="Portfolio by Product" subtitle="Breakdown of all loan programs">
+      <Card title="Portfolio by Product" subtitle="Click a product bar to drill down by dimension">
+        <DrillDownChart
+          data={portfolioDrillData}
+          dataKey="total_gca"
+          nameKey="product_type"
+          title="Gross Carrying Amount by Product"
+          formatValue={fmtCurrency}
+          fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
+        />
+        <div className="mt-4 border-t border-slate-100 pt-4">
         <DataTable
           exportName="portfolio_by_product"
           columns={[
             { key: 'product_type', label: 'Product' },
             { key: 'loan_count', label: 'Loans', align: 'right', format: v => fmtNumber(v) },
             { key: 'total_gca', label: `GCA (${config.currencySymbol})`, align: 'right', format: v => fmtCurrency(v) },
+            { key: 'avg_pd_pct', label: 'Avg PD %', align: 'right', format: (v: any) => fmtPct(Number(v) || 0) },
             { key: 'avg_eir_pct', label: 'Avg EIR %', align: 'right', format: v => fmtPct(v) },
             { key: 'avg_dpd', label: 'Avg DPD', align: 'right', format: v => fmtNumber(v, 1) },
-            { key: 'stage_1_count', label: 'Stage 1', align: 'right', format: v => fmtNumber(v) },
-            { key: 'stage_2_count', label: 'Stage 2', align: 'right', format: v => fmtNumber(v) },
-            { key: 'stage_3_count', label: 'Stage 3', align: 'right', format: v => fmtNumber(v) },
+            { key: 'stage_1_count', label: <span className="inline-flex items-center gap-1">Stage 1 <HelpTooltip content={IFRS9_HELP.STAGE_1} size={11} position="bottom" /></span>, align: 'right', format: v => fmtNumber(v) },
+            { key: 'stage_2_count', label: <span className="inline-flex items-center gap-1">Stage 2 <HelpTooltip content={IFRS9_HELP.STAGE_2} size={11} position="bottom" /></span>, align: 'right', format: v => fmtNumber(v) },
+            { key: 'stage_3_count', label: <span className="inline-flex items-center gap-1">Stage 3 <HelpTooltip content={IFRS9_HELP.STAGE_3} size={11} position="bottom" /></span>, align: 'right', format: v => fmtNumber(v) },
           ]}
           data={portfolio}
         />
+        </div>
       </Card>
 
-      {segments.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card title="Borrower Segments" subtitle="Demographics by segment">
-            <DataTable
-              exportName="borrower_segments"
-              compact
-              columns={[
-                { key: 'segment', label: 'Segment' },
-                { key: 'borrower_count', label: 'Borrowers', align: 'right', format: v => fmtNumber(v) },
-                { key: 'avg_alt_score', label: 'Avg Alt Score', align: 'right', format: v => fmtNumber(v, 1) },
-                { key: 'avg_monthly_income', label: `Avg Income (${config.currencySymbol})`, align: 'right', format: v => fmtCurrency(v) },
-                { key: 'avg_age', label: 'Avg Age', align: 'right', format: v => fmtNumber(v, 1) },
-              ]}
-              data={segments}
-            />
-          </Card>
+      <Card title="PD Drill-Down" subtitle="Click a product → drill by risk band, age group, etc.">
+        <DrillDownChart
+          data={{
+            totalData: portfolio.map(r => ({ ...r, name: r.product_type, avg_pd_pct: r.avg_pd_pct ?? 0 })),
+            productData: cohortByProduct,
+            cohortData: {},
+          }}
+          dataKey="avg_pd_pct"
+          nameKey="product_type"
+          title="Avg PD %"
+          formatValue={(v: number) => `${Number(v).toFixed(2)}%`}
+          fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
+        />
+      </Card>
 
-          <Card title="PD Distribution by Product" subtitle="Probability of default ranges">
-            {pdDist.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={pdDist} barSize={30}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="product_type" tick={{ fontSize: 9 }} interval={0} angle={-10} textAnchor="end" height={50} />
-                  <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${v}%`} />
-                  <Tooltip formatter={(v: any) => `${Number(v).toFixed(2)}%`} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="avg_pd_pct" name="Avg PD %" fill="#6366F1" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="p75_pd_pct" name="P75 PD %" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="max_pd_pct" name="Max PD %" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-slate-400 py-8 text-center">No PD distribution data</p>
-            )}
-          </Card>
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card title="Loan Count Drill-Down" subtitle="Click a product → drill by dimension">
+          <DrillDownChart
+            data={portfolioDrillData}
+            dataKey="loan_count"
+            nameKey="product_type"
+            title="Loan Count"
+            formatValue={fmtNumber}
+            fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
+          />
+        </Card>
+        <Card title="GCA Drill-Down" subtitle="Click a product → drill by dimension">
+          <DrillDownChart
+            data={portfolioDrillData}
+            dataKey="total_gca"
+            nameKey="product_type"
+            title="Gross Carrying Amount"
+            formatValue={fmtCurrency}
+            fetchByDimension={(product, dim) => api.portfolioByCohort(product, dim)}
+          />
+        </Card>
+      </div>
 
       {stepSt !== 'completed' && (
-        <Card>
+        <Card accent="brand">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-700">Data Processing Action</h3>
-              <p className="text-xs text-slate-400 mt-1">Review the portfolio data, data lineage, and completeness above. If correct, mark complete to proceed to Data Control.</p>
+              <h3 className="text-sm font-bold text-slate-700">Ready to proceed?</h3>
+              <p className="text-xs text-slate-500 mt-1">Review the portfolio data above. If correct, mark complete to proceed to Data Control.</p>
             </div>
             <button onClick={handleComplete} disabled={acting}
-              className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition shadow-sm">
-              {acting ? 'Processing...' : '✓ Mark Complete'}
+              className="px-6 py-3 gradient-brand text-white text-sm font-bold rounded-2xl hover:opacity-90 disabled:opacity-50 transition shadow-lg glow-brand">
+              {acting ? 'Processing...' : 'Mark Complete'}
             </button>
           </div>
         </Card>

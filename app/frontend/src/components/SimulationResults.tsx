@@ -74,22 +74,22 @@ export default function SimulationResults({
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-3 border border-emerald-200">
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total ECL</p>
             <p className="text-lg font-bold text-slate-800 font-mono">{fmtCurrency(totalEcl)}</p>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-emerald-200">
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Coverage</p>
             <p className="text-lg font-bold text-slate-800 font-mono">{coverage.toFixed(2)}%</p>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-emerald-200">
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Duration</p>
             <p className="text-lg font-bold text-slate-800 font-mono">{formatElapsed(durationSec)}</p>
           </div>
         </div>
 
         {completedTiming && totalTimingSec > 0 && (
-          <div className="text-xs text-slate-600 space-y-1 bg-white rounded-lg p-3 border border-emerald-200">
+          <div className="text-xs text-slate-600 space-y-1 bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
             <p className="font-semibold text-slate-700 mb-1.5">Timing Breakdown</p>
             {[
               { label: 'Data loading', sec: completedTiming.loading },
@@ -120,21 +120,21 @@ export default function SimulationResults({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowLog(!showLog)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition"
           >
             <FileText size={13} />
             {showLog ? 'Hide Log' : 'View Full Log'}
           </button>
           <button
             onClick={onApply}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/20 transition"
+            className="btn-primary flex-1 py-2.5 text-xs shadow-lg"
           >
             <ArrowRight size={14} />
             Apply Results
           </button>
           <button
             onClick={onDiscard}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
           >
             <XCircle size={13} />
             Discard
@@ -151,7 +151,7 @@ export default function SimulationResults({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="bg-slate-900 rounded-lg p-4 max-h-64 overflow-y-auto font-mono text-[11px] text-slate-300 space-y-0.5">
+            <div className="bg-slate-100 dark:bg-slate-900 rounded-lg p-4 max-h-64 overflow-y-auto font-mono text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5">
               {progressEvents.map((evt, i) => {
                 const ts = startTime
                   ? formatLogTime(

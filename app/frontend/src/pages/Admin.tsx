@@ -112,7 +112,7 @@ export default function Admin() {
             <Settings size={20} className="text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-800">Administration</h2>
+            <h2 className="text-xl font-extrabold text-slate-800 dark:text-white">Administration</h2>
             <p className="text-sm text-slate-400 mt-0.5">Configure data sources, models, jobs, and settings</p>
           </div>
         </div>

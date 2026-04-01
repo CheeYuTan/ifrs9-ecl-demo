@@ -96,7 +96,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
             <FlaskConical size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Backtest Detail</h3>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-white">Backtest Detail</h3>
             <p className="text-[10px] text-slate-400">{backtest.backtest_id} · {backtest.model_type}</p>
           </div>
         </div>
@@ -113,11 +113,11 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Observation Window</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{backtest.observation_window}</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{backtest.observation_window}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-bold text-slate-400 uppercase">Outcome Window</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{backtest.outcome_window}</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{backtest.outcome_window}</p>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
         {cohortBarData.length > 0 && (
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Predicted vs Actual by Cohort</p>
-            <div className="h-64 bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div className="h-64 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={cohortBarData} barGap={2}>
                   <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} />
@@ -155,7 +155,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
         {scatterData.length > 0 && (
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Calibration Plot</p>
-            <div className="h-64 bg-slate-50 rounded-xl p-3 border border-slate-100">
+            <div className="h-64 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart>
                   <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} />
@@ -176,7 +176,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
         {cohorts.length > 0 && (
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Cohort Analysis</p>
-            <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">
@@ -190,7 +190,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
                 <tbody>
                   {cohorts.map((c, i) => (
                     <tr key={c.cohort_id} className={`border-b border-slate-50 dark:border-slate-700 ${i % 2 === 1 ? 'bg-slate-50/40 dark:bg-white/[0.02]' : ''}`}>
-                      <td className="py-2 px-3 font-semibold text-slate-700">{c.cohort_name}</td>
+                      <td className="py-2 px-3 font-semibold text-slate-700 dark:text-slate-200">{c.cohort_name}</td>
                       <td className="py-2 px-3 text-right font-mono">{fmtPct(c.predicted_rate * 100, 2)}</td>
                       <td className="py-2 px-3 text-right font-mono">{fmtPct(c.actual_rate * 100, 2)}</td>
                       <td className="py-2 px-3 text-right font-mono">
@@ -297,7 +297,7 @@ export default function Backtesting() {
       format: (v: string) => <TrafficLightBadge light={v} />,
     },
     { key: 'model_type', label: 'Model', format: (v: string) => (
-      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">{v}</span>
+      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
     )},
     {
       key: 'backtest_date', label: 'Date',
@@ -335,7 +335,7 @@ export default function Backtesting() {
         <div className="flex items-center gap-3">
           <select value={modelType} onChange={e => setModelType(e.target.value)}
             aria-label="Model type"
-            className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-600 focus:ring-1 focus:ring-brand/20 font-semibold">
+            className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:ring-1 focus:ring-brand/20 font-semibold">
             {MODEL_TYPES.map(t => <option key={t} value={t}>{t} Model</option>)}
           </select>
           <button onClick={handleRun} disabled={running}

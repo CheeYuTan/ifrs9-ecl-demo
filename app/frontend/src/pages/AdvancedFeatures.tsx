@@ -35,12 +35,12 @@ export default function AdvancedFeatures() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Advanced ECL Features</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Advanced ECL Features</h2>
           <p className="text-sm text-slate-400 mt-1">Cure rate modeling, credit conversion factors & collateral haircut analysis</p>
         </div>
       </div>
 
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;

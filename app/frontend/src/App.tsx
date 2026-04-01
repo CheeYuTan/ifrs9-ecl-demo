@@ -326,7 +326,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F1A] flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-20 h-20 mx-auto mb-6">
             <div className="absolute inset-0 rounded-3xl gradient-brand opacity-20 animate-ping" />
@@ -335,7 +335,7 @@ export default function App() {
               <Zap size={36} strokeWidth={2.5} className="text-white drop-shadow-lg" />
             </div>
           </div>
-          <p className="text-base font-semibold text-white/40 tracking-wide">Loading ECL Workspace...</p>
+          <p className="text-base font-semibold text-slate-400 dark:text-white/40 tracking-wide">Loading ECL Workspace...</p>
         </div>
       </div>
     );
@@ -421,7 +421,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F1A] flex">
       {/* Skip to content link */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-1/2 focus:-translate-x-1/2 focus:z-[999] focus:px-6 focus:py-3 focus:bg-brand focus:text-white focus:rounded-xl focus:text-sm focus:font-bold focus:shadow-lg">
         Skip to main content
@@ -454,22 +454,22 @@ export default function App() {
               {/* Mobile: extra left padding for hamburger */}
               <div className="lg:hidden w-8" />
               <div>
-                <h1 className="text-lg font-extrabold text-white tracking-tight leading-tight">{config.appTitle}</h1>
-                <p className="text-xs text-white/35 font-medium tracking-wide">{config.appSubtitle}</p>
+                <h1 className="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight">{config.appTitle}</h1>
+                <p className="text-xs text-slate-400 dark:text-white/35 font-medium tracking-wide">{config.appSubtitle}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {projects.length > 0 && (
                 <ProjectSelector projects={projects} currentId={projectId} onSelect={handleSelectProject} onNew={handleNewProject} />
               )}
-              <div className="h-6 w-px bg-white/[0.08]" />
+              <div className="h-6 w-px bg-slate-200 dark:bg-white/[0.08]" />
               <button onClick={toggleMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white/60 hover:bg-white/[0.12] hover:text-white hover:border-white/[0.15] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A]">
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.12] hover:text-slate-800 dark:hover:text-white transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0B0F1A]">
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <div className="flex items-center gap-2 text-xs text-white/25">
+              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-white/25">
                 <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-                <span className="hidden sm:inline">Powered by <span className="text-white/45 font-semibold">{config.poweredBy}</span></span>
+                <span className="hidden sm:inline">Powered by <span className="text-slate-500 dark:text-white/45 font-semibold">{config.poweredBy}</span></span>
               </div>
             </div>
           </div>
@@ -588,8 +588,8 @@ export default function App() {
           </div>
         </main>
 
-        <footer className="bg-[#0B0F1A] border-t border-white/[0.04]">
-          <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between text-[11px] text-white/20">
+        <footer className="bg-white dark:bg-[#0B0F1A] border-t border-slate-100 dark:border-white/[0.04]">
+          <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between text-[11px] text-slate-300 dark:text-white/20">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded gradient-brand opacity-40" />
               <span>{config.framework} ECL Workflow &mdash; {config.bankLegalName}</span>

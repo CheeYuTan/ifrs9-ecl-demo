@@ -85,7 +85,7 @@ export default function SimulationProgress({
 
         <button
           onClick={onCancel}
-          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-white border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-50 transition"
+          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
         >
           <Ban size={14} />
           Cancel

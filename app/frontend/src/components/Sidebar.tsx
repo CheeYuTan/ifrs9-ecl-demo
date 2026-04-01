@@ -112,7 +112,7 @@ export function Sidebar({
   const renderNavContent = (isMobile: boolean, layoutScope: 'mobile' | 'desktop' = 'desktop') => (
     <div className="flex flex-col h-full">
       {/* Logo area */}
-      <div className={`flex items-center gap-3 px-4 h-16 flex-shrink-0 ${isMobile ? '' : 'border-b border-white/[0.06]'}`}>
+      <div className={`flex items-center gap-3 px-4 h-16 flex-shrink-0 ${isMobile ? '' : 'border-b border-slate-200 dark:border-white/[0.06]'}`}>
         <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center flex-shrink-0 shadow-lg">
           <Zap size={18} strokeWidth={2.5} className="text-white" />
         </div>
@@ -123,7 +123,7 @@ export function Sidebar({
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.15 }}
-              className="text-sm font-extrabold text-white whitespace-nowrap overflow-hidden"
+              className="text-sm font-extrabold text-slate-800 dark:text-white whitespace-nowrap overflow-hidden"
             >
               ECL Workspace
             </motion.span>
@@ -142,14 +142,14 @@ export function Sidebar({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/25"
+                  className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-white/25"
                 >
                   {group.title}
                 </motion.p>
               )}
             </AnimatePresence>
             {!isWide && !isMobile && (
-              <div className="mx-auto mb-1.5 w-6 h-px bg-white/[0.08]" />
+              <div className="mx-auto mb-1.5 w-6 h-px bg-slate-200 dark:bg-white/[0.08]" />
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => (
@@ -168,7 +168,7 @@ export function Sidebar({
       </nav>
 
       {/* Settings at bottom */}
-      <div className="flex-shrink-0 border-t border-white/[0.06] p-2 space-y-1">
+      <div className="flex-shrink-0 border-t border-slate-200 dark:border-white/[0.06] p-2 space-y-1">
         <NavButton
           item={SETTINGS_ITEM}
           isActive={activeView === 'admin'}
@@ -180,7 +180,7 @@ export function Sidebar({
           <button
             onClick={() => setExpanded(!expanded)}
             aria-label={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-slate-400 dark:text-white/30 hover:text-slate-600 dark:hover:text-white/60 hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand"
           >
             {expanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
             <AnimatePresence>
@@ -209,7 +209,7 @@ export function Sidebar({
         onClick={() => setMobileOpen(true)}
         aria-label="Open navigation menu"
         aria-expanded={mobileOpen}
-        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl bg-[#0B0F1A]/90 border border-white/[0.08] flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.1] transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand"
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl bg-white/90 dark:bg-[#0B0F1A]/90 border border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.1] transition-all backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand"
       >
         <Menu size={20} />
       </button>
@@ -233,12 +233,12 @@ export function Sidebar({
               className="fixed top-0 left-0 bottom-0 z-50 lg:hidden"
               style={{ width: EXPANDED_W }}
             >
-              <div className="h-full bg-[#0B0F1A] border-r border-white/[0.06] flex flex-col">
+              <div className="h-full bg-white dark:bg-[#0B0F1A] border-r border-slate-200 dark:border-white/[0.06] flex flex-col">
                 <div className="absolute top-3 right-3 z-10">
                   <button
                     onClick={() => setMobileOpen(false)}
                     aria-label="Close navigation menu"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition focus-visible:ring-2 focus-visible:ring-brand"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-white/40 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.08] transition focus-visible:ring-2 focus-visible:ring-brand"
                   >
                     <X size={16} />
                   </button>
@@ -258,7 +258,7 @@ export function Sidebar({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="h-full bg-[#0B0F1A] border-r border-white/[0.06] overflow-hidden">
+        <div className="h-full bg-white dark:bg-[#0B0F1A] border-r border-slate-200 dark:border-white/[0.06] overflow-hidden">
           {renderNavContent(false)}
         </div>
       </motion.aside>
@@ -293,12 +293,12 @@ function NavButton({
       onClick={onClick}
       aria-current={isActive ? 'page' : undefined}
       aria-label={!isWide ? item.label : undefined}
-      className={`relative w-full flex items-center gap-3 rounded-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-[#0B0F1A] ${
+      className={`relative w-full flex items-center gap-3 rounded-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0B0F1A] ${
         isWide ? 'px-3 py-2.5' : 'px-0 py-2.5 justify-center'
       } ${
         isActive
           ? 'bg-[var(--color-brand)]/15 text-[var(--color-brand)]'
-          : 'text-white/45 hover:text-white/80 hover:bg-white/[0.04]'
+          : 'text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
       }`}
     >
       {isActive && (

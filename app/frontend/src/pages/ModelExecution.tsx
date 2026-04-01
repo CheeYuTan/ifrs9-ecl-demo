@@ -599,7 +599,10 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               const data = await api.eclByStageProduct(Number(stage));
               return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0, name: r.product_type }));
             }}
-            fetchCohortData={async (product, dim) => api.eclByCohort(product, dim || 'risk_band')}
+            fetchCohortData={async (product, dim) => {
+              const data = await api.eclByCohort(product, dim || 'risk_band');
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0 }));
+            }}
           />
         </Card>
 
@@ -616,7 +619,10 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               const data = await api.eclByScenarioProductDetail(String(scenario));
               return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0, name: r.product_type }));
             }}
-            fetchCohortData={async (product, dim) => api.eclByCohort(product, dim || 'risk_band')}
+            fetchCohortData={async (product, dim) => {
+              const data = await api.eclByCohort(product, dim || 'risk_band');
+              return data.map((r: any) => ({ ...r, ecl: Number(r.total_ecl) || 0 }));
+            }}
           />
         </Card>
       </div>

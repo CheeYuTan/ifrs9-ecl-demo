@@ -4,10 +4,15 @@ import KpiCard from '../components/KpiCard';
 import Card from '../components/Card';
 import DataTable from '../components/DataTable';
 import LockedBanner from '../components/LockedBanner';
-import StatusBadge from '../components/StatusBadge';
+import NotebookLink from '../components/NotebookLink';
+import PageLoader from '../components/PageLoader';
+import PageHeader from '../components/PageHeader';
+import ApprovalForm from '../components/ApprovalForm';
 import { api, type Project } from '../lib/api';
 import { fmtCurrency, fmtPct } from '../lib/format';
 import { config } from '../lib/config';
+import StepDescription from '../components/StepDescription';
+import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
 
 interface Props {
   project: Project | null;
@@ -19,18 +24,20 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
   const [dq, setDq] = useState<any[]>([]);
   const [recon, setRecon] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [comment, setComment] = useState('');
-  const [acting, setActing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!project || project.current_step < 2) return;
+    setError(null);
     Promise.all([api.dqResults(), api.glReconciliation()])
       .then(([d, r]) => { setDq(d); setRecon(r); })
+      .catch(e => setError(e?.message || 'Failed to load data quality results'))
       .finally(() => setLoading(false));
   }, [project]);
 
   if (!project || project.current_step < 2) return <LockedBanner />;
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-2 border-brand border-t-transparent rounded-full" /></div>;
+  if (loading) return <PageLoader />;
+  if (error) return <div className="p-6 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800"><p className="font-semibold">Error loading data</p><p className="text-sm mt-1">{error}</p></div>;
 
   const passed = dq.filter(d => d.passed).length;
   const total = dq.length;
@@ -39,31 +46,28 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
   const critFail = dq.filter(d => !d.passed && d.severity?.toLowerCase() === 'critical').length;
   const stepSt = project.step_status.data_control || 'pending';
 
-  const handleAction = async (type: 'approve' | 'reject') => {
-    if (type === 'reject' && !comment) return;
-    setActing(true);
-    type === 'approve' ? await onApprove(comment) : await onReject(comment);
-    setActing(false);
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">Data Control</h2>
-          <p className="text-sm text-slate-400 mt-1">Review data quality checks and GL reconciliation</p>
-        </div>
-        <StatusBadge status={stepSt} />
-      </div>
+      <PageHeader title="Data Control" subtitle="Review data quality checks and GL reconciliation" status={stepSt} />
+
+      <StepDescription
+        description="Validate data quality checks and GL reconciliation. Ensure data integrity before modeling — all critical checks must pass and GL variances must be within tolerance."
+        ifrsRef="Per IFRS 7.35I — reconciliation from opening to closing balance of the loss allowance."
+        tips={[
+          `GL reconciliation tolerance is ±${config.governance.glReconciliationTolerancePct}% — variances beyond this require Finance sign-off`,
+          'Critical DQ failures must be zero before approval is permitted',
+          `DQ score below ${config.governance.dqScoreThresholdPct}% triggers mandatory Data Governance review`,
+        ]}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <KpiCard title="DQ Score" value={fmtPct(score, 1)} subtitle={`${passed}/${total} passed`} color={score >= 95 ? 'green' : 'red'} icon={<ShieldCheck size={20} />} />
-        <KpiCard title="GL Reconciliation" value={`${reconPass}/${recon.length} PASS`} subtitle="Product recon" color={reconPass >= 4 ? 'green' : 'amber'} icon={<CheckCircle2 size={20} />} />
+        <KpiCard title="GL Reconciliation" value={`${reconPass}/${recon.length} PASS`} subtitle="Product recon" color={recon.length > 0 && reconPass === recon.length ? 'green' : 'amber'} icon={<CheckCircle2 size={20} />} />
         <KpiCard title="Critical Failures" value={String(critFail)} subtitle="Blocking issues" color={critFail === 0 ? 'green' : 'red'} icon={<AlertCircle size={20} />} />
         <KpiCard title="Step Status" value={stepSt.toUpperCase()} color={stepSt === 'completed' ? 'green' : 'amber'} />
       </div>
 
-      <Card title="GL Reconciliation" subtitle="IFRS 7.35I — Loan tape vs General Ledger">
+      <Card title={<span className="flex items-center gap-1.5">GL Reconciliation <HelpTooltip content={IFRS9_HELP.GL_RECON} size={13} /></span>} subtitle="IFRS 7.35I — Loan tape vs General Ledger">
         <DataTable
           exportName="gl_reconciliation"
           columns={[
@@ -74,7 +78,7 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
             { key: 'variance_pct', label: 'Var %', align: 'right', format: v => fmtPct(v, 2) },
             { key: 'status', label: 'Status', align: 'center',
               format: (v: string) => (
-                <span className={`inline-flex items-center gap-1 text-xs font-semibold ${v === 'PASS' ? 'text-emerald-600' : 'text-red-500'}`}>
+                <span className={`inline-flex items-center gap-1 text-xs font-semibold ${v === 'PASS' ? 'text-emerald-700' : 'text-red-600'}`}>
                   {v === 'PASS' ? <CheckCircle2 size={14} /> : <XCircle size={14} />} {v}
                 </span>
               )},
@@ -110,21 +114,23 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
       </Card>
 
       {/* Materiality & Tolerance Thresholds */}
+      <NotebookLink notebooks={['02_run_data_processing']} />
+
       <Card title="Materiality Thresholds" subtitle="Governance-approved tolerance levels for data quality gates">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-400 uppercase">GL Reconciliation Tolerance</p>
-            <p className="text-lg font-bold text-slate-700">± 0.50%</p>
+            <p className="text-lg font-bold text-slate-700">± {config.governance.glReconciliationTolerancePct}%</p>
             <p className="text-[10px] text-slate-400">Variance exceeding threshold requires investigation and sign-off by Finance</p>
           </div>
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-400 uppercase">Critical DQ Failures</p>
             <p className={`text-lg font-bold ${critFail === 0 ? 'text-emerald-600' : 'text-red-600'}`}>{critFail === 0 ? 'None — Clear' : `${critFail} Blocking`}</p>
             <p className="text-[10px] text-slate-400">Critical failures must be zero before approval is permitted</p>
           </div>
-          <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-semibold text-slate-400 uppercase">Minimum DQ Score</p>
-            <p className="text-lg font-bold text-slate-700">≥ 90%</p>
+            <p className="text-lg font-bold text-slate-700">≥ {config.governance.dqScoreThresholdPct}%</p>
             <p className="text-[10px] text-slate-400">Below threshold triggers mandatory review by Data Governance team</p>
           </div>
         </div>
@@ -132,39 +138,25 @@ export default function DataControl({ project, onApprove, onReject }: Props) {
 
       {stepSt !== 'completed' && (
         <Card>
-          <h3 className="text-sm font-bold text-slate-700 mb-3">Data Control Decision</h3>
           {critFail > 0 && (
-            <div className="mb-3 p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2">
-              <AlertCircle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2">
+              <AlertCircle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-red-700">Approval Blocked</p>
-                <p className="text-xs text-red-600">{critFail} critical data quality check(s) failed. Resolve all critical failures before approval is permitted. You may reject with remediation instructions.</p>
+                <p className="text-sm font-semibold text-amber-700">Critical DQ Failures Detected</p>
+                <p className="text-xs text-amber-600">{critFail} critical data quality check(s) failed. Approval requires documented justification in the comments field.</p>
               </div>
             </div>
           )}
-          {score < 90 && critFail === 0 && (
+          {score < config.governance.dqScoreThresholdPct && critFail === 0 && (
             <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2">
               <AlertCircle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-amber-700">Below DQ Threshold</p>
-                <p className="text-xs text-amber-600">DQ score is {fmtPct(score, 1)} (threshold: 90%). Approval requires documented justification in the comments field.</p>
+                <p className="text-xs text-amber-600">DQ score is {fmtPct(score, 1)} (threshold: {config.governance.dqScoreThresholdPct}%). Approval requires documented justification in the comments field.</p>
               </div>
             </div>
           )}
-          <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2}
-            placeholder={critFail > 0 ? "Rejection comments — describe required remediation actions..." : "Add review comments (required for rejection)..."}
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none mb-3" />
-          <div className="flex gap-3">
-            <button onClick={() => handleAction('approve')} disabled={acting || critFail > 0 || (score < 90 && !comment)}
-              className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition shadow-sm"
-              title={critFail > 0 ? 'Cannot approve with critical DQ failures' : ''}>
-              {acting ? 'Processing...' : '✓ Approve Data'}
-            </button>
-            <button onClick={() => handleAction('reject')} disabled={acting || !comment}
-              className="px-5 py-2.5 bg-white text-red-500 text-sm font-semibold rounded-lg border border-red-200 hover:bg-red-50 disabled:opacity-40 transition">
-              ✗ Reject Data
-            </button>
-          </div>
+          <ApprovalForm onApprove={onApprove} onReject={onReject} title="Data Quality & GL Reconciliation Decision" approveLabel="✓ Approve Data Quality" />
         </Card>
       )}
     </div>

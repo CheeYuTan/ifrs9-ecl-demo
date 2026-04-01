@@ -219,7 +219,7 @@ export default function GLJournals({ project }: { project: Project | null }) {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 bg-slate-100 rounded-2xl p-1">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-2xl p-1">
         {tabs.map(t => {
           const Icon = t.icon;
           const active = tab === t.key;
@@ -304,17 +304,17 @@ function JournalListView({
               <span className="font-mono text-xs text-brand font-semibold">{v}</span>
             )},
             { key: 'journal_type', label: 'Type', format: (v: string) => (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-xs font-medium text-slate-600">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {TYPE_LABELS[v] || v}
               </span>
             )},
             { key: 'journal_date', label: 'Date' },
             { key: 'status', label: 'Status', format: (v: string) => <JournalStatusBadge status={v} /> },
             { key: 'total_debit', label: 'Debit', align: 'right', format: (v: number) => (
-              <span className="font-mono font-semibold text-slate-700">{fmt(v)}</span>
+              <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{fmt(v)}</span>
             )},
             { key: 'total_credit', label: 'Credit', align: 'right', format: (v: number) => (
-              <span className="font-mono font-semibold text-slate-700">{fmt(v)}</span>
+              <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{fmt(v)}</span>
             )},
             { key: 'balanced', label: 'Balance', align: 'center', format: (_: boolean, row: GLJournal) => (
               <BalanceIndicator balanced={row.balanced} debit={row.total_debit} credit={row.total_credit} />
@@ -378,21 +378,21 @@ function JournalDetail({
       }
     >
       <div className="grid grid-cols-4 gap-4 mb-5 text-xs">
-        <div className="bg-slate-50 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
           <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Type</p>
-          <p className="font-bold text-slate-700 mt-1">{TYPE_LABELS[journal.journal_type] || journal.journal_type}</p>
+          <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{TYPE_LABELS[journal.journal_type] || journal.journal_type}</p>
         </div>
-        <div className="bg-slate-50 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
           <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Date</p>
-          <p className="font-bold text-slate-700 mt-1">{journal.journal_date}</p>
+          <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{journal.journal_date}</p>
         </div>
-        <div className="bg-slate-50 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
           <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Created By</p>
-          <p className="font-bold text-slate-700 mt-1">{journal.created_by}</p>
+          <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{journal.created_by}</p>
         </div>
-        <div className="bg-slate-50 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
           <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Reference</p>
-          <p className="font-bold text-slate-700 mt-1 font-mono">{journal.reference}</p>
+          <p className="font-bold text-slate-700 dark:text-slate-300 mt-1 font-mono">{journal.reference}</p>
         </div>
       </div>
 
@@ -406,7 +406,7 @@ function JournalDetail({
             {debitLines.map(l => (
               <div key={l.line_id} className="flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-2.5">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-slate-700">{l.account_name || l.account_code}</p>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{l.account_name || l.account_code}</p>
                   <p className="text-[10px] text-slate-400 mt-0.5">
                     {l.account_code} &middot; {l.product_type}{l.stage ? ` &middot; Stage ${l.stage}` : ''}
                   </p>
@@ -429,7 +429,7 @@ function JournalDetail({
             {creditLines.map(l => (
               <div key={l.line_id} className="flex items-center justify-between bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-2.5">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-slate-700">{l.account_name || l.account_code}</p>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{l.account_name || l.account_code}</p>
                   <p className="text-[10px] text-slate-400 mt-0.5">
                     {l.account_code} &middot; {l.product_type}{l.stage ? ` &middot; Stage ${l.stage}` : ''}
                   </p>
@@ -481,7 +481,7 @@ function TrialBalanceView({ data }: { data: GLTrialBalanceRow[] }) {
               v === 'contra-asset' ? 'bg-purple-50 text-purple-700' :
               v === 'expense' ? 'bg-red-50 text-red-700' :
               v === 'income' ? 'bg-emerald-50 text-emerald-700' :
-              'bg-slate-50 text-slate-600'
+              'bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-400'
             }`}>{v}</span>
           )},
           { key: 'total_debit', label: 'Debit', align: 'right', format: (v: number) => (
@@ -532,7 +532,7 @@ function ChartOfAccountsView({ data }: { data: GLAccount[] }) {
             <span className="font-mono text-xs font-bold text-brand">{v}</span>
           )},
           { key: 'account_name', label: 'Account Name', format: (v: string) => (
-            <span className="font-semibold text-slate-700">{v}</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">{v}</span>
           )},
           { key: 'account_type', label: 'Type', format: (v: string) => (
             <span className={`inline-flex px-2.5 py-0.5 rounded-md text-xs font-semibold ${
@@ -540,7 +540,7 @@ function ChartOfAccountsView({ data }: { data: GLAccount[] }) {
               v === 'contra-asset' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
               v === 'expense' ? 'bg-red-50 text-red-700 border border-red-200' :
               v === 'income' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-              'bg-slate-50 text-slate-600 border border-slate-200'
+              'bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-800/60 dark:text-slate-400 dark:border-slate-700'
             }`}>{v}</span>
           )},
           { key: 'parent_account', label: 'Parent', format: (v: string | null) => v || '—' },

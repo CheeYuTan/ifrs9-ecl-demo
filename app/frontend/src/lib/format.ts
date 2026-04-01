@@ -24,3 +24,7 @@ export function fmtDateTime(v: string | null | undefined): string {
   if (!v) return '—';
   return new Date(v).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
+
+export function formatProductName(s: string | number): string {
+  return String(s).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
