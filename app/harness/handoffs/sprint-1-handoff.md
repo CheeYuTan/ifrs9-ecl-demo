@@ -1,91 +1,96 @@
 # Sprint 1 Handoff: Backend API — Core Workflow & Data Endpoints
 
-## Iteration 2 — Edge Cases & Deeper Coverage
+## Iteration 3 — Utils Unit Tests + Gap Coverage
 
-### What Changed in Iteration 2
+### What Changed in Iteration 3
 
-Added 34 new tests covering edge cases and untested code paths identified by reading the route source code:
+Added 62 new tests in a supplementary file covering previously untested paths:
 
-**Sign-Off Edge Cases (5 tests)**:
-- `audit_log` stored as JSON string instead of list (exercises the `isinstance(audit_log, str)` branch in projects.py:88-93)
-- `audit_log` as invalid JSON string (exercises the `except` branch in projects.py:93)
-- Empty audit_log (no executor found → sign-off succeeds)
-- Different executor and signer (segregation passes)
-- Multiple audit entries → verifies LAST executor is used (reversed iteration)
+**`_utils.py` Direct Unit Tests (32 tests)**:
+- `_sanitize`: NaN, Inf, -Inf become None; nested dict/list sanitization; mixed types; empty containers; passthrough for strings/None/int
+- `_SafeEncoder`: Decimal→float, datetime→ISO, date→ISO, unsupported type raises TypeError, DecimalEncoder alias
+- `df_to_records`: simple DF, empty DF, NaN columns, Decimal columns, mixed types, single column, all-NaN column
+- `serialize_project`: None→None, Decimal conversion, datetime conversion, nested structures, empty dict
 
-**Project CRUD Edge Cases (4 tests)**:
-- Create with empty strings for optional fields
-- Create with non-default project_type ("cecl")
-- Advance with custom status parameter
-- Advance ValueError detail preserved in 404 response
+**Sign-Off Gap Coverage (4 tests)**:
+- `get_project` returns `None` → sign-off still calls backend (no 404 check after signed_off check)
+- Project dict missing `audit_log` key → defaults to empty list safely
+- Non-dict audit log entries (strings, ints) → skipped safely during executor search
+- Non-dict entries with matching executor → segregation of duties still enforced
 
-**Hash Verification (2 tests)**:
-- Full response shape validation (all 6 fields)
-- not_computed response shape validation
+**Verify-Hash Tampered Data (4 tests)**:
+- Tampered data → `status: "invalid"`, `match: false`, different `stored_hash` vs `computed_hash`
+- Valid hash → `status: "valid"`, `match: true`, hashes match
+- Correct `ecl_data` dict (project_id, step_status, overlays, scenario_weights) passed to verify function
+- `signed_off_by` and `signed_off_at` fields present in response
 
-**Overlay Edge Cases (2 tests)**:
-- Multiple overlay items at once (verifies all passed through)
-- Optional `ifrs9` field preserved in serialization
+**Setup Route Gaps (4 tests)**:
+- `POST /api/setup/complete` without body → uses default "admin" user
+- `POST /api/setup/complete` with explicit user → passes to backend
+- `POST /api/setup/seed-sample-data` → calls `backend.ensure_tables()`
+- Seed data error → preserves original error message in 500
 
-**Scenario Weights (2 tests)**:
-- Standard 3-scenario IFRS 9 setup
-- Single scenario edge case (weight 1.0)
+**Overlay Advance Verification (3 tests)**:
+- With comment → `advance_step` called with correct args ("overlays", "Overlays Submitted", "Credit Risk Analyst", comment)
+- Without comment (empty string) → `advance_step` NOT called
+- Multiple overlay items with `ifrs9` field → `model_dump()` produces correct dict shape, default "" for missing ifrs9
 
-**Data Endpoint Validation (5 tests)**:
-- Missing required `scenario` query param → 422
-- Invalid stage (non-integer) → 422
-- Negative and zero limit values
+**Data Endpoint Mixed Types (5 tests)**:
+- Boolean columns preserved (True/False)
+- None values in DataFrame
+- Integer columns preserved (no float coercion)
+- Large numeric values (1e12)
+- Unicode/special characters in strings
 
-**Serialization (2 tests)**:
-- Decimal values become float (exercises `_SafeEncoder`)
-- datetime values serialize to ISO format
+**Data Consistency (5 tests)**:
+- Stage distribution: all 3 IFRS9 stages present, loan counts sum correctly
+- Scenario-specific ECL queries return different data per scenario
+- `top-exposures` limit parameter passed through
+- `loans-by-product` passes product_type string to backend
+- `loans-by-stage` passes stage as int to backend
 
-**Error Messages (3 tests)**:
-- Verify 500 error details are descriptive and mention the endpoint context
+**Project Lifecycle (3 tests)**:
+- Create then get returns consistent project_id
+- `advance_step` receives all body fields (action, user, detail, status)
+- `save_scenario_weights` receives weights dict correctly
 
-**Large/Small DataFrames (2 tests)**:
-- 100-row DataFrame returns all rows
-- Single-row DataFrame
+**Approval History (2 tests)**:
+- Returns list of approval action dicts
+- ImportError in governance.rbac → 500
 
-**Setup Edge Cases (3 tests)**:
-- seed-data response shape
-- validate-tables response shape
-- Status error message is descriptive
+## Cumulative Stats (Iterations 1 + 2 + 3)
 
-**Project List & Reset Edge Cases (4 tests)**:
-- 50-project large result set
-- Projects with signed_off_by values
-- Reset returns step 1 with clean state
-- Reset error message preserved in 400
-
-## Cumulative Stats (Iteration 1 + 2)
-
-- **Total new tests**: 174 (140 from iter 1 + 34 from iter 2)
-- **Endpoints covered**: 47 (10 projects + 32 data + 5 setup)
-- **Full suite**: 2,593 passed, 61 skipped, 0 failures
+- **Total new tests**: 236 (140 iter 1 + 34 iter 2 + 62 iter 3)
+- **Test files**: `test_qa_sprint_1_core_routes.py` (174 tests) + `test_qa_sprint_1_utils_and_gaps.py` (62 tests)
+- **Endpoints covered**: 47 (10 projects + 32 data + 5 setup) + `_utils.py` utility module
+- **Full suite**: 2,655 passed, 61 skipped, 0 failures
 
 ## How to Test
 
 ```bash
 cd "/Users/steven.tan/Expected Credit Losses"
 source .venv/bin/activate
-python -m pytest tests/unit/test_qa_sprint_1_core_routes.py -v
+python -m pytest tests/unit/test_qa_sprint_1_core_routes.py tests/unit/test_qa_sprint_1_utils_and_gaps.py -v
 ```
 
 ## Test Results
 
 ```
-174 passed in 0.68s
-Full suite: 2593 passed, 61 skipped in 109.50s — ZERO failures
+Sprint 1 tests: 236 passed (174 + 62) in ~0.95s
+Full suite: 2,655 passed, 61 skipped in 111s — ZERO failures
 ```
 
 ## Bugs Found
-None — all endpoints behave as documented. The JSON-string audit_log path and invalid-JSON path both work correctly.
+None — all endpoints behave as documented. Notable finding: `sign_off` endpoint does NOT check for project existence before calling `sign_off_project`, which means signing off a non-existent project delegates the error to the backend layer rather than returning 404 from the route.
 
 ## Known Limitations
-- Sign-off tests mock `require_permission` directly rather than testing the full auth middleware chain
-- Data route tests verify structure (list return, 500 on error) but don't validate DataFrame column schemas since those depend on the domain layer
+- Sign-off tests mock `require_permission` directly rather than testing full auth middleware chain
+- Data route tests verify structure but don't validate backend query logic (mocked)
+- Hash verification tests mock `compute_ecl_hash`/`verify_ecl_hash` rather than testing actual hash algorithm
 
 ## Files Changed
-- `tests/unit/test_qa_sprint_1_core_routes.py` (UPDATED — 174 tests, +34 from iteration 2)
+- `tests/unit/test_qa_sprint_1_core_routes.py` (unchanged — 174 tests from iterations 1-2)
+- `tests/unit/test_qa_sprint_1_utils_and_gaps.py` (NEW — 62 tests for iteration 3)
 - `harness/handoffs/sprint-1-handoff.md` (UPDATED — this file)
+- `harness/state.json` (UPDATED)
+- `harness/progress.md` (UPDATED)

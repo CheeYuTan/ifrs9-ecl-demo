@@ -26,7 +26,7 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 2,
+  "current_iteration": 3,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
@@ -37,8 +37,8 @@
     "total": 2583
   },
   "current_test_count": {
-    "pytest": 2593,
-    "new_this_sprint": 174
+    "pytest": 2655,
+    "new_this_sprint": 236
   },
   "last_updated": "2026-04-02T10:15:00"
 }
