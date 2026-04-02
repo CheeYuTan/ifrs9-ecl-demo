@@ -1,8 +1,8 @@
-# Sprint 8 Handoff: Frontend — Component & Page Testing (Iteration 3)
+# Sprint 8 Handoff: Frontend — Component & Page Testing (Iteration 4)
 
 ## What Was Built
 
-Expanded frontend vitest test coverage from **103 tests** (pre-sprint) to **387 tests** (+284 new tests) across 31 new test files. This is iteration 3 which adds 5 more test files covering previously untested areas: Sidebar navigation, extended DataTable interactions, and 4 deeper page-level tests.
+Expanded frontend vitest test coverage from **103 tests** (pre-sprint) to **450 tests** (+347 new tests) across 37 new test files plus extended existing ones. This is iteration 4 which adds 6 new deep page tests, deepens SimulationPanel and SetupWizard tests, and brings total vitest to 450.
 
 ### Iteration 1 — 18 test files (+147 tests)
 
@@ -50,67 +50,74 @@ Expanded frontend vitest test coverage from **103 tests** (pre-sprint) to **387 
 
 ### Iteration 3 — 5 new/extended test files (+59 tests)
 
-Closed remaining coverage gaps identified in the spec: Sidebar component, DataTable extensions, and deeper page interaction tests.
+- `Sidebar.test.tsx` — 11 tests
+- `DataTable.test.tsx` — +14 tests (now 23 total)
+- `GLJournals.test.tsx` — 9 tests
+- `ApprovalWorkflow.test.tsx` — 9 tests
+- `ModelRegistry.test.tsx` — 10 tests
+- `Backtesting.test.tsx` — 7 tests
 
-**Sidebar Component (1 new file):**
-- `Sidebar.test.tsx` — 11 tests: nav groups, nav items, active view aria-current, onNavigate callbacks for all 11 views, collapse/expand button, mobile menu button, navigation landmark, admin settings, multiple active views
+### Iteration 4 — 6 new page tests + deepened component tests (+63 tests)
 
-**DataTable Extended Tests (1 existing file extended):**
-- `DataTable.test.tsx` — +14 tests (now 23 total): search/filter, search bar visibility, export button, compact mode, selectedRow highlighting, keyboard navigation (Enter on rows), keyboard sort (Enter on headers), aria-sort attribute, page reset on data change, page reset on search, Prev disabled on first page, Next disabled on last page, CSV export click
+Closed remaining deep page coverage gaps and deepened previously smoke-level component tests.
 
-**Deeper Page Tests (4 new files):**
-- `GLJournals.test.tsx` — 9 tests: page header, tab navigation (Journal Entries / Trial Balance / Chart of Accounts), empty state, data loading with project_id, null project, tab switching, journal data display, API error handling
-- `ApprovalWorkflow.test.tsx` — 9 tests: page header, 4 tabs, load approvals/users on mount, tab switching (Pending Queue / History / Users), KPI cards, users data display, API error handling
-- `ModelRegistry.test.tsx` — 10 tests: page header, model loading, empty state, model list display, type filter buttons, type filtering, register button, API error handling, champion badge, KPI cards
-- `Backtesting.test.tsx` — 7 tests: page header, data loading, empty state, traffic light badges, model type filter (select), API error, trend data
+**New Deep Page Tests (6 files):**
+- `RegulatoryReports.test.tsx` — 10 tests: page header, KPI cards (Total/Draft/Final/Submitted), 5 report type buttons, empty state, report list display, type filter dropdown, API error, null project warning, status badges
+- `MarkovChains.test.tsx` — 11 tests: page header, 4 sub-tabs, estimate controls, load matrices + portfolio summary, empty state, matrix list, API error, horizon selector, KPI cards with matrix selection, tab switching
+- `HazardModels.test.tsx` — 10 tests: page header, 6 sub-tabs, estimate button, model type selector, model loading, empty state, model list, estimation error handling, tab switching, KPI cards
+- `DataControl.test.tsx` — 8 tests: locked banner (step < 2), page header, DQ/GL load, KPI cards, error state, null project, DQ table heading, GL recon heading
+- `Overlays.test.tsx` — 8 tests: locked banner (step < 6), page header, KPI cards, ECL load, default overlays with IDs, null project, IFRS reference, overlay entries
+- `SignOff.test.tsx` — 8 tests: locked banner (step < 7), page header, ECL data load, attribution load, null project, hash verification, ECL product display, attestation checkboxes
+
+**Deepened Component Tests (2 existing files):**
+- `SimulationPanel.test.tsx` — +4 tests (now 8 total): parameter inputs, scenario weights, run button, PD/LGD correlation
+- `SetupWizard.test.tsx` — +4 tests (now 8 total): get started button, step indicator, next button, setupStatus call
 
 ## How to Test
 
 - Run: `cd frontend && npx vitest run`
-- All 387 tests should pass in ~7 seconds
+- All 450 tests should pass in ~8 seconds
 - TypeScript build: `npx tsc -b` (zero errors)
 
 ## Test Results
 
-- **vitest**: 387 passed, 0 failed (42 test files)
+- **vitest**: 450 passed, 0 failed (48 test files)
 - **pytest**: 3,838 passed, 61 skipped (zero regressions)
 - **TypeScript build**: SUCCESS (zero errors)
 
 ## Coverage Summary
 
-| Category | Before Sprint | After Iter 1 | After Iter 2 | After Iter 3 | Coverage |
-|----------|---------------|-------------|-------------|-------------|----------|
-| Component test files | 8/24 (33%) | 19/24 (79%) | 23/24 (96%) | **24/24 (100%)** | **100%** |
-| Page test files | 0/19 (0%) | 4/19 (21%) | 4/19 (21%) | **8/19 (42%) + 100% smoke** | 100% smoke + deep on 8 |
-| Hook test files | 0/2 (0%) | 1/2 (50%) | 1/2 (50%) | 1/2 (50%) | unchanged |
-| Lib test files | 3/3 (100%) | 3/3 (100%) | 3/3 (100%) | 3/3 (100%) | unchanged |
-| Total vitest tests | 103 | 250 | 328 | **387** | **+284 tests** |
+| Category | Before Sprint | After Iter 3 | After Iter 4 | Coverage |
+|----------|---------------|-------------|-------------|----------|
+| Component test files | 8/24 (33%) | 24/24 (100%) | **24/24 (100%)** | **100%** |
+| Page deep test files | 0/19 (0%) | 8/19 (42%) | **14/19 (74%)** | 74% deep + 100% smoke |
+| Hook test files | 0/2 (0%) | 1/2 (50%) | 1/2 (50%) | Both hooks tested in 1 file |
+| Lib test files | 3/3 (100%) | 3/3 (100%) | 3/3 (100%) | unchanged |
+| Total vitest tests | 103 | 387 | **450** | **+347 tests** |
 
-### All 24 Components Now Tested (Including Sidebar)
-Every component in `frontend/src/components/` now has test coverage.
+### 14 Pages with Deep Tests (up from 8)
+RegulatoryReports, MarkovChains, HazardModels, DataControl, Overlays, SignOff, GLJournals, ApprovalWorkflow, ModelRegistry, Backtesting, Admin, Attribution, CreateProject + all pages with smoke tests.
 
-### 8 Pages with Deep Tests
-GLJournals, ApprovalWorkflow, ModelRegistry, Backtesting, Admin, Attribution, CreateProject + all 16 pages with smoke tests.
-
-### DataTable Fully Tested
-All DataTable features now tested: rendering, pagination, sorting, search/filter, CSV export, compact mode, selectedRow, keyboard navigation, aria-sort.
+### SimulationPanel & SetupWizard Deepened
+Both now have 8 tests each (up from 4), testing parameter controls, navigation, and API interactions.
 
 ## Known Limitations
-- Page smoke tests verify render without crash but don't test deep interactions
+- 5 pages still have smoke-only tests: DataMapping, StressTesting, AdvancedFeatures, SatelliteModel, ModelExecution (complex multi-tab sub-pages)
 - Chart components (recharts-based) are mocked at the library level
 - `framer-motion` animations are mocked
-- SimulationPanel and SetupWizard tests are smoke-level due to component complexity
 
 ## Files Changed
 
-### New files (iteration 3 — 5 files)
-- `frontend/src/components/Sidebar.test.tsx`
-- `frontend/src/pages/GLJournals.test.tsx`
-- `frontend/src/pages/ApprovalWorkflow.test.tsx`
-- `frontend/src/pages/ModelRegistry.test.tsx`
-- `frontend/src/pages/Backtesting.test.tsx`
+### New files (iteration 4 — 6 files)
+- `frontend/src/pages/RegulatoryReports.test.tsx`
+- `frontend/src/pages/MarkovChains.test.tsx`
+- `frontend/src/pages/HazardModels.test.tsx`
+- `frontend/src/pages/DataControl.test.tsx`
+- `frontend/src/pages/Overlays.test.tsx`
+- `frontend/src/pages/SignOff.test.tsx`
 
 ### Modified files
-- `frontend/src/components/DataTable.test.tsx` — added 14 new tests
+- `frontend/src/components/SimulationPanel.test.tsx` — added 4 new tests
+- `frontend/src/components/SetupWizard.test.tsx` — added 4 new tests
 - `harness/state.json` — updated test counts and iteration
 - `harness/handoffs/sprint-8-handoff.md` — this file

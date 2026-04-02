@@ -111,4 +111,34 @@ describe('SimulationPanel', () => {
       expect(api.simulationDefaults).toHaveBeenCalled();
     });
   });
+
+  it('shows simulation parameter inputs when expanded', async () => {
+    render(<SimulationPanel {...defaultProps} defaultOpen />);
+    await waitFor(() => {
+      // Look for n_simulations input or label
+      expect(screen.getByText(/Simulations|Number of/i)).toBeInTheDocument();
+    });
+  });
+
+  it('shows scenario weight controls when expanded', async () => {
+    render(<SimulationPanel {...defaultProps} defaultOpen />);
+    await waitFor(() => {
+      // Scenario weight labels from config mock
+      expect(screen.getAllByText(/Base|Optimistic|Pessimistic/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('shows run button when expanded', async () => {
+    render(<SimulationPanel {...defaultProps} defaultOpen />);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Run|Start|Execute/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('shows PD/LGD correlation control when expanded', async () => {
+    render(<SimulationPanel {...defaultProps} defaultOpen />);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Correlation|PD.*LGD/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
 });

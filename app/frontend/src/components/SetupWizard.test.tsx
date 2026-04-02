@@ -84,4 +84,36 @@ describe('SetupWizard', () => {
       expect(screen.queryByText('Checking setup status...')).toBeNull();
     });
   });
+
+  it('renders welcome step with get started button', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Get Started/).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('renders step indicator with 4 steps', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      expect(screen.getByText('Welcome')).toBeInTheDocument();
+      expect(screen.getByText('Data Connection')).toBeInTheDocument();
+      expect(screen.getByText('Organization')).toBeInTheDocument();
+      expect(screen.getByText('First Project')).toBeInTheDocument();
+    });
+  });
+
+  it('has a next/continue button on welcome step', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Next|Continue|Get Started|Begin/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('calls setupStatus on mount', async () => {
+    const { api: mockApi } = await import('../lib/api') as any;
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      expect(mockApi.setupStatus).toHaveBeenCalled();
+    });
+  });
 });
