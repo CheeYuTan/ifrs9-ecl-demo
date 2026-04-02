@@ -1,41 +1,68 @@
 # Sprint 1 Handoff: Backend API — Core Workflow & Data Endpoints
 
-## What Was Built
+## Iteration 2 — Edge Cases & Deeper Coverage
 
-New test file covering 47 route endpoints across 3 route modules:
+### What Changed in Iteration 2
 
-- **`tests/unit/test_qa_sprint_1_core_routes.py`** — 140 new tests
-  - `routes/projects.py`: 10 endpoints — 30 tests (happy path, 404, 422, 403, segregation-of-duties, hash verification, approval history)
-  - `routes/data.py`: 32 endpoints — 97 tests (27 simple endpoints × 3 parametrized tests each = 81 happy/empty/error, plus 14 parameterized-endpoint tests + 2 NaN/Inf handling)
-  - `routes/setup.py`: 5 endpoints — 13 tests (success + error for each, plus edge cases)
+Added 34 new tests covering edge cases and untested code paths identified by reading the route source code:
 
-## Coverage Details
+**Sign-Off Edge Cases (5 tests)**:
+- `audit_log` stored as JSON string instead of list (exercises the `isinstance(audit_log, str)` branch in projects.py:88-93)
+- `audit_log` as invalid JSON string (exercises the `except` branch in projects.py:93)
+- Empty audit_log (no executor found → sign-off succeeds)
+- Different executor and signer (segregation passes)
+- Multiple audit entries → verifies LAST executor is used (reversed iteration)
 
-### Projects Routes (30 tests)
-| Endpoint | Tests |
-|----------|-------|
-| GET /api/projects | 2 (with data, empty) |
-| GET /api/projects/{id} | 3 (found, 404, field validation) |
-| POST /api/projects | 4 (success, all fields, defaults, missing required 422) |
-| POST /api/projects/{id}/advance | 4 (success, with detail, 404, missing field 422) |
-| POST /api/projects/{id}/overlays | 3 (no comment, with comment advances step, empty overlays) |
-| POST /api/projects/{id}/scenario-weights | 2 (success, empty weights) |
-| POST /api/projects/{id}/sign-off | 4 (success, already signed 403, segregation-of-duties 403, with attestation) |
-| GET /api/projects/{id}/verify-hash | 4 (valid, invalid, no hash, missing project 404) |
-| GET /api/projects/{id}/approval-history | 3 (success, empty, error 500) |
-| POST /api/projects/{id}/reset | 2 (success, error 400) |
+**Project CRUD Edge Cases (4 tests)**:
+- Create with empty strings for optional fields
+- Create with non-default project_type ("cecl")
+- Advance with custom status parameter
+- Advance ValueError detail preserved in 404 response
 
-### Data Routes (97 tests)
-- 27 simple GET endpoints: 3 tests each (happy path with data, empty DataFrame, error 500)
-- 5 parameterized endpoints: ecl-by-stage-product (stages 1,2,3 + error), ecl-by-scenario-product-detail (success + error), top-exposures (default + custom limit + error), loans-by-product (success + error), loans-by-stage (success + error)
-- NaN/Inf sanitization: 2 tests verifying NaN and Inf become null in JSON
+**Hash Verification (2 tests)**:
+- Full response shape validation (all 6 fields)
+- not_computed response shape validation
 
-### Setup Routes (13 tests)
-- status: 3 (complete, not complete, error)
-- validate-tables: 3 (valid, missing tables, error)
-- seed-sample-data: 2 (success, error)
-- complete: 3 (default user, custom user, error)
-- reset: 2 (success, error)
+**Overlay Edge Cases (2 tests)**:
+- Multiple overlay items at once (verifies all passed through)
+- Optional `ifrs9` field preserved in serialization
+
+**Scenario Weights (2 tests)**:
+- Standard 3-scenario IFRS 9 setup
+- Single scenario edge case (weight 1.0)
+
+**Data Endpoint Validation (5 tests)**:
+- Missing required `scenario` query param → 422
+- Invalid stage (non-integer) → 422
+- Negative and zero limit values
+
+**Serialization (2 tests)**:
+- Decimal values become float (exercises `_SafeEncoder`)
+- datetime values serialize to ISO format
+
+**Error Messages (3 tests)**:
+- Verify 500 error details are descriptive and mention the endpoint context
+
+**Large/Small DataFrames (2 tests)**:
+- 100-row DataFrame returns all rows
+- Single-row DataFrame
+
+**Setup Edge Cases (3 tests)**:
+- seed-data response shape
+- validate-tables response shape
+- Status error message is descriptive
+
+**Project List & Reset Edge Cases (4 tests)**:
+- 50-project large result set
+- Projects with signed_off_by values
+- Reset returns step 1 with clean state
+- Reset error message preserved in 400
+
+## Cumulative Stats (Iteration 1 + 2)
+
+- **Total new tests**: 174 (140 from iter 1 + 34 from iter 2)
+- **Endpoints covered**: 47 (10 projects + 32 data + 5 setup)
+- **Full suite**: 2,593 passed, 61 skipped, 0 failures
 
 ## How to Test
 
@@ -48,18 +75,17 @@ python -m pytest tests/unit/test_qa_sprint_1_core_routes.py -v
 ## Test Results
 
 ```
-140 passed in 0.70s
-Full suite: 2559 passed, 61 skipped in 111.95s — ZERO failures
+174 passed in 0.68s
+Full suite: 2593 passed, 61 skipped in 109.50s — ZERO failures
 ```
 
 ## Bugs Found
-None — all endpoints behave as documented in the route code.
+None — all endpoints behave as documented. The JSON-string audit_log path and invalid-JSON path both work correctly.
 
 ## Known Limitations
-- Sign-off test mocks `require_permission` directly to bypass auth middleware dependency injection; a deeper integration test would test the full middleware chain
+- Sign-off tests mock `require_permission` directly rather than testing the full auth middleware chain
 - Data route tests verify structure (list return, 500 on error) but don't validate DataFrame column schemas since those depend on the domain layer
 
 ## Files Changed
-- `tests/unit/test_qa_sprint_1_core_routes.py` (NEW — 140 tests)
-- `harness/contracts/sprint-1.md` (UPDATED — new QA contract)
+- `tests/unit/test_qa_sprint_1_core_routes.py` (UPDATED — 174 tests, +34 from iteration 2)
 - `harness/handoffs/sprint-1-handoff.md` (UPDATED — this file)

@@ -671,3 +671,441 @@ class TestSetupReset:
                    side_effect=Exception("db error")):
             resp = client.post("/api/setup/reset")
         assert resp.status_code == 500
+
+
+# ===================================================================
+# ITERATION 2 — EDGE CASES & DEEPER COVERAGE
+# ===================================================================
+
+class TestSignOffEdgeCases:
+    """Additional edge cases for sign-off endpoint discovered in iteration 2."""
+
+    def test_sign_off_audit_log_as_json_string(self, client):
+        """Bug path: audit_log stored as JSON string instead of list."""
+        import json as _json
+        audit_log_str = _json.dumps([
+            {"ts": "2025-01-01T00:00:00Z", "user": "Bob",
+             "action": "model_execution", "detail": "", "step": "model_execution"},
+        ])
+        proj = _project_dict(audit_log=audit_log_str)
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Bob",
+            })
+        assert resp.status_code == 403
+        assert "Segregation of duties" in resp.json()["detail"]
+
+    def test_sign_off_audit_log_as_invalid_json_string(self, client):
+        """Edge case: audit_log is a string but not valid JSON — should not crash."""
+        proj = _project_dict(audit_log="not-valid-json")
+        signed = _project_dict(signed_off_by="Alice")
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj), \
+             patch("backend.sign_off_project", return_value=signed):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Alice",
+            })
+        # Invalid JSON string for audit_log should be treated as empty list,
+        # so no segregation check fires → sign-off succeeds
+        assert resp.status_code == 200
+
+    def test_sign_off_audit_log_empty_list(self, client):
+        """Edge: empty audit_log with no model_execution entry → sign-off succeeds."""
+        proj = _project_dict(audit_log=[])
+        signed = _project_dict(signed_off_by="Alice")
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj), \
+             patch("backend.sign_off_project", return_value=signed):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Alice",
+            })
+        assert resp.status_code == 200
+
+    def test_sign_off_different_executor_and_signer(self, client):
+        """Segregation passes when executor != signer."""
+        audit_log = [
+            {"ts": "2025-01-01T00:00:00Z", "user": "Bob",
+             "action": "model_execution", "detail": "", "step": "model_execution"},
+        ]
+        proj = _project_dict(audit_log=audit_log)
+        signed = _project_dict(signed_off_by="Alice")
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj), \
+             patch("backend.sign_off_project", return_value=signed):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Alice",
+            })
+        assert resp.status_code == 200
+
+    def test_sign_off_multiple_audit_entries_uses_last_executor(self, client):
+        """The LAST model_execution entry determines the executor."""
+        audit_log = [
+            {"ts": "2025-01-01T00:00:00Z", "user": "Alice",
+             "action": "model_execution", "detail": "", "step": "model_execution"},
+            {"ts": "2025-02-01T00:00:00Z", "user": "Bob",
+             "action": "model_execution", "detail": "Re-run", "step": "model_execution"},
+        ]
+        proj = _project_dict(audit_log=audit_log)
+        # Bob is the LAST executor → signing as Bob should fail
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Bob",
+            })
+        assert resp.status_code == 403
+
+        # Alice is NOT the last executor → signing as Alice should succeed
+        signed = _project_dict(signed_off_by="Alice")
+        with patch("routes.projects.require_permission", return_value=lambda: {"user": "admin"}), \
+             patch("backend.get_project", return_value=proj), \
+             patch("backend.sign_off_project", return_value=signed):
+            resp = client.post("/api/projects/proj-001/sign-off", json={
+                "name": "Alice",
+            })
+        assert resp.status_code == 200
+
+
+class TestProjectCreateEdgeCases:
+    """Iteration 2: more edge cases for project creation."""
+
+    def test_create_project_with_empty_strings(self, client):
+        """Explicitly pass empty strings for optional fields."""
+        proj = _project_dict()
+        with patch("backend.create_project", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects", json={
+                "project_id": "p1",
+                "project_name": "Test",
+                "description": "",
+                "reporting_date": "",
+            })
+        assert resp.status_code == 200
+        mock_fn.assert_called_once_with("p1", "Test", "ifrs9", "", "")
+
+    def test_create_project_with_different_type(self, client):
+        """Non-default project_type."""
+        proj = _project_dict(project_type="cecl")
+        with patch("backend.create_project", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects", json={
+                "project_id": "p1",
+                "project_name": "CECL Proj",
+                "project_type": "cecl",
+            })
+        assert resp.status_code == 200
+        mock_fn.assert_called_once_with("p1", "CECL Proj", "cecl", "", "")
+
+
+class TestAdvanceStepEdgeCases:
+    """Iteration 2: edge cases for step advancement."""
+
+    def test_advance_step_with_custom_status(self, client):
+        proj = _project_dict()
+        with patch("backend.advance_step", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects/proj-001/advance", json={
+                "action": "data_processing",
+                "user": "analyst",
+                "status": "in_progress",
+            })
+        assert resp.status_code == 200
+        call_args = mock_fn.call_args
+        # Verify the status parameter is passed through
+        assert call_args[0][5] == "in_progress"
+
+    def test_advance_step_value_error_detail_in_response(self, client):
+        """ValueError message should appear in 404 detail."""
+        with patch("backend.advance_step",
+                   side_effect=ValueError("No project with ID 'ghost'")):
+            resp = client.post("/api/projects/ghost/advance", json={
+                "action": "data_processing",
+                "user": "analyst",
+            })
+        assert resp.status_code == 404
+        assert "ghost" in resp.json()["detail"]
+
+
+class TestVerifyHashEdgeCases:
+    """Iteration 2: additional hash verification tests."""
+
+    def test_verify_hash_response_shape(self, client):
+        """Verify all expected fields in a valid hash response."""
+        proj = _project_dict(ecl_hash="abc123", signed_off_by="CFO",
+                             signed_off_at="2025-12-31T12:00:00Z")
+        with patch("backend.get_project", return_value=proj), \
+             patch("middleware.auth.verify_ecl_hash", return_value=True), \
+             patch("middleware.auth.compute_ecl_hash", return_value="abc123"):
+            resp = client.get("/api/projects/proj-001/verify-hash")
+        body = resp.json()
+        assert "status" in body
+        assert "stored_hash" in body
+        assert "computed_hash" in body
+        assert "match" in body
+        assert "signed_off_by" in body
+        assert "signed_off_at" in body
+        assert body["stored_hash"] == "abc123"
+        assert body["signed_off_by"] == "CFO"
+
+    def test_verify_hash_not_computed_shape(self, client):
+        """Verify response shape when no hash is stored."""
+        proj = _project_dict(ecl_hash=None)
+        with patch("backend.get_project", return_value=proj):
+            resp = client.get("/api/projects/proj-001/verify-hash")
+        body = resp.json()
+        assert body["status"] == "not_computed"
+        assert "message" in body
+
+
+class TestOverlayEdgeCases:
+    """Iteration 2: edge cases for overlay saving."""
+
+    def test_save_overlays_multiple_items(self, client):
+        """Save multiple overlay items at once."""
+        overlays = [
+            {"id": "o1", "product": "mortgage", "type": "add", "amount": 1000, "reason": "adj1"},
+            {"id": "o2", "product": "personal", "type": "subtract", "amount": 500, "reason": "adj2"},
+            {"id": "o3", "product": "auto", "type": "add", "amount": 750, "reason": "adj3"},
+        ]
+        proj = _project_dict(overlays=overlays)
+        with patch("backend.save_overlays", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects/proj-001/overlays", json={
+                "overlays": overlays,
+            })
+        assert resp.status_code == 200
+        # Verify all 3 overlays were passed through
+        saved = mock_fn.call_args[0][1]
+        assert len(saved) == 3
+
+    def test_save_overlays_with_ifrs9_field(self, client):
+        """The optional ifrs9 field should be preserved."""
+        overlays = [{"id": "o1", "product": "mortgage", "type": "add",
+                     "amount": 1000, "reason": "test", "ifrs9": "Stage 2 overlay"}]
+        proj = _project_dict(overlays=overlays)
+        with patch("backend.save_overlays", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects/proj-001/overlays", json={
+                "overlays": overlays,
+            })
+        assert resp.status_code == 200
+        saved_overlay = mock_fn.call_args[0][1][0]
+        assert saved_overlay["ifrs9"] == "Stage 2 overlay"
+
+
+class TestScenarioWeightsEdgeCases:
+    """Iteration 2: edge cases for scenario weights."""
+
+    def test_save_weights_with_three_scenarios(self, client):
+        """Standard 3-scenario IFRS 9 setup."""
+        weights = {"base": 0.50, "downside": 0.30, "upside": 0.20}
+        proj = _project_dict(scenario_weights=weights)
+        with patch("backend.save_scenario_weights", return_value=proj) as mock_fn:
+            resp = client.post("/api/projects/proj-001/scenario-weights", json={
+                "weights": weights,
+            })
+        assert resp.status_code == 200
+        mock_fn.assert_called_once_with("proj-001", weights)
+
+    def test_save_weights_single_scenario(self, client):
+        """Edge: single scenario with weight 1.0."""
+        weights = {"base": 1.0}
+        proj = _project_dict(scenario_weights=weights)
+        with patch("backend.save_scenario_weights", return_value=proj):
+            resp = client.post("/api/projects/proj-001/scenario-weights", json={
+                "weights": weights,
+            })
+        assert resp.status_code == 200
+
+
+class TestDataEndpointsMissingParams:
+    """Iteration 2: test parameterized endpoints with missing/invalid params."""
+
+    def test_ecl_by_scenario_product_detail_missing_scenario(self, client):
+        """Missing required query param 'scenario' → 422."""
+        resp = client.get("/api/data/ecl-by-scenario-product-detail")
+        assert resp.status_code == 422
+
+    def test_ecl_by_stage_product_invalid_stage(self, client):
+        """Non-integer stage value → 422."""
+        resp = client.get("/api/data/ecl-by-stage-product/abc")
+        assert resp.status_code == 422
+
+    def test_loans_by_stage_invalid_stage(self, client):
+        """Non-integer stage value → 422."""
+        resp = client.get("/api/data/loans-by-stage/xyz")
+        assert resp.status_code == 422
+
+    def test_top_exposures_negative_limit(self, client):
+        """Negative limit — should still call backend (no validation in route)."""
+        with patch("backend.get_top_exposures", return_value=_EMPTY_DF) as mock_fn:
+            resp = client.get("/api/data/top-exposures", params={"limit": -1})
+        assert resp.status_code == 200
+        mock_fn.assert_called_once_with(-1)
+
+    def test_top_exposures_zero_limit(self, client):
+        """Zero limit."""
+        with patch("backend.get_top_exposures", return_value=_EMPTY_DF) as mock_fn:
+            resp = client.get("/api/data/top-exposures", params={"limit": 0})
+        assert resp.status_code == 200
+        mock_fn.assert_called_once_with(0)
+
+
+class TestDataEndpointsDecimalHandling:
+    """Iteration 2: verify Decimal values in DataFrames are serialized to float."""
+
+    def test_decimal_values_become_float(self, client):
+        from decimal import Decimal as D
+        df = pd.DataFrame({"amount": [D("1234.56"), D("7890.12")]})
+        with patch("backend.get_portfolio_summary", return_value=df):
+            resp = client.get("/api/data/portfolio-summary")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data[0]["amount"] == 1234.56
+        assert isinstance(data[0]["amount"], float)
+
+    def test_datetime_values_serialized(self, client):
+        df = pd.DataFrame({
+            "date": [datetime(2025, 12, 31, 12, 0, 0)],
+            "value": [42.0],
+        })
+        with patch("backend.get_ecl_summary", return_value=df):
+            resp = client.get("/api/data/ecl-summary")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "2025-12-31" in data[0]["date"]
+
+
+class TestDataEndpointsErrorMessages:
+    """Iteration 2: verify error detail messages are descriptive."""
+
+    def test_portfolio_summary_error_has_descriptive_message(self, client):
+        with patch("backend.get_portfolio_summary",
+                   side_effect=Exception("connection timeout")):
+            resp = client.get("/api/data/portfolio-summary")
+        detail = resp.json()["detail"]
+        assert "Failed to load" in detail
+        assert "portfolio summary" in detail
+
+    def test_ecl_by_stage_product_error_message(self, client):
+        with patch("backend.get_ecl_by_stage_product",
+                   side_effect=Exception("query failed")):
+            resp = client.get("/api/data/ecl-by-stage-product/1")
+        detail = resp.json()["detail"]
+        assert "Failed to load" in detail
+        assert "stage-product" in detail
+
+    def test_top_exposures_error_message(self, client):
+        with patch("backend.get_top_exposures",
+                   side_effect=Exception("timeout")):
+            resp = client.get("/api/data/top-exposures")
+        detail = resp.json()["detail"]
+        assert "Failed to load" in detail
+        assert "top exposures" in detail
+
+
+class TestDataEndpointsLargeDataFrame:
+    """Iteration 2: test with larger DataFrames to verify no truncation."""
+
+    def test_large_dataframe_all_rows_returned(self, client):
+        """100-row DataFrame should return all 100 records."""
+        df = pd.DataFrame({
+            "loan_id": [f"L{i}" for i in range(100)],
+            "amount": [float(i * 1000) for i in range(100)],
+        })
+        with patch("backend.get_portfolio_summary", return_value=df):
+            resp = client.get("/api/data/portfolio-summary")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 100
+
+    def test_single_row_dataframe(self, client):
+        """Single-row DataFrame."""
+        df = pd.DataFrame({"metric": ["total_ecl"], "value": [123456.78]})
+        with patch("backend.get_ecl_summary", return_value=df):
+            resp = client.get("/api/data/ecl-summary")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 1
+
+
+class TestSetupEdgeCases:
+    """Iteration 2: additional setup route edge cases."""
+
+    def test_seed_data_returns_expected_shape(self, client):
+        """Verify both 'status' and 'message' keys in response."""
+        with patch("backend.ensure_tables"):
+            resp = client.post("/api/setup/seed-sample-data")
+        body = resp.json()
+        assert "status" in body
+        assert "message" in body
+        assert body["status"] == "ok"
+
+    def test_validate_tables_response_shape(self, client):
+        """Verify response contains expected keys."""
+        result = {"valid": True, "missing": [], "found": ["loans", "scenarios", "ecl_results"]}
+        with patch("admin_config.validate_required_tables", return_value=result):
+            resp = client.post("/api/setup/validate-tables")
+        body = resp.json()
+        assert "valid" in body
+        assert "missing" in body
+        assert "found" in body
+        assert len(body["found"]) == 3
+
+    def test_status_error_message_is_descriptive(self, client):
+        """Error response should mention 'setup status'."""
+        with patch("admin_config.get_setup_status",
+                   side_effect=Exception("db unreachable")):
+            resp = client.get("/api/setup/status")
+        assert resp.status_code == 500
+        assert "setup status" in resp.json()["detail"].lower()
+
+
+class TestProjectListEdgeCases:
+    """Iteration 2: additional project listing edge cases."""
+
+    def test_list_projects_large_result(self, client):
+        """50-project DataFrame returns all 50."""
+        df = pd.DataFrame({
+            "project_id": [f"p{i}" for i in range(50)],
+            "project_name": [f"Project {i}" for i in range(50)],
+            "project_type": ["ifrs9"] * 50,
+            "current_step": [1] * 50,
+            "created_at": ["2025-01-01"] * 50,
+            "signed_off_by": [None] * 50,
+        })
+        with patch("backend.list_projects", return_value=df):
+            resp = client.get("/api/projects")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 50
+
+    def test_list_projects_with_signed_off_entries(self, client):
+        """Projects with non-null signed_off_by values."""
+        df = pd.DataFrame({
+            "project_id": ["p1", "p2"],
+            "project_name": ["Signed", "Open"],
+            "project_type": ["ifrs9", "ifrs9"],
+            "current_step": [8, 3],
+            "created_at": ["2025-01-01", "2025-06-01"],
+            "signed_off_by": ["CFO", None],
+        })
+        with patch("backend.list_projects", return_value=df):
+            resp = client.get("/api/projects")
+        data = resp.json()
+        assert data[0]["signed_off_by"] == "CFO"
+        assert data[1]["signed_off_by"] is None
+
+
+class TestResetProjectEdgeCases:
+    """Iteration 2: additional reset endpoint tests."""
+
+    def test_reset_returns_project_at_step_1(self, client):
+        """After reset, project should be at step 1 with clean state."""
+        proj = _project_dict(current_step=1, overlays=[], scenario_weights={},
+                             signed_off_by=None)
+        with patch("backend.reset_project", return_value=proj):
+            resp = client.post("/api/projects/proj-001/reset")
+        body = resp.json()
+        assert body["current_step"] == 1
+        assert body["signed_off_by"] is None
+
+    def test_reset_error_message_preserved(self, client):
+        """Error message from backend is passed through in 400 response."""
+        with patch("backend.reset_project",
+                   side_effect=Exception("Cannot reset: project is locked")):
+            resp = client.post("/api/projects/proj-001/reset")
+        assert resp.status_code == 400
+        assert "locked" in resp.json()["detail"]
