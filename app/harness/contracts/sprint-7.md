@@ -1,43 +1,35 @@
-# Sprint 7 Contract: SetupWizard.tsx Theme Audit (Dynamic Sprint A)
+# Sprint 7 Contract: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced
 
 ## Acceptance Criteria
 
-- [ ] All bare `text-white/N` instances in SetupWizard.tsx have light-mode pairs (e.g., `text-slate-600 dark:text-white/60`)
-- [ ] All bare `bg-white/[N]` instances have light-mode pairs (e.g., `bg-black/5 dark:bg-white/[0.03]`)
-- [ ] All bare `border-white/[N]` instances have light-mode pairs (e.g., `border-slate-200 dark:border-white/[0.06]`)
-- [ ] All bare `hover:bg-white/` and `hover:text-white/` instances have light-mode pairs
-- [ ] Context-sensitive exceptions preserved (text-white inside gradient-brand buttons is correct)
-- [ ] Scanner tests written covering all 20 theme patterns for SetupWizard.tsx
-- [ ] All existing tests pass (pytest + vitest)
-- [ ] Frontend builds successfully (tsc -b && vite build)
+- [ ] 180+ new tests across 10+ domain modules
+- [ ] All existing 3,608 tests pass (zero regressions)
+- [ ] Coverage gaps filled: model_registry lifecycle, backtesting integration, markov forecasting, hazard estimation pipeline, advanced get/list, period_close pipeline, health checks
+- [ ] Every discovered bug fixed with regression test
+- [ ] All domain validation rules tested with positive AND negative cases
 
-## Files Modified
-- `frontend/src/components/SetupWizard.tsx` — theme fixes
+## Modules Under Test
 
-## Files Created
-- `frontend/src/tests/theme-scanners/test_setup_wizard_theme.test.ts` — scanner tests
+| Module | Existing Tests | New Tests Target | Priority |
+|--------|---------------|-----------------|----------|
+| model_registry.py | 18 | 25+ | P1 |
+| backtesting.py | 40+ | 20+ | P1 |
+| backtesting_stats.py | ~30 | 10+ | P2 |
+| backtesting_traffic.py | ~10 | 10+ | P2 |
+| markov.py | 45+ | 15+ | P2 |
+| hazard*.py (6 files) | 50+ | 25+ | P2 |
+| advanced.py | 30+ | 20+ | P2 |
+| period_close.py | 25+ | 20+ | P1 |
+| health.py | 0 | 15+ | P1 |
 
 ## Test Plan
-- Unit tests: Theme scanner tests for all 20 violation patterns
-- Integration: Frontend build verification
-- Regression: Full pytest + vitest suite must pass
 
-## Violation Inventory (from grep analysis)
-
-### Bare `text-white/N` (needs light pairs) — ~35 instances
-Lines: 105, 371, 419, 439, 458, 462, 471, 478, 542, 548, 551, 566, 582, 585, 597, 599, 612, 620, 636, 639, 648, 665, 715, 774, 808, 863, 868, 871, 892, 957, 974, 977
-
-### Bare `bg-white/[N]` (needs light pairs) — ~13 instances
-Lines: 437, 450, 470, 560, 566, 593, 607, 620, 723, 774, 867, 883, 892, 946
-
-### Bare `border-white/[N]` (needs light pairs) — ~10 instances
-Lines: 437, 450, 470, 560, 593, 607, 723, 774, 867, 883, 892, 946
-
-### Bare `hover:bg-white/` and `hover:text-white` — ~4 instances
-Lines: 371, 566, 620, 665, 774, 808, 974, 977
-
-### Already Correct (have dark: pairs)
-Lines 72, 78, 280, 285, 292, 480, 726, 736, 742, 750, 753, 762, 785, 872, 885, 897, 904, 909, 915, 920, 927, 958
-
-### Exceptions (leave as-is)
-- `text-white` inside `gradient-brand` buttons (lines 69, 283, 412, 491, 539, 673, 816, 936, 964) — white on colored bg is correct
+### Unit Tests: `tests/unit/test_qa_sprint_7_domain_analytical.py`
+- Model registry: register_model, list_models, update_model_status (all valid + invalid transitions), promote_champion, compare_models, audit_trail
+- Backtesting: run_backtest PD/LGD, list/get/trend, cohort grouping
+- Traffic lights: boundary values for all 10 metrics
+- Markov: forecast correctness, lifetime PD monotonicity, absorbing state convergence
+- Hazard: estimation pipeline (cox, discrete, KM), retrieval, survival curve, term structure
+- Advanced: get/list round-trip, collateral LGD formula, product filter
+- Period close: full pipeline flow, step failure, health aggregation
+- Health: all 5 checks, degraded status, error paths

@@ -1,60 +1,51 @@
-# Sprint 7 Handoff: SetupWizard.tsx Theme Audit (Dynamic Sprint A)
+# Sprint 7 Handoff: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced
 
 ## What Was Built
 
-Complete theme audit and fix of `SetupWizard.tsx` — the single worst offender in the codebase with 74+ dark-mode-only violations. Every text, background, border, and hover color now has proper light-mode + dark-mode pairs.
-
-### Files Modified
-- `frontend/src/components/SetupWizard.tsx` — 74+ theme violation fixes across all 4 wizard steps
+Comprehensive test suite for the second half of the domain/ modules (analytical engines). 120 new tests covering 10+ modules with one production bug fix.
 
 ### Files Created
-- `tests/unit/test_theme_audit_sprint7.py` — 20 scanner tests (all 20 patterns × 1 file)
-- `harness/contracts/sprint-7.md` — sprint contract
+- `tests/unit/test_qa_sprint_7_domain_analytical.py` — 120 new tests across 30+ test classes
 
-### Violation Categories Fixed
+### Files Modified
+- `domain/backtesting.py` — Bug fix: numpy type JSON serialization (added `_json_default` helper)
+- `harness/contracts/sprint-7.md` — Sprint contract
 
-| Category | Count Fixed | Light-Mode Pattern | Dark-Mode Pattern |
-|----------|------------|-------------------|-------------------|
-| `text-white/N` (bare) | ~35 | `text-slate-*` / `text-slate-400` | `dark:text-slate-*` / `dark:text-white/N` |
-| `bg-white/[N]` (bare) | ~13 | `bg-gray-50` / `bg-gray-100` | `dark:bg-white/[N]` |
-| `border-white/[N]` (bare) | ~10 | `border-gray-200` / `border-gray-300` | `dark:border-white/[N]` |
-| `hover:bg-white/[N]` (bare) | ~4 | `hover:bg-gray-200` | `dark:hover:bg-white/[N]` |
-| `hover:text-white/N` (bare) | ~4 | `hover:text-slate-*` | `dark:hover:text-slate-*` |
-| `text-white` headings (bare) | ~5 | `text-slate-900` | `dark:text-white` |
-| `text-slate-500` missing dark pair | ~21 | `text-slate-500` | `dark:text-slate-400` |
-| `text-slate-700` missing dark pair | ~3 | `text-slate-700` | `dark:text-slate-200` |
+### Modules Tested (10+)
 
-### Exceptions Preserved (NOT changed)
-- `text-white` inside `gradient-brand` buttons (lines 69, 283, 412, 491, 539, 673, 712, 816, 860, 936, 954, 964) — white on colored bg is correct
-- `text-white` on icon badges inside colored gradient backgrounds
+| Module | Tests Added | Coverage Areas |
+|--------|------------|----------------|
+| `model_registry.py` | 25 | register, list, status transitions (all valid + invalid), promote_champion, compare, audit_trail, sensitivity edge cases, recalibration |
+| `backtesting.py` | 15 | run_backtest PD, empty portfolio, list/get/trend, cohort grouping |
+| `backtesting_stats.py` | 7 | single observation, constant predictions, high default rate, numerical edge cases |
+| `backtesting_traffic.py` | 20 | exact boundary values for all 10 metrics, overall aggregation (empty, single, all-red) |
+| `markov.py` | 6 | identity matrix no-change, absorbing state convergence, lifetime PD monotonicity, Stage 3 > Stage 1 |
+| `hazard_*.py` (6 files) | 11 | Cox PH edge cases (0 events, all events), discrete-time coefficients, KM properties, survival formula S(t)=exp(-H(t)), term structure PD |
+| `advanced.py` | 8 | cure/ccf get round-trip, collateral LGD formula verification, forced sale discount bounds, product filter |
+| `period_close.py` | 15 | start pipeline, all 6 step executions (success + failure), complete (success/error), get run, health aggregation |
+| `health.py` | 13 | lakebase connection (success/fail), required tables (present/missing), config loaded, scipy available, full health check (healthy + 4 degraded scenarios) |
+| `backtesting._json_default` | 5 | Regression tests for numpy bool_, int64, float64, ndarray, unknown type |
 
-### Components Covered
-- **StepIndicator** — step dots, labels, connecting lines
-- **TableStatusRow** — table name text
-- **SetupWizard (root)** — loading state, skip link, background was already correct
-- **WelcomeStep** — heading, description, prerequisites panel, status grid, prereq items
-- **DataConnectionStep** — heading, description, connection panel, table panel, buttons, scan states, seed data
-- **OrganizationStep** — heading, description, form panel, frequency toggle, all inputs/labels
-- **FirstProjectStep** — heading, description, workflow steps, form panel, project ID input, success state, navigation
+### Bug Found & Fixed
+
+**BUG-7-001: Numpy types not JSON serializable in backtesting**
+- **File**: `domain/backtesting.py:305`
+- **Issue**: `_json.dumps(metrics_detail.get(name))` fails with `TypeError: Object of type bool_ is not JSON serializable` when Hosmer-Lemeshow test results contain numpy `bool_` from comparison operations
+- **Fix**: Added `_json_default()` handler for `numpy.integer`, `numpy.floating`, `numpy.bool_`, and `numpy.ndarray` types
+- **Regression tests**: 5 tests in `TestJsonDefaultHelper`
 
 ## How to Test
 
-- Start: `cd frontend && npm run dev`
-- Navigate to: http://localhost:5173
-- The SetupWizard appears on first load (or when setup is incomplete)
-- Test in **light mode**: all text should be visible, panels have light gray backgrounds, borders visible
-- Test in **dark mode**: all text should be readable on dark backgrounds
-- Toggle theme and verify wizard looks correct in both modes
-- Test each of the 4 steps: Welcome → Data Connection → Organization → First Project
+- Run: `cd app && source .venv/bin/activate && python -m pytest tests/unit/test_qa_sprint_7_domain_analytical.py -v`
+- Full suite: `python -m pytest tests/ -q`
 
 ## Test Results
 
-- `pytest`: **2055 passed**, 61 skipped (74.10s) — includes 20 new Sprint 7 scanner tests
-- `vitest`: **103 passed** (1.97s)
-- Frontend build (`tsc -b && vite build`): **SUCCESS** (2.00s)
-- Sprint 7 scanner tests: **20/20 passed** (all 20 theme patterns clean)
+- `pytest`: **3,728 passed**, 61 skipped (114.89s)
+- New Sprint 7 tests: **120/120 passed**
+- Regressions: **0**
 
 ## Known Limitations
 
-- None — all violations in SetupWizard.tsx have been resolved
-- The `text-slate-500 dark:text-white/50` pattern used by prior sprints on labels was changed to `text-slate-500 dark:text-slate-400` to satisfy scanners. Visually equivalent.
+- `run_backtest()` integration test uses mocked DB (doesn't test actual SQL execution)
+- Health check `check_config_loaded()` test uses import patching which may be fragile across Python versions
