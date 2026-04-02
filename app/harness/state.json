@@ -1,93 +1,44 @@
 {
   "status": "IN_PROGRESS",
-  "app_name": "IFRS 9 ECL Theme Audit",
+  "app_name": "IFRS 9 ECL Comprehensive QA Audit",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 8,
-  "planned_sprints": 7,
-  "remaining_spec_items": [],
-  "sprints_completed": [
-    {
-      "sprint": 1,
-      "feature": "Core Layout & Shared Components (19 files)",
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0,
-      "notes": "Built but never formally evaluated"
-    },
-    {
-      "sprint": 2,
-      "feature": "Workflow Pages Part 1 (8 files)",
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0,
-      "notes": "Built but never formally evaluated"
-    },
-    {
-      "sprint": 3,
-      "feature": "Workflow Pages Part 2 + Admin (10 files)",
-      "score": 9.63,
-      "debt": false,
-      "trajectory": [9.35, 9.18, 9.63],
-      "iterations": 3
-    },
-    {
-      "sprint": 4,
-      "feature": "Data Mapping Module (8 files)",
-      "score": 9.78,
-      "debt": false,
-      "trajectory": [9.78],
-      "iterations": 1
-    },
-    {
-      "sprint": 5,
-      "feature": "Admin Sub-pages + Stress Testing Tabs (13 files)",
-      "score": 9.18,
-      "debt": true,
-      "trajectory": [6.95, 9.18],
-      "iterations": 2,
-      "notes": "Below 9.5 target, advanced with debt"
-    },
-    {
-      "sprint": 6,
-      "feature": "SetupWizard + Remaining Components (13 files)",
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0,
-      "notes": "NEVER STARTED"
-    },
-    {
-      "sprint": 7,
-      "feature": "Dynamic Sprint A: SetupWizard.tsx theme audit",
-      "score": 9.75,
-      "debt": false,
-      "trajectory": [9.75],
-      "iterations": 1
-    }
+  "current_sprint": 1,
+  "planned_sprints": 10,
+  "remaining_spec_items": [
+    "Sprint 1: Backend API — Core Workflow & Data Endpoints (42+ endpoints)",
+    "Sprint 2: Backend API — Simulation & Satellite Model (18+ endpoints)",
+    "Sprint 3: Backend API — Model Registry, Backtesting, Markov, Hazard (24+ endpoints)",
+    "Sprint 4: Backend API — GL Journals, Reports, RBAC, Audit, Admin (45+ endpoints)",
+    "Sprint 5: ECL Engine — Monte Carlo Correctness (9 files)",
+    "Sprint 6: Domain Logic — Workflow, Queries, Attribution, Validation (8 modules)",
+    "Sprint 7: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
+    "Sprint 8: Frontend — Component & Page Testing (25+ pages, 40+ components)",
+    "Sprint 9: Middleware, Cross-Cutting & Integration Testing (5 multi-endpoint flows)",
+    "Sprint 10: Production Readiness & Final Gap Analysis"
   ],
-  "dynamically_added_sprints": [
-    "Dynamic Sprint A: SetupWizard.tsx theme audit (74 violations)",
-    "Dynamic Sprint B: text-slate-600/700 dark-pair sweep (130+ violations)",
-    "Dynamic Sprint C: Final regression + visual verification"
-  ],
-  "feature_sprints_since_doc_sprint": 1,
-  "last_doc_sprint": 6,
-  "last_install_test": 6,
-  "last_integration_test": 6,
+  "sprints_completed": [],
+  "dynamically_added_sprints": [],
+  "feature_sprints_since_doc_sprint": 0,
+  "last_doc_sprint": 0,
+  "last_install_test": 0,
+  "last_integration_test": 0,
   "context_resets": 0,
   "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
-  "dev_server_command": "cd frontend && npm run dev",
-  "last_action": "Sprint 8 (Dynamic Sprint C) BUILD complete. ~95 text-slate-600/700/800 violations fixed across 24 files. 288 scanner tests pass. All 2343 pytest + 103 vitest pass. Frontend builds clean.",
-  "last_updated": "2026-04-01T19:50:00",
-  "dev_server_port": 5173,
-  "score_trajectory": [],
-  "final_eval_score": 5.5,
-  "final_eval_verdict": "FAIL"
+  "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
+  "dev_server_port": 8000,
+  "test_baseline": {
+    "pytest": 2480,
+    "vitest": 103,
+    "total": 2583
+  },
+  "current_test_count": {
+    "pytest": 2559,
+    "new_this_sprint": 140
+  },
+  "last_updated": "2026-04-02T10:00:00"
 }

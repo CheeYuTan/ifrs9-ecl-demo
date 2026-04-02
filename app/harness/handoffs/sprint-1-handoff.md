@@ -1,122 +1,65 @@
-# Sprint 1 Handoff: Core Layout & Shared Components Theme Audit (Iteration 5 — Final)
+# Sprint 1 Handoff: Backend API — Core Workflow & Data Endpoints
 
 ## What Was Built
 
-Systematic theme audit and remediation of 19 core layout and shared component files. Every file now has proper light+dark mode Tailwind CSS classes, with zero bare dark-only violations.
+New test file covering 47 route endpoints across 3 route modules:
 
-### Summary Across All Iterations
+- **`tests/unit/test_qa_sprint_1_core_routes.py`** — 140 new tests
+  - `routes/projects.py`: 10 endpoints — 30 tests (happy path, 404, 422, 403, segregation-of-duties, hash verification, approval history)
+  - `routes/data.py`: 32 endpoints — 97 tests (27 simple endpoints × 3 parametrized tests each = 81 happy/empty/error, plus 14 parameterized-endpoint tests + 2 NaN/Inf handling)
+  - `routes/setup.py`: 5 endpoints — 13 tests (success + error for each, plus edge cases)
 
-| Iteration | Focus | Key Change |
-|-----------|-------|------------|
-| 1 | Theme fixes | Fixed all dark-mode-only violations in 19 files, created 16 scanners (329 tests), added CSS safety nets |
-| 2 | Test infra | Created `app/tests` symlink for test discovery from `app/` directory |
-| 3 | Test fixes | Fixed 3 test collection errors (`test_api.py`, `test_ecl_engine.py`, `test_models.py`), updated `app/conftest.py` |
-| 4 | Test config | Added `app/pyproject.toml` for robust `pytest` discovery from any invocation method |
-| 5 | Verification | Final verification — all tests pass, zero violations confirmed |
+## Coverage Details
 
-## Files Audited — All Clean (19 files, zero violations)
+### Projects Routes (30 tests)
+| Endpoint | Tests |
+|----------|-------|
+| GET /api/projects | 2 (with data, empty) |
+| GET /api/projects/{id} | 3 (found, 404, field validation) |
+| POST /api/projects | 4 (success, all fields, defaults, missing required 422) |
+| POST /api/projects/{id}/advance | 4 (success, with detail, 404, missing field 422) |
+| POST /api/projects/{id}/overlays | 3 (no comment, with comment advances step, empty overlays) |
+| POST /api/projects/{id}/scenario-weights | 2 (success, empty weights) |
+| POST /api/projects/{id}/sign-off | 4 (success, already signed 403, segregation-of-duties 403, with attestation) |
+| GET /api/projects/{id}/verify-hash | 4 (valid, invalid, no hash, missing project 404) |
+| GET /api/projects/{id}/approval-history | 3 (success, empty, error 500) |
+| POST /api/projects/{id}/reset | 2 (success, error 400) |
 
-- **Batch 1A — App Shell:** App.tsx, Sidebar.tsx, main.tsx
-- **Batch 1B — Data Display:** DataTable.tsx, Card.tsx, KpiCard.tsx, CollapsibleSection.tsx, ThreeLevelDrillDown.tsx, DrillDownChart.tsx, ScenarioProductBarChart.tsx, ChartTooltip.tsx
-- **Batch 1C — Feedback:** Toast.tsx, ErrorBoundary.tsx, ErrorDisplay.tsx, ConfirmDialog.tsx, StatusBadge.tsx, LockedBanner.tsx, HelpTooltip.tsx, HelpPanel.tsx
+### Data Routes (97 tests)
+- 27 simple GET endpoints: 3 tests each (happy path with data, empty DataFrame, error 500)
+- 5 parameterized endpoints: ecl-by-stage-product (stages 1,2,3 + error), ecl-by-scenario-product-detail (success + error), top-exposures (default + custom limit + error), loans-by-product (success + error), loans-by-stage (success + error)
+- NaN/Inf sanitization: 2 tests verifying NaN and Inf become null in JSON
 
-## Scanner Inventory (16 scanners, 329 tests)
-
-| # | Scanner | Pattern | Tests |
-|---|---------|---------|-------|
-| 1 | `find_bare_bg_slate_600_plus` | `bg-slate-[6-9]00` without `dark:` | 19 |
-| 2 | `find_bare_bg_white_opacity` | `bg-white/N` without light pair | 19 |
-| 3 | `find_bare_border_white` | `border-white/N` without light pair | 19 |
-| 4 | `find_bare_text_white_opacity` | `text-white/N` without light pair | 19 |
-| 5 | `find_bare_hover_bg_white` | `hover:bg-white/N` without `dark:hover:` | 19 |
-| 6 | `find_bare_hover_bg_slate_dark` | `hover:bg-slate-[6-9]00` without `dark:hover:` | 19 |
-| 7 | `find_bare_from_slate` | `from-slate-[78]00` without `dark:` | 19 |
-| 8 | `find_bare_bg_hex` | `bg-[#0B0F1A]` without `dark:` | 19 |
-| 9 | `find_bare_border_dir_slate_dark` | `border-[tblr]-slate-800` without `dark:` | 19 |
-| 10 | `find_bare_to_slate_dark` | `to-slate-[6-9]00` without `dark:` | 19 |
-| 11 | `find_bare_via_slate_dark` | `via-slate-[6-9]00` without `dark:` | 19 |
-| 12 | `find_bare_focus_bg_slate_dark` | `focus:bg-slate-[6-9]00` without `dark:focus:` | 19 |
-| 13 | `find_bare_hover_bg_slate_light_opacity` | `hover:bg-slate-50|100/N` without `dark:hover:` | 19 |
-| 14 | `find_css_scrollbar_theme_issues` | CSS scrollbar `rgba(255,255,255)` without `.dark` scope | 1 |
-| 15 | `find_bare_hover_bg_slate_light_plain` | `hover:bg-slate-100/200` (plain) without `dark:hover:` | 19 |
-| 16 | `find_bare_hover_text_slate_dark` | `hover:text-slate-[6-8]00` without `dark:hover:` | 19 |
+### Setup Routes (13 tests)
+- status: 3 (complete, not complete, error)
+- validate-tables: 3 (valid, missing tables, error)
+- seed-sample-data: 2 (success, error)
+- complete: 3 (default user, custom user, error)
+- reset: 2 (success, error)
 
 ## How to Test
 
-### Running tests
 ```bash
-cd "/Users/steven.tan/Expected Credit Losses/app"
-
-# Theme audit tests only (329 tests, <1s)
-pytest tests/unit/test_theme_audit_sprint1.py -v
-
-# ALL backend tests (1428 collected, 1367 passed, 61 skipped, ~75s)
-pytest tests/ -q
-
-# Frontend tests (103 tests, ~2s)
-cd frontend && npx vitest run
-```
-
-### Test discovery verification
-```bash
-# From app/ directory
-cd "/Users/steven.tan/Expected Credit Losses/app"
-pytest --co -q            # 1428 tests collected
-python -m pytest --co -q  # 1428 tests collected
-
-# From project root
 cd "/Users/steven.tan/Expected Credit Losses"
-python -m pytest --co -q  # 1428 tests collected
+source .venv/bin/activate
+python -m pytest tests/unit/test_qa_sprint_1_core_routes.py -v
 ```
 
-### Visual Verification
-- Start dev server: `cd "/Users/steven.tan/Expected Credit Losses/app/frontend" && npm run dev`
-- Navigate to `http://localhost:5173`
-- Toggle light/dark mode on any page
-- In light mode: verify no invisible text, no white-on-white backgrounds
-- In dark mode: verify no regressions, hover states work properly
+## Test Results
 
-## Test Results (Iteration 5 — Final)
+```
+140 passed in 0.70s
+Full suite: 2559 passed, 61 skipped in 111.95s — ZERO failures
+```
 
-- **Theme audit (pytest)**: 329 passed, 0 failed (0.28s)
-- **Full backend (pytest from app/)**: 1367 passed, 61 skipped, 0 failed (73.47s)
-- **Frontend (Vitest)**: 103 passed, 0 failed (2.06s)
-- **Test collection**: 1428 tests discovered from both `app/` and project root
+## Bugs Found
+None — all endpoints behave as documented in the route code.
 
-## Known Exceptions (Intentional — Not Violations)
+## Known Limitations
+- Sign-off test mocks `require_permission` directly to bypass auth middleware dependency injection; a deeper integration test would test the full middleware chain
+- Data route tests verify structure (list return, 500 on error) but don't validate DataFrame column schemas since those depend on the domain layer
 
-- **App.tsx hero stepper**: Uses `bg-white/[0.06]`, `border-white/[0.08]`, `text-white/N` on always-dark gradient background — intentional, not a light-mode issue
-- **Toast info variant**: `bg-slate-800` intentionally always-dark notification
-- **HelpTooltip bubble**: `bg-slate-800 dark:bg-slate-700` intentionally dark in both modes (tooltip on colored background)
-- **CollapsibleSection**: `dark:hover:bg-slate-800` already has proper `dark:` prefix
-- **CSS overrides**: `index.css` handles scrollbar theming via CSS variables, already theme-aware
-
-## Files Changed (All Iterations Combined)
-
-### Iteration 1 (Theme Fixes)
-- `frontend/src/App.tsx` — Fixed 19 violations (text-white/, border-white/, bg patterns)
-- `frontend/src/components/Sidebar.tsx` — Fixed 27 violations
-- `frontend/src/main.tsx` — Verified clean
-- `frontend/src/components/DataTable.tsx` — Fixed gradient header + hover states
-- `frontend/src/components/Card.tsx` — Verified clean
-- `frontend/src/components/KpiCard.tsx` — Verified clean
-- `frontend/src/components/CollapsibleSection.tsx` — Fixed bare bg-slate
-- `frontend/src/components/ThreeLevelDrillDown.tsx` — Fixed bg-slate
-- `frontend/src/components/DrillDownChart.tsx` — Fixed bg-slate
-- `frontend/src/components/ScenarioProductBarChart.tsx` — Fixed bg-slate
-- `frontend/src/components/ChartTooltip.tsx` — Verified clean
-- `frontend/src/components/Toast.tsx` — Documented intentional exception
-- `frontend/src/components/ErrorBoundary.tsx` — Verified clean
-- `frontend/src/components/ErrorDisplay.tsx` — Fixed bg-white/ + bg-slate
-- `frontend/src/components/ConfirmDialog.tsx` — Fixed bg-slate patterns
-- `frontend/src/components/StatusBadge.tsx` — Verified clean
-- `frontend/src/components/LockedBanner.tsx` — Fixed bg-slate + gradient
-- `frontend/src/components/HelpTooltip.tsx` — Documented intentional exception
-- `frontend/src/components/HelpPanel.tsx` — Fixed bg-slate
-- `frontend/src/index.css` — Added CSS safety nets for hover states + scrollbar theming
-- `tests/unit/test_theme_audit_sprint1.py` — NEW: 329 tests across 16 scanners
-
-### Iteration 2-4 (Test Infrastructure)
-- `app/tests` — Symlink to `../tests`
-- `app/conftest.py` — Re-exports for test collection
-- `app/pyproject.toml` — NEW: pytest config for robust test discovery
+## Files Changed
+- `tests/unit/test_qa_sprint_1_core_routes.py` (NEW — 140 tests)
+- `harness/contracts/sprint-1.md` (UPDATED — new QA contract)
+- `harness/handoffs/sprint-1-handoff.md` (UPDATED — this file)
