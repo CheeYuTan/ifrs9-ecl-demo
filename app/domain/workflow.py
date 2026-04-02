@@ -55,14 +55,46 @@ def ensure_workflow_table():
         ensure_audit_tables()
     except Exception as exc:
         log.warning("Could not create audit tables: %s", exc)
-    for fn_name in ("ensure_attribution_table", "ensure_model_registry_table",
-                     "ensure_backtesting_table", "ensure_gl_tables",
-                     "ensure_markov_tables", "ensure_hazard_tables",
-                     "ensure_rbac_tables"):
+    # Lazy imports to avoid circular dependency (these modules import from workflow)
+    _ensure_fns = []
+    try:
+        from domain.attribution import ensure_attribution_table
+        _ensure_fns.append(("ensure_attribution_table", ensure_attribution_table))
+    except ImportError:
+        pass
+    try:
+        from domain.model_registry import ensure_model_registry_table
+        _ensure_fns.append(("ensure_model_registry_table", ensure_model_registry_table))
+    except ImportError:
+        pass
+    try:
+        from domain.backtesting import ensure_backtesting_table
+        _ensure_fns.append(("ensure_backtesting_table", ensure_backtesting_table))
+    except ImportError:
+        pass
+    try:
+        from reporting.gl_journals import ensure_gl_tables
+        _ensure_fns.append(("ensure_gl_tables", ensure_gl_tables))
+    except ImportError:
+        pass
+    try:
+        from domain.markov import ensure_markov_tables
+        _ensure_fns.append(("ensure_markov_tables", ensure_markov_tables))
+    except ImportError:
+        pass
+    try:
+        from domain.hazard_tables import ensure_hazard_tables
+        _ensure_fns.append(("ensure_hazard_tables", ensure_hazard_tables))
+    except ImportError:
+        pass
+    try:
+        from governance.rbac import ensure_rbac_tables
+        _ensure_fns.append(("ensure_rbac_tables", ensure_rbac_tables))
+    except ImportError:
+        pass
+    for fn_name, fn in _ensure_fns:
         try:
-            fn = globals().get(fn_name)
-            if fn:
-                fn()
+            fn()
         except Exception:
             log.debug("Could not run %s, skipping", fn_name)
 
