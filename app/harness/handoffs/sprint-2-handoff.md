@@ -1,64 +1,61 @@
-# Sprint 2 Handoff: Workflow Pages Part 1 — Theme Audit (Iteration 5)
+# Sprint 2 Handoff: Backend API — Simulation & Satellite Model
 
 ## What Was Built
 
-Audited 8 workflow page .tsx files for dark-mode-only Tailwind CSS violations using the 16 scanner patterns established in Sprint 1.
+128 new tests covering all 18 simulation and satellite model endpoints in `routes/simulation.py` (6 endpoints) and `routes/satellite.py` (12 endpoints), plus unit tests for internal helpers.
 
-### Files Audited
-1. `pages/CreateProject.tsx` — CLEAN (no violations)
-2. `pages/DataProcessing.tsx` — CLEAN (no violations)
-3. `pages/DataControl.tsx` — CLEAN (all `bg-slate-800/60` properly paired with `dark:`)
-4. `pages/SatelliteModel.tsx` — 6 fixes applied across iterations 1-3
-5. `pages/ModelExecution.tsx` — CLEAN (all `bg-slate-900/50`, `bg-slate-800/60` properly paired)
-6. `pages/stress-testing/index.tsx` — CLEAN (`bg-slate-800/80` properly paired)
-7. `pages/Overlays.tsx` — CLEAN (all `bg-slate-800/60` properly paired)
-8. `pages/SignOff.tsx` — CLEAN (all `bg-slate-800/60`, `bg-slate-800/40` properly paired)
+### Test Coverage by Endpoint
 
-### SatelliteModel.tsx Fixes (iterations 1-3)
-- **Iteration 1**: Added `dark:hover:` pairs to 3 hover states (lines 280, 315, 460)
-- **Iteration 3**: Added dark-mode base state pairs to 3 light-only conditional classes
+**Simulation Routes (routes/simulation.py)**:
+- `POST /api/simulate` — 14 tests (happy path, aggregation, transforms, 400/500 errors, config passthrough, pre-checks, empty data)
+- `GET /api/simulation-defaults` — 3 tests (happy path, 500 error, fallback defaults)
+- `POST /api/simulate-stream` — 5 tests (SSE content type, result event, error event, headers, progress callback)
+- `POST /api/simulate-job` — 4 tests (happy path, 500 error, config passthrough, flag handling)
+- `POST /api/simulate-validate` — 21 tests (valid defaults, PD/LGD floor/cap errors, n_sims bounds, scenario weights, warnings, multiple errors, estimates)
+- `GET /api/simulation/compare` — 9 tests (happy path, deltas, 404, 500, zero denominator, non-overlapping products, improved/degraded counts, empty summaries)
 
-### Dark-Mode Text Contrast
-Global CSS overrides in `index.css` (lines 498-503) handle text contrast:
-- `.dark .text-slate-800 { color: #F1F5F9; }` (remapped to slate-50)
-- `.dark .text-slate-700 { color: #E2E8F0; }` (remapped to slate-200)
-- `.dark .text-slate-600 { color: #CBD5E1; }` (remapped to slate-300)
-- `.dark .text-slate-500 { color: #94A3B8; }` (remapped to slate-400)
+**Satellite Routes (routes/satellite.py)**:
+- `GET /api/data/satellite-model-comparison` — 4 tests
+- `GET /api/data/satellite-model-selected` — 4 tests
+- `GET /api/model-runs` — 5 tests (JSON field parsing, malformed JSON, run_type filter)
+- `GET /api/model-runs/{run_id}` — 4 tests (found, 404, 500, datetime serialization)
+- `POST /api/model-runs` — 4 tests (happy path, minimal payload, missing run_id 422, 500)
+- `GET /api/data/cohort-summary` — 3 tests
+- `GET /api/data/cohort-summary/{product}` — 3 tests
+- `GET /api/data/drill-down-dimensions` — 4 tests
+- `GET /api/data/ecl-by-cohort` — 4 tests (including missing product 422)
+- `GET /api/data/stage-by-cohort` — 4 tests
+- `GET /api/data/portfolio-by-cohort` — 4 tests
+- `GET /api/data/ecl-by-product-drilldown` — 3 tests
 
-### All 16 Scanner Patterns — Zero Violations
-All patterns confirmed clean across all 8 files: `bg-slate-[6-9]00`, `bg-white/N`, `border-white/N`, `text-white/N`, `hover:bg-white/N`, `hover:bg-slate-[6-9]00`, `from-slate-[78]00`, `bg-[#0B0F1A]`, `border-[tblr]-slate-800`, `to-slate-[6-9]00`, `via-slate-[6-9]00`, `focus:bg-slate-[6-9]00`, `hover:bg-slate-50/100/N`, `hover:bg-slate-100/200`, `hover:text-slate-[6-8]00`.
+**Internal Helper Unit Tests**:
+- `SimulationConfig` model — 2 tests (defaults, custom values)
+- `_transform_simulation_result` — 5 tests (stage rename, weighted contribution, product aggregation, zero GCA, empty)
+- `_build_product_deltas` — 4 tests (matching, non-overlapping, empty, zero base)
+- `_get_simulation_cap` — 3 tests (default, config, alt keys)
+- `_run_pre_checks` — 3 tests (exception, empty loans, loan data)
+- `_persist_simulation_run` — 2 tests (calls save, swallows exceptions)
+- Serialization edge cases — 2 tests (Decimal, NaN/Inf)
+- Pydantic validation — 5 tests (invalid types, empty body, extra fields)
 
 ### Files Changed
-- `frontend/src/pages/SatelliteModel.tsx` (6 lines modified across iterations 1-3)
-- `tests/unit/test_theme_audit_sprint2.py` (new file, 165 lines)
-- `harness/contracts/sprint-2.md` (new file)
+- `tests/unit/test_qa_sprint_2_simulation_satellite.py` (new, ~820 lines)
+- `harness/contracts/sprint-2.md` (updated)
+- `harness/state.json` (updated)
 
 ## How to Test
-- Start dev server: `cd frontend && npm run dev` (port 5173)
-- Navigate to each page in light mode and dark mode
-- **Key visual checks**:
-  - SatelliteModel page — toggle "Run History" button, check product tabs in both modes
-  - ModelExecution page — verify scenario tables, comparison panels
-  - Overlays page — check overlay cards, submission form
-  - SignOff page — verify attestation sections, approval workflow
-- Run Sprint 2 tests: `pytest tests/unit/test_theme_audit_sprint2.py -v`
-- Run Sprint 1 regression: `pytest tests/unit/test_theme_audit_sprint1.py -v`
+- Run Sprint 2 tests: `pytest tests/unit/test_qa_sprint_2_simulation_satellite.py -v`
 - Run full backend suite: `pytest tests/ -v`
-- Run frontend tests: `cd frontend && npx vitest run`
 
-## Test Results (Iteration 5)
-- Sprint 2 theme tests: **120 passed**
-- Sprint 1 theme tests: **329 passed** (no regression)
-- Full backend: **1487 passed, 61 skipped**
-- Frontend: **103 passed**
-- **Total: 2039 tests passing**
+## Test Results
+- Sprint 2 tests: **128 passed**
+- Full backend suite: **2846 passed, 61 skipped, 0 failed**
+- Zero regressions from existing 2718 tests
 
 ## Known Limitations
-- 7 of 8 files were already clean — only SatelliteModel.tsx needed fixes
-- Visual QA was blocked by Chrome DevTools MCP permissions (not a code issue)
-- Dark-mode text contrast is handled globally by CSS overrides in `index.css`, not per-element `dark:text-*` classes
+- SSE streaming tests verify response body content but don't test real-time streaming behavior (TestClient reads full response)
+- `_persist_simulation_run` has internal try/except, so the "persist failure" test verifies the outer handler path (mock bypasses internal catch)
+- Simulation job endpoint tested with mocked `jobs` module (requires live Databricks workspace for real execution)
 
-## Prior Iteration Notes
-- Iterations 1-4: Code fixes complete, all scanner patterns clean
-- Visual QA blocked by MCP permissions in all iterations — needs Chrome DevTools access granted
-- This is iteration 5 (max) — code is solid, ready for evaluator
+## Bugs Found
+- None — all endpoints behave as expected per their implementation
