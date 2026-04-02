@@ -1,40 +1,49 @@
-# Sprint 8 Contract: Final Regression + Visual Verification (Dynamic Sprint C)
+# Sprint 8 Contract: Frontend — Component & Page Testing
+
+## Objective
+Expand frontend vitest test coverage from 103 to 200+ tests by adding tests for all untested pages, components, and hooks.
 
 ## Acceptance Criteria
 
-- [ ] ZERO bare `text-slate-600` without `dark:text-slate-300` pair (except hover: contexts with dark:hover: pairs)
-- [ ] ZERO bare `text-slate-700` without `dark:text-slate-200` pair (except hover: contexts with dark:hover: pairs)
-- [ ] ZERO bare `bg-slate-[89]00` without `dark:` prefix (excluding documented tooltip exceptions)
-- [ ] ZERO bare `bg-white/` without light-mode pair (excluding hero area exceptions in App.tsx)
-- [ ] ZERO bare `border-white/` without light-mode pair (excluding hero area exceptions)
-- [ ] ZERO bare `text-white/` without light-mode pair (excluding hero area, tooltip exceptions)
-- [ ] ZERO bare `hover:bg-white/` without light-mode pair (excluding hero area)
-- [ ] All existing tests pass (pytest + vitest)
-- [ ] Frontend builds successfully (tsc -b && vite build)
-- [ ] Comprehensive scanner tests covering all violation patterns across all affected files
+### Components (15+ untested → all tested)
+- [ ] ApprovalForm: renders, handles form submission
+- [ ] ChartTooltip: renders tooltip content
+- [ ] CollapsibleSection: toggles expand/collapse
+- [ ] ConfirmDialog: renders, handles confirm/cancel
+- [ ] DrillDownChart: renders chart with mock data, empty data
+- [ ] EmptyState: renders message and optional action
+- [ ] ErrorDisplay: renders error messages
+- [ ] HelpPanel: toggles open/close
+- [ ] HelpTooltip: renders tooltip
+- [ ] JobRunLink: renders link with URL
+- [ ] NotebookLink: renders link
+- [ ] PageHeader: renders title
+- [ ] PageLoader: renders spinner
+- [ ] ScenarioChecklist: renders checkboxes
+- [ ] SetupWizard: step progression, validation
+- [ ] SimulationPanel: parameter inputs
+- [ ] SimulationProgress: progress bar
+- [ ] SimulationResults: results display
+- [ ] StepDescription: step info
+- [ ] ThreeLevelDrillDown: drill-down levels
 
-## Documented Exceptions (NOT violations)
-- App.tsx hero area (lines ~60-170, 477-488): always-dark gradient hero
-- Toast.tsx, AdminAppSettings.tsx, AdminModelConfig.tsx, ColumnMappingRow.tsx, HelpTooltip.tsx: intentionally dark tooltips
-- AdminThemeConfig.tsx: theme preview swatch (always on dark preview bg)
-- RegulatoryReports.tsx: `bg-white/20` inside brand button
-- hover:text-slate-600/700 WITH matching dark:hover: pairs are correct
+### Pages (19 untested → all smoke-tested)
+- [ ] Every page renders without crashing
+- [ ] Key interactions: buttons, forms, navigation
+- [ ] Error states from API failures
+- [ ] Loading states during data fetch
 
-## Files to Fix
+### Hooks
+- [ ] useEclProductData: fetches data, handles loading/error
+- [ ] useCohortsByProduct: fetches per-product cohorts
 
-### text-slate-600 violations (~30 instances):
-- ConfirmDialog.tsx, StepDescription.tsx, SimulationPanel.tsx, KpiCard.tsx, SimulationResults.tsx
-- DrillDownChart.tsx, DataTable.tsx, ThreeLevelDrillDown.tsx, JobRunLink.tsx
-- ScenarioProductBarChart.tsx, ScenarioChecklist.tsx, SatelliteModel.tsx
-- SignOff.tsx, ModelExecution.tsx
-
-### text-slate-700 violations (~35 instances):
-- App.tsx, SimulationPanel.tsx, SimulationResults.tsx, ApprovalForm.tsx
-- DrillDownChart.tsx, ThreeLevelDrillDown.tsx, HelpPanel.tsx, EmptyState.tsx
-- ScenarioProductBarChart.tsx, ScenarioChecklist.tsx, Overlays.tsx
-- SatelliteModel.tsx, DataControl.tsx
+### Quality Gates
+- [ ] Total vitest test count >= 200
+- [ ] Zero test failures
+- [ ] No modifications to existing passing tests
 
 ## Test Plan
-- Scanner tests for text-slate-600/700 patterns across all affected files
-- Full pytest + vitest pass
-- Frontend build success
+- Unit tests: rendering, props, user interactions (RTL + userEvent)
+- API mocking: vi.mock for fetch, test request params
+- Error/loading states
+- Follow existing test patterns (describe/it, screen queries)

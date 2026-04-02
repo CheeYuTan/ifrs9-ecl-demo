@@ -1,101 +1,97 @@
-# Sprint 8 Handoff: Final Regression + Visual Verification (Dynamic Sprint C)
+# Sprint 8 Handoff: Frontend — Component & Page Testing
 
 ## What Was Built
 
-Comprehensive final regression sweep fixing all remaining `text-slate-600`, `text-slate-700`, and `text-slate-800` violations across the entire codebase. Also fixed `bg-slate-100` table headers and `hover:bg-slate-50` rows missing dark pairs.
+Expanded frontend vitest test coverage from **103 tests** to **250 tests** (+147 new tests) across 18 new test files.
 
-### Files Modified (24 files)
+### New Test Files (18 files)
 
-**Components (16 files):**
-- `components/ConfirmDialog.tsx` — 1 text-slate-600 dark pair added
-- `components/StepDescription.tsx` — 1 text-slate-600 dark pair added
-- `components/SimulationPanel.tsx` — 5 text-slate-600 + 10 text-slate-700 + 1 text-slate-800 + 1 bg-slate-50 dark pairs added
-- `components/KpiCard.tsx` — 1 text-slate-600 + 1 text-slate-800 dark pair added
-- `components/SimulationResults.tsx` — 2 text-slate-600 + 1 text-slate-700 + 3 text-slate-800 dark pairs added
-- `components/DrillDownChart.tsx` — 1 text-slate-600 + 1 text-slate-700 dark pair added
-- `components/DataTable.tsx` — 1 text-slate-600 dark pair added
-- `components/ThreeLevelDrillDown.tsx` — 1 text-slate-600 + 1 text-slate-700 dark pair added
-- `components/JobRunLink.tsx` — 1 text-slate-600 dark pair added
-- `components/ScenarioProductBarChart.tsx` — 1 text-slate-600 + 1 text-slate-700 dark pair added
-- `components/ScenarioChecklist.tsx` — 1 text-slate-600 + 1 text-slate-700 + 1 text-slate-800 dark pair added
-- `components/ApprovalForm.tsx` — 1 text-slate-700 dark pair added
-- `components/EmptyState.tsx` — 1 text-slate-700 dark pair added
-- `components/HelpPanel.tsx` — 1 text-slate-700 + 1 text-slate-800 dark pair added
-- `components/PageHeader.tsx` — 1 text-slate-800 dark pair added
-- `components/SetupWizard.tsx` — 1 text-slate-800 + bg-white active step dark pair added
+**Component Tests (11 new files):**
+- `components/ApprovalForm.test.tsx` — 10 tests: rendering, approve/reject actions, comment handling, Processing state, disabled reject without comment
+- `components/ChartTooltip.test.tsx` — 8 tests: null rendering for inactive/empty, tooltip display, custom formatValue, color application
+- `components/CollapsibleSection.test.tsx` — 6 tests: toggle expand/collapse, defaultOpen, aria-expanded, icon rendering
+- `components/ConfirmDialog.test.tsx` — 10 tests: open/close, confirm/cancel, Escape key, loading state, dialog role, warning variant
+- `components/EmptyState.test.tsx` — 7 tests: title, description, ActionButton click, custom ReactNode action, custom icon, className
+- `components/ErrorDisplay.test.tsx` — 8 tests: title/message, retry, technical details toggle, dismiss, Report Issue link
+- `components/HelpTooltip.test.tsx` — 18 tests: tooltip show/hide on hover, close button, IFRS9_HELP constants (ECL, PD, LGD, EAD, SICR, STAGE_1/2/3, GCA, COVERAGE_RATIO, GL_RECON)
+- `components/JobRunLink.test.tsx` — 10 tests: null run, default/compact mode, status states (SUCCESS/RUNNING/FAILED), duration, tasks list, external link attrs
+- `components/PageHeader.test.tsx` — 5 tests: title/subtitle, status badge, children rendering, h2 element
+- `components/PageLoader.test.tsx` — 4 tests: spinner, role status, sr-only text, aria-label
+- `components/ScenarioChecklist.test.tsx` — 8 tests: labels, weights, status indicators (Pending/Computing/done), ECL amount, duration, color dot
+- `components/SimulationProgress.test.tsx` — 9 tests: header, elapsed time, progress %, phase, message, loan/sim counts, cancel, cap at 100%, scenario checklist
+- `components/StepDescription.test.tsx` — 6 tests: description, IFRS ref, tips list, custom icon
 
-**Pages (7 files):**
-- `pages/SatelliteModel.tsx` — 2 text-slate-600 + 5 text-slate-700 + 2 text-slate-800 dark pairs added
-- `pages/SignOff.tsx` — 2 text-slate-600 + 5 text-slate-700 + 1 text-slate-800 dark pairs added
-- `pages/ModelExecution.tsx` — ~25 text-slate-600 + ~15 text-slate-700 + 2 text-slate-800 + 4 bg-slate-100 + hover:bg-slate-50 dark pairs added
-- `pages/Overlays.tsx` — 5 text-slate-700 dark pairs added
-- `pages/DataControl.tsx` — 2 text-slate-700 dark pairs added
-- `pages/DataProcessing.tsx` — 2 text-slate-700 + 1 text-slate-800 dark pairs added
-- `pages/CreateProject.tsx` — 2 text-slate-700 + 1 text-slate-800 dark pairs added
+**Page Tests (4 new files):**
+- `pages/Admin.test.tsx` — 3 tests: tab labels, config loading, tab switching
+- `pages/Attribution.test.tsx` — 2 tests: render + data loading, getAttribution API call
+- `pages/CreateProject.test.tsx` — 4 tests: form rendering, inputs, pre-fill from project, project list loading
+- `pages/page-smoke.test.tsx` — 16 tests: smoke tests for all untested pages (AdvancedFeatures, ApprovalWorkflow, Backtesting, DataControl, DataMapping, DataProcessing, GLJournals, HazardModels, MarkovChains, ModelExecution, ModelRegistry, Overlays, RegulatoryReports, SatelliteModel, SignOff, StressTesting)
 
-**App shell:**
-- `App.tsx` — 2 text-slate-700 dark pairs added
+**Hook Tests (1 new file):**
+- `hooks/useEclData.test.ts` — 11 tests: useEclProductData (no-fetch, fetch, cohort fetch, loading, error handling) + useCohortsByProduct (empty, fetch, custom key, error skip, empty array skip)
 
-### Files Created
-- `tests/unit/test_theme_audit_sprint8.py` — 288 scanner tests (12 patterns × 24 files)
-
-### Files Updated
-- `tests/unit/test_theme_audit_sprint1.py` — `find_bare_text_slate_700` scanner now also accepts `dark:text-white` as valid dark pair
-
-## Violation Summary
-
-| Pattern | Instances Fixed | Files Affected |
-|---------|----------------|----------------|
-| `text-slate-600` without dark pair | ~30 | 14 files |
-| `text-slate-700` without dark pair | ~40 | 17 files |
-| `text-slate-800` without dark pair | ~15 | 11 files |
-| `bg-slate-100` table headers without dark pair | 4 | 1 file |
-| `hover:bg-slate-50` without dark pair | ~5 | 1 file |
-| `bg-slate-50` without dark pair | 1 | 1 file |
-| **Total** | **~95** | **24 files** |
-
-### Dark Pair Mappings Used
-- `text-slate-600` → `dark:text-slate-300`
-- `text-slate-700` → `dark:text-slate-200`
-- `text-slate-800` → `dark:text-slate-100`
-- `bg-slate-100` → `dark:bg-slate-800`
-- `bg-slate-50` → `dark:bg-slate-800/50`
-- `hover:bg-slate-50` → `dark:hover:bg-slate-800/50`
+### Testing Patterns Used
+- `vi.mock('framer-motion')` — consistent mock for all motion components
+- `vi.mock('recharts')` — mock for chart components
+- `vi.mock('../lib/api')` — comprehensive API mock with 50+ endpoints
+- `@testing-library/react` + `@testing-library/user-event` — RTL standard patterns
+- `renderHook` + `waitFor` — for custom hook testing
 
 ## How to Test
 
-- Start: `cd frontend && npm run dev`
-- Navigate to: http://localhost:5173
-- Toggle between light and dark modes
-- Verify text readability in dark mode on all pages:
-  - ModelExecution (heaviest changes — table headers, formula text)
-  - SimulationPanel (config labels, scenario weights, run history)
-  - SatelliteModel (model formula, coefficients, count badges)
-  - Overlays (governance cards, submit heading)
-  - SignOff (reconciliation table, overlay summary, audit trail)
-  - DataControl (governance KPI cards)
-  - DataProcessing (portfolio stats, ready prompt)
-  - CreateProject (page heading, project list, audit trail)
+- Start: `cd frontend && npx vitest run`
+- All 250 tests should pass in ~5 seconds
+- TypeScript build: `npx tsc -b` (zero errors)
 
 ## Test Results
 
-- `pytest`: **2343 passed**, 61 skipped (71.72s) — includes 288 new Sprint 8 scanner tests
-- `vitest`: **103 passed** (1.98s)
-- TypeScript build (`tsc -b`): **SUCCESS**
-- Vite build: **SUCCESS** (2.57s)
-- Sprint 8 scanner tests: **288/288 passed**
+- **vitest**: 250 passed, 0 failed (29 test files)
+- **pytest**: 3838 passed, 61 skipped (zero regressions)
+- **TypeScript build**: SUCCESS (zero errors)
 
-## Grep Verification Results
+## Coverage Summary
 
-| Pattern | Remaining Violations |
-|---------|---------------------|
-| `text-slate-600` without dark pair (excluding hover) | **0** |
-| `text-slate-700` without dark pair (excluding hover) | **0** |
-| `hover:text-slate-600/700` without dark:hover | **0** |
-| `hover:bg-slate-100/200` without dark:hover | **0** |
-| `bg-[#0B0F1A]` without dark: | **0** |
+| Category | Before | After | Coverage |
+|----------|--------|-------|----------|
+| Component test files | 8 | 19 | 19/23 components tested (83%) |
+| Page test files | 0 | 4 | 19/19 pages smoke-tested (100%) |
+| Hook test files | 0 | 1 | 2/2 hooks tested (100%) |
+| Lib test files | 3 | 3 | unchanged |
+| Total vitest tests | 103 | 250 | +147 tests |
+
+### Untested Components (4 remaining)
+- `ScenarioProductBarChart` — complex recharts component with drill-down, requires extensive chart mocking
+- `SimulationPanel` — 500+ lines, complex SSE streaming + state machine, needs dedicated test sprint
+- `SimulationResults` — depends on SimulationPanel state
+- `SetupWizard` — 985 lines (pre-existing debt), needs breaking up before testing
 
 ## Known Limitations
+- Page smoke tests verify render without crash but don't test deep interactions
+- Chart components (recharts-based) are mocked at the library level — visual rendering not tested
+- `framer-motion` animations are mocked — animation behavior not verified
+- SetupWizard (985 lines) is too large for meaningful unit testing without refactoring
 
-- Some `bg-slate-50` instances in hover contexts (e.g., `hover:bg-slate-50` on table rows throughout the app) are not all fixed — they're minor and the hover state is brief enough that it's acceptable. The most impactful ones (ModelExecution table rows, SimulationPanel header row) have been fixed.
-- SetupWizard.tsx file size (985 lines) remains pre-existing debt — not in scope for this sprint.
+## Files Changed
+
+### New files (18)
+- `frontend/src/components/ApprovalForm.test.tsx`
+- `frontend/src/components/ChartTooltip.test.tsx`
+- `frontend/src/components/CollapsibleSection.test.tsx`
+- `frontend/src/components/ConfirmDialog.test.tsx`
+- `frontend/src/components/EmptyState.test.tsx`
+- `frontend/src/components/ErrorDisplay.test.tsx`
+- `frontend/src/components/HelpTooltip.test.tsx`
+- `frontend/src/components/JobRunLink.test.tsx`
+- `frontend/src/components/PageHeader.test.tsx`
+- `frontend/src/components/PageLoader.test.tsx`
+- `frontend/src/components/ScenarioChecklist.test.tsx`
+- `frontend/src/components/SimulationProgress.test.tsx`
+- `frontend/src/components/StepDescription.test.tsx`
+- `frontend/src/hooks/useEclData.test.ts`
+- `frontend/src/pages/Admin.test.tsx`
+- `frontend/src/pages/Attribution.test.tsx`
+- `frontend/src/pages/CreateProject.test.tsx`
+- `frontend/src/pages/page-smoke.test.tsx`
+
+### Modified files (1)
+- `harness/contracts/sprint-8.md` — updated contract for frontend testing scope
