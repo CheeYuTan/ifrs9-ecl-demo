@@ -63,9 +63,19 @@ Comprehensive test suite for the second half of the domain/ modules (analytical 
 
 ## Test Results
 
-- `pytest`: **3,838 passed**, 61 skipped (268.72s)
+- `pytest`: **3,838 passed**, 61 skipped (267.94s)
 - Sprint 7 tests: **230/230 passed** (120 iter 1 + 84 iter 2 + 16 iter 3 + 10 iter 4)
 - Regressions: **0**
+
+### Iteration 5 Verification (ADVANCE_WITH_FIXES)
+
+The evaluator (iter 3 eval, score 9.25) recommended ADVANCE_WITH_FIXES for BUG-S7-1. All fixes were already applied in iteration 4:
+
+1. **BUG-S7-1 Fix (applied iter 4)**: `domain/workflow.py` — replaced fragile `globals().get()` pattern with explicit lazy imports. `ensure_backtesting_table()` is now properly imported and called.
+2. **Regression test (applied iter 4)**: `test_ensure_workflow_table_calls_ensure_backtesting_table` verifies the full invocation path — `ensure_workflow_table()` → `ensure_backtesting_table()`.
+3. **Full suite verification (iter 5)**: 3,838 passed, 0 failures, 0 regressions.
+
+All evaluator-required fixes are confirmed working. Ready to advance.
 
 ## Known Limitations
 
@@ -74,8 +84,6 @@ Comprehensive test suite for the second half of the domain/ modules (analytical 
 - `estimate_hazard_model` orchestrator test mocks the entire pipeline — doesn't test real data flow
 - BUG-VQA-7-001 fix requires actual DB execution to verify in production — unit tests mock the execute call
 
-## Files Changed (Iteration 4)
-- `domain/workflow.py` — Replaced `globals().get()` loop (lines 58-67) with explicit lazy imports for all 7 ensure functions
-- `tests/unit/test_qa_sprint_7_iter4_regression.py` — 10 new regression tests (NEW)
-- `harness/handoffs/sprint-7-handoff.md` — Updated (this file)
+## Files Changed (Iteration 5)
+- `harness/handoffs/sprint-7-handoff.md` — Updated with iter 5 verification results
 - `harness/state.json` — Updated
