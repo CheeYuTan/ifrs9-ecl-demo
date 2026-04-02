@@ -109,6 +109,11 @@ def ensure_backtesting_table():
             abs_diff FLOAT
         )
     """)
+    # Migrate existing tables: add columns that CREATE TABLE IF NOT EXISTS won't add
+    try:
+        execute(f"ALTER TABLE {SCHEMA}.backtest_metrics ADD COLUMN IF NOT EXISTS detail JSONB")
+    except Exception:
+        pass  # Column already exists or table doesn't support ALTER
     log.info("Ensured backtesting tables exist")
 
 
