@@ -8,8 +8,8 @@
   "current_sprint": 6,
   "planned_sprints": 10,
   "remaining_spec_items": [
-    "Sprint 7: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
-    "Sprint 8: Frontend — Component & Page Testing (25+ pages, 40+ components)",
+    "Sprint 7: Domain Logic \u2014 Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
+    "Sprint 8: Frontend \u2014 Component & Page Testing (25+ pages, 40+ components)",
     "Sprint 9: Middleware, Cross-Cutting & Integration Testing (5 multi-endpoint flows)",
     "Sprint 10: Production Readiness & Final Gap Analysis"
   ],
@@ -25,28 +25,37 @@
       "sprint": 2,
       "score": 9.81,
       "debt": false,
-      "trajectory": [9.41, 9.81],
+      "trajectory": [
+        9.41,
+        9.81
+      ],
       "iterations": 2
     },
     {
       "sprint": 3,
       "score": 9.83,
       "debt": false,
-      "trajectory": [9.83],
+      "trajectory": [
+        9.83
+      ],
       "iterations": 1
     },
     {
       "sprint": 4,
       "score": 9.5,
       "debt": false,
-      "trajectory": [9.5],
+      "trajectory": [
+        9.5
+      ],
       "iterations": 1
     },
     {
       "sprint": 5,
       "score": 9.88,
       "debt": false,
-      "trajectory": [9.88],
+      "trajectory": [
+        9.88
+      ],
       "iterations": 1
     }
   ],
@@ -56,7 +65,7 @@
   "last_install_test": 5,
   "last_integration_test": 5,
   "context_resets": 0,
-  "current_iteration": 1,
+  "current_iteration": 2,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
@@ -67,9 +76,11 @@
     "total": 2583
   },
   "current_test_count": {
-    "pytest": 3601,
-    "new_this_sprint": 189
+    "pytest": 3608,
+    "new_this_sprint": 196
   },
-  "last_updated": "2026-04-02T15:30:00",
-  "score_trajectory": []
+  "last_updated": "2026-04-02T15:10:00",
+  "score_trajectory": [
+    8.95
+  ]
 }

@@ -654,9 +654,20 @@ class TestAnalyticsQueries:
     @patch("domain.queries.query_df")
     def test_get_vintage_by_product(self, mock_qdf):
         from domain.queries import get_vintage_by_product
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([{
+            "vintage_cohort": "2023-Q1", "product_type": "Personal Loans",
+            "loan_count": 200, "total_gca": 1000000.0,
+            "avg_pd_pct": 3.5, "dpd30_rate": 4.2,
+        }])
         result = get_vintage_by_product()
-        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        assert "vintage_cohort" in result.columns
+        assert "product_type" in result.columns
+        assert "dpd30_rate" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "GROUP BY" in sql
+        assert "vintage_cohort" in sql
+        assert "product_type" in sql
 
     @patch("domain.queries.query_df")
     def test_get_concentration_by_segment(self, mock_qdf):
@@ -671,9 +682,20 @@ class TestAnalyticsQueries:
     @patch("domain.queries.query_df")
     def test_get_concentration_by_product_stage(self, mock_qdf):
         from domain.queries import get_concentration_by_product_stage
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([{
+            "product_type": "Personal Loans", "assessed_stage": 1,
+            "loan_count": 5000, "total_gca": 25000000.0,
+            "total_ecl": 125000.0, "coverage_pct": 0.5,
+        }])
         result = get_concentration_by_product_stage()
-        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        assert "product_type" in result.columns
+        assert "assessed_stage" in result.columns
+        assert "total_ecl" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "GROUP BY" in sql
+        assert "product_type" in sql
+        assert "assessed_stage" in sql
 
     @patch("domain.queries.query_df")
     def test_get_top_concentration_risk(self, mock_qdf):
@@ -685,9 +707,19 @@ class TestAnalyticsQueries:
     @patch("domain.queries.query_df")
     def test_get_ecl_by_scenario_product(self, mock_qdf):
         from domain.queries import get_ecl_by_scenario_product
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([
+            {"scenario": "baseline", "product_type": "PL", "total_ecl": 50000.0, "loan_count": 100},
+            {"scenario": "adverse", "product_type": "PL", "total_ecl": 75000.0, "loan_count": 100},
+        ])
         result = get_ecl_by_scenario_product()
-        assert isinstance(result, pd.DataFrame)
+        assert len(result) == 2
+        assert "scenario" in result.columns
+        assert "product_type" in result.columns
+        assert "total_ecl" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "GROUP BY" in sql
+        assert "scenario" in sql
+        assert "product_type" in sql
 
     @patch("domain.queries.query_df")
     def test_get_stage_by_product(self, mock_qdf):
@@ -712,23 +744,52 @@ class TestAnalyticsQueries:
     @patch("domain.queries.query_df")
     def test_get_dq_results(self, mock_qdf):
         from domain.queries import get_dq_results
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([{
+            "check_id": "D1", "category": "completeness", "description": "Null check",
+            "severity": "critical", "failures": 5, "total_records": 1000,
+            "failure_pct": 0.5, "passed": False,
+        }])
         result = get_dq_results()
-        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        assert "check_id" in result.columns
+        assert "severity" in result.columns
+        assert "passed" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "dq_results" in sql
+        assert "ORDER BY" in sql
 
     @patch("domain.queries.query_df")
     def test_get_dq_summary(self, mock_qdf):
         from domain.queries import get_dq_summary
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([{
+            "category": "completeness", "total_checks": 5,
+            "passed_count": 4, "failed_count": 1,
+        }])
         result = get_dq_summary()
-        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        assert "category" in result.columns
+        assert "total_checks" in result.columns
+        assert "failed_count" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "GROUP BY" in sql
+        assert "category" in sql
+        assert "ORDER BY" in sql
 
     @patch("domain.queries.query_df")
     def test_get_gl_reconciliation(self, mock_qdf):
         from domain.queries import get_gl_reconciliation
-        mock_qdf.return_value = pd.DataFrame()
+        mock_qdf.return_value = pd.DataFrame([{
+            "product_type": "Personal Loans", "gl_balance": 5000000.0,
+            "loan_tape_balance": 4990000.0, "variance": 10000.0,
+            "variance_pct": 0.2, "status": "within_tolerance",
+        }])
         result = get_gl_reconciliation()
-        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        assert "product_type" in result.columns
+        assert "gl_balance" in result.columns
+        assert "variance" in result.columns
+        sql = mock_qdf.call_args[0][0]
+        assert "gl_reconciliation" in sql
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -944,6 +1005,67 @@ class TestComputeAttribution:
         result = compute_attribution("p1")
         # data_gaps should list components with missing data
         assert isinstance(result["reconciliation"]["data_gaps"], list)
+
+    @patch("domain.attribution.execute")
+    @patch("domain.attribution.query_df")
+    @patch("domain.attribution.get_project")
+    def test_waterfall_components_sum_to_ecl_change(self, mock_proj, mock_qdf, mock_exec):
+        """IFRS 7.35I: waterfall non-anchor components must sum to closing - opening ECL."""
+        from domain.attribution import compute_attribution
+        mock_proj.return_value = {
+            "project_id": "p1", "reporting_date": "2025-12-31",
+            "overlays": [], "scenario_weights": {},
+        }
+        mock_qdf.side_effect = self._make_side_effect(self._ecl_df(100000, 50000, 20000))
+        result = compute_attribution("p1")
+        opening_total = result["opening_ecl"]["total"]
+        closing_total = result["closing_ecl"]["total"]
+        ecl_change = closing_total - opening_total
+        # Sum non-anchor waterfall items
+        waterfall_sum = sum(
+            item["value"] for item in result["waterfall_data"]
+            if item["category"] != "anchor"
+        )
+        # Waterfall components must reconcile to ECL change within tolerance
+        assert abs(waterfall_sum - ecl_change) < 1.0, (
+            f"Waterfall sum {waterfall_sum} != ECL change {ecl_change}"
+        )
+
+    @patch("domain.attribution.execute")
+    @patch("domain.attribution.query_df")
+    @patch("domain.attribution.get_project")
+    def test_residual_within_materiality(self, mock_proj, mock_qdf, mock_exec):
+        """Verify within_materiality is a boolean reflecting the residual_pct threshold."""
+        from domain.attribution import compute_attribution
+        mock_proj.return_value = {
+            "project_id": "p1", "reporting_date": "2025-12-31",
+            "overlays": [], "scenario_weights": {},
+        }
+        mock_qdf.side_effect = self._make_side_effect(self._ecl_df(100000, 50000, 20000))
+        result = compute_attribution("p1")
+        recon = result["reconciliation"]
+        assert isinstance(recon["within_materiality"], bool)
+        # When opening == closing (no prior), residual should be minimal → within materiality
+        if abs(recon["residual_pct"]) <= 5.0:
+            assert recon["within_materiality"] is True
+        else:
+            assert recon["within_materiality"] is False
+
+    @patch("domain.attribution.execute")
+    @patch("domain.attribution.query_df")
+    @patch("domain.attribution.get_project")
+    def test_prior_attribution_returns_none(self, mock_proj, mock_qdf, mock_exec):
+        """_get_prior_attribution returns None when no prior record exists."""
+        from domain.attribution import compute_attribution
+        mock_proj.return_value = {
+            "project_id": "p1", "reporting_date": "2025-12-31",
+            "overlays": [], "scenario_weights": {},
+        }
+        # Side effect returns empty for prior attribution query
+        mock_qdf.side_effect = self._make_side_effect(self._ecl_df())
+        result = compute_attribution("p1")
+        # Opening ECL equals closing ECL when no prior (estimated from current)
+        assert result["opening_ecl"]["total"] == result["closing_ecl"]["total"]
 
 
 class TestGetAttribution:
@@ -1621,6 +1743,80 @@ class TestSuggestMappings:
         assert result["suggestions"] == {}
 
 
+class TestGetMappingStatus:
+    """Tests for get_mapping_status — returns status dict for all configured tables."""
+
+    @patch("domain.data_mapper.backend")
+    @patch("domain.data_mapper.admin_config")
+    def test_returns_status_for_all_tables(self, mock_cfg, mock_backend):
+        from domain.data_mapper import get_mapping_status
+        mock_cfg.get_config_section.return_value = {
+            "lakebase_schema": "ecl",
+            "lakebase_prefix": "ecl_",
+            "tables": {
+                "borrower_master": {
+                    "source_table": "borrowers",
+                    "source_uc_table": "cat.schema.borrowers",
+                    "required": True,
+                    "description": "Borrower data",
+                    "mandatory_columns": [{"name": "borrower_id"}, {"name": "name"}],
+                    "optional_columns": [{"name": "email"}],
+                    "column_mappings": {"borrower_id": "id"},
+                },
+                "loan_tape": {
+                    "source_table": "loans",
+                    "source_uc_table": "cat.schema.loans",
+                    "required": True,
+                    "description": "Loan tape",
+                    "mandatory_columns": [{"name": "loan_id"}],
+                    "optional_columns": [],
+                    "column_mappings": {},
+                },
+            },
+        }
+        mock_backend.SCHEMA = "ecl"
+        mock_backend.PREFIX = "ecl_"
+        mock_backend.query_df.return_value = pd.DataFrame([{"cnt": 500}])
+        result = get_mapping_status()
+        assert "borrower_master" in result
+        assert "loan_tape" in result
+        bm = result["borrower_master"]
+        assert bm["has_data"] is True
+        assert bm["row_count"] == 500
+        assert bm["mandatory_columns"] == 2
+        assert bm["optional_columns"] == 1
+        assert bm["mapped_columns"] == 1
+        assert bm["required"] is True
+        assert bm["source_uc_table"] == "cat.schema.borrowers"
+
+    @patch("domain.data_mapper.backend")
+    @patch("domain.data_mapper.admin_config")
+    def test_handles_query_failure_gracefully(self, mock_cfg, mock_backend):
+        from domain.data_mapper import get_mapping_status
+        mock_cfg.get_config_section.return_value = {
+            "lakebase_schema": "ecl",
+            "lakebase_prefix": "ecl_",
+            "tables": {
+                "loan_tape": {
+                    "source_table": "loans",
+                    "source_uc_table": "",
+                    "required": True,
+                    "description": "Loan tape",
+                    "mandatory_columns": [],
+                    "optional_columns": [],
+                    "column_mappings": {},
+                },
+            },
+        }
+        mock_backend.SCHEMA = "ecl"
+        mock_backend.PREFIX = "ecl_"
+        mock_backend.query_df.side_effect = Exception("connection refused")
+        result = get_mapping_status()
+        assert "loan_tape" in result
+        assert result["loan_tape"]["has_data"] is False
+        assert result["loan_tape"]["row_count"] == 0
+
+
 # ═══════════════════════════════════════════════════════════════════
 # Section 6: domain/audit_trail.py — Gap Coverage
 # ═══════════════════════════════════════════════════════════════════
@@ -1977,3 +2173,44 @@ class TestModelRunsGapCoverage:
         get_satellite_model_selected(run_id="2025-01-01")
         call_args = mock_qdf.call_args
         assert call_args[0][1] == ("2025-01-01",)
+
+    @patch("domain.model_runs.query_df")
+    @patch("domain.model_runs.execute")
+    def test_get_ecl_by_cohort_explicit_dimension(self, mock_exec, mock_qdf):
+        """Call get_ecl_by_cohort with an explicit dimension (not 'auto')."""
+        from domain.model_runs import get_ecl_by_cohort
+        # First call: _detect_available_dimensions checks columns
+        cols_df = pd.DataFrame({"column_name": ["credit_grade", "assessed_stage", "vintage_year"]})
+        ecl_df = pd.DataFrame([{
+            "cohort_id": "Prime", "loan_count": 300,
+            "total_gca": 1500000.0, "total_ecl": 30000.0,
+            "coverage_ratio": 2.0,
+        }])
+        mock_qdf.side_effect = [cols_df, ecl_df]
+        result = get_ecl_by_cohort("Personal Loans", "credit_grade")
+        assert isinstance(result, pd.DataFrame)
+        assert not result.empty
+        # With explicit dimension, SQL should reference credit_grade
+        sql = mock_qdf.call_args[0][0]
+        assert "credit_grade" in sql
+
+    @patch("domain.model_runs.query_df")
+    @patch("domain.model_runs.execute")
+    def test_save_model_run_insert_new(self, mock_exec, mock_qdf):
+        """Verify INSERT path works (no conflict scenario)."""
+        from domain.model_runs import save_model_run
+        # Return the newly inserted record
+        mock_qdf.return_value = pd.DataFrame([{
+            "run_id": "new-run-1", "run_type": "satellite_model",
+            "models_used": '["ols"]', "products": '["Auto Loans"]',
+            "total_cohorts": 3, "best_model_summary": '{"r2": 0.85}',
+            "status": "completed", "notes": "new run",
+            "created_by": "system", "run_timestamp": "2025-06-01",
+        }])
+        result = save_model_run("new-run-1", "satellite_model", ["ols"],
+                                ["Auto Loans"], 3, {"r2": 0.85}, "new run")
+        assert result is not None
+        assert result["run_id"] == "new-run-1"
+        # Verify execute was called with INSERT (may not be last due to ensure_table)
+        all_sqls = [c[0][0] for c in mock_exec.call_args_list]
+        assert any("INSERT" in sql for sql in all_sqls)
