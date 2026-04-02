@@ -5,15 +5,14 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 2,
+  "current_sprint": 3,
   "planned_sprints": 10,
   "remaining_spec_items": [
-    "Sprint 3: Backend API \u2014 Model Registry, Backtesting, Markov, Hazard (24+ endpoints)",
-    "Sprint 4: Backend API \u2014 GL Journals, Reports, RBAC, Audit, Admin (45+ endpoints)",
-    "Sprint 5: ECL Engine \u2014 Monte Carlo Correctness (9 files)",
-    "Sprint 6: Domain Logic \u2014 Workflow, Queries, Attribution, Validation (8 modules)",
-    "Sprint 7: Domain Logic \u2014 Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
-    "Sprint 8: Frontend \u2014 Component & Page Testing (25+ pages, 40+ components)",
+    "Sprint 4: Backend API — GL Journals, Reports, RBAC, Audit, Admin (45+ endpoints)",
+    "Sprint 5: ECL Engine — Monte Carlo Correctness (9 files)",
+    "Sprint 6: Domain Logic — Workflow, Queries, Attribution, Validation (8 modules)",
+    "Sprint 7: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
+    "Sprint 8: Frontend — Component & Page Testing (25+ pages, 40+ components)",
     "Sprint 9: Middleware, Cross-Cutting & Integration Testing (5 multi-endpoint flows)",
     "Sprint 10: Production Readiness & Final Gap Analysis"
   ],
@@ -24,18 +23,22 @@
       "debt": true,
       "trajectory": [],
       "iterations": 0
+    },
+    {
+      "sprint": 2,
+      "score": 9.81,
+      "debt": false,
+      "trajectory": [9.41, 9.81],
+      "iterations": 2
     }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 1,
+  "feature_sprints_since_doc_sprint": 2,
   "last_doc_sprint": 0,
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 2,
-  "sprint_2_eval_score": 9.41,
-  "sprint_2_iteration_2_fixes": "Added 22 tests to reach 150-test contract target",
-  "sprint_2_verdict": "ADVANCE_WITH_FIXES",
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
@@ -46,11 +49,9 @@
     "total": 2583
   },
   "current_test_count": {
-    "pytest": 2868,
-    "new_this_sprint": 150
+    "pytest": 3046,
+    "new_this_sprint": 178
   },
-  "last_updated": "2026-04-02T10:46:18",
-  "score_trajectory": [
-    9.41
-  ]
+  "last_updated": "2026-04-02T12:30:00",
+  "score_trajectory": []
 }
