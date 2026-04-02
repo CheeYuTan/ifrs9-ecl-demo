@@ -8,14 +8,14 @@
   "current_sprint": 1,
   "planned_sprints": 10,
   "remaining_spec_items": [
-    "Sprint 1: Backend API — Core Workflow & Data Endpoints (42+ endpoints)",
-    "Sprint 2: Backend API — Simulation & Satellite Model (18+ endpoints)",
-    "Sprint 3: Backend API — Model Registry, Backtesting, Markov, Hazard (24+ endpoints)",
-    "Sprint 4: Backend API — GL Journals, Reports, RBAC, Audit, Admin (45+ endpoints)",
-    "Sprint 5: ECL Engine — Monte Carlo Correctness (9 files)",
-    "Sprint 6: Domain Logic — Workflow, Queries, Attribution, Validation (8 modules)",
-    "Sprint 7: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
-    "Sprint 8: Frontend — Component & Page Testing (25+ pages, 40+ components)",
+    "Sprint 1: Backend API \u2014 Core Workflow & Data Endpoints (42+ endpoints)",
+    "Sprint 2: Backend API \u2014 Simulation & Satellite Model (18+ endpoints)",
+    "Sprint 3: Backend API \u2014 Model Registry, Backtesting, Markov, Hazard (24+ endpoints)",
+    "Sprint 4: Backend API \u2014 GL Journals, Reports, RBAC, Audit, Admin (45+ endpoints)",
+    "Sprint 5: ECL Engine \u2014 Monte Carlo Correctness (9 files)",
+    "Sprint 6: Domain Logic \u2014 Workflow, Queries, Attribution, Validation (8 modules)",
+    "Sprint 7: Domain Logic \u2014 Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)",
+    "Sprint 8: Frontend \u2014 Component & Page Testing (25+ pages, 40+ components)",
     "Sprint 9: Middleware, Cross-Cutting & Integration Testing (5 multi-endpoint flows)",
     "Sprint 10: Production Readiness & Final Gap Analysis"
   ],
@@ -26,7 +26,7 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 4,
+  "current_iteration": 5,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
@@ -37,8 +37,8 @@
     "total": 2583
   },
   "current_test_count": {
-    "pytest": 2691,
-    "new_this_sprint": 272
+    "pytest": 2718,
+    "new_this_sprint": 299
   },
   "last_updated": "2026-04-02T11:15:00"
 }
