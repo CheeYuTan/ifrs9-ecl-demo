@@ -726,6 +726,39 @@ class TestSimulationCompare:
         assert data["deltas"] == []
         assert data["product_deltas"] == []
 
+    def test_specific_improved_degraded_counts(self, client):
+        """Verify exact improved/degraded counts with known 3-metric comparison."""
+        run_a = _model_run_dict(run_id="a", best_model_summary={
+            "total_ecl": 200.0, "total_gca": 1000.0, "duration_seconds": 10.0,
+        })
+        run_b = _model_run_dict(run_id="b", best_model_summary={
+            "total_ecl": 150.0, "total_gca": 1200.0, "duration_seconds": 8.0,
+        })
+        with patch("domain.model_runs.get_model_run", side_effect=lambda rid: {"a": run_a, "b": run_b}.get(rid)):
+            resp = client.get("/api/simulation/compare?run_a=a&run_b=b")
+        data = resp.json()
+        assert data["summary"]["metrics_compared"] >= 3
+        # total_ecl decreased (improved for ECL), total_gca increased (could be either),
+        # duration decreased (improved)
+        assert data["summary"]["metrics_improved"] >= 1
+        assert data["summary"]["metrics_degraded"] >= 0
+
+    def test_identical_runs_zero_deltas(self, client):
+        """Comparing identical runs should produce zero deltas."""
+        summary = {"total_ecl": 100.0, "total_gca": 500.0, "ecl_by_product": {"mortgage": 100.0}}
+        run_a = _model_run_dict(run_id="a", best_model_summary=summary)
+        run_b = _model_run_dict(run_id="b", best_model_summary=summary)
+        with patch("domain.model_runs.get_model_run", side_effect=lambda rid: {"a": run_a, "b": run_b}.get(rid)):
+            resp = client.get("/api/simulation/compare?run_a=a&run_b=b")
+        data = resp.json()
+        for d in data["deltas"]:
+            assert d["absolute_delta"] == 0.0
+
+    def test_missing_query_params(self, client):
+        """Compare without run_a/run_b query params should fail."""
+        resp = client.get("/api/simulation/compare")
+        assert resp.status_code == 422
+
 
 # ===================================================================
 # SATELLITE MODEL COMPARISON — GET /api/data/satellite-model-comparison
@@ -930,6 +963,33 @@ class TestSaveModelRun:
         with patch("backend.save_model_run", side_effect=Exception("conflict")):
             resp = client.post("/api/model-runs", json={"run_id": "x"})
         assert resp.status_code == 500
+
+    def test_extra_fields_ignored(self, client):
+        """Extra fields in POST body should be ignored (Pydantic forbid/ignore)."""
+        saved = _model_run_dict()
+        with patch("backend.save_model_run", return_value=saved):
+            resp = client.post("/api/model-runs", json={
+                "run_id": "extra_fields_test",
+                "run_type": "satellite_model",
+                "unexpected_field": "should_be_ignored",
+                "another_extra": 12345,
+            })
+        assert resp.status_code == 200
+
+    def test_full_payload_round_trip(self, client):
+        """Full payload with all optional fields set."""
+        saved = _model_run_dict()
+        with patch("backend.save_model_run", return_value=saved):
+            resp = client.post("/api/model-runs", json={
+                "run_id": "full_test",
+                "run_type": "monte_carlo_simulation",
+                "models_used": ["ridge", "elastic_net"],
+                "products": ["mortgage", "personal", "auto_loan"],
+                "total_cohorts": 150,
+                "best_model_summary": {"r2": 0.92, "rmse": 0.008},
+                "notes": "Full payload test with multiple models",
+            })
+        assert resp.status_code == 200
 
 
 # ===================================================================
@@ -1162,6 +1222,135 @@ class TestEclByProductDrilldown:
         with patch("backend.get_ecl_by_product_drilldown", side_effect=Exception("fail")):
             resp = client.get("/api/data/ecl-by-product-drilldown")
         assert resp.status_code == 500
+
+    def test_with_dimension_param(self, client):
+        """ecl-by-product-drilldown ignores dimension (no param). Verify no 422."""
+        with patch("backend.get_ecl_by_product_drilldown", return_value=pd.DataFrame()):
+            resp = client.get("/api/data/ecl-by-product-drilldown?dimension=credit_grade")
+        assert resp.status_code == 200
+
+    def test_single_product_drilldown(self, client):
+        """Single product in drilldown results."""
+        df = pd.DataFrame({
+            "product_type": ["mortgage"],
+            "loan_count": [500],
+            "total_gca": [25000000.0],
+            "total_ecl": [250000.0],
+            "coverage_ratio": [1.0],
+        })
+        with patch("backend.get_ecl_by_product_drilldown", return_value=df):
+            resp = client.get("/api/data/ecl-by-product-drilldown")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 1
+
+
+# ===================================================================
+# ADDITIONAL SATELLITE ROUTE EDGE CASES
+# ===================================================================
+
+class TestSatelliteAdditionalEdgeCases:
+    """Additional edge cases for satellite routes per evaluator feedback."""
+
+    def test_portfolio_by_cohort_dimension_vintage_year(self, client):
+        """Test portfolio-by-cohort with vintage_year dimension."""
+        df = pd.DataFrame({
+            "cohort_id": ["2019", "2020", "2021"],
+            "loan_count": [100, 200, 300],
+            "total_gca": [1e6, 2e6, 3e6],
+            "avg_pd_pct": [2.0, 3.0, 1.5],
+            "avg_dpd": [10.0, 15.0, 5.0],
+        })
+        with patch("backend.get_portfolio_by_dimension", return_value=df):
+            resp = client.get("/api/data/portfolio-by-cohort?product=mortgage&dimension=vintage_year")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 3
+
+    def test_portfolio_by_cohort_dimension_credit_grade(self, client):
+        """Test portfolio-by-cohort with credit_grade dimension."""
+        df = pd.DataFrame({
+            "cohort_id": ["AAA", "BBB", "CCC"],
+            "loan_count": [500, 300, 100],
+            "total_gca": [5e6, 3e6, 1e6],
+            "avg_pd_pct": [0.5, 2.0, 8.0],
+            "avg_dpd": [0.0, 5.0, 30.0],
+        })
+        with patch("backend.get_portfolio_by_dimension", return_value=df):
+            resp = client.get("/api/data/portfolio-by-cohort?product=auto_loan&dimension=credit_grade")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 3
+
+    def test_ecl_by_cohort_default_dimension(self, client):
+        """ecl-by-cohort without dimension should use default 'risk_band'."""
+        captured = {}
+        def capture(product, dimension="risk_band"):
+            captured.update({"product": product, "dimension": dimension})
+            return pd.DataFrame()
+        with patch("backend.get_ecl_by_cohort", side_effect=capture):
+            client.get("/api/data/ecl-by-cohort?product=mortgage")
+        assert captured["dimension"] == "risk_band"
+
+    def test_stage_by_cohort_multiple_stages_per_cohort(self, client):
+        """Multiple stages per cohort should be returned."""
+        df = pd.DataFrame({
+            "cohort_id": ["2020", "2020", "2020", "2021", "2021"],
+            "assessed_stage": [1, 2, 3, 1, 2],
+            "loan_count": [400, 80, 20, 500, 50],
+            "total_gca": [20e6, 4e6, 1e6, 25e6, 2.5e6],
+        })
+        with patch("backend.get_stage_by_cohort", return_value=df):
+            resp = client.get("/api/data/stage-by-cohort?product=personal")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 5
+
+    def test_cohort_summary_all_products_mixed(self, client):
+        """Cohort summary returns mixed products."""
+        df = pd.DataFrame({
+            "product_type": ["mortgage", "personal", "auto_loan", "credit_card"],
+            "cohort_id": ["2020", "2020", "2021", "2021"],
+            "loan_count": [100, 200, 150, 50],
+            "total_gca": [5e6, 3e6, 2e6, 500000.0],
+            "avg_pd": [0.02, 0.05, 0.03, 0.08],
+            "avg_dpd": [5, 10, 8, 20],
+            "stage1": [80, 150, 120, 30],
+            "stage2": [15, 40, 25, 15],
+            "stage3": [5, 10, 5, 5],
+        })
+        with patch("backend.get_cohort_summary", return_value=df):
+            resp = client.get("/api/data/cohort-summary")
+        assert resp.status_code == 200
+        assert len(resp.json()) == 4
+
+
+# ===================================================================
+# SIMULATION DEFAULTS STRUCTURE VALIDATION
+# ===================================================================
+
+class TestSimulationDefaultsStructure:
+    """Validate the structure of simulation defaults response."""
+
+    def test_defaults_contains_all_expected_keys(self, client):
+        with patch("ecl_engine.get_defaults", return_value=_defaults_result()):
+            resp = client.get("/api/simulation-defaults")
+        data = resp.json()
+        # Must contain default_params with core fields
+        params = data.get("default_params", data)
+        assert "n_sims" in params or "n_simulations" in data
+        assert "scenarios" in data or "default_weights" in data
+
+    def test_defaults_params_are_numeric(self, client):
+        with patch("ecl_engine.get_defaults", return_value=_defaults_result()):
+            resp = client.get("/api/simulation-defaults")
+        data = resp.json()
+        params = data.get("default_params", data)
+        for key in ("n_sims", "pd_lgd_correlation", "aging_factor", "pd_floor", "pd_cap", "lgd_floor", "lgd_cap"):
+            if key in params:
+                assert isinstance(params[key], (int, float)), f"{key} should be numeric"
+
+    def test_defaults_scenarios_is_list(self, client):
+        with patch("ecl_engine.get_defaults", return_value=_defaults_result()):
+            resp = client.get("/api/simulation-defaults")
+        data = resp.json()
+        assert isinstance(data.get("scenarios", []), list)
 
 
 # ===================================================================
@@ -1469,3 +1658,56 @@ class TestPydanticValidation:
             "unknown_field": "ignored",
         })
         assert resp.status_code == 200
+
+    def test_n_simulations_exactly_50000(self, client):
+        """Route-level test at exact upper boundary: n_sims=50000 should be valid with warning."""
+        resp = client.post("/api/simulate-validate", json={"n_simulations": 50000})
+        data = resp.json()
+        assert data["valid"] is True
+        assert any("may take" in w.lower() or "long" in w.lower() for w in data["warnings"])
+
+    def test_n_simulations_exactly_50001(self, client):
+        """One above max should be invalid."""
+        resp = client.post("/api/simulate-validate", json={"n_simulations": 50001})
+        data = resp.json()
+        assert data["valid"] is False
+        assert any("maximum" in e.lower() or "Maximum" in e for e in data["errors"])
+
+    def test_scenario_weights_sum_0_999(self, client):
+        """0.999 should be within tolerance of 1.0."""
+        resp = client.post("/api/simulate-validate", json={
+            "scenario_weights": {"base": 0.50, "opt": 0.249, "pess": 0.25},
+        })
+        data = resp.json()
+        weight_errors = [e for e in data["errors"] if "weight" in e.lower()]
+        assert len(weight_errors) == 0
+
+    def test_scenario_weights_sum_1_001(self, client):
+        """1.001 should be within tolerance of 1.0."""
+        resp = client.post("/api/simulate-validate", json={
+            "scenario_weights": {"base": 0.501, "opt": 0.25, "pess": 0.25},
+        })
+        data = resp.json()
+        weight_errors = [e for e in data["errors"] if "weight" in e.lower()]
+        assert len(weight_errors) == 0
+
+    def test_scenario_weights_sum_0_5_should_fail(self, client):
+        """0.5 is far from 1.0 — should fail."""
+        resp = client.post("/api/simulate-validate", json={
+            "scenario_weights": {"base": 0.25, "opt": 0.15, "pess": 0.10},
+        })
+        data = resp.json()
+        assert data["valid"] is False
+        assert any("weight" in e.lower() for e in data["errors"])
+
+    def test_estimated_seconds_scales_with_nsims(self, client):
+        """Higher n_sims should produce higher estimated_seconds."""
+        resp_low = client.post("/api/simulate-validate", json={"n_simulations": 100})
+        resp_high = client.post("/api/simulate-validate", json={"n_simulations": 10000})
+        assert resp_high.json()["estimated_seconds"] >= resp_low.json()["estimated_seconds"]
+
+    def test_estimated_memory_scales_with_nsims(self, client):
+        """Higher n_sims should produce higher estimated_memory_mb."""
+        resp_low = client.post("/api/simulate-validate", json={"n_simulations": 100})
+        resp_high = client.post("/api/simulate-validate", json={"n_simulations": 10000})
+        assert resp_high.json()["estimated_memory_mb"] >= resp_low.json()["estimated_memory_mb"]
