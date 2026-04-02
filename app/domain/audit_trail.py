@@ -128,6 +128,10 @@ def get_audit_trail(project_id: str) -> list[dict]:
         r = row.to_dict()
         if isinstance(r.get("detail"), str):
             r["detail"] = json.loads(r["detail"])
+        # Convert Timestamp/datetime objects to ISO strings for JSON serialization
+        for ts_col in ("created_at",):
+            if ts_col in r and hasattr(r[ts_col], "isoformat"):
+                r[ts_col] = r[ts_col].isoformat()
         records.append(r)
     return records
 

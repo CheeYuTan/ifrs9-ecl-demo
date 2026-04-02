@@ -42,6 +42,10 @@ def get_config_audit_log(section: str | None = None, limit: int = 100) -> list[d
         for col in ("old_value", "new_value"):
             if isinstance(r.get(col), str):
                 r[col] = json.loads(r[col])
+        # Convert Timestamp/datetime objects to ISO strings for JSON serialization
+        for ts_col in ("changed_at",):
+            if ts_col in r and hasattr(r[ts_col], "isoformat"):
+                r[ts_col] = r[ts_col].isoformat()
         records.append(r)
     return records
 
@@ -79,5 +83,9 @@ def get_config_diff(start_time: str, end_time: str | None = None,
                     r[col] = json.loads(r[col])
                 except (json.JSONDecodeError, TypeError):
                     pass
+        # Convert Timestamp/datetime objects to ISO strings for JSON serialization
+        for ts_col in ("changed_at",):
+            if ts_col in r and hasattr(r[ts_col], "isoformat"):
+                r[ts_col] = r[ts_col].isoformat()
         records.append(r)
     return records
