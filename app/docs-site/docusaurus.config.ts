@@ -13,7 +13,7 @@ const config: Config = {
 
   url: 'https://ecl-platform.databricks.com',
   baseUrl: '/docs/',
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
 
   i18n: {
     defaultLocale: 'en',

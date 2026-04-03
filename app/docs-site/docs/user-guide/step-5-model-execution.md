@@ -130,6 +130,8 @@ When you are satisfied with the simulation results, the project automatically pr
 
 The Monte Carlo simulation works by generating many possible loss outcomes and averaging them. Think of it like this: instead of asking "what will our credit losses be?", the model asks "what could our credit losses be under thousands of different conditions?" and then weights the answers by how likely each condition is.
 
+The distribution of outcomes also defines **confidence intervals**: percentiles like P50 (median), P75, P95, and P99 show the range of possible ECL outcomes at different confidence levels. For example, a P99 of $12M means there is only a 1% chance the ECL exceeds $12M. You will explore these percentile distributions in detail in [Step 6: Stress Testing](step-6-stress-testing).
+
 **Convergence** means that adding more simulations no longer meaningfully changes the average result. The platform tracks convergence by product — if a product's ECL is still shifting significantly as simulations are added, the convergence indicator flags it.
 
 **Coverage ratio** (ECL / GCA) is a key metric for management and regulators. A coverage ratio of 2% means the institution is provisioning 2 cents for every dollar of outstanding exposure. Higher coverage ratios indicate greater expected losses.

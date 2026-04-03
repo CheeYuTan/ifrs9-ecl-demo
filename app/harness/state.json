@@ -8,29 +8,56 @@
   "current_sprint": 5,
   "planned_sprints": 8,
   "remaining_spec_items": [
-    "Sprint 6: Admin Guide — Complete (9 pages: setup, data-mapping, model-config, app-settings, jobs, theme, sysadmin, users, troubleshooting)",
-    "Sprint 7: Developer Reference — Complete (5 pages: architecture, api-reference, data-model, ecl-engine, testing)",
-    "Sprint 8: Homepage, Navigation & Polish (homepage redesign, navbar/footer, cross-reference audit, final build)"
+    "Sprint 6: Admin Guide — Complete",
+    "Sprint 7: Developer Reference — Complete",
+    "Sprint 8: Homepage, Navigation & Polish"
   ],
   "sprints_completed": [
-    {"sprint": 1, "score": 9.5, "debt": false, "trajectory": [9.5], "iterations": 1},
-    {"sprint": 2, "score": 9.4, "debt": true, "trajectory": [9.4], "iterations": 1},
-    {"sprint": 3, "score": 9.5, "debt": false, "trajectory": [9.5], "iterations": 1},
-    {"sprint": 4, "score": 9.5, "debt": false, "trajectory": [9.5], "iterations": 1}
+    {
+      "sprint": 1,
+      "feature": "Foundation — Restructure & Getting Started",
+      "score": 9.5,
+      "debt": false,
+      "trajectory": [8.9, 9.5],
+      "iterations": 2
+    },
+    {
+      "sprint": 2,
+      "feature": "User Guide — Workflow Steps 1-4",
+      "score": 9.4,
+      "debt": true,
+      "trajectory": [9.4],
+      "iterations": 1
+    },
+    {
+      "sprint": 3,
+      "feature": "User Guide — Workflow Steps 5-8",
+      "score": 9.5,
+      "debt": false,
+      "trajectory": [9.5],
+      "iterations": 1
+    },
+    {
+      "sprint": 4,
+      "feature": "User Guide — Feature Pages Part 1",
+      "score": 9.5,
+      "debt": false,
+      "trajectory": [9.5],
+      "iterations": 1
+    }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 2,
-  "last_doc_sprint": 3,
-  "last_install_test": 3,
-  "last_integration_test": 3,
+  "feature_sprints_since_doc_sprint": 4,
+  "last_doc_sprint": 0,
+  "last_install_test": 0,
+  "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 2,
+  "current_iteration": 3,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd docs-site && npm start",
   "build_command": "cd docs-site && npm run build",
   "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 5 iteration 2 Build Agent complete. Fixed 3 MDX build-breaking errors (model-configuration.md <=/>= operators, theme-customization.md <html> tags, ecl-engine.md >= operators). Build: 0 errors. Deployed to docs_site/. Updated progress.md.",
-  "last_updated": "2026-04-04T05:00:00",
-  "score_trajectory": []
+  "last_action": "Sprint 5 iteration 3: Fixed all accumulated bugs from Sprint 1-3 evals (homepage meta, feature cards, onBrokenLinks, confidence intervals, frontmatter). Build: 0 errors. Deployed to docs_site/.",
+  "last_updated": "2026-04-04T04:00:00"
 }

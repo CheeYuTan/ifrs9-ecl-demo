@@ -33,8 +33,8 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={siteConfig.title}
+      description="IFRS 9 Expected Credit Loss calculation and reporting documentation — User Guide, Admin Guide, and Developer Reference.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

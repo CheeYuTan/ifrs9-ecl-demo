@@ -1,7 +1,7 @@
 ---
 sidebar_position: 7
 title: "Step 6: Stress Testing"
-description: "Sensitivity, vintage, concentration, and migration analysis for ECL robustness."
+description: "Monte Carlo distribution, sensitivity, vintage, concentration, and migration analysis for ECL robustness."
 ---
 
 # Step 6: Stress Testing
