@@ -35,6 +35,9 @@ This tab shows the full range of outcomes from your Monte Carlo simulation — n
 
 The distribution view helps answer: "What is our ECL in a reasonable worst case?" If the gap between the Mean and P95 is large, the portfolio has high uncertainty — a signal to investigate which products or cohorts drive the tail risk.
 
+![Monte Carlo distribution](/img/screenshots/step-6-distribution.png)
+*The Monte Carlo distribution view showing percentile metrics across scenarios.*
+
 **Drill-down**: Click any scenario to see the distribution broken down by product type, and then by origination cohort within each product. This reveals which segments contribute the most to tail risk.
 
 :::tip Use P95 for Capital Planning
@@ -66,6 +69,9 @@ The waterfall chart decomposes the total ECL change into contributions from each
 - The EAD component might contribute 10,000 (exposures are higher)
 
 This decomposition tells you which parameter your portfolio is most sensitive to — critical information for risk management.
+
+![Sensitivity analysis waterfall](/img/screenshots/step-6-sensitivity.png)
+*The sensitivity waterfall chart decomposing ECL changes by risk parameter.*
 
 **Drill-down**: Click any product in the results table to see the base versus stressed ECL at the cohort level.
 
