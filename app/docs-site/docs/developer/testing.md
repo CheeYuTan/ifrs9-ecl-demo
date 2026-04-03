@@ -381,3 +381,10 @@ def test_simulation_error_handling(mock_sim, mock_db):
 - **Database state**: Never assume tables exist in unit tests. Always mock `query_df` and `execute`.
 - **Decimal precision**: Use `pytest.approx()` when comparing floating-point ECL values, as Monte Carlo results have inherent variance.
 - **Random seeds**: When testing simulation determinism, always provide an explicit `random_seed` parameter.
+
+## What's Next?
+
+- **[Architecture](architecture)** — System design and module structure that the test suite validates
+- **[API Reference](api-reference)** — Endpoint documentation for writing integration tests with `TestClient`
+- **[Data Model](data-model)** — Table schemas that `sample_loans_df` and other fixtures mirror
+- **[ECL Engine](ecl-engine)** — The simulation engine tested by `test_ecl_engine.py` and `test_simulation_seed.py`

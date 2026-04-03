@@ -485,3 +485,10 @@ Singleton configuration table storing the full admin configuration as JSONB.
 | `updated_by` | TEXT | User who last updated |
 
 The configuration document contains sections for `data_sources` (schema, prefix), `model` (LGD assumptions, satellite models, default parameters), `app_settings` (scenarios, scenario weights), and `governance` (approval rules, segregation of duties).
+
+## What's Next?
+
+- **[API Reference](api-reference)** — REST endpoints that read from and write to these tables
+- **[ECL Engine](ecl-engine)** — How the simulation engine consumes `lb_model_ready_loans` and writes to `lb_model_run_results` and `lb_mc_ecl_distribution`
+- **[Architecture](architecture)** — Connection pooling, the `_t()` table reference helper, and the query layer that accesses these tables
+- **[Testing](testing)** — The `mock_db` fixture and `sample_loans_df` / `sample_scenarios_df` test data that mirror these schemas

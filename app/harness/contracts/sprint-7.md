@@ -1,35 +1,33 @@
-# Sprint 7 Contract: Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced
+# Sprint 7 Contract: Developer Reference — Complete (5 Pages)
 
 ## Acceptance Criteria
 
-- [ ] 180+ new tests across 10+ domain modules
-- [ ] All existing 3,608 tests pass (zero regressions)
-- [ ] Coverage gaps filled: model_registry lifecycle, backtesting integration, markov forecasting, hazard estimation pipeline, advanced get/list, period_close pipeline, health checks
-- [ ] Every discovered bug fixed with regression test
-- [ ] All domain validation rules tested with positive AND negative cases
+### Content Completeness
+- [ ] `developer/architecture.md` — System design, tech stack, data flow, module structure, deployment
+- [ ] `developer/api-reference.md` — All 162+ endpoints grouped by domain, request/response examples, error codes
+- [ ] `developer/data-model.md` — All tables with column specifications, entity relationships, data dictionary
+- [ ] `developer/ecl-engine.md` — ECL formula, Monte Carlo details, Cholesky decomposition, convergence, Markov, hazard
+- [ ] `developer/testing.md` — Test framework, directory structure, fixtures, running tests, writing tests
 
-## Modules Under Test
+### Template Compliance
+- [ ] Every page has frontmatter (sidebar_position, title, description)
+- [ ] Every page has introductory paragraph explaining purpose
+- [ ] Code examples use Python, JSON, SQL as appropriate (developer persona allows code)
+- [ ] Every page has "What's Next?" section with cross-references
 
-| Module | Existing Tests | New Tests Target | Priority |
-|--------|---------------|-----------------|----------|
-| model_registry.py | 18 | 25+ | P1 |
-| backtesting.py | 40+ | 20+ | P1 |
-| backtesting_stats.py | ~30 | 10+ | P2 |
-| backtesting_traffic.py | ~10 | 10+ | P2 |
-| markov.py | 45+ | 15+ | P2 |
-| hazard*.py (6 files) | 50+ | 25+ | P2 |
-| advanced.py | 30+ | 20+ | P2 |
-| period_close.py | 25+ | 20+ | P1 |
-| health.py | 0 | 15+ | P1 |
+### Cross-References
+- [ ] Architecture links to API Reference, Data Model, ECL Engine
+- [ ] API Reference links to Data Model, Architecture
+- [ ] Data Model links to API Reference, ECL Engine
+- [ ] ECL Engine links to Data Model, API Reference
+- [ ] Testing links to Architecture and all other developer pages
 
-## Test Plan
+### Regression Fixes (from Sprint 6 evaluation)
+- [ ] BUG-S6-1: Remove raw API endpoint references from admin-guide/troubleshooting.md
+- [ ] BUG-S6-2: Remove raw API endpoint from admin-guide/jobs-pipelines.md
+- [ ] BUG-S6-3: Replace developer-focused "Frontend Build Issues" section in troubleshooting.md
 
-### Unit Tests: `tests/unit/test_qa_sprint_7_domain_analytical.py`
-- Model registry: register_model, list_models, update_model_status (all valid + invalid transitions), promote_champion, compare_models, audit_trail
-- Backtesting: run_backtest PD/LGD, list/get/trend, cohort grouping
-- Traffic lights: boundary values for all 10 metrics
-- Markov: forecast correctness, lifetime PD monotonicity, absorbing state convergence
-- Hazard: estimation pipeline (cox, discrete, KM), retrieval, survival curve, term structure
-- Advanced: get/list round-trip, collateral LGD formula, product filter
-- Period close: full pipeline flow, step failure, health aggregation
-- Health: all 5 checks, degraded status, error paths
+### Build Verification
+- [ ] `cd docs-site && npm run build` succeeds with 0 errors
+- [ ] Deploy to `docs_site/` via copy
+- [ ] All cross-references resolve (onBrokenLinks: 'throw')

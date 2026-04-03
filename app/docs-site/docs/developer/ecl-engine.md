@@ -344,3 +344,10 @@ The simulation supports deterministic reproducibility through the `random_seed` 
 - If not provided, a random seed is generated via `np.random.default_rng().integers(0, 2**31)`.
 - The seed is recorded in `run_metadata` and persisted in the `model_runs` table for audit traceability.
 - The `/api/simulation/compare` endpoint can compare runs with different seeds to assess Monte Carlo variance.
+
+## What's Next?
+
+- **[Data Model](data-model)** — Schema definitions for `lb_model_ready_loans` (input), `lb_model_run_results` and `lb_mc_ecl_distribution` (output), and `markov_transition_matrices` / `hazard_models`
+- **[API Reference](api-reference)** — The `/api/simulate*`, `/api/markov/*`, and `/api/hazard/*` endpoints that invoke this engine
+- **[Architecture](architecture)** — How the engine fits into the overall request lifecycle and connection pooling layer
+- **[Testing](testing)** — ECL engine test files (`test_ecl_engine.py`, `test_simulation_seed.py`) and fixtures for simulation testing

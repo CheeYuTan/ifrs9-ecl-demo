@@ -366,3 +366,10 @@ Common HTTP status codes:
 | 403 | Permission denied or project locked |
 | 404 | Resource not found |
 | 500 | Internal server error |
+
+## What's Next?
+
+- **[Architecture](architecture)** — How the middleware stack, authentication, and connection pooling work under the hood
+- **[Data Model](data-model)** — Database schema and table definitions for the data these endpoints query and mutate
+- **[ECL Engine](ecl-engine)** — The simulation engine behind `/api/simulate*` endpoints
+- **[Testing](testing)** — How to write integration tests against these API endpoints using `TestClient`

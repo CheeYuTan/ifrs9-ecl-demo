@@ -270,3 +270,10 @@ The platform handles several non-standard JSON types through a custom encoder pi
 - **`df_to_records()`**: Converts pandas DataFrames to JSON-safe list-of-dicts by combining sanitization and safe encoding.
 
 These utilities are used throughout the route layer to ensure all API responses are valid JSON regardless of underlying numeric precision or missing data patterns.
+
+## What's Next?
+
+- **[API Reference](api-reference)** — Full documentation of all 162+ REST endpoints served by this architecture
+- **[Data Model](data-model)** — Database schema, table definitions, and entity relationships stored in Lakebase
+- **[ECL Engine](ecl-engine)** — Deep dive into the Monte Carlo simulation engine, Cholesky decomposition, and Markov/hazard models
+- **[Testing](testing)** — Test framework, fixtures, and conventions for writing tests against this architecture

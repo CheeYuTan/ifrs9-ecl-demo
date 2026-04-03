@@ -212,41 +212,29 @@ A broken audit trail hash chain is a serious compliance issue. It may indicate u
 
 **Resolution:**
 
-1. **Check the user's role:**
-   ```
-   GET /api/rbac/users/{user_id}
-   ```
+1. **Check the user's role:** Navigate to **Admin > User Management** and look up the user's profile to check their assigned role.
 
-2. **Check the permission:**
-   ```
-   GET /api/rbac/check-permission?user_id={user_id}&action={action}
-   ```
+2. **Verify the permission:** Consult the Permission Matrix on the [User Management](user-management) page to confirm that the user's role includes the required permission for the action they are attempting.
 
-3. **Upgrade the role** if appropriate. Refer to the [User Management](./user-management.md) page for the complete permission matrix.
+3. **Upgrade the role** if appropriate. On the User Management page, change the user's role to one that includes the needed permission. See the [User Management](user-management) guide for role definitions and the full permission matrix.
 
-4. **Development environment** -- If no `X-Forwarded-User` or `X-User-Id` header is sent, the user is treated as anonymous with no permissions in the permission list (though RBAC enforcement is bypassed in this case). Ensure you are sending the correct header in your API calls.
+4. **Check authentication:** Ensure the user is properly logged in. The user's name and role should appear in the application header. If the header shows "Anonymous" or is blank, the user may need to log out and log back in through the Databricks Apps authentication flow.
 
-## Frontend Build Issues
+## Application Not Loading
 
 **Symptoms:**
-- The UI does not load or shows a blank page.
-- Build errors during deployment.
+- The UI does not load or shows a blank page after deployment.
+- Users report seeing a white screen or a generic error page.
 
-**Root cause:** Frontend dependency or build configuration issues.
+**Root cause:** The frontend application may not have been built or deployed correctly, or the Databricks App may not have started successfully.
 
 **Resolution:**
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start the development server with hot reload. Use for local development. |
-| `npm run build` | Create a production build. Check for TypeScript and build errors in the output. |
-| `npm run preview` | Serve the production build locally for testing before deployment. |
-
-Common build issues:
-
-1. **Missing dependencies** -- Run `npm install` to ensure all packages are present.
-2. **TypeScript errors** -- The build will fail on type errors. Check the build output for specific file and line references.
-3. **Environment variables** -- Ensure `VITE_API_BASE_URL` or equivalent environment variables are set correctly for your deployment target.
+1. Verify the Databricks App deployment completed successfully in the workspace UI. Check the app status indicator — it should show "Running."
+2. If the app was recently updated, confirm the deployment finished and the app has fully restarted. Deployments can take several minutes to complete.
+3. Ask users to clear their browser cache and perform a hard reload (Ctrl+Shift+R or Cmd+Shift+R).
+4. Check the application health using the Health page or the quick health check endpoint. If the health check fails, the issue may be database connectivity rather than the frontend.
+5. If the issue persists after confirming the app is running and healthy, contact your development team to verify the frontend build artifacts were included in the deployment.
 
 ## Configuration Reset
 

@@ -205,7 +205,7 @@ The pipeline dashboard shows a health summary for each project, including:
 
 ## Best Practices
 
-- **Pre-provision jobs** after each deployment using `POST /api/jobs/provision` to ensure notebook paths are current.
+- **Pre-provision jobs** after each deployment using the **Provision Jobs** button on the Jobs page to ensure notebook paths are current.
 - **Use the satellite_ecl_sync job** for routine model refreshes. Reserve the full_pipeline job for period-end runs where data processing must also execute.
 - **Set a random seed** for production Monte Carlo runs to ensure reproducibility. Run without a seed during development for variety in results.
 - **Monitor job completion** via the Jobs page or the Databricks workspace UI. Set up alerting on job failures for production environments.
