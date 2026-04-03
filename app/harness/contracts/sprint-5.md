@@ -1,85 +1,33 @@
-# Sprint 5 Contract: ECL Engine — Monte Carlo Correctness
+# Sprint 5 Contract: User Guide — Feature Pages Part 2 + FAQ
 
 ## Acceptance Criteria
 
-### helpers.py
-- [ ] `_emit()` calls callback when provided, no-op when None
-- [ ] `_convergence_check()` returns correct keys and CV for constant/random data
-- [ ] `_convergence_check_from_paths()` returns correct keys and CV for constant/random data
-- [ ] `_df_to_records()` handles Decimal, datetime, date, NaN, empty DataFrame
-
-### constants.py
-- [ ] `_FALLBACK_BASE_LGD` keys match expected product types
-- [ ] `_FALLBACK_SATELLITE` keys match expected product types, values have required keys
-- [ ] `DEFAULT_SCENARIO_WEIGHTS` sums to 1.0
-- [ ] `DEFAULT_SAT` and `DEFAULT_LGD` have expected values
-
-### config.py
-- [ ] `_t()` returns fully qualified table name with schema.prefix
-- [ ] `_schema()` and `_prefix()` return backend.SCHEMA and backend.PREFIX
-- [ ] `_build_product_maps()` returns correct LGD dict and satellite dict from fallbacks
-- [ ] `_build_product_maps()` falls back gracefully when admin_config or DB unavailable
-- [ ] `_load_config()` returns (None, None) when admin_config fails
-- [ ] `_load_config()` returns correct LGD and weights when admin_config is available
-
-### data_loader.py
-- [ ] `_load_loans()` calls backend.query_df with correct SQL
-- [ ] `_load_scenarios()` calls backend.query_df and fills missing columns with defaults
-
-### monte_carlo.py — Core Math
-- [ ] `prepare_loan_columns()` adds all derived columns (stage, gca, eir, base_pd, rem_q, rem_months_f, base_lgd)
-- [ ] `prepare_loan_columns()` drops rows with critical nulls
-- [ ] `prepare_loan_columns()` handles missing EIR (fillna 0), missing PD (fillna 0)
-- [ ] Cholesky correlation: z_lgd has expected correlation with z_pd (rho)
-- [ ] PD/LGD shocks are lognormal-distributed (mean ~1.0)
-- [ ] Stressed PD/LGD are clipped within floor/cap bounds
-- [ ] ECL formula per quarter: default_this_q × stressed_lgd × ead_q × discount
-- [ ] Survival probability decreases each quarter
-- [ ] Stage 1 horizon capped at 4 quarters (12 months)
-- [ ] Stage 2/3 horizon = remaining quarters
-- [ ] Aging factor only applies to Stage 2/3
-- [ ] Amortizing EAD decreases over time for non-bullet loans
-- [ ] Bullet loans maintain constant EAD
-- [ ] Discount factor = 1/(1 + EIR/4)^q
-- [ ] Prepayment survival reduces EAD correctly
-
-### aggregation.py
-- [ ] `aggregate_results()` produces all required keys in output dict
-- [ ] Portfolio summary groups by product_type and stage
-- [ ] Coverage ratio = ECL / GCA × 100
-- [ ] Scenario results include percentile statistics (p50, p75, p95, p99)
-- [ ] Product × scenario cross-product has correct count
-- [ ] Stage summary covers all stages in input
-- [ ] Convergence diagnostics per product include CI width
-
-### simulation.py — Integration
-- [ ] `run_simulation()` with known seed produces deterministic output
-- [ ] Custom scenario_weights override defaults
-- [ ] `_build_scenario_map()` converts DataFrame rows to dict correctly
-- [ ] Missing scenario in scenario_map gets default multipliers
-
-### Edge Cases & Numerical Stability
-- [ ] Zero exposure (GCA=0) → ECL=0
-- [ ] PD=0 → ECL=0
-- [ ] PD=1.0 (certain default) → max ECL
-- [ ] LGD=0 → ECL=0 (full recovery)
-- [ ] LGD=1.0 → total loss
-- [ ] Single-loan portfolio
-- [ ] Single scenario
-- [ ] Very small PD (1e-6) — no NaN/Inf
-- [ ] Very large EAD (1e12) — no overflow
-- [ ] Negative correlation coefficient — Cholesky still works
+- [ ] `approval-workflow.md` — 150+ lines, covers maker-checker pattern, 4 request types, role permissions matrix, approval queue, history tab, audit trail. No API endpoints or code.
+- [ ] `attribution.md` — 150+ lines, covers ECL waterfall analysis, 12 waterfall components, reconciliation check, stage-level breakdown, history selector. No API endpoints or code.
+- [ ] `markov-hazard.md` — 150+ lines, covers transition matrices (heatmap interpretation), stage forecasting, lifetime PD curves, hazard models (Cox PH, Kaplan-Meier, discrete-time), survival curves. No API endpoints or code.
+- [ ] `advanced-features.md` — 150+ lines, covers cure rates (by DPD, product, segment), CCF (utilization bands, revolving vs non-revolving), collateral haircuts (7 types, recovery rates, LGD waterfall). No API endpoints or code.
+- [ ] `faq.md` — 150+ lines, comprehensive FAQ organized by topic (general, workflow, models, simulation, results, troubleshooting). Business user language only.
+- [ ] All pages follow established template: frontmatter, intro, Prerequisites, What You'll Do, Step-by-Step, Understanding Results, Tips & Best Practices, What's Next
+- [ ] All IFRS 9 terminology is correct (ECL, PD, LGD, EAD, SICR, CCF, etc.)
+- [ ] All internal cross-references point to valid page IDs
+- [ ] Placeholder screenshots created for key views
+- [ ] `npm run build` succeeds with 0 errors
+- [ ] Deployed to `docs_site/`
 
 ## Test Plan
-- All tests in `tests/unit/test_qa_sprint_5_ecl_engine.py`
-- Target: 150+ new tests
-- No modifications to existing passing tests
-- All 3,271 existing tests must continue to pass
 
-## Parallel Execution Plan
-- Helpers + constants + config tests (independent, write first)
-- data_loader tests (mocked backend)
-- monte_carlo math tests (numpy-only, no DB needed)
-- aggregation tests (pure function, mock inputs)
-- simulation integration tests (mock data_loader + config)
-- Edge case tests (extend simulation mocks)
+- Build: `cd docs-site && npm run build` — 0 errors
+- Deploy: `rm -rf ../docs_site/* && cp -r build/* ../docs_site/`
+- Line count: `wc -l` on each file ≥ 150
+- Persona isolation: grep for API endpoints, Python code, JSON — must find none
+- Cross-references: all `[text](page-id)` links point to existing pages
+
+## Pages
+
+| Page | File | Min Lines | Screenshots |
+|------|------|-----------|-------------|
+| Approval Workflow | `user-guide/approval-workflow.md` | 150 | approval-dashboard.png, approval-queue.png |
+| ECL Attribution | `user-guide/attribution.md` | 150 | attribution-waterfall.png, attribution-breakdown.png |
+| Markov & Hazard | `user-guide/markov-hazard.md` | 150 | markov-heatmap.png, hazard-survival.png |
+| Advanced Features | `user-guide/advanced-features.md` | 150 | advanced-cure-rates.png, advanced-collateral.png |
+| FAQ | `user-guide/faq.md` | 150 | — |

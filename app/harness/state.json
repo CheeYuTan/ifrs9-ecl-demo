@@ -5,12 +5,11 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 4,
+  "current_sprint": 5,
   "planned_sprints": 8,
   "remaining_spec_items": [
-    "Sprint 5: User Guide \u2014 Feature Pages Part 2 + FAQ (approval-workflow, attribution, markov-hazard, advanced, faq)",
-    "Sprint 6: Admin Guide \u2014 Complete (9 pages: setup, data-mapping, model-config, app-settings, jobs, theme, sysadmin, users, troubleshooting)",
-    "Sprint 7: Developer Reference \u2014 Complete (5 pages: architecture, api-reference, data-model, ecl-engine, testing)",
+    "Sprint 6: Admin Guide — Complete (9 pages: setup, data-mapping, model-config, app-settings, jobs, theme, sysadmin, users, troubleshooting)",
+    "Sprint 7: Developer Reference — Complete (5 pages: architecture, api-reference, data-model, ecl-engine, testing)",
     "Sprint 8: Homepage, Navigation & Polish (homepage redesign, navbar/footer, cross-reference audit, final build)"
   ],
   "sprints_completed": [
@@ -34,10 +33,17 @@
       "debt": false,
       "trajectory": [9.5],
       "iterations": 1
+    },
+    {
+      "sprint": 4,
+      "score": 9.5,
+      "debt": false,
+      "trajectory": [9.5],
+      "iterations": 1
     }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 1,
+  "feature_sprints_since_doc_sprint": 2,
   "last_doc_sprint": 3,
   "last_install_test": 3,
   "last_integration_test": 3,
@@ -48,7 +54,7 @@
   "dev_server_command": "cd docs-site && npm start",
   "build_command": "cd docs-site && npm run build",
   "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 4 Build Agent complete. 4 User Guide feature pages written (model-registry 175 lines, backtesting 177 lines, regulatory-reports 199 lines, gl-journals 225 lines). 6 placeholder screenshots created. Build: 0 errors. Deployed to docs_site/.",
-  "last_updated": "2026-04-04T03:15:00",
+  "last_action": "Sprint 5 Build Agent complete. 5 User Guide pages written (approval-workflow 183 lines, attribution 166 lines, markov-hazard 200 lines, advanced-features 217 lines, faq 196 lines). 8 placeholder screenshots created. Build: 0 errors. Deployed to docs_site/.",
+  "last_updated": "2026-04-04T04:15:00",
   "score_trajectory": []
 }

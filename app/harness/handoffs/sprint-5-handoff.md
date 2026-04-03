@@ -1,59 +1,93 @@
-# Sprint 5 Handoff: ECL Engine — Monte Carlo Correctness
+# Sprint 5 Handoff: User Guide — Feature Pages Part 2 + FAQ
 
 ## What Was Built
 
-141 new tests covering all 9 files in the `ecl/` sub-package:
+Five User Guide documentation pages, each 150+ lines, following the established page template with Prerequisites, What You'll Do, Step-by-Step Instructions, Understanding the Results, Tips & Best Practices, and What's Next sections.
 
-| Module | Tests | Coverage Focus |
-|--------|-------|---------------|
-| `ecl/helpers.py` | 18 | `_emit`, `_convergence_check`, `_convergence_check_from_paths`, `_df_to_records` (Decimal, datetime, date, NaN, empty DF) |
-| `ecl/constants.py` | 15 | Fallback LGD values, satellite coefficients, scenario weights sum to 1.0, range validation |
-| `ecl/config.py` | 11 | `_t()` qualified names, `_build_product_maps()` fallbacks + DB products, `_load_config()` success/failure paths |
-| `ecl/data_loader.py` | 4 | SQL query correctness, missing column fill-in, existing column preservation |
-| `ecl/monte_carlo.py` (prepare) | 14 | Derived columns (stage, gca, eir, base_pd, rem_q, base_lgd), null handling, LGD defaults |
-| `ecl/monte_carlo.py` (core math) | 20 | Cholesky correlation (rho=0, 0.5, -0.4, 0.99), lognormal shocks, PD/LGD clipping, discount factor, amortization, aging, prepayment, pd_mult/lgd_mult scaling, survival, determinism, batch consistency |
-| `ecl/monte_carlo.py` (hand-calc) | 4 | Single-quarter ECL = PD_q x LGD x GCA x DF verified to 1e-6 rel tolerance, two-quarter with survival, amortizing EAD, scenario weighting |
-| `ecl/aggregation.py` | 12 | Output structure, coverage ratio formula, percentile ordering, cross-product count, stage summary sums, convergence diagnostics, JSON serializability |
-| `ecl/simulation.py` | 10 | Deterministic seeds, custom weights, missing scenarios get defaults, progress phases, metadata params |
-| Edge cases | 15 | Single loan, very small PD (1e-6), very large EAD (1e12), PD=1 certain default, LGD=1 total loss, single/many scenarios, Stage 1 vs 2 vs 3 ECL ordering, mixed products, convergence improvement, no NaN |
-| Numerical stability | 5 | Small GCA, zero EIR, high volatility, correlation near 1.0, 100-loan portfolio |
-| Package exports | 6 | All `__all__` symbols verified |
+### Pages Created/Expanded
 
-### Key Domain Validations
-- **ECL = PD x LGD x EAD x DF** verified with hand-calculated values (1e-6 relative tolerance)
-- **Cholesky decomposition** verified: empirical correlation matches input rho (±0.02 for 100K samples)
-- **Stage 1 horizon** capped at 4 quarters (12 months)
-- **Stage 2/3** use full remaining life — higher ECL than Stage 1
-- **Aging factor** only applies to Stage 2/3 (no effect on Stage 1)
-- **Scenario weighting**: weighted ECL = sum(w_i x ECL_i), weights must sum to 1.0
-- **PD/LGD clipping** enforced at floor/cap bounds
+1. **approval-workflow.md** (183 lines) — Maker-checker governance pattern, four request types (model approval, overlay approval, journal posting, sign-off), cumulative role permissions matrix (Analyst → Reviewer → Approver → Admin), dashboard with 4 KPI cards, pending queue with sortable table, request detail/action flow, approval history (immutable), user directory with permissions grid, priority and due date management.
+
+2. **attribution.md** (166 lines) — IFRS 7.35I loss allowance reconciliation, twelve waterfall components (opening ECL, new originations, derecognitions, stage transfers, model parameter changes, macro scenario changes, management overlays, write-offs, unwind of discount, FX changes, residual, closing ECL), reconciliation check with 1% materiality threshold, waterfall bar chart interpretation (anchor/increase/decrease/change bars), stage-level breakdown table with computed/estimated/unavailable status badges, history selector for period comparison.
+
+3. **markov-hazard.md** (200 lines) — Two-part structure: Part 1 covers Markov Chain transition matrices (4-state model: Stage 1/2/3/Default as absorbing state), cohort estimation methodology, colour-coded heatmap reading, 4 KPI metrics (SICR probability, cure rate, default probability, Stage 1 retention), stage distribution forecast via matrix exponentiation, lifetime PD curves with 3 summary cards, matrix comparison. Part 2 covers three hazard model types (Cox PH, Kaplan-Meier, discrete-time logistic), survival/hazard/PD term structure/coefficients tabs, model comparison.
+
+4. **advanced-features.md** (217 lines) — Three sections: Cure rates (DPD bucket breakdown with reference rates 72%→45%→22%→8%, product type and customer segment segmentation, 12-month trend chart), CCF analysis (formula CCF = (EAD−drawn)/(limit−drawn), revolving vs non-revolving, stage-dependent CCFs, 5 utilisation bands, EAD calculation), Collateral haircuts (7 collateral types with haircuts/recovery rates/time-to-recovery, IFRS 9 B5.5.55 reference, LGD waterfall visualisation, secured vs unsecured blended LGD).
+
+5. **faq.md** (196 lines) — Comprehensive FAQ in 7 sections: General (4 questions: what is IFRS 9, what does the platform do, who is it for, what are the roles), The 8-Step Workflow (4 questions: what is it, order requirement, going back, timing), Models and Simulation (5 questions: satellite models, Monte Carlo, stages, SICR triggers, PD/LGD/EAD definitions), Results and Reporting (3 questions: validation mechanisms, report types, export), Overlays (3 questions: what/when/negative), Governance and Audit (3 questions: audit trail, hash verification, re-opening), Troubleshooting (4 questions: stuck simulation, high/low ECL diagnosis, greyed button, build failures).
+
+### Placeholder Screenshots Created
+
+8 placeholder PNG images (1280×720) in `docs-site/static/img/screenshots/`:
+- `approval-dashboard.png`
+- `approval-queue.png`
+- `attribution-waterfall.png`
+- `attribution-breakdown.png`
+- `markov-heatmap.png`
+- `hazard-survival.png`
+- `advanced-cure-rates.png`
+- `advanced-collateral.png`
 
 ## How to Test
 
 ```bash
-cd /Users/steven.tan/Expected\ Credit\ Losses/app
-source .venv/bin/activate
-python -m pytest tests/unit/test_qa_sprint_5_ecl_engine.py -v
+cd '/Users/steven.tan/Expected Credit Losses/app'
+
+# Build docs site
+cd docs-site && npm run build
+
+# Deploy
+cd .. && rm -rf docs_site/* && cp -r docs-site/build/* docs_site/
+
+# Start local dev server for browsing
+cd docs-site && npm start
+# Navigate to: http://localhost:3000/docs/user-guide/approval-workflow
+# Navigate to: http://localhost:3000/docs/user-guide/attribution
+# Navigate to: http://localhost:3000/docs/user-guide/markov-hazard
+# Navigate to: http://localhost:3000/docs/user-guide/advanced-features
+# Navigate to: http://localhost:3000/docs/user-guide/faq
 ```
 
-## Test Results
+## Build Results
 
-- **Sprint 5 tests**: 141 passed, 0 failed (42s)
-- **Full suite**: 3,412 passed, 61 skipped, 0 failed (112s)
-- **New tests this sprint**: 141
-- **Cumulative new tests (Sprints 1-5)**: 932
-- **Regressions**: 0
-- **Bugs found**: 0 (ECL engine implementation is solid)
+- `npm run build`: 0 errors, 0 warnings
+- Deployed to `docs_site/`
+- All 5 pages render correctly in build output
 
-## Files Changed
+## Content Quality Checks
 
-- `tests/unit/test_qa_sprint_5_ecl_engine.py` — NEW (141 tests)
-- `harness/contracts/sprint-5.md` — Updated for this QA audit run
-- `harness/handoffs/sprint-5-handoff.md` — This file
-- `harness/state.json` — Updated test counts and sprint state
+- All pages ≥150 lines (183, 166, 200, 217, 196)
+- No Python/JSON code in any User Guide page
+- No API endpoint references in any User Guide page
+- Correct IFRS 9 terminology throughout (ECL, PD, LGD, EAD, SICR, CCF, etc.)
+- All internal cross-references point to valid page IDs
+- All screenshot references point to existing files
+- Admonitions used throughout (info, tip, warning, caution)
+- Tables used extensively for structured information
+- FAQ organised by topic with clear section headings
 
 ## Known Limitations
 
-- Tests use zero-volatility scenarios for hand-calculation verification (stochastic verification uses statistical tolerances)
-- Large portfolio test uses 100 loans x 200 sims (not full-scale 10K+ loans)
-- `get_defaults()` not deeply tested here (already covered in existing `test_ecl_engine.py`)
+- Screenshot placeholders need to be replaced with actual app screenshots from the live app
+- Cure rate reference values (72%, 45%, 22%, 8%) are based on codebase analysis of seed data — actual institutional rates will differ
+- CCF values shown are platform defaults — institutions should calibrate to their own portfolio data
+- Collateral haircut percentages are regulatory baselines — institutions may have different recovery experience
+- FAQ troubleshooting section covers common scenarios but is not exhaustive
+
+## Files Changed
+
+- `docs-site/docs/user-guide/approval-workflow.md` — expanded from 11 to 183 lines
+- `docs-site/docs/user-guide/attribution.md` — expanded from 11 to 166 lines
+- `docs-site/docs/user-guide/markov-hazard.md` — expanded from 11 to 200 lines
+- `docs-site/docs/user-guide/advanced-features.md` — expanded from 11 to 217 lines
+- `docs-site/docs/user-guide/faq.md` — expanded from 12 to 196 lines
+- `docs-site/static/img/screenshots/approval-dashboard.png` — new placeholder
+- `docs-site/static/img/screenshots/approval-queue.png` — new placeholder
+- `docs-site/static/img/screenshots/attribution-waterfall.png` — new placeholder
+- `docs-site/static/img/screenshots/attribution-breakdown.png` — new placeholder
+- `docs-site/static/img/screenshots/markov-heatmap.png` — new placeholder
+- `docs-site/static/img/screenshots/hazard-survival.png` — new placeholder
+- `docs-site/static/img/screenshots/advanced-cure-rates.png` — new placeholder
+- `docs-site/static/img/screenshots/advanced-collateral.png` — new placeholder
+- `harness/contracts/sprint-5.md` — updated sprint contract
+- `docs_site/` — rebuilt and deployed
