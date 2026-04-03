@@ -1,25 +1,28 @@
-# Sprint 4 Contract: Backend API — GL Journals, Reports, RBAC, Audit, Admin, Data Mapping, Advanced, Period Close
+# Sprint 4 Contract: User Guide — Feature Pages Part 1
 
 ## Acceptance Criteria
-- [ ] All 7 GL journal endpoints tested (generate, list, get, post, reverse, trial-balance, chart-of-accounts)
-- [ ] All 6 report endpoints tested with 5 report types (generate x5, list, get, finalize, export CSV, export PDF)
-- [ ] All 8 RBAC endpoints tested (users list, user get, approvals CRUD, approve, reject, history, permissions)
-- [ ] All 5 audit endpoints tested (config changes, config diff, project trail, verify chain, export)
-- [ ] All 16 admin endpoints tested (config CRUD, validate-mapping, tables, columns, connection, defaults, schemas, preview, validate-typed, suggest, auto-detect, discover-products, auto-setup-lgd)
-- [ ] All 9 data mapping endpoints tested (catalogs, schemas, tables, columns, preview, validate, suggest, apply, status)
-- [ ] All 9 advanced endpoints tested (cure-rates compute/list/get, ccf compute/list/get, collateral compute/list/get)
-- [ ] All 7 period close endpoints tested (start, steps, run get, execute-step, complete, health, run-all)
-- [ ] Error paths: 404 for missing resources, 400 for invalid inputs, 500 for backend exceptions
-- [ ] GL journal double-entry validation: debits = credits
-- [ ] RBAC maker-checker: analyst cannot approve, approver can
-- [ ] Audit chain integrity verification tested
-- [ ] Period close pipeline: step ordering, failure handling, run-all stops on error
-- [ ] All existing tests continue to pass (zero regressions)
-- [ ] 150+ new tests added
+
+- [ ] `model-registry.md` — 150+ lines, follows User Guide template, covers lifecycle states, performance metrics, model comparison, model cards, no code/API references
+- [ ] `backtesting.md` — 150+ lines, covers traffic light system (green/amber/red), discrimination & calibration metrics explained for business users, when to retrain
+- [ ] `regulatory-reports.md` — 150+ lines, covers IFRS 7 paragraphs 35F-36, report generation workflow, export formats (PDF/CSV), what auditors expect
+- [ ] `gl-journals.md` — 150+ lines, covers double-entry ECL provisioning, chart of accounts, trial balance, posting workflow, reversals
+- [ ] All 4 pages use correct IFRS 9 terminology throughout
+- [ ] All 4 pages have Prerequisites, What You'll Do, Step-by-Step, Understanding the Results, Tips, What's Next sections
+- [ ] All 4 pages include screenshot placeholders with descriptive alt text
+- [ ] All 4 pages include admonitions (tip, warning, info, caution) with actionable content
+- [ ] No Python code, no JSON, no API endpoints in any User Guide page
+- [ ] `npm run build` succeeds with 0 errors
+- [ ] Build output deployed to `docs_site/`
 
 ## Test Plan
-- Unit tests: `tests/unit/test_qa_sprint_4_gl_reports_rbac.py` — GL, Reports, RBAC
-- Unit tests: `tests/unit/test_qa_sprint_4_audit_admin_mapping.py` — Audit, Admin, Data Mapping
-- Unit tests: `tests/unit/test_qa_sprint_4_advanced_pipeline.py` — Advanced, Period Close
-- All tests mock backend functions (no real DB)
-- Pattern: TestClient + patch backend functions per existing sprint test patterns
+
+- Build verification: `cd docs-site && npm run build` — 0 errors, 0 warnings
+- Content audit: each page >= 150 lines
+- Persona isolation: grep for API/code patterns in User Guide pages returns 0 matches
+- Internal links: all cross-references point to valid page IDs
+- Deploy: `rm -rf ../docs_site/* && cp -r build/* ../docs_site/`
+
+## Production Readiness Items This Sprint
+
+- Screenshot placeholders for all workflow steps
+- Cross-references between related pages (model-registry <-> backtesting, regulatory-reports <-> gl-journals <-> step-8)

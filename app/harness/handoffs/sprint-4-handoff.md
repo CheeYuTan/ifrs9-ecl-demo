@@ -1,82 +1,83 @@
-# Sprint 4 Handoff: Backend API — GL Journals, Reports, RBAC, Audit, Admin, Data Mapping, Advanced, Period Close
+# Sprint 4 Handoff: User Guide — Feature Pages Part 1
 
 ## What Was Built
 
-### Iteration 1: 214 new tests across 3 test files covering 67 endpoints in 8 route modules
+Four User Guide documentation pages, each 150+ lines, following the established page template with Prerequisites, What You'll Do, Step-by-Step Instructions, Understanding the Results, Tips & Best Practices, and What's Next sections.
 
-#### Test Files
-- `tests/unit/test_qa_sprint_4_gl_reports_rbac.py` — 84 tests
-  - GL Journals (7 endpoints): generate, list, get, post, reverse, trial-balance, chart-of-accounts
-  - Reports (6 endpoints x 5 types): generate, list, get, finalize, export CSV, export PDF
-  - RBAC (8 endpoints): users list/get, approvals CRUD/approve/reject, history, permissions
-  - Domain tests: double-entry journal integrity, maker-checker segregation of duties
+### Pages Created/Expanded
 
-- `tests/unit/test_qa_sprint_4_audit_admin_mapping.py` — 62 tests
-  - Audit (5 endpoints): config changes, config diff, project trail, verify chain, export
-  - Admin (16 endpoints): config CRUD, validate-mapping, tables, columns, connection, defaults, schemas, preview, validate-typed, suggest, auto-detect, discover-products, auto-setup-lgd
-  - Data Mapping (9 endpoints): catalogs, schemas, tables, columns, preview, validate, suggest, apply, status
+1. **model-registry.md** (175 lines) — Model governance lifecycle (Draft → Pending Review → Approved → Active → Retired), browsing the inventory, comparing models side-by-side with radar charts, reviewing auto-generated model cards, registering new models, approving and promoting champions. Includes segregation of duties warning.
 
-- `tests/unit/test_qa_sprint_4_advanced_pipeline.py` — 68 tests
-  - Advanced (9 endpoints): cure-rates compute/list/get, CCF compute/list/get, collateral compute/list/get
-  - Period Close (7 endpoints): start, steps, run get, execute-step, complete, health, run-all
-  - Domain tests: cure rate bounds, CCF bounds, collateral bounds, pipeline step ordering, run-all stops on failure
+2. **backtesting.md** (177 lines) — EBA traffic light system (green/amber/red), discrimination metrics (AUC, Gini, KS) with thresholds and plain-language explanations, calibration metrics (Hosmer-Lemeshow, binomial test), stability metrics (PSI, Brier Score), LGD backtesting (MAE, RMSE, Mean Bias), per-cohort analysis, trend tracking, and when-to-retrain decision matrix.
 
-### Iteration 2: 3 bug fixes + 11 regression tests
+3. **regulatory-reports.md** (199 lines) — All eight IFRS 7 disclosure sections (35F through 36) with what each paragraph requires, report generation workflow, five report types (IFRS 7 Disclosure, ECL Movement, Stage Migration, Sensitivity, Concentration Risk), export formats (PDF, CSV), report lifecycle (Draft → Final → Submitted), and auditor-focus guidance.
 
-#### Bugs Fixed (from Visual QA report)
+4. **gl-journals.md** (225 lines) — Complete chart of accounts (9 accounts: asset, contra-asset, expense, income), three journal types (ECL provision, overlay, write-off) with debit/credit explanations, posting workflow, trial balance review, journal reversal process, and a plain-language section explaining double-entry ECL accounting for non-accountants.
 
-**BUG-S4-001: Audit export HTTP 500 — Timestamp serialization** (MAJOR)
-- **Root cause**: `get_audit_trail()` and `get_config_audit_log()` returned `pandas.Timestamp` objects for `created_at`/`changed_at` columns. `JSONResponse` cannot serialize these.
-- **Fix**: Added Timestamp-to-ISO-string conversion in `get_audit_trail()` (`domain/audit_trail.py:131-133`), `get_config_audit_log()` (`domain/config_audit.py:45-47`), and `get_config_diff()` (`domain/config_audit.py:82-84`).
-- **Regression tests**: 6 tests in `tests/regression/test_sprint_4_bugs.py::TestBugS4001AuditExportTimestamp`
+### Placeholder Screenshots Created
 
-**BUG-S4-002: IFRS 7.35I — reconciliation column missing** (MAJOR)
-- **Root cause**: `ecl_attribution` table created before `reconciliation` column was added to schema. `CREATE TABLE IF NOT EXISTS` doesn't add columns to existing tables, so `compute_attribution()` INSERT failed.
-- **Fix**: Added `ALTER TABLE ADD COLUMN IF NOT EXISTS reconciliation JSONB` migration in `ensure_attribution_table()` (`domain/attribution.py:61-64`). Also added `ensure_attribution_table()` call at start of `compute_attribution()` (`domain/attribution.py:97`).
-- **Regression tests**: 2 tests in `tests/regression/test_sprint_4_bugs.py::TestBugS4002AttributionReconciliation`
-
-**BUG-S4-003: IFRS 7.35J — historical_defaults table not found** (MAJOR)
-- **Root cause**: `historical_defaults` is a user-provided data table created by the data pipeline (`scripts/01_generate_data.py`). When the table hasn't been synced to Lakebase, IFRS 7.35J report section fails with raw SQL error.
-- **Fix**: Improved error message in `_build_35j()` (`reporting/_ifrs7_sections_a.py:143-148`) to detect table-not-found errors specifically and return user-friendly guidance pointing to the data pipeline/Data Mapping.
-- **Regression tests**: 3 tests in `tests/regression/test_sprint_4_bugs.py::TestBugS4003HistoricalDefaultsTable`
+6 placeholder PNG images (1280×720) in `docs-site/static/img/screenshots/`:
+- `model-registry-list.png`
+- `backtesting-traffic-light.png`
+- `backtesting-cohort.png`
+- `regulatory-reports-generate.png`
+- `gl-journals-list.png`
+- `gl-trial-balance.png`
 
 ## How to Test
+
 ```bash
 cd '/Users/steven.tan/Expected Credit Losses/app'
-source .venv/bin/activate
 
-# Sprint 4 iteration 1 tests (214 tests)
-pytest tests/unit/test_qa_sprint_4_gl_reports_rbac.py tests/unit/test_qa_sprint_4_audit_admin_mapping.py tests/unit/test_qa_sprint_4_advanced_pipeline.py -v
+# Build docs site
+cd docs-site && npm run build
 
-# Sprint 4 iteration 2 regression tests (11 tests)
-pytest tests/regression/test_sprint_4_bugs.py -v
+# Deploy
+cd .. && rm -rf docs_site/* && cp -r docs-site/build/* docs_site/
 
-# Full suite
-pytest tests/ -q
+# Start local dev server for browsing
+cd docs-site && npm start
+# Navigate to: http://localhost:3000/docs/user-guide/model-registry
+# Navigate to: http://localhost:3000/docs/user-guide/backtesting
+# Navigate to: http://localhost:3000/docs/user-guide/regulatory-reports
+# Navigate to: http://localhost:3000/docs/user-guide/gl-journals
 ```
 
-## Test Results
-- `pytest` exit code: 0
-- Sprint 4 tests: 214 (iter 1) + 11 (iter 2 regression) = 225
-- Full suite: 3,271 passed, 61 skipped, 0 failed
-- Regressions: 0
+## Build Results
+
+- `npm run build`: 0 errors, 0 warnings
+- Deployed to `docs_site/`
+- All 4 pages render correctly in build output
+
+## Content Quality Checks
+
+- All pages ≥150 lines (175, 177, 199, 225)
+- No Python/JSON code in any User Guide page
+- No API endpoint references in any User Guide page
+- Correct IFRS 9 terminology throughout (ECL, PD, LGD, EAD, SICR, etc.)
+- All internal cross-references point to valid page IDs
+- All screenshot references point to existing files
+- Admonitions used throughout (info, tip, warning, caution)
+- Tables used extensively for structured information
 
 ## Known Limitations
-- Tests mock all backend/domain functions — no real DB calls
-- PDF export test verifies content-type and byte prefix, not full PDF validity
-- Data mapping tests mock WorkspaceClient (no real Unity Catalog)
-- BUG-S4-003 fix improves error messaging; the actual fix requires running the data pipeline to create the `historical_defaults` table
+
+- Screenshot placeholders need to be replaced with actual app screenshots from the live app
+- Model Registry page describes 5 lifecycle states — if the app uses different states, page may need adjustment
+- Backtesting thresholds are based on codebase analysis; verify against current configuration
+- GL chart of accounts codes are platform-internal; page advises mapping to institution GL
 
 ## Files Changed
 
-### Iteration 1 (new test files)
-- `tests/unit/test_qa_sprint_4_gl_reports_rbac.py`
-- `tests/unit/test_qa_sprint_4_audit_admin_mapping.py`
-- `tests/unit/test_qa_sprint_4_advanced_pipeline.py`
-
-### Iteration 2 (bug fixes + regression tests)
-- `domain/audit_trail.py` — Timestamp-to-string conversion in `get_audit_trail()`
-- `domain/config_audit.py` — Timestamp-to-string conversion in `get_config_audit_log()` and `get_config_diff()`
-- `domain/attribution.py` — `ALTER TABLE ADD COLUMN` migration + `ensure_attribution_table()` call in `compute_attribution()`
-- `reporting/_ifrs7_sections_a.py` — User-friendly error message for missing `historical_defaults` table
-- `tests/regression/test_sprint_4_bugs.py` (new) — 11 regression tests for all 3 bugs
+- `docs-site/docs/user-guide/model-registry.md` — expanded from 11 to 175 lines
+- `docs-site/docs/user-guide/backtesting.md` — expanded from 11 to 177 lines
+- `docs-site/docs/user-guide/regulatory-reports.md` — expanded from 11 to 199 lines
+- `docs-site/docs/user-guide/gl-journals.md` — expanded from 11 to 225 lines
+- `docs-site/static/img/screenshots/model-registry-list.png` — new placeholder
+- `docs-site/static/img/screenshots/backtesting-traffic-light.png` — new placeholder
+- `docs-site/static/img/screenshots/backtesting-cohort.png` — new placeholder
+- `docs-site/static/img/screenshots/regulatory-reports-generate.png` — new placeholder
+- `docs-site/static/img/screenshots/gl-journals-list.png` — new placeholder
+- `docs-site/static/img/screenshots/gl-trial-balance.png` — new placeholder
+- `harness/contracts/sprint-4.md` — updated sprint contract
+- `docs_site/` — rebuilt and deployed

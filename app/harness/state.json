@@ -5,11 +5,9 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 3,
+  "current_sprint": 4,
   "planned_sprints": 8,
   "remaining_spec_items": [
-    "Sprint 3: User Guide \u2014 Workflow Steps 5-8 (model-execution, stress-testing, overlays, sign-off)",
-    "Sprint 4: User Guide \u2014 Feature Pages Part 1 (model-registry, backtesting, regulatory-reports, gl-journals)",
     "Sprint 5: User Guide \u2014 Feature Pages Part 2 + FAQ (approval-workflow, attribution, markov-hazard, advanced, faq)",
     "Sprint 6: Admin Guide \u2014 Complete (9 pages: setup, data-mapping, model-config, app-settings, jobs, theme, sysadmin, users, troubleshooting)",
     "Sprint 7: Developer Reference \u2014 Complete (5 pages: architecture, api-reference, data-model, ecl-engine, testing)",
@@ -20,26 +18,29 @@
       "sprint": 1,
       "score": 9.5,
       "debt": false,
-      "trajectory": [
-        9.5
-      ],
+      "trajectory": [9.5],
       "iterations": 1
     },
     {
       "sprint": 2,
       "score": 9.4,
       "debt": true,
-      "trajectory": [
-        9.4
-      ],
+      "trajectory": [9.4],
+      "iterations": 1
+    },
+    {
+      "sprint": 3,
+      "score": 9.5,
+      "debt": false,
+      "trajectory": [9.5],
       "iterations": 1
     }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 2,
-  "last_doc_sprint": 0,
-  "last_install_test": 0,
-  "last_integration_test": 0,
+  "feature_sprints_since_doc_sprint": 1,
+  "last_doc_sprint": 3,
+  "last_install_test": 3,
+  "last_integration_test": 3,
   "context_resets": 0,
   "current_iteration": 1,
   "min_iterations_before_debt": 4,
@@ -47,7 +48,7 @@
   "dev_server_command": "cd docs-site && npm start",
   "build_command": "cd docs-site && npm run build",
   "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 3 iter 1 build complete: All 4 pages ≥150 lines (157, 179, 168, 177). npm run build 0 errors. Fresh deploy to docs_site/. Ready for Visual QA and evaluation.",
-  "last_updated": "2026-04-04T02:00:00",
+  "last_action": "Sprint 4 Build Agent complete. 4 User Guide feature pages written (model-registry 175 lines, backtesting 177 lines, regulatory-reports 199 lines, gl-journals 225 lines). 6 placeholder screenshots created. Build: 0 errors. Deployed to docs_site/.",
+  "last_updated": "2026-04-04T03:15:00",
   "score_trajectory": []
 }
