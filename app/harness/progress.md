@@ -1,42 +1,38 @@
-# QA Audit Progress
+# IFRS 9 ECL Documentation Transformation — Progress
 
 ## Quality Target: 9.5/10
 
-## Test Baseline
-- **Backend (pytest)**: 2,480 tests passing
-- **Frontend (vitest)**: 103 tests passing
-- **Total**: 2,583 tests
+## Project Summary
+Transform the docs-site from a monolithic technical reference into a persona-based documentation site with separate User Guide (business users), Admin Guide (system admins), and Developer Reference (engineers). Total: ~34 new pages across 3 personas.
 
 ## Sprint Status
 
-| Sprint | Area | Status | Score | Tests Added | Bugs Found | Bugs Fixed | Iterations |
-|--------|------|--------|-------|-------------|------------|------------|------------|
-| 1 | Backend API — Core Workflow & Data (42+ endpoints) | IN PROGRESS | - | 236 | 0 | 0 | 3 |
-| 2 | Backend API — Simulation & Satellite (18+ endpoints) | PENDING | - | - | - | - | - |
-| 3 | Backend API — Models, Backtest, Markov, Hazard (24+ endpoints) | PENDING | - | - | - | - | - |
-| 4 | Backend API — GL, Reports, RBAC, Audit, Admin (45+ endpoints) | PENDING | - | - | - | - | - |
-| 5 | ECL Engine — Monte Carlo Correctness (9 files) | PENDING | - | - | - | - | - |
-| 6 | Domain Logic — Workflow, Queries, Attribution, Validation | PENDING | - | - | - | - | - |
-| 7 | Domain Logic — Registry, Backtest, Markov, Hazard, Advanced | PENDING | - | - | - | - | - |
-| 8 | Frontend — Components & Pages (200+ target) | PENDING | - | - | - | - | - |
-| 9 | Middleware, Cross-Cutting & Integration Flows | PENDING | - | - | - | - | - |
-| 10 | Production Readiness & Final Gap Analysis | PENDING | - | - | - | - | - |
+| Sprint | Feature | Status | Score | Pages | Iterations | Decision |
+|--------|---------|--------|-------|-------|------------|----------|
+| 1 | Foundation — Restructure & Getting Started | COMPLETE | 9.5 | 3 | 1 | ADVANCE |
+| 2 | User Guide — Workflow Steps 1-4 | COMPLETE | 9.4 | 4 | 1 | ADVANCE (debt) |
+| 3 | User Guide — Workflow Steps 5-8 | COMPLETE | 9.5 | 4 | 1 | ADVANCE |
+| 4 | User Guide — Feature Pages Part 1 | COMPLETE | 9.5 | 4 | 1 | ADVANCE |
+| 5 | User Guide — Feature Pages Part 2 + FAQ | IN PROGRESS | — | 5 | 2 | — |
+| 6 | Admin Guide — Complete | PENDING | — | 0 | 0 | — |
+| 7 | Developer Reference — Complete | PENDING | — | 0 | 0 | — |
+| 8 | Homepage, Navigation & Polish | PENDING | — | 0 | 0 | — |
 
-## Sprint 1 Iteration History
-| Iteration | Tests Added | Focus |
-|-----------|-------------|-------|
-| 1 | 140 | Happy path + error paths for all 47 endpoints |
-| 2 | 34 | Edge cases: sign-off audit log parsing, hash shapes, overlay serialization, large DataFrames |
-| 3 | 62 | `_utils.py` unit tests, sign-off None project, verify-hash tampered data, setup body=None, overlay advance args, data consistency |
+## Page Count
 
-## Running Totals
+| Section | Pages | Status |
+|---------|-------|--------|
+| Getting Started | 3 (overview, quick-start, workflow-overview) | COMPLETE (Sprint 1) |
+| User Guide — Steps 1-4 | 4 | COMPLETE (Sprint 2) |
+| User Guide — Steps 5-8 | 4 | COMPLETE (Sprint 3) |
+| User Guide — Features Part 1 | 4 (model-registry, backtesting, regulatory-reports, gl-journals) | COMPLETE (Sprint 4) |
+| User Guide — Features Part 2 + FAQ | 5 (approval-workflow, attribution, markov-hazard, advanced-features, faq) | COMPLETE (Sprint 5) |
+| Admin Guide | 9 | PENDING (Sprint 6) |
+| Developer Reference | 5 | PENDING (Sprint 7) |
+| **Total** | **34** | **20 complete, 14 pending** |
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| Backend tests | 2,655 | 3,000+ |
-| Frontend tests | 103 | 200+ |
-| Total tests | 2,758 | 3,200+ |
-| API endpoints tested | ~60% | 100% |
-| Bugs found | 0 | - |
-| Bugs fixed | 0 | - |
-| Regressions | 0 | 0 |
+## Build Status
+- Last build: Sprint 5 iteration 2
+- Errors: 0
+- Warnings: 0
+- Deployed to: docs_site/

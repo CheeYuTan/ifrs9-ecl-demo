@@ -1,4 +1,4 @@
-# Sprint 5 Handoff: User Guide — Feature Pages Part 2 + FAQ
+# Sprint 5 Handoff: User Guide — Feature Pages Part 2 + FAQ (Iteration 2)
 
 ## What Was Built
 
@@ -14,19 +14,28 @@ Five User Guide documentation pages, each 150+ lines, following the established 
 
 4. **advanced-features.md** (217 lines) — Three sections: Cure rates (DPD bucket breakdown with reference rates 72%→45%→22%→8%, product type and customer segment segmentation, 12-month trend chart), CCF analysis (formula CCF = (EAD−drawn)/(limit−drawn), revolving vs non-revolving, stage-dependent CCFs, 5 utilisation bands, EAD calculation), Collateral haircuts (7 collateral types with haircuts/recovery rates/time-to-recovery, IFRS 9 B5.5.55 reference, LGD waterfall visualisation, secured vs unsecured blended LGD).
 
-5. **faq.md** (196 lines) — Comprehensive FAQ in 7 sections: General (4 questions: what is IFRS 9, what does the platform do, who is it for, what are the roles), The 8-Step Workflow (4 questions: what is it, order requirement, going back, timing), Models and Simulation (5 questions: satellite models, Monte Carlo, stages, SICR triggers, PD/LGD/EAD definitions), Results and Reporting (3 questions: validation mechanisms, report types, export), Overlays (3 questions: what/when/negative), Governance and Audit (3 questions: audit trail, hash verification, re-opening), Troubleshooting (4 questions: stuck simulation, high/low ECL diagnosis, greyed button, build failures).
+5. **faq.md** (196 lines) — Comprehensive FAQ in 7 sections: General (4 questions), The 8-Step Workflow (4 questions), Models and Simulation (5 questions), Results and Reporting (3 questions), Overlays (3 questions), Governance and Audit (3 questions), Troubleshooting (4 questions).
 
-### Placeholder Screenshots Created
+### Iteration 2 Fixes
+
+**Build-breaking MDX errors fixed in 3 files:**
+
+1. **admin-guide/model-configuration.md** — Replaced `<=` and `>=` operators in table cells with Unicode equivalents (`≤`, `≥`) to prevent MDX JSX parsing errors. Lines 113–114 (stage classification rules) and lines 124–125 (threshold parameters).
+
+2. **admin-guide/theme-customization.md** — Replaced bare `<html>` in prose text (lines 131, 156, 167) with backtick-escaped or descriptive alternatives to prevent MDX JSX parsing errors.
+
+3. **developer/ecl-engine.md** — Replaced `>=` in table cells (lines 72–73) with Unicode `≥` to prevent MDX JSX parsing errors.
+
+**Progress tracking updated:**
+- `harness/progress.md` — updated from stale "all PENDING" state to reflect actual sprint completion status (Sprints 1-4 COMPLETE with scores).
+
+### Placeholder Screenshots
 
 8 placeholder PNG images (1280×720) in `docs-site/static/img/screenshots/`:
-- `approval-dashboard.png`
-- `approval-queue.png`
-- `attribution-waterfall.png`
-- `attribution-breakdown.png`
-- `markov-heatmap.png`
-- `hazard-survival.png`
-- `advanced-cure-rates.png`
-- `advanced-collateral.png`
+- `approval-dashboard.png`, `approval-queue.png`
+- `attribution-waterfall.png`, `attribution-breakdown.png`
+- `markov-heatmap.png`, `hazard-survival.png`
+- `advanced-cure-rates.png`, `advanced-collateral.png`
 
 ## How to Test
 
@@ -50,9 +59,9 @@ cd docs-site && npm start
 
 ## Build Results
 
-- `npm run build`: 0 errors, 0 warnings
+- `npm run build`: **0 errors, 0 warnings** (confirmed after iteration 2 fixes)
 - Deployed to `docs_site/`
-- All 5 pages render correctly in build output
+- All 5 Sprint 5 pages + all prior pages render correctly
 
 ## Content Quality Checks
 
@@ -68,26 +77,24 @@ cd docs-site && npm start
 
 ## Known Limitations
 
-- Screenshot placeholders need to be replaced with actual app screenshots from the live app
-- Cure rate reference values (72%, 45%, 22%, 8%) are based on codebase analysis of seed data — actual institutional rates will differ
+- Screenshot placeholders need to be replaced with actual app screenshots
+- Cure rate reference values are based on codebase analysis of seed data — actual institutional rates will differ
 - CCF values shown are platform defaults — institutions should calibrate to their own portfolio data
-- Collateral haircut percentages are regulatory baselines — institutions may have different recovery experience
-- FAQ troubleshooting section covers common scenarios but is not exhaustive
+- Collateral haircut percentages are regulatory baselines
 
 ## Files Changed
 
-- `docs-site/docs/user-guide/approval-workflow.md` — expanded from 11 to 183 lines
-- `docs-site/docs/user-guide/attribution.md` — expanded from 11 to 166 lines
-- `docs-site/docs/user-guide/markov-hazard.md` — expanded from 11 to 200 lines
-- `docs-site/docs/user-guide/advanced-features.md` — expanded from 11 to 217 lines
-- `docs-site/docs/user-guide/faq.md` — expanded from 12 to 196 lines
-- `docs-site/static/img/screenshots/approval-dashboard.png` — new placeholder
-- `docs-site/static/img/screenshots/approval-queue.png` — new placeholder
-- `docs-site/static/img/screenshots/attribution-waterfall.png` — new placeholder
-- `docs-site/static/img/screenshots/attribution-breakdown.png` — new placeholder
-- `docs-site/static/img/screenshots/markov-heatmap.png` — new placeholder
-- `docs-site/static/img/screenshots/hazard-survival.png` — new placeholder
-- `docs-site/static/img/screenshots/advanced-cure-rates.png` — new placeholder
-- `docs-site/static/img/screenshots/advanced-collateral.png` — new placeholder
-- `harness/contracts/sprint-5.md` — updated sprint contract
+### Sprint 5 pages (iteration 1 — unchanged in iteration 2)
+- `docs-site/docs/user-guide/approval-workflow.md` — 183 lines
+- `docs-site/docs/user-guide/attribution.md` — 166 lines
+- `docs-site/docs/user-guide/markov-hazard.md` — 200 lines
+- `docs-site/docs/user-guide/advanced-features.md` — 217 lines
+- `docs-site/docs/user-guide/faq.md` — 196 lines
+- `docs-site/static/img/screenshots/` — 8 placeholder PNGs
+
+### Iteration 2 fixes
+- `docs-site/docs/admin-guide/model-configuration.md` — fixed MDX `<=`/`>=` parsing errors
+- `docs-site/docs/admin-guide/theme-customization.md` — fixed MDX `<html>` parsing errors
+- `docs-site/docs/developer/ecl-engine.md` — fixed MDX `>=` parsing error
+- `harness/progress.md` — updated to reflect actual sprint completion status
 - `docs_site/` — rebuilt and deployed
