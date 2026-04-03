@@ -1,4 +1,4 @@
-# Sprint 2 Handoff: User Guide — Workflow Steps 1-4 (Iteration 4)
+# Sprint 2 Handoff: User Guide — Workflow Steps 1-4 (Iteration 5)
 
 ## What Was Built (Iteration 1)
 
@@ -78,6 +78,15 @@ Verified all prior fixes remain in place. Clean build + deploy confirmed:
 - `npm run build` succeeds with 0 errors, 0 warnings
 - Fresh deploy to `docs_site/`
 - No additional content changes needed — all evaluator feedback from iter 1 was addressed in iter 2 and verified in iters 3-4
+
+## What Changed (Iteration 5)
+
+Final iteration (max 5). Verified all prior fixes remain in place. Clean build + deploy confirmed:
+- All 4 pages at ≥150 lines (151, 153, 153, 176) — verified via `wc -l`
+- `npm run build` succeeds with 0 errors, 0 warnings
+- Fresh deploy to `docs_site/` — all 4 step pages present in output
+- All content quality items from iter 1 evaluation have been addressed since iter 2
+- Score trajectory: 9.4 (iter 1) → fixes applied iter 2 → verified iters 3-5
 
 ## Known Limitations
 
