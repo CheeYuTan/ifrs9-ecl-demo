@@ -1,4 +1,4 @@
-# Sprint 2 Handoff: User Guide — Workflow Steps 1-4 (Iteration 3)
+# Sprint 2 Handoff: User Guide — Workflow Steps 1-4 (Iteration 4)
 
 ## What Was Built (Iteration 1)
 
@@ -70,6 +70,14 @@ The iter 1 evaluation scored 9.40/10. The only deduction driving the gap was Fea
 - `docs_site/` (rebuilt each iteration)
 - `harness/state.json`
 - `harness/handoffs/sprint-2-handoff.md`
+
+## What Changed (Iteration 4)
+
+Verified all prior fixes remain in place. Clean build + deploy confirmed:
+- All 4 pages at ≥150 lines (151, 153, 153, 176) — verified via `wc -l`
+- `npm run build` succeeds with 0 errors, 0 warnings
+- Fresh deploy to `docs_site/`
+- No additional content changes needed — all evaluator feedback from iter 1 was addressed in iter 2 and verified in iters 3-4
 
 ## Known Limitations
 
