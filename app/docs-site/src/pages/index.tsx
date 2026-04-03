@@ -21,7 +21,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/overview">
-            Get Started
+            Get Started — What is IFRS 9 ECL?
           </Link>
         </div>
       </div>

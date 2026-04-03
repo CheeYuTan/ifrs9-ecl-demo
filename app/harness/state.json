@@ -1,116 +1,35 @@
 {
-  "status": "COMPLETE",
-  "app_name": "IFRS 9 ECL Comprehensive QA Audit",
+  "status": "IN_PROGRESS",
+  "app_name": "IFRS 9 ECL Documentation Transformation",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
-  "current_phase": "COMPLETE",
+  "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 10,
-  "planned_sprints": 10,
-  "remaining_spec_items": [],
-  "sprints_completed": [
-    {
-      "sprint": 1,
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0
-    },
-    {
-      "sprint": 2,
-      "score": 9.81,
-      "debt": false,
-      "trajectory": [
-        9.41,
-        9.81
-      ],
-      "iterations": 2
-    },
-    {
-      "sprint": 3,
-      "score": 9.83,
-      "debt": false,
-      "trajectory": [
-        9.83
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 4,
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        9.5
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 5,
-      "score": 9.88,
-      "debt": false,
-      "trajectory": [
-        9.88
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 6,
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        8.95,
-        9.5
-      ],
-      "iterations": 2
-    },
-    {
-      "sprint": 7,
-      "score": 9.25,
-      "debt": true,
-      "trajectory": [
-        9.25
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 8,
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0
-    },
-    {
-      "sprint": 9,
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        9.5
-      ],
-      "iterations": 1
-    }
+  "current_sprint": 1,
+  "planned_sprints": 8,
+  "remaining_spec_items": [
+    "Sprint 1: Foundation \u2014 Restructure & Getting Started (directory structure, sidebars.ts, overview, quick-start, workflow-overview)",
+    "Sprint 2: User Guide \u2014 Workflow Steps 1-4 (create-project, data-processing, data-control, satellite-models)",
+    "Sprint 3: User Guide \u2014 Workflow Steps 5-8 (model-execution, stress-testing, overlays, sign-off)",
+    "Sprint 4: User Guide \u2014 Feature Pages Part 1 (model-registry, backtesting, regulatory-reports, gl-journals)",
+    "Sprint 5: User Guide \u2014 Feature Pages Part 2 + FAQ (approval-workflow, attribution, markov-hazard, advanced, faq)",
+    "Sprint 6: Admin Guide \u2014 Complete (9 pages: setup, data-mapping, model-config, app-settings, jobs, theme, sysadmin, users, troubleshooting)",
+    "Sprint 7: Developer Reference \u2014 Complete (5 pages: architecture, api-reference, data-model, ecl-engine, testing)",
+    "Sprint 8: Homepage, Navigation & Polish (homepage redesign, navbar/footer, cross-reference audit, final build)"
   ],
+  "sprints_completed": [],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 1,
-  "last_doc_sprint": 8,
-  "last_install_test": 8,
-  "last_integration_test": 8,
+  "feature_sprints_since_doc_sprint": 0,
+  "last_doc_sprint": 0,
+  "last_install_test": 0,
+  "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 0,
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
-  "dev_server_command": "cd '/Users/steven.tan/Expected Credit Losses/app' && python -m uvicorn app:app --reload --port 8000",
-  "dev_server_port": 8000,
-  "test_baseline": {
-    "pytest": 2480,
-    "vitest": 103,
-    "total": 2583
-  },
-  "current_test_count": {
-    "pytest": 3957,
-    "vitest": 497,
-    "new_this_sprint": 119
-  },
-  "last_updated": "2026-04-02T21:13:53",
-  "final_score": 9.62,
-  "score_trajectory": []
+  "dev_server_command": "cd docs-site && npm start",
+  "build_command": "cd docs-site && npm run build",
+  "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
+  "last_action": "Sprint 1 iter 1 complete: Foundation restructure with persona-based directories, 34 pages, 3 fully written content pages. Build succeeds 0 errors.",
+  "last_updated": "2026-04-04T00:02:00"
 }

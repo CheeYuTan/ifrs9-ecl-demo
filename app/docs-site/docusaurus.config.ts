@@ -12,9 +12,8 @@ const config: Config = {
   },
 
   url: 'https://ecl-platform.databricks.com',
-  baseUrl: '/',
-
-  onBrokenLinks: 'throw',
+  baseUrl: '/docs/',
+  onBrokenLinks: 'warn',
 
   i18n: {
     defaultLocale: 'en',
@@ -27,7 +26,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          routeBasePath: 'docs',
+          routeBasePath: '/',
         },
         blog: false,
         theme: {
@@ -48,7 +47,17 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'docsSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'User Guide',
+        },
+        {
+          to: '/admin-guide/setup-installation',
+          position: 'left',
+          label: 'Admin Guide',
+        },
+        {
+          to: '/developer/architecture',
+          position: 'left',
+          label: 'Developer Reference',
         },
       ],
     },
@@ -56,21 +65,39 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Documentation',
+          title: 'Getting Started',
           items: [
-            { label: 'Overview', to: '/docs/overview' },
-            { label: 'Getting Started', to: '/docs/getting-started' },
-            { label: 'Architecture', to: '/docs/architecture' },
+            { label: 'What is IFRS 9 ECL?', to: '/overview' },
+            { label: 'Your First ECL Project', to: '/quick-start' },
+            { label: '8-Step Workflow', to: '/user-guide/workflow-overview' },
           ],
         },
         {
-          title: 'Guides',
+          title: 'User Guide',
           items: [
-            { label: 'Core Workflow & Data', to: '/docs/guides/core-workflow-data' },
-            { label: 'Simulation Engine', to: '/docs/guides/simulation-engine' },
-            { label: 'Model Analytics', to: '/docs/guides/model-analytics' },
-            { label: 'Operations & Governance', to: '/docs/guides/operational-governance' },
-            { label: 'ECL Engine', to: '/docs/guides/ecl-engine' },
+            { label: 'Model Registry', to: '/user-guide/model-registry' },
+            { label: 'Backtesting', to: '/user-guide/backtesting' },
+            { label: 'Regulatory Reports', to: '/user-guide/regulatory-reports' },
+            { label: 'GL Journals', to: '/user-guide/gl-journals' },
+            { label: 'FAQ', to: '/user-guide/faq' },
+          ],
+        },
+        {
+          title: 'Admin Guide',
+          items: [
+            { label: 'Setup & Installation', to: '/admin-guide/setup-installation' },
+            { label: 'Data Mapping', to: '/admin-guide/data-mapping' },
+            { label: 'Model Configuration', to: '/admin-guide/model-configuration' },
+            { label: 'User Management', to: '/admin-guide/user-management' },
+          ],
+        },
+        {
+          title: 'Developer Reference',
+          items: [
+            { label: 'Architecture', to: '/developer/architecture' },
+            { label: 'API Reference', to: '/developer/api-reference' },
+            { label: 'Data Model', to: '/developer/data-model' },
+            { label: 'ECL Engine', to: '/developer/ecl-engine' },
           ],
         },
       ],

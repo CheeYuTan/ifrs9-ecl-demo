@@ -1,71 +1,83 @@
 ---
 sidebar_position: 1
-title: Overview
+title: "What is IFRS 9 ECL?"
+description: "An introduction to the IFRS 9 Expected Credit Loss platform — what it does, who it's for, and how it helps your organization achieve compliance."
 ---
 
-# IFRS 9 ECL Platform
+# What is IFRS 9 ECL?
 
-A comprehensive Expected Credit Loss calculation and reporting platform built on Databricks, implementing the IFRS 9 Financial Instruments standard (Section 5.5) for forward-looking credit impairment.
+The IFRS 9 ECL Platform is a complete Expected Credit Loss calculation and reporting solution built on Databricks. It helps credit risk teams compute, review, and report impairment provisions under the IFRS 9 Financial Instruments standard.
 
-## What It Does
+:::info Who Should Read This
+This page is for anyone new to the platform — credit risk analysts, risk managers, finance teams, auditors, and administrators. No technical knowledge required.
+:::
 
-The platform provides an end-to-end workflow for computing, reviewing, and reporting Expected Credit Losses under IFRS 9:
+## The Problem It Solves
 
-- **3-Stage Impairment Model** — Classify exposures into Stage 1 (12-month ECL), Stage 2 (lifetime ECL, performing), and Stage 3 (lifetime ECL, credit-impaired) with automated SICR detection and stage transfer logic.
-- **Monte Carlo Simulation** — Correlated PD-LGD draws using Cholesky decomposition, with configurable scenario weights, correlation matrices, and probability-weighted ECL aggregation.
-- **Satellite Models** — Macroeconomic scenario modeling with model comparison, cohort analysis, and drill-down analytics by product, vintage, and credit grade.
-- **Model Registry & Governance** — Full model lifecycle management (Draft → Validated → Champion → Retired) with audit trails, status transition validation, and model comparison.
-- **Backtesting** — Automated model validation with AUC, Gini, KS, PSI, Brier score, and Hosmer-Lemeshow tests. Basel traffic light classification (Green/Amber/Red).
-- **Markov Chains** — Transition matrix estimation, stochastic forecasting, and lifetime PD term structures with absorbing default state modeling.
-- **Hazard Models** — Cox proportional hazards, discrete-time, and Kaplan-Meier survival analysis with covariate-adjusted term structures.
-- **Regulatory Reporting** — IFRS 7 disclosure reports (35H-35N), GL journal generation, trial balance, and CSV/PDF export.
-- **Approval Workflow** — Role-based sign-off with segregation of duties, hash-based data integrity verification, and immutable audit logs.
+IFRS 9 (Section 5.5) requires financial institutions to recognize credit losses based on forward-looking estimates rather than waiting for losses to occur. This means banks and lenders must:
 
-## Key Features
+- Classify every loan into one of **three impairment stages** based on credit risk changes since origination
+- Calculate **Expected Credit Losses** using probability-weighted macroeconomic scenarios
+- Produce **regulatory disclosures** (IFRS 7) showing how loss allowances changed and why
+- Maintain **auditable records** of every model, assumption, and approval decision
 
-| Feature | Description |
-|---------|-------------|
-| 8-Step Workflow | Guided process from project creation through sign-off |
-| Project Management | Multiple concurrent ECL projects with independent lifecycle |
-| Data Quality Control | Automated validation, data mapping, and quality checks |
-| Stress Testing | Scenario-based stress analysis with overlay management |
-| Admin Console | Database configuration, table mapping, auto-discovery |
-| GL Journals | Double-entry journal generation, posting, reversal, trial balance |
-| Period Close | Orchestrated end-of-period pipeline with step dependencies |
-| Data Mapping | Unity Catalog schema discovery with AI-suggested column mapping |
-| Advanced Analytics | Cure rate estimation, credit conversion factors, collateral haircuts |
-| Dark Mode | Full light/dark theme support |
+Doing this manually or with spreadsheets is error-prone, slow, and difficult to audit. This platform automates the entire process in a governed, transparent workflow.
 
-## Tech Stack
+## How It Works
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React + TypeScript SPA (Vite) |
-| API | FastAPI (Python 3.11) |
-| Database | Lakebase (managed PostgreSQL on Databricks) |
-| Simulation | NumPy + SciPy (Monte Carlo, Cholesky) |
-| Reporting | fpdf2 (PDF generation) |
-| Hosting | Databricks Apps |
+The platform guides you through an **8-step workflow** — from project creation to final sign-off:
 
-## Test Coverage
+| Step | Name | What Happens |
+|:----:|------|-------------|
+| 1 | **Create Project** | Define the reporting date, currency, and portfolio scope |
+| 2 | **Data Processing** | Import portfolio data and review key performance indicators |
+| 3 | **Data Control** | Run quality checks and approve data through maker-checker review |
+| 4 | **Satellite Models** | Select macroeconomic models that link PD/LGD to economic conditions |
+| 5 | **Model Execution** | Run Monte Carlo simulations to compute probability-weighted ECL |
+| 6 | **Stress Testing** | Analyze sensitivity, vintage performance, and concentration risk |
+| 7 | **Overlays** | Apply management adjustments with documented rationale |
+| 8 | **Sign-Off** | Attest to results, lock the calculation, and generate audit trail |
 
-The platform maintains a comprehensive automated test suite:
+Each step builds on the previous one, ensuring nothing is skipped and every decision is recorded.
 
-| Layer | Framework | Tests | Coverage |
-|-------|-----------|-------|----------|
-| Backend API + Domain + ECL Engine | pytest | 3,838 | 107+ endpoints, 24 domain modules, 9 ECL modules |
-| Frontend Components + Pages | Vitest | 497 | 24/24 components, 19/19 pages |
-| **Total** | | **4,335** | Full stack |
+## Key Capabilities
 
-Key quality metrics:
-- Zero regressions across 8 QA audit sprints
-- ECL formula verified against hand-calculated values (1e-6 tolerance)
-- All 23 domain validation rules tested with positive, negative, and boundary inputs
-- 3 production bugs discovered and fixed with regression tests
+### Three-Stage Impairment Model
+Loans are automatically classified into Stage 1 (12-month ECL), Stage 2 (lifetime ECL), or Stage 3 (credit-impaired) based on changes in credit risk since origination. The platform detects Significant Increase in Credit Risk (SICR) and manages stage transfers.
 
-## Who Is This For
+### Forward-Looking Scenarios
+ECL calculations incorporate multiple macroeconomic scenarios — base case, optimistic, and pessimistic — each with configurable probability weights. This ensures provisions reflect expected future conditions, not just historical experience.
 
-- **Credit Risk Teams** — Compute and review ECL provisions
-- **Model Validation** — Backtest and compare models with regulatory metrics
-- **Finance / Accounting** — Generate GL journals and regulatory disclosures
-- **Auditors** — Verify calculations via hash integrity and audit trails
+### Model Governance
+Every model follows a controlled lifecycle from Draft through Validation to Champion status. Backtesting with industry-standard metrics (AUC, Gini, KS, PSI) helps ensure models remain fit for purpose.
+
+### Regulatory Reporting
+Generate IFRS 7 disclosure reports (paragraphs 35H through 35N), GL journal entries for provisioning, and comprehensive audit trails — all in formats your auditors expect.
+
+### Approval Workflow
+A maker-checker process with segregation of duties ensures that the person who runs the model is not the same person who signs off on results. Every approval is hash-verified and immutably logged.
+
+## Who Uses This Platform
+
+| Role | How They Use It |
+|------|----------------|
+| **Credit Risk Analysts** | Run the 8-step workflow, review results, apply overlays |
+| **Risk Managers** | Approve calculations, review model performance, sign off |
+| **Finance / Accounting** | Generate GL journals and regulatory disclosures |
+| **Auditors** | Verify calculations via hash integrity checks and audit trails |
+| **Administrators** | Configure data sources, manage users, set up models |
+
+## Platform at a Glance
+
+- **79,000+** sample loans across 5 product types
+- **8** satellite model types for macroeconomic linking
+- **9** configurable scenarios with probability weighting
+- **162** API endpoints across 8 functional domains
+- **4** user roles with granular permissions (Admin, Risk Manager, Analyst, Auditor)
+- Full **light and dark mode** support
+
+## What's Next?
+
+- **New to the platform?** Start with the [Quick Start Guide](quick-start) to create your first ECL project
+- **Want the full workflow?** Read the [8-Step ECL Workflow Overview](user-guide/workflow-overview)
+- **Setting up the system?** See the [Admin Guide](admin-guide/setup-installation) for installation and configuration
