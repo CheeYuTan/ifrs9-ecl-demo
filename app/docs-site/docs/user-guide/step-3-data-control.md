@@ -115,12 +115,20 @@ Rejection sends the workflow back for rework. The rejection reason and your comm
 
 ## Understanding the Results
 
-The DQ score and reconciliation results tell you whether the data is fit for purpose:
+The DQ score and reconciliation results tell you whether the data is fit for purpose. Use the following decision framework:
 
-- **DQ Score above threshold, zero critical failures, GL reconciled** — the data is ready. Approve and proceed.
-- **DQ Score below threshold but no critical failures** — review the failing checks. If they are medium severity and affect a small number of records, you may still approve with a documented justification. If the failing checks indicate systemic issues, reject and request a data fix.
-- **Critical failures present** — do not approve until these are resolved. Critical failures (such as PD values outside [0, 1] or missing GCA) would produce invalid ECL results.
-- **GL reconciliation failures** — investigate the variance. Small variances (near the tolerance boundary) may be due to timing differences. Large variances indicate the loan tape and GL are out of sync, which must be resolved before proceeding.
+**Decision 1: Are there any Critical failures?**
+- If **yes** — do not approve. Critical failures (PD outside [0, 1], missing GCA, invalid origination dates) produce mathematically invalid ECL results. Work with your data team to resolve the root cause, re-run data processing, and return to this step.
+- If **no** — proceed to Decision 2.
+
+**Decision 2: Is the DQ Score at or above the threshold?**
+- If **yes** (e.g., ≥ 90%) and GL reconciliation passes — the data is ready. Approve and proceed to Step 4.
+- If **yes** but GL reconciliation has failures — investigate the variance. Small variances near the tolerance boundary (e.g., 0.48% against a 0.50% threshold) may be timing differences between the loan tape extract and the GL close. Large variances indicate the loan tape and GL are fundamentally out of sync. Escalate to Finance before approving.
+- If **no** (DQ Score below threshold) — review which checks failed and their severity. Medium-severity failures affecting a small number of records (e.g., 3 of 79,000 loans with missing collateral values) may be acceptable with a documented justification. Systemic failures affecting many records indicate a data pipeline problem — reject and request a fix.
+
+**Decision 3: Can you explain every failing check?**
+- If **yes** — document your reasoning in the approval comment and approve. This creates an auditable record that the failures were reviewed and deemed non-material.
+- If **no** — do not approve. Unexplained data quality failures are a red flag for auditors. Investigate further or escalate to your Data Governance team before proceeding.
 
 ## Tips & Best Practices
 
@@ -134,6 +142,10 @@ Not all failures are equal. A **Medium** severity check failing on a few records
 
 :::warning Maker-Checker Discipline
 In many organizations, the person who processed the data (Step 2) should not be the same person who approves it (Step 3). If your organization enforces segregation of duties at this stage, ensure a second reviewer performs the approval. The platform records who approved and when.
+:::
+
+:::caution Audit Expectations
+External auditors typically expect to see documented evidence that data quality was assessed before ECL calculation. The DQ score, check results, GL reconciliation, and approval comments on this page form that evidence. A blank approval comment — even when all checks pass — may prompt an auditor to ask how the review was performed.
 :::
 
 ## What's Next?

@@ -75,6 +75,27 @@ Click **Create Project**. The platform will:
 3. Automatically advance to **Step 2: Data Processing**
 4. Record the creation in the project's audit trail
 
+## Resuming an Existing Project
+
+You do not need to complete the entire 8-step workflow in a single session. To resume a project:
+
+1. Navigate to the **Create Project** page
+2. Find the project in the **Existing Projects** list — projects are sorted by last-modified date
+3. Click the project card to open it
+4. The platform navigates you directly to the step where you left off
+5. All previously completed steps remain locked and unmodifiable — you continue from the current active step
+
+If a step was previously rejected, the project will reopen at that step with the rejection comments visible. Address the noted issues and resubmit for approval.
+
+:::tip Common Project ID Patterns
+Organizations typically standardize their project IDs for consistency. Common patterns include:
+- **Period-based**: `ecl-q4-2025`, `ecl-2025-12`, `ecl-fy2025`
+- **Portfolio-scoped**: `ecl-retail-q4-2025`, `ecl-corporate-q4-2025`
+- **Run-type**: `ecl-regulatory-q4-2025`, `ecl-management-q4-2025`
+
+Consistent naming makes it easier to filter, compare, and audit projects across reporting periods.
+:::
+
 ## Understanding Project States
 
 Once created, your project progresses through the 8-step workflow. Each step has one of three states:
@@ -86,6 +107,15 @@ Once created, your project progresses through the 8-step workflow. Each step has
 | **Rejected** | The step was reviewed and sent back for rework |
 
 The progress bar at the top of every page (the "stepper") shows which steps are complete, which is active, and which are still locked. You cannot skip steps — each must be completed in sequence.
+
+**State transitions follow a defined flow:**
+
+- A step starts as **Pending**. When you open a Pending step, it becomes your active step.
+- After reviewing the step's results, you can mark it **Completed** — this locks the step and unlocks the next one.
+- If a reviewer rejects the step, it moves to **Rejected**. The rejection reason is recorded and you must address the issues before the step can be re-approved.
+- Once a rejected step is reworked and approved, it returns to **Completed** and the workflow continues.
+
+This sequential, auditable progression ensures that every decision point in the ECL calculation is reviewed and approved before the next step begins — a core IFRS 9 governance requirement.
 
 :::tip Understand What "Completed" Means
 Marking a step as complete is an explicit approval decision. It means you have reviewed the results and are satisfied they are correct for this reporting period. This action is recorded in the audit trail.

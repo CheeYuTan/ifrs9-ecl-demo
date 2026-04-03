@@ -94,7 +94,22 @@ Below the summary, several interactive charts let you explore the data in more d
 
 Each chart supports multi-level drill-down: click a bar to see the next level of detail. Use these to spot anomalies — for example, a product type with unusually high average DPD or an unexpected concentration of Stage 2 loans in a specific vintage.
 
-### 6. Mark the Step as Complete
+### 6. Reading the Charts
+
+The drill-down charts on this page are interactive and designed to help you spot patterns and anomalies before proceeding:
+
+- **Bar heights** represent magnitude — taller bars mean higher values (more loans, larger GCA, higher average PD). Compare bars within the same chart to identify which products or stages dominate.
+- **Color coding** maps to impairment stages: typically green for Stage 1, amber for Stage 2, and red for Stage 3. A chart that is predominantly green indicates a healthy portfolio; increasing amber or red warrants investigation.
+- **Click to drill down** — clicking any bar or segment opens a sub-view with the next level of detail. For example, clicking a product bar in the PD Distribution chart shows the PD spread by vintage year within that product.
+- **Hover for values** — hovering over any chart element displays the exact numeric value, percentage, and count.
+- **Anomaly patterns to look for**:
+  - A product with average DPD significantly higher than peers may indicate a systemic collection issue
+  - A vintage cohort with an unusually high Stage 2 concentration may signal deteriorating underwriting standards from that period
+  - A sudden drop in loan count for a product that should be stable may indicate a data pipeline issue rather than a genuine portfolio change
+
+Use these drill-downs to build confidence that the data is complete and reasonable before advancing. If anything looks unexpected, investigate before marking the step complete — it is much easier to catch data issues now than after models have been run.
+
+### 7. Mark the Step as Complete
 
 When you are satisfied that the data has loaded correctly and the KPIs look reasonable:
 
@@ -113,6 +128,10 @@ The metrics on this page are descriptive — they summarize what is in the portf
 
 ## Tips & Best Practices
 
+:::tip Bookmark Key Observations
+As you review charts and tables, note any findings you want to reference later — for example, "Stage 2 concentration in mortgages is 12%, up from 8% last quarter." These observations will inform your Data Control review in the next step and provide useful context during sign-off.
+:::
+
 :::tip Compare Against Prior Periods
 If this is not your first ECL run, compare the current portfolio KPIs against the previous reporting date. Significant changes in total GCA, stage distribution, or product mix should be understood before proceeding.
 :::
@@ -123,6 +142,10 @@ If the completeness indicator shows less than 100%, or if a product type you exp
 
 :::tip Understand Stage Assignments
 At this point, stage assignments are based on the data as loaded (typically using Days Past Due rules: 0-30 DPD = Stage 1, 30+ DPD with SICR = Stage 2, 90+ DPD = Stage 3). These are initial classifications — the satellite models in Step 4 may refine credit risk estimates.
+:::
+
+:::caution Zero or Missing Values
+If you see PD = 0.00 or EIR = 0.00 for any product, this typically indicates missing data rather than genuinely zero risk. Zero PD means the model treats those loans as having no default probability — which would exclude them from ECL entirely. Similarly, a zero EIR prevents proper discounting of future cash shortfalls. Investigate with your data team before proceeding.
 :::
 
 ## What's Next?

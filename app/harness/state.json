@@ -3,7 +3,7 @@
   "app_name": "IFRS 9 ECL Documentation Transformation",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
-  "current_phase": "VISUAL_QA",
+  "current_phase": "BUILD_AGENT",
   "spec_complete": true,
   "current_sprint": 2,
   "planned_sprints": 8,
@@ -33,13 +33,15 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 1,
+  "current_iteration": 2,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd docs-site && npm start",
   "build_command": "cd docs-site && npm run build",
   "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 2 iter 1 build complete: 4 User Guide pages (Steps 1-4) fully written with IFRS 9 context, screenshot placeholders, 0 build errors. Deployed to docs_site/.",
-  "last_updated": "2026-04-04T00:35:00",
-  "score_trajectory": []
+  "last_action": "Sprint 2 iter 2 build complete: Expanded 3 pages (Steps 1-3) to ≥150 lines each per evaluator feedback. Step 1: +29 lines (Resuming Projects, Common ID Patterns, state-transition narrative). Step 2: +22 lines (Reading the Charts subsection, Bookmark tip, Zero Values caution). Step 3: +11 lines (decision-tree framework, Audit Expectations caution). Build passes, deployed to docs_site/.",
+  "last_updated": "2026-04-04T01:10:00",
+  "score_trajectory": [
+    9.4
+  ]
 }

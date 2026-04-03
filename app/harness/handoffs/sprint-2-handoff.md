@@ -1,53 +1,60 @@
-# Sprint 2 Handoff: User Guide — Workflow Steps 1-4
+# Sprint 2 Handoff: User Guide — Workflow Steps 1-4 (Iteration 2)
 
-## What Was Built
+## What Was Built (Iteration 1)
 
 Four comprehensive User Guide pages documenting the first four steps of the IFRS 9 ECL workflow. Each page follows the User Guide template with frontmatter, prerequisites, step-by-step instructions, tables explaining UI elements, IFRS 9 context, tips/warnings, and "What's Next?" navigation.
 
-### Pages Written
+## What Changed (Iteration 2)
 
-| Page | Lines | Words | Key Content |
-|------|-------|-------|-------------|
-| `step-1-create-project.md` | 121 | 953 | Project form fields, project states, audit trail, immutability after sign-off |
-| `step-2-data-processing.md` | 130 | 1,239 | Data lineage, 4 KPI cards, stage distribution chart, portfolio table, drill-down charts |
-| `step-3-data-control.md` | 141 | 1,308 | DQ checks, GL reconciliation, materiality thresholds, approval/rejection form, maker-checker |
-| `step-4-satellite-model.md` | 176 | 1,725 | 8 model types explained, pipeline execution, run history, cohort comparison, R-squared/RMSE in plain language |
+The evaluator scored iteration 1 at 9.40/10, citing 3 of 4 pages falling below the 150-line contract minimum. All iteration 2 fixes target that gap:
 
-### Screenshot Placeholders Created
+### `step-1-create-project.md` (121 → 151 lines)
+- Added **"Resuming an Existing Project"** subsection with 5 numbered steps
+- Added **"Common Project ID Patterns"** tip with 3 naming convention examples
+- Expanded **"Understanding Project States"** with state-transition narrative (Pending → Completed → Rejected → rework cycle)
 
-6 placeholder PNGs in `docs-site/static/img/screenshots/`:
-- `step-1-create-project.png`
-- `step-2-stage-distribution.png`
-- `step-3-data-control.png`
-- `step-3-approval-form.png`
-- `step-4-run-pipeline.png`
-- `step-4-model-comparison.png`
+### `step-2-data-processing.md` (130 → 153 lines)
+- Added **"Reading the Charts"** subsection (step 6) explaining bar heights, color coding, click-to-drill-down, hover values, and 5 anomaly patterns to look for
+- Added **"Bookmark Key Observations"** tip
+- Added **"Zero or Missing Values"** caution admonition explaining PD = 0 and EIR = 0 implications
 
-Also references 1 existing screenshot from `docs-site/static/img/guides/portfolio-dashboard.png`.
+### `step-3-data-control.md` (141 → 153 lines)
+- Replaced bullet-point "Understanding the Results" with a **3-decision framework** (Critical failures → DQ Score threshold → Can you explain every failure?)
+- Added **"Audit Expectations"** caution admonition
 
-### Files Changed
-- `docs-site/docs/user-guide/step-1-create-project.md` (rewritten from stub)
-- `docs-site/docs/user-guide/step-2-data-processing.md` (rewritten from stub)
-- `docs-site/docs/user-guide/step-3-data-control.md` (rewritten from stub)
-- `docs-site/docs/user-guide/step-4-satellite-model.md` (rewritten from stub)
-- `docs-site/static/img/screenshots/` (6 new placeholder PNGs)
-- `docs_site/` (rebuilt and deployed)
-- `harness/contracts/sprint-2.md` (updated for docs transformation)
+### `step-4-satellite-model.md` — unchanged (already 176 lines, above target)
+
+## Line Counts
+
+| Page | Iter 1 | Iter 2 | Target |
+|------|--------|--------|--------|
+| Step 1 | 121 | 151 | ≥150 ✓ |
+| Step 2 | 130 | 153 | ≥150 ✓ |
+| Step 3 | 141 | 153 | ≥150 ✓ |
+| Step 4 | 176 | 176 | ≥150 ✓ |
 
 ## How to Test
-- Build: `cd docs-site && npm run build` — must succeed with 0 errors
-- Serve locally: `cd docs-site && npm run serve` → navigate to `/user-guide/step-1-create-project`
-- Deploy: `rm -rf docs_site/* && cp -r docs-site/build/* docs_site/`
 
-## Test Results
-- **Build**: 0 errors, 0 warnings
-- **Persona check**: Zero Python/JSON/API violations in all 4 pages
-- **Link check**: All internal cross-references resolve (verified by build)
-- **Deployed**: `docs_site/` updated with built output
+1. `cd docs-site && npm run build` — must succeed with 0 errors
+2. Verify line counts: `wc -l docs-site/docs/user-guide/step-{1,2,3,4}*.md` — all ≥150
+3. Browse the built site — navigate to each step page, verify new content renders correctly
+4. Confirm no Python/JSON code or API endpoints in any User Guide page
+
+## Build Results
+
+- `npm run build`: SUCCESS (0 errors, 0 warnings)
+- Deployed to `docs_site/`
+
+## Files Changed
+
+- `docs-site/docs/user-guide/step-1-create-project.md`
+- `docs-site/docs/user-guide/step-2-data-processing.md`
+- `docs-site/docs/user-guide/step-3-data-control.md`
+- `docs_site/` (rebuilt)
+- `harness/state.json`
+- `harness/handoffs/sprint-2-handoff.md`
 
 ## Known Limitations
-- Screenshot placeholders are grey rectangles — to be replaced with actual screenshots captured from the live app during Visual QA
-- Existing screenshot at `/img/guides/portfolio-dashboard.png` is referenced in Step 2; may need updating if the current UI differs
 
-## Bugs Found
-- None
+- Screenshot placeholders remain as grey rectangles (addressed in documentation batch)
+- No automated link-checking beyond Docusaurus build verification
