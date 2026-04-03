@@ -1,0 +1,23 @@
+EXIT CODE: 0
+DURATION: 448s
+
+--- STDOUT ---
+Sprint 1 iteration 3 complete.
+
+**Summary:**
+- **62 new tests** added in `tests/unit/test_qa_sprint_1_utils_and_gaps.py`
+- **Total Sprint 1 tests**: 236 (174 iter 1-2 + 62 iter 3)
+- **Full suite**: 2,655 passed, 61 skipped, 0 failures
+- **Key coverage additions**:
+  - `routes/_utils.py` direct unit tests (32 tests): `_sanitize`, `_SafeEncoder`, `df_to_records`, `serialize_project`
+  - Sign-off edge cases: None project, missing audit_log key, non-dict audit entries
+  - Verify-hash tampered data: invalid/valid hash, correct ecl_data passed, signed_off fields
+  - Setup: body=None default user, seed-data ensure_tables call
+  - Overlay: advance_step argument verification, model_dump shape
+  - Data consistency: stage distribution totals, parameter passthrough verification
+  - Project lifecycle: argument passthrough for advance_step, scenario_weights
+- **Zero bugs found**, zero regressions
+
+
+--- STDERR ---
+

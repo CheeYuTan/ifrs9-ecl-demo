@@ -1,0 +1,9 @@
+EXIT CODE: 0
+DURATION: 317s
+
+--- STDOUT ---
+Backend test suite confirmed: **1647 passed, 61 skipped, 0 failures**. All work committed and handed off. Ready for Visual QA.
+
+
+--- STDERR ---
+

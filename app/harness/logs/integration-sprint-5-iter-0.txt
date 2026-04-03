@@ -1,0 +1,9 @@
+EXIT CODE: 0
+DURATION: 868s
+
+--- STDOUT ---
+The background task completed successfully — its output was already incorporated into the integration test findings above. The report at `harness/evaluations/integration-test-2.md` is complete.
+
+
+--- STDERR ---
+

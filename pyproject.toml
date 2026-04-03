@@ -1,0 +1,39 @@
+[project]
+name = "ifrs9-ecl"
+version = "1.0.0"
+description = "IFRS 9 Expected Credit Loss Application"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-asyncio",
+    "httpx",
+    "responses",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (deselect with '-m \"not unit\"')",
+    "integration: Integration tests requiring mocked services",
+    "slow: Tests that take more than a few seconds",
+]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["app", "scripts/models"]
+omit = ["tests/*", "app/static/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "log\\.",
+]

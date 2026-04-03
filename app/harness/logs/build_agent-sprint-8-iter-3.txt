@@ -1,0 +1,25 @@
+EXIT CODE: 0
+DURATION: 1110s
+
+--- STDOUT ---
+Sprint 8 iteration 3 is complete. Summary:
+
+**New in iteration 3 (+59 tests, 387 total vitest):**
+
+| Area | Tests Added | Key Coverage |
+|------|------------|--------------|
+| **Sidebar.test.tsx** | 11 | Navigation items, active state, aria-current, onNavigate for all 11 views, collapse/expand, mobile menu, landmarks |
+| **DataTable.test.tsx** | +14 | Search/filter, CSV export, compact mode, selectedRow highlighting, keyboard nav, aria-sort, page reset |
+| **GLJournals.test.tsx** | 9 | Page header, 3 tabs, data loading, tab switching, journal display, null project, API errors |
+| **ApprovalWorkflow.test.tsx** | 9 | Page header, 4 tabs, load on mount, tab switching, KPI cards, users display, API errors |
+| **ModelRegistry.test.tsx** | 10 | Page header, model list, type filters, champion badge, KPI cards, API errors |
+| **Backtesting.test.tsx** | 7 | Page header, traffic light badges, model type filter, trend data, API errors |
+
+**All tests pass:**
+- vitest: 387 passed (42 files)
+- pytest: 3,838 passed
+- TypeScript: 0 errors
+
+
+--- STDERR ---
+

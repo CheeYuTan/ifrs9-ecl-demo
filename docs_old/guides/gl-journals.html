@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GL Journals — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html" class="active">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> GL Journals
+    </div>
+
+    <h1>GL Journal Generation</h1>
+    <p class="subtitle">Automated double-entry journal entries for ECL provisioning, with posting, reversal, and trial balance.</p>
+
+    <h2>Chart of Accounts</h2>
+    <p>The application uses a pre-configured chart of accounts for ECL-related entries:</p>
+    <table>
+      <thead>
+        <tr><th>Account Code</th><th>Account Name</th><th>Type</th><th>Parent</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>1200</code></td><td>Loans and Advances</td><td>Asset</td><td>—</td></tr>
+        <tr><td><code>1210</code></td><td>Stage 1 ECL Provision</td><td>Contra-Asset</td><td>1200</td></tr>
+        <tr><td><code>1220</code></td><td>Stage 2 ECL Provision</td><td>Contra-Asset</td><td>1200</td></tr>
+        <tr><td><code>1230</code></td><td>Stage 3 ECL Provision</td><td>Contra-Asset</td><td>1200</td></tr>
+        <tr><td><code>1240</code></td><td>Management Overlay Provision</td><td>Contra-Asset</td><td>1200</td></tr>
+        <tr><td><code>4100</code></td><td>ECL Impairment Charge</td><td>Expense</td><td>—</td></tr>
+        <tr><td><code>4110</code></td><td>ECL Recovery Income</td><td>Income</td><td>—</td></tr>
+        <tr><td><code>4120</code></td><td>Write-off Expense</td><td>Expense</td><td>—</td></tr>
+        <tr><td><code>4130</code></td><td>Overlay Adjustment Expense</td><td>Expense</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Generating Journals</h2>
+    <p>Journal entries are generated from the ECL calculation results. For each product type and stage, the system creates balanced debit/credit entries:</p>
+    <pre><code>POST /api/gl/generate/{project_id}
+{
+  "user": "finance.controller@bank.com"
+}</code></pre>
+    <p>The generated journal includes:</p>
+    <ul>
+      <li><strong>ECL provision entries</strong> — debit Impairment Charge (4100), credit Stage Provision (1210/1220/1230)</li>
+      <li><strong>Overlay entries</strong> — debit Overlay Expense (4130), credit Overlay Provision (1240)</li>
+      <li>Each line tagged with product type and stage for drill-down analysis</li>
+    </ul>
+
+    <h2>Journal Lifecycle</h2>
+    <div class="arch-diagram">  Draft ──▶ Posted ──▶ Reversed (optional)
+                          │
+                          └──▶ Reversal Journal (new draft)</div>
+
+    <h3>Posting a Journal</h3>
+    <pre><code>POST /api/gl/journal/{journal_id}/post
+{
+  "user": "finance.controller@bank.com"
+}</code></pre>
+
+    <h3>Reversing a Journal</h3>
+    <pre><code>POST /api/gl/journal/{journal_id}/reverse
+{
+  "user": "finance.controller@bank.com",
+  "reason": "Correction required after data restatement"
+}</code></pre>
+    <p>Reversal creates a new journal with opposite debit/credit entries and links back to the original.</p>
+
+    <h2>Trial Balance</h2>
+    <p>View the trial balance for a project to verify that all entries are balanced:</p>
+    <pre><code>GET /api/gl/trial-balance/{project_id}</code></pre>
+    <p>Returns the total debits and credits per account, with a net balance. Total debits must equal total credits.</p>
+
+    <h2>GL Reconciliation</h2>
+    <p>The Data Processing step includes a GL reconciliation check that compares:</p>
+    <ul>
+      <li>ECL amounts from the calculation engine</li>
+      <li>Journal entry totals from the GL</li>
+      <li>Differences flagged for investigation</li>
+    </ul>
+    <pre><code>GET /api/data/gl-reconciliation</code></pre>
+
+    <div class="callout callout-info">
+      <strong>Double-Entry Guarantee</strong>
+      Every journal entry is validated to ensure total debits equal total credits before it can be posted. The system will reject unbalanced entries.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

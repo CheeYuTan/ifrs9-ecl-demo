@@ -1,0 +1,32 @@
+EXIT CODE: 0
+DURATION: 536s
+
+--- STDOUT ---
+Visual QA for Sprint 4 Iteration 2 is complete. Here's the summary:
+
+## Sprint 4 VQA Results
+
+**Recommendation: PROCEED** (with caveats)
+
+### Bug Fix Verification
+- **BUG-S4-001** (Audit timestamp serialization): **FIXED** ✓ — timestamps now serialize as ISO strings
+- **BUG-S4-002** (Attribution reconciliation column): **NOT FIXED** ✗ — ALTER TABLE fails silently due to `InsufficientPrivilege` (DB user doesn't own the table)
+- **BUG-S4-003** (Historical defaults table): **PARTIALLY FIXED** ⚠ — error messaging improved, underlying data dependency remains
+
+### New Bugs Found
+1. **MAJOR**: Report CSV export HTTP 500 — DictWriter fieldnames mismatch
+2. **CRITICAL**: Attribution compute still broken (BUG-S4-002 fix ineffective)
+3. **MAJOR**: Pipeline health endpoint HTTP 500 — NaN not JSON serializable
+
+### Test Suite
+- 3,271 passed, 61 skipped, 0 failed (78.13s)
+- 225 new tests this sprint (214 iter 1 + 11 regression iter 2)
+
+### Reports Written
+- `harness/evaluations/sprint-4-manifest.md` — full interaction manifest
+- `harness/evaluations/sprint-4-visual-qa.md` — VQA report
+- `harness/visual-qa/sprint-4-report.md` — VQA report copy
+
+
+--- STDERR ---
+

@@ -1,0 +1,19 @@
+EXIT CODE: 0
+DURATION: 1218s
+
+--- STDOUT ---
+Sprint 9 iteration 2 complete. Summary:
+
+**Deliverables:**
+- `tests/unit/test_qa_sprint_9_middleware.py` — 40 tests (auth, error handler, request ID, ECL hash)
+- `tests/unit/test_qa_sprint_9_db_pool.py` — 30 tests (_is_auth_error, _t(), load_schema_from_config, query_df/execute retry)
+- `tests/unit/test_qa_sprint_9_integration_flows.py` — 49 tests (6 end-to-end flows: project lifecycle, simulation, model lifecycle, approval workflow, period-close pipeline, data mapping)
+- `harness/handoffs/sprint-9-handoff.md`
+
+**Test results:** 4,454 total (3,957 pytest + 497 vitest), 0 failures, 0 regressions. 119 new tests added this sprint.
+
+**All 24 acceptance criteria from the contract are covered.** Committed as `e9d6f5d`.
+
+
+--- STDERR ---
+

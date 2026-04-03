@@ -3,8 +3,13 @@ command:
   - app.py
 env:
   - name: LAKEBASE_INSTANCE_NAME
-    value: YOUR_LAKEBASE_INSTANCE_NAME
+    value: "${LAKEBASE_INSTANCE_NAME}"
   - name: LAKEBASE_DATABASE
     value: databricks_postgres
   - name: DATABRICKS_APP_NAME
-    value: YOUR_APP_NAME
+    value: "${DATABRICKS_APP_NAME}"
+resources:
+  - name: lakebase-db
+    lakebase:
+      instance_name: "${LAKEBASE_INSTANCE_NAME}"
+      permission: CAN_USE

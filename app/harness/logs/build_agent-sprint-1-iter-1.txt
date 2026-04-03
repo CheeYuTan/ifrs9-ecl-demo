@@ -1,0 +1,15 @@
+EXIT CODE: 0
+DURATION: 476s
+
+--- STDOUT ---
+Sprint 1 build complete. Summary:
+
+- **140 new tests** in `tests/unit/test_qa_sprint_1_core_routes.py`
+- Covers all **47 endpoints** across `routes/projects.py` (10), `routes/data.py` (32), and `routes/setup.py` (5)
+- Full test suite: **2559 passed, 61 skipped, 0 failures**
+- No bugs found in the route layer
+- Committed as `6cb5df1`
+
+
+--- STDERR ---
+

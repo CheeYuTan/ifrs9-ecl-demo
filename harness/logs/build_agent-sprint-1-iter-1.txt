@@ -1,0 +1,27 @@
+EXIT CODE: 0
+DURATION: 689s
+
+--- STDOUT ---
+Sprint 1 build is complete. Summary:
+
+**Built**: ECL Attribution Analysis frontend page (`Attribution.tsx`, 358 lines) with:
+- Waterfall chart visualization using recharts stacked bars
+- Stage-level breakdown table for all 10 IFRS 7.35I components
+- Reconciliation status card with materiality pass/fail
+- Compute/recompute button
+- Attribution history selector for period comparison
+- Data gap and estimation indicators
+- Loading skeleton, empty state, error state
+- Full dark mode support
+
+**Wired**: Sidebar nav entry under "Analytics" + App.tsx routing
+
+**Tests**: Frontend build passes (0 errors). 925 pytest tests pass (2 pre-existing failures unrelated to this sprint). 17 attribution-specific tests pass.
+
+**Committed**: `040f13a` — "Sprint 1: ECL Attribution Analysis frontend page"
+
+Handoff written to `harness/handoffs/sprint-1-handoff.md`. Ready for Visual QA.
+
+
+--- STDERR ---
+

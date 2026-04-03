@@ -1,0 +1,82 @@
+[
+  {
+    "customer_id": 9,
+    "customer_name": "Mekong Rural Bank",
+    "steps": {
+      "schema": "OK",
+      "lakebase": "OK",
+      "app": "OK",
+      "jobs": "OK: {'full_pipeline': 214490152154272, 'satellite_ecl_sync': 231149622052728}",
+      "pipeline": "TIMEOUT",
+      "admin_config": "OK",
+      "validation": "0/19 tables OK"
+    },
+    "issues": [
+      "Pipeline failed: {'status': 'TIMEOUT', 'run_id': 813595391999860}",
+      "Missing tables: ['loan_tape', 'borrower_master', 'payment_history', 'general_ledger', 'macro_scenarios', 'collateral_register', 'historical_defaults', 'quarterly_default_rates', 'model_ready_loans', 'dq_results', 'gl_reconciliation', 'sicr_thresholds', 'satellite_model_comparison', 'satellite_model_selected', 'loan_level_ecl', 'loan_ecl_weighted', 'portfolio_ecl_summary', 'scenario_ecl_summary', 'mc_ecl_distribution']"
+    ],
+    "job_ids": {
+      "full_pipeline": 214490152154272,
+      "satellite_ecl_sync": 231149622052728
+    },
+    "admin_config": {
+      "data_sources": {
+        "catalog": "lakemeter_catalog",
+        "schema": "ecl_mekong_vn",
+        "lakebase_schema": "ecl_mekong_vn",
+        "lakebase_prefix": "lb_"
+      },
+      "model": {
+        "lgd_assumptions": {
+          "rice_paddy_loan": {
+            "lgd": 0.2,
+            "recovery_rate": 0.8
+          },
+          "livestock_loan": {
+            "lgd": 0.2,
+            "recovery_rate": 0.8
+          },
+          "motorbike_loan": {
+            "lgd": 0.2,
+            "recovery_rate": 0.8
+          },
+          "market_vendor_loan": {
+            "lgd": 0.65,
+            "recovery_rate": 0.35
+          },
+          "remittance_advance": {
+            "lgd": 0.6,
+            "recovery_rate": 0.4
+          },
+          "seasonal_crop_loan": {
+            "lgd": 0.2,
+            "recovery_rate": 0.8
+          },
+          "fishery_loan": {
+            "lgd": 0.2,
+            "recovery_rate": 0.8
+          }
+        }
+      },
+      "app_settings": {
+        "org_name": "Mekong Rural Bank",
+        "currency": "VND",
+        "country": "VN",
+        "reporting_date": "2025-12-31",
+        "governance": {
+          "cfo_name": "Nguyen Van Minh",
+          "cfo_title": "Gi\u00e1m \u0111\u1ed1c T\u00e0i ch\u00ednh",
+          "cro_name": "Tran Thi Lan",
+          "cro_title": "Gi\u00e1m \u0111\u1ed1c R\u1ee7i ro"
+        }
+      },
+      "jobs": {
+        "workspace_url": "https://fe-vm-lakemeter.cloud.databricks.com",
+        "job_ids": {
+          "full_pipeline": 214490152154272,
+          "satellite_ecl_sync": 231149622052728
+        }
+      }
+    }
+  }
+]

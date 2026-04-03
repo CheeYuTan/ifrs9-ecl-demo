@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFRS 9 Glossary — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="../guides/ecl-workflow.html">Guides</a>
+    <a href="api-reference.html" class="active">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="../guides/data-setup.html">Data Setup</a>
+      <a href="../guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="../guides/model-registry.html">Model Registry</a>
+      <a href="../guides/gl-journals.html">GL Journals</a>
+      <a href="../guides/backtesting.html">Backtesting</a>
+      <a href="../guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="../guides/validation-rules.html">Validation Rules</a>
+      <a href="../guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="../guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="api-reference.html">API Reference</a>
+      <a href="data-schema.html">Data Schema</a>
+      <a href="ifrs9-glossary.html" class="active">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="api-reference.html">Reference</a> <span>/</span> IFRS 9 Glossary
+    </div>
+
+    <h1>IFRS 9 Glossary</h1>
+    <p class="subtitle">Key IFRS 9 terms and concepts used throughout the application.</p>
+
+    <table>
+      <thead>
+        <tr><th style="width:220px">Term</th><th>Definition</th><th style="width:160px">App Feature</th></tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td><strong>12-Month ECL</strong></td>
+          <td>The portion of lifetime ECL that represents the expected credit losses resulting from default events that are possible within 12 months after the reporting date. Applied to Stage 1 financial assets.</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>AUC (Area Under ROC Curve)</strong></td>
+          <td>A discrimination metric measuring a model's ability to distinguish between defaulters and non-defaulters. Values range from 0.5 (random) to 1.0 (perfect). Green threshold: ≥ 0.70.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>Backtesting</strong></td>
+          <td>The process of comparing model predictions with actual outcomes to assess model performance. Uses a traffic-light framework (Green/Amber/Red) based on multiple statistical metrics.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>Brier Score</strong></td>
+          <td>A calibration metric measuring the mean squared difference between predicted probabilities and actual outcomes. Lower is better. Green threshold: ≤ 0.15.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>CCF (Credit Conversion Factor)</strong></td>
+          <td>The ratio of the additional amount drawn down at default to the undrawn commitment at the observation date. Used to estimate EAD for revolving facilities.</td>
+          <td>Advanced Features</td>
+        </tr>
+
+        <tr>
+          <td><strong>Champion Model</strong></td>
+          <td>The currently active production model for a given model type and product. Only one champion per type/product combination. Other models serve as challengers.</td>
+          <td>Model Registry</td>
+        </tr>
+
+        <tr>
+          <td><strong>Collateral Haircut</strong></td>
+          <td>A reduction applied to the market value of collateral to account for potential decline in value during the time needed to realize the collateral. Expressed as a percentage.</td>
+          <td>Advanced Features</td>
+        </tr>
+
+        <tr>
+          <td><strong>Concordance Index (C-Index)</strong></td>
+          <td>A measure of discrimination for survival models. Represents the probability that for a randomly selected pair of subjects, the one who defaulted first had a higher predicted risk. Range: 0.5–1.0.</td>
+          <td>Hazard Models</td>
+        </tr>
+
+        <tr>
+          <td><strong>Cox Proportional Hazards</strong></td>
+          <td>A semi-parametric survival model that estimates the effect of covariates on the hazard (default) rate without specifying the baseline hazard function. Assumes proportional hazards.</td>
+          <td>Hazard Models</td>
+        </tr>
+
+        <tr>
+          <td><strong>Credit-Impaired</strong></td>
+          <td>A financial asset is credit-impaired when one or more events that have a detrimental impact on estimated future cash flows have occurred (e.g., significant financial difficulty, breach of contract, bankruptcy). Corresponds to Stage 3.</td>
+          <td>ECL Workflow</td>
+        </tr>
+
+        <tr>
+          <td><strong>Cure Rate</strong></td>
+          <td>The probability that a loan in Stage 2 or Stage 3 returns to Stage 1 (performing) status. Used to adjust ECL estimates for expected recoveries.</td>
+          <td>Advanced Features</td>
+        </tr>
+
+        <tr>
+          <td><strong>DPD (Days Past Due)</strong></td>
+          <td>The number of days a borrower is overdue on a payment. A key indicator for stage assignment: &lt;30 DPD typically Stage 1, 30–89 DPD Stage 2, ≥90 DPD Stage 3.</td>
+          <td>Data Review</td>
+        </tr>
+
+        <tr>
+          <td><strong>EAD (Exposure at Default)</strong></td>
+          <td>The estimated amount of exposure at the time of default. For term loans, typically equals the outstanding balance. For revolving facilities, includes estimated future drawdowns (via CCF).</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>ECL (Expected Credit Loss)</strong></td>
+          <td>The probability-weighted estimate of credit losses over the expected life of a financial instrument. Calculated as PD × LGD × EAD, adjusted for time value of money and scenario weighting.</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>GCA (Gross Carrying Amount)</strong></td>
+          <td>The amortized cost of a financial asset before adjusting for any loss allowance. Represents the outstanding principal and accrued interest.</td>
+          <td>Data Review</td>
+        </tr>
+
+        <tr>
+          <td><strong>Gini Coefficient</strong></td>
+          <td>A measure of model discrimination derived from the AUC: Gini = 2 × AUC − 1. Ranges from 0 (no discrimination) to 1 (perfect). Green threshold: ≥ 0.40.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>IFRS 7</strong></td>
+          <td>International Financial Reporting Standard 7 — Financial Instruments: Disclosures. Requires entities to provide disclosures about the significance of financial instruments, including credit risk exposure, loss allowance reconciliation, and sensitivity analysis.</td>
+          <td>Regulatory Reports</td>
+        </tr>
+
+        <tr>
+          <td><strong>IFRS 9</strong></td>
+          <td>International Financial Reporting Standard 9 — Financial Instruments. Replaced IAS 39 and introduced the expected credit loss impairment model, replacing the incurred loss model. Effective from January 1, 2018.</td>
+          <td>All</td>
+        </tr>
+
+        <tr>
+          <td><strong>Kaplan-Meier Estimator</strong></td>
+          <td>A non-parametric survival estimator that computes the survival function from observed time-to-event data. Does not assume any distributional form for the hazard function.</td>
+          <td>Hazard Models</td>
+        </tr>
+
+        <tr>
+          <td><strong>KS (Kolmogorov-Smirnov) Statistic</strong></td>
+          <td>The maximum separation between the cumulative distribution functions of defaulters and non-defaulters. Measures model discrimination. Green threshold: ≥ 0.30.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>LGD (Loss Given Default)</strong></td>
+          <td>The proportion of exposure that is lost when a borrower defaults, after accounting for recoveries and collateral. Expressed as a percentage (0–100%) or decimal (0–1).</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>Lifetime ECL</strong></td>
+          <td>The expected credit losses that result from all possible default events over the expected life of a financial instrument. Applied to Stage 2 and Stage 3 assets.</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>Loss Allowance</strong></td>
+          <td>The provision (contra-asset) recognized on the balance sheet for expected credit losses. Equals the 12-month ECL for Stage 1 assets and lifetime ECL for Stage 2/3 assets.</td>
+          <td>GL Journals</td>
+        </tr>
+
+        <tr>
+          <td><strong>Management Overlay</strong></td>
+          <td>A post-model adjustment applied to ECL to account for factors not captured by the models, such as emerging risks, sector-specific concerns, or expert judgment. Must be documented and justified per IFRS 9.5.5.17(c).</td>
+          <td>ECL Workflow (Step 5)</td>
+        </tr>
+
+        <tr>
+          <td><strong>Markov Chain</strong></td>
+          <td>A stochastic model describing a sequence of possible events where the probability of each event depends only on the state attained in the previous event. Used for stage transition modeling.</td>
+          <td>Markov Chains</td>
+        </tr>
+
+        <tr>
+          <td><strong>Monte Carlo Simulation</strong></td>
+          <td>A computational technique that uses random sampling to obtain numerical results. In ECL, used to simulate multiple possible outcomes for PD and LGD to estimate the distribution of credit losses.</td>
+          <td>Simulation</td>
+        </tr>
+
+        <tr>
+          <td><strong>PD (Probability of Default)</strong></td>
+          <td>The likelihood that a borrower will default on their obligations within a specified time horizon. 12-month PD is used for Stage 1; lifetime PD for Stage 2/3.</td>
+          <td>ECL Calculation</td>
+        </tr>
+
+        <tr>
+          <td><strong>PSI (Population Stability Index)</strong></td>
+          <td>A metric measuring the shift in the distribution of a variable between two time periods. Used to detect model drift. Lower is better. Green threshold: ≤ 0.10.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>Satellite Model</strong></td>
+          <td>A regression model that links macroeconomic variables to credit risk parameters (PD, LGD). Used to project risk parameters under different economic scenarios.</td>
+          <td>Model Execution</td>
+        </tr>
+
+        <tr>
+          <td><strong>Scenario Weighting</strong></td>
+          <td>The process of assigning probability weights to different macroeconomic scenarios (e.g., base 50%, upside 20%, downside 30%) to compute the probability-weighted ECL per IFRS 9.5.5.17(a).</td>
+          <td>ECL Workflow (Step 4)</td>
+        </tr>
+
+        <tr>
+          <td><strong>SICR (Significant Increase in Credit Risk)</strong></td>
+          <td>The threshold for transferring a financial asset from Stage 1 to Stage 2. Assessed by comparing the risk of default at the reporting date with the risk at initial recognition. A 30-day past due rebuttable presumption applies.</td>
+          <td>Stage Assignment</td>
+        </tr>
+
+        <tr>
+          <td><strong>Stage 1</strong></td>
+          <td>Financial assets where credit risk has not increased significantly since initial recognition. Loss allowance equals 12-month ECL. Interest revenue calculated on gross carrying amount.</td>
+          <td>ECL Workflow</td>
+        </tr>
+
+        <tr>
+          <td><strong>Stage 2</strong></td>
+          <td>Financial assets where credit risk has increased significantly since initial recognition but are not credit-impaired. Loss allowance equals lifetime ECL. Interest revenue calculated on gross carrying amount.</td>
+          <td>ECL Workflow</td>
+        </tr>
+
+        <tr>
+          <td><strong>Stage 3</strong></td>
+          <td>Credit-impaired financial assets. Loss allowance equals lifetime ECL. Interest revenue calculated on the net carrying amount (gross amount minus loss allowance).</td>
+          <td>ECL Workflow</td>
+        </tr>
+
+        <tr>
+          <td><strong>Stage Migration</strong></td>
+          <td>The movement of financial assets between IFRS 9 stages (1→2, 2→3, 3→2, etc.) during a reporting period. Tracked in a transition matrix for disclosure and analysis.</td>
+          <td>Regulatory Reports</td>
+        </tr>
+
+        <tr>
+          <td><strong>Survival Curve</strong></td>
+          <td>A function showing the probability that a borrower survives (does not default) beyond a given time point. Derived from hazard models. S(t) = P(T > t).</td>
+          <td>Hazard Models</td>
+        </tr>
+
+        <tr>
+          <td><strong>Traffic-Light Framework</strong></td>
+          <td>A backtesting methodology that classifies model performance as Green (acceptable), Amber (needs monitoring), or Red (requires action) based on statistical thresholds for each metric.</td>
+          <td>Backtesting</td>
+        </tr>
+
+        <tr>
+          <td><strong>Transition Matrix</strong></td>
+          <td>A square matrix where each element (i,j) represents the probability of transitioning from state i to state j over a given period. Used in Markov chain analysis for stage migration modeling.</td>
+          <td>Markov Chains</td>
+        </tr>
+
+        <tr>
+          <td><strong>Vintage Analysis</strong></td>
+          <td>Analysis of loan performance grouped by origination period (vintage). Helps identify whether credit quality is improving or deteriorating across origination cohorts.</td>
+          <td>Data Review, Stress Testing</td>
+        </tr>
+
+        <tr>
+          <td><strong>Waterfall (Attribution)</strong></td>
+          <td>A chart showing the decomposition of ECL movement from opening to closing balance, broken down by driver: new originations, derecognitions, stage transfers, model changes, macro changes, overlays, write-offs, and other factors.</td>
+          <td>Attribution</td>
+        </tr>
+
+        <tr>
+          <td><strong>Write-Off</strong></td>
+          <td>The removal of a financial asset from the balance sheet when there is no reasonable expectation of recovery. The gross carrying amount is reduced, and any loss allowance previously recognized is also derecognized.</td>
+          <td>GL Journals</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

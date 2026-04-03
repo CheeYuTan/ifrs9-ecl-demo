@@ -1,0 +1,23 @@
+EXIT CODE: 0
+DURATION: 453s
+
+--- STDOUT ---
+## Sprint 9 Evaluation Complete
+
+**Weighted Score: 9.50/10 — PASS**
+
+Key findings:
+- **119/119 tests pass** across 3 test files (middleware, db/pool, integration flows)
+- **All 24 contract criteria: PASS**
+- **4,454 total tests pass** (3,957 backend + 497 frontend) with zero regressions
+- **Live app verified**: X-Request-ID generation/preservation, 404 error handling (no stack traces), auth header acceptance, simulation validation, all 11 SPA routes return 200
+- **Zero bugs found** — no new issues introduced
+- **Code quality**: Well-structured test classes, proper state cleanup with try/finally, parametrized tests, clear docstrings
+
+One pre-existing observation noted: `routes/projects.py:85` checks `signed_off` but the DB column is `signed_off_by` — documented but not a Sprint 9 issue.
+
+Evaluation written to `harness/evaluations/sprint-9-eval.md`.
+
+
+--- STDERR ---
+

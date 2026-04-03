@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validation Rules — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v2.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html" class="active">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Validation Rules
+    </div>
+
+    <h1>Domain Validation Rules</h1>
+    <p class="subtitle">23-rule validation engine ensuring data integrity, model reasonableness, and governance compliance at every stage of the ECL workflow.</p>
+
+    <h2>Overview</h2>
+    <p>The validation engine runs automatically at key points in the ECL workflow to catch data errors, model anomalies, and governance violations before they propagate into final ECL figures. Rules are organized into three categories:</p>
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Rule Count</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Data Integrity (D)</strong></td><td>6 rules (D-1 to D-6)</td><td>Ensure input data is complete, consistent, and within valid ranges</td></tr>
+        <tr><td><strong>Model Reasonableness (M-R)</strong></td><td>8 rules (M-R1 to M-R8)</td><td>Verify that model outputs and ECL results are economically sensible</td></tr>
+        <tr><td><strong>Governance (G-R)</strong></td><td>5 rules (G-R1 to G-R5)</td><td>Enforce process controls, approvals, and regulatory requirements</td></tr>
+      </tbody>
+    </table>
+    <p>Additionally, 4 cross-cutting rules (X-1 to X-4) validate consistency across categories, bringing the total to 23 rules.</p>
+
+    <h2>Severity Levels</h2>
+    <table>
+      <thead>
+        <tr><th>Severity</th><th>Effect</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:#ef4444"><strong>Critical</strong></td><td>Blocks workflow</td><td>ECL calculation cannot proceed. Must be resolved before advancing.</td></tr>
+        <tr><td style="color:#f59e0b"><strong>Warning</strong></td><td>Flags for review</td><td>ECL calculation can proceed, but the issue is flagged for reviewer attention before sign-off.</td></tr>
+        <tr><td style="color:#3b82f6"><strong>Info</strong></td><td>Logged only</td><td>Informational finding recorded in the audit trail. No action required.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Data Integrity Rules (D-1 to D-6)</h2>
+    <p>These rules run during <strong>Step 1: Data &amp; Portfolio Review</strong> as pre-calculation gates.</p>
+    <table>
+      <thead>
+        <tr><th>Rule ID</th><th>Description</th><th>Severity</th><th>Enforcement Point</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>D-1</code></td><td><strong>Required fields not null</strong> &mdash; <code>loan_id</code>, <code>product_type</code>, <code>assessed_stage</code>, <code>gross_carrying_amount</code> must not be NULL.</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>D-2</code></td><td><strong>Stage values valid</strong> &mdash; <code>assessed_stage</code> must be 1, 2, or 3. No other values permitted.</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>D-3</code></td><td><strong>PD within bounds</strong> &mdash; <code>current_lifetime_pd</code> and <code>current_12m_pd</code> must be between 0.0 and 1.0 (inclusive).</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>D-4</code></td><td><strong>LGD within bounds</strong> &mdash; <code>lgd</code> must be between 0.0 and 1.0 (inclusive).</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>D-5</code></td><td><strong>GCA positive</strong> &mdash; <code>gross_carrying_amount</code> must be greater than zero.</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>D-6</code></td><td><strong>No duplicate loan IDs</strong> &mdash; Each <code>loan_id</code> must appear exactly once in the dataset.</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Model Reasonableness Rules (M-R1 to M-R8)</h2>
+    <p>These rules run during <strong>Step 3: ECL Calculation</strong> and <strong>Step 6: Stress Testing</strong> as post-calculation checks.</p>
+    <table>
+      <thead>
+        <tr><th>Rule ID</th><th>Description</th><th>Severity</th><th>Enforcement Point</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>M-R1</code></td><td><strong>ECL &le; GCA</strong> &mdash; No loan's ECL amount can exceed its gross carrying amount. Coverage ratio must be &le; 100%.</td><td style="color:#ef4444">Critical</td><td>Post-calculation</td></tr>
+        <tr><td><code>M-R2</code></td><td><strong>Stage monotonicity</strong> &mdash; Average coverage ratio must increase from Stage 1 &rarr; Stage 2 &rarr; Stage 3 (i.e., higher stages = higher loss rates).</td><td style="color:#f59e0b">Warning</td><td>Post-calculation</td></tr>
+        <tr><td><code>M-R3</code></td><td><strong>DPD-stage consistency</strong> &mdash; Stage 1 loans should have DPD &lt; 30; Stage 3 loans should have DPD &ge; 90. Exceptions flagged.</td><td style="color:#f59e0b">Warning</td><td>Pre-calculation</td></tr>
+        <tr><td><code>M-R4</code></td><td><strong>Scenario ordering</strong> &mdash; Downside ECL &ge; Base ECL &ge; Upside ECL at the portfolio level.</td><td style="color:#f59e0b">Warning</td><td>Post-calculation</td></tr>
+        <tr><td><code>M-R5</code></td><td><strong>Scenario weights sum to 1</strong> &mdash; Base + upside + downside weights must equal exactly 1.0 (100%).</td><td style="color:#ef4444">Critical</td><td>Pre-calculation</td></tr>
+        <tr><td><code>M-R6</code></td><td><strong>Coverage ratio bounds</strong> &mdash; Portfolio-level coverage ratio should be between 0.5% and 25%. Values outside this range suggest data or model issues.</td><td style="color:#f59e0b">Warning</td><td>Post-calculation</td></tr>
+        <tr><td><code>M-R7</code></td><td><strong>Period-over-period ECL movement</strong> &mdash; Total ECL change exceeding &plusmn;50% from the prior period triggers a review flag.</td><td style="color:#f59e0b">Warning</td><td>Post-calculation</td></tr>
+        <tr><td><code>M-R8</code></td><td><strong>Concentration limit</strong> &mdash; No single product type should represent more than 80% of total ECL unless the portfolio is genuinely single-product.</td><td style="color:#3b82f6">Info</td><td>Post-calculation</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Governance Rules (G-R1 to G-R5)</h2>
+    <p>These rules run during <strong>Step 7: Reporting</strong> and <strong>Step 8: Sign-Off</strong> to enforce process controls.</p>
+    <table>
+      <thead>
+        <tr><th>Rule ID</th><th>Description</th><th>Severity</th><th>Enforcement Point</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>G-R1</code></td><td><strong>All steps completed</strong> &mdash; Sign-off requires all 7 preceding workflow steps to be marked as completed.</td><td style="color:#ef4444">Critical</td><td>Sign-off gate</td></tr>
+        <tr><td><code>G-R2</code></td><td><strong>Segregation of duties</strong> &mdash; The sign-off user must differ from the user who ran the simulation (see <a href="rbac.html">RBAC &amp; Governance</a>).</td><td style="color:#ef4444">Critical</td><td>Sign-off gate</td></tr>
+        <tr><td><code>G-R3</code></td><td><strong>Champion model required</strong> &mdash; At least one champion model must exist in the model registry for the ECL calculation to be signed off.</td><td style="color:#f59e0b">Warning</td><td>Sign-off gate</td></tr>
+        <tr><td><code>G-R4</code></td><td><strong>Backtest currency</strong> &mdash; The most recent backtest for the champion PD model must be less than 90 days old.</td><td style="color:#f59e0b">Warning</td><td>Sign-off gate</td></tr>
+        <tr><td><code>G-R5</code></td><td><strong>Overlay justification</strong> &mdash; Every management overlay must have a non-empty <code>reason</code> field and an IFRS 9 paragraph reference.</td><td style="color:#ef4444">Critical</td><td>Overlay submission</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Cross-Cutting Rules (X-1 to X-4)</h2>
+    <table>
+      <thead>
+        <tr><th>Rule ID</th><th>Description</th><th>Severity</th><th>Enforcement Point</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>X-1</code></td><td><strong>GL reconciliation</strong> &mdash; Total ECL from the calculation engine must match total journal entry amounts within a 0.01 tolerance.</td><td style="color:#ef4444">Critical</td><td>Post-journal generation</td></tr>
+        <tr><td><code>X-2</code></td><td><strong>Double-entry balance</strong> &mdash; Total debits must equal total credits for every journal entry.</td><td style="color:#ef4444">Critical</td><td>Journal posting</td></tr>
+        <tr><td><code>X-3</code></td><td><strong>Vintage format</strong> &mdash; <code>vintage_cohort</code> values should follow the YYYY-QN format (e.g., "2023-Q1").</td><td style="color:#3b82f6">Info</td><td>Pre-calculation</td></tr>
+        <tr><td><code>X-4</code></td><td><strong>Reporting date consistency</strong> &mdash; All loans in the dataset should share the same <code>reporting_date</code>.</td><td style="color:#f59e0b">Warning</td><td>Pre-calculation</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Pre-Calculation Gates</h2>
+    <p>Before the ECL calculation can proceed past Step 1, all <strong>Critical</strong> pre-calculation rules must pass. If any critical rule fails, the workflow is blocked:</p>
+    <pre><code>POST /api/projects/{project_id}/advance
+{
+  "action": "data_review",
+  "user": "analyst@bank.com",
+  "status": "completed"
+}
+
+// Response when critical rules fail:
+{
+  "error": "Cannot advance: 2 critical validation failures",
+  "failures": [
+    {"rule": "D-1", "message": "142 loans have NULL product_type"},
+    {"rule": "D-3", "message": "8 loans have PD > 1.0"}
+  ]
+}</code></pre>
+    <p>The analyst must fix the underlying data issues and re-run the data quality checks before the workflow can advance.</p>
+
+    <h2>Post-Calculation Checks</h2>
+    <p>After ECL calculation (Step 3) and before sign-off (Step 8), post-calculation rules are evaluated and their results are attached to the project. Warning-level findings do not block the workflow but are surfaced prominently in the sign-off review screen:</p>
+    <pre><code>GET /api/data/dq-results
+
+[
+  {"rule": "M-R2", "severity": "warning", "status": "fail",
+   "message": "Stage 2 avg coverage (1.8%) is lower than Stage 1 (2.1%)"},
+  {"rule": "M-R4", "severity": "warning", "status": "pass",
+   "message": "Scenario ordering correct: downside > base > upside"},
+  {"rule": "M-R6", "severity": "warning", "status": "pass",
+   "message": "Portfolio coverage ratio 3.2% within expected range"}
+]</code></pre>
+
+    <div class="callout callout-warning">
+      <strong>Reviewer Responsibility</strong>
+      Warning-level findings must be reviewed and acknowledged by a Reviewer or Approver before sign-off. The audit trail records which warnings were present at the time of sign-off, ensuring regulatory transparency.
+    </div>
+
+    <h2>Validation Dashboard</h2>
+    <p>The ECL Workflow UI includes a validation dashboard that provides a real-time view of all 23 rules:</p>
+    <ul>
+      <li><strong>Summary bar</strong> &mdash; Shows pass/fail/warning counts at a glance</li>
+      <li><strong>Category breakdown</strong> &mdash; Data Integrity, Model Reasonableness, and Governance sections with expandable detail</li>
+      <li><strong>Trend view</strong> &mdash; How validation results have changed across recent ECL runs</li>
+      <li><strong>Drill-down</strong> &mdash; Click any failed rule to see the specific loans or values that triggered the failure</li>
+    </ul>
+    <p>Access validation results programmatically:</p>
+    <pre><code>GET /api/data/dq-results      // Detailed rule-by-rule results
+GET /api/data/dq-summary       // Aggregated pass/fail/warning counts</code></pre>
+
+    <div class="callout callout-info">
+      <strong>Extensibility</strong>
+      The validation engine is designed to be extensible. Custom rules can be added by defining new rule functions in the backend validation module. Each rule specifies its ID, description, severity, enforcement point, and validation logic.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

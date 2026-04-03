@@ -1,0 +1,17 @@
+EXIT CODE: 0
+DURATION: 524s
+
+--- STDOUT ---
+Sprint 1 iteration 5 complete.
+
+**Summary:**
+- **27 new tests** added in `test_qa_sprint_1_iter5_final_gaps.py`
+- **299 total Sprint 1 tests** across 4 files (174 + 62 + 36 + 27)
+- **2,718 passed, 61 skipped, 0 failures** in full suite
+- Key gaps closed: sign-off audit_log dict branch, advance_step non-standard status values, top-exposures default limit verification, get_project falsy returns, verify-hash missing key, empty overlays/weights, list_projects edge cases
+- Zero regressions across all 5 iterations
+- Handoff updated at `harness/handoffs/sprint-1-handoff.md`
+
+
+--- STDERR ---
+

@@ -1,0 +1,59 @@
+Backed up existing CLAUDE.md to /Users/steven.tan/Expected Credit Losses/CLAUDE.md.bak.1774878161
+============================================
+  HARNESS RUN (Claude CLI) — 8-Agent Mode
+============================================
+  Prompt:   EXHAUSTIVE QUALITY PASS on the IFRS 9 ECL application (ifrs9-ecl-demo). This is NOT building a new app — it's a comprehensive quality audit and fix cycle on the EXISTING deployed app at https://ifrs9-ecl-demo-335310294452632.aws.databricksapps.com.
+
+The user found MANY bugs during testing and rates the app at 6.0/10. Target is 9.8/10.
+
+CRITICAL REQUIREMENTS — you MUST test ALL of these:
+
+1. THEME TESTING: Switch between light and dark themes on EVERY page. In light mode, several UI elements have invisible/unreadable text (green-on-light-green, white-on-white). Check EVERY card, label, badge, icon text, KPI card, table cell. Fix all contrast issues.
+
+2. INFORMATION ICONS: Click EVERY help icon (?) and info tooltip on EVERY page. Verify text is readable, accurate, and not truncated. Check in both light and dark mode.
+
+3. DATABRICKS JOBS: The NotebookLink component was just refactored to fetch job IDs dynamically from /api/jobs/config. Verify:
+   - Jobs are provisioned (hit POST /api/jobs/provision first)
+   - Job links actually open the correct Databricks job page
+   - Stress Testing page should show ECL Calculation Pipeline NOT Satellite Model
+   - Model Execution page should show Satellite Model Pipeline
+   - Actually TRIGGER each job type and verify it completes successfully
+
+4. END-TO-END WORKFLOW: Run the FULL pipeline:
+   a. Generate demo data (job trigger)
+   b. Run full pipeline (data processing then models then ECL then sync)
+   c. Verify EVERY page shows real results, not empty/placeholder data
+   d. Step through the approval workflow on each page
+
+5. WORDING and UX REVIEW: This app is for bank risk managers. Every label, tooltip, description must use correct IFRS 9 terminology and be understandable by a Head of Credit Risk or CRO.
+
+6. DOCUMENTATION: The docs site must have screenshots or GIFs showing what the app does. A new user should understand the app capabilities before deploying.
+
+7. NO FAKE DATA: All data shown must come from real pipeline runs, not hardcoded or stubbed.
+
+8. Focus ONLY on the IFRS 9 ECL web application. Do NOT touch training_logs, Google Slides, or anything outside the app/ directory and scripts/ directory.
+  Target:   9.8/10
+  Work dir: /Users/steven.tan/Expected Credit Losses
+  Phase:    spec
+  Model:    opus
+============================================
+
+Monitor progress:
+  watch cat /Users/steven.tan/Expected Credit Losses/harness/progress.md
+  cat /Users/steven.tan/Expected Credit Losses/harness/state.json
+
+Starting Claude CLI...
+
+
+
+Last old pipeline monitor done. All background tasks have now completed.
+
+**Current status**: 6/8 tasks complete. Two remaining tasks (browser testing + documentation screenshots) both require Chrome DevTools MCP permissions which haven't been granted yet.
+Restored original CLAUDE.md
+
+============================================
+  HARNESS RUN COMPLETE (exit: 0)
+============================================
+  Results: /Users/steven.tan/Expected Credit Losses/harness/progress.md
+  State:   /Users/steven.tan/Expected Credit Losses/harness/state.json
+============================================

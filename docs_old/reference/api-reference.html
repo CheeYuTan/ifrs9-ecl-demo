@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Reference — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="../guides/ecl-workflow.html">Guides</a>
+    <a href="api-reference.html" class="active">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="../guides/data-setup.html">Data Setup</a>
+      <a href="../guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="../guides/model-registry.html">Model Registry</a>
+      <a href="../guides/gl-journals.html">GL Journals</a>
+      <a href="../guides/backtesting.html">Backtesting</a>
+      <a href="../guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="../guides/validation-rules.html">Validation Rules</a>
+      <a href="../guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="../guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="api-reference.html" class="active">API Reference</a>
+      <a href="data-schema.html">Data Schema</a>
+      <a href="ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="api-reference.html">Reference</a> <span>/</span> API Reference
+    </div>
+
+    <h1>API Reference</h1>
+    <p class="subtitle">Complete REST API documentation for all 80+ endpoints.</p>
+
+    <div class="callout callout-info">
+      <strong>Base URL</strong>
+      All endpoints are relative to the application root: <code>https://&lt;your-app-url&gt;</code>. All request/response bodies use JSON (<code>Content-Type: application/json</code>).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Health</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-get">GET</span>
+        <code>/api/health</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Check application and Lakebase connectivity.</p>
+        <h4>Response</h4>
+        <pre><code>{"status": "healthy", "lakebase": "connected", "rows": 1}</code></pre>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Projects &amp; Workflow</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-get">GET</span>
+        <code>/api/projects</code>
+      </div>
+      <div class="endpoint-body">
+        <p>List all ECL projects.</p>
+        <h4>Response</h4>
+        <p>Array of project objects with <code>project_id</code>, <code>project_name</code>, <code>current_step</code>, <code>created_at</code>, etc.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-get">GET</span>
+        <code>/api/projects/{project_id}</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Get a specific project by ID.</p>
+        <h4>Path Parameters</h4>
+        <table><tr><td><code>project_id</code></td><td>string</td><td>Project identifier</td></tr></table>
+        <h4>Response</h4>
+        <p>Full project object including <code>current_step</code>, <code>audit_log</code>, <code>overlays</code>, <code>scenario_weights</code>, <code>signed_off_by</code>.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Create a new ECL project.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>project_id</code></td><td>string, required</td><td>Unique project identifier</td></tr>
+          <tr><td><code>project_name</code></td><td>string, required</td><td>Display name</td></tr>
+          <tr><td><code>project_type</code></td><td>string, default "ifrs9"</td><td>Project type</td></tr>
+          <tr><td><code>description</code></td><td>string</td><td>Project description</td></tr>
+          <tr><td><code>reporting_date</code></td><td>string</td><td>Reporting period end date (YYYY-MM-DD)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects/{project_id}/advance</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Advance the project to the next workflow step.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>action</code></td><td>string, required</td><td>Step action name</td></tr>
+          <tr><td><code>user</code></td><td>string, required</td><td>User performing the action</td></tr>
+          <tr><td><code>detail</code></td><td>string</td><td>Additional detail/comment</td></tr>
+          <tr><td><code>status</code></td><td>string, default "completed"</td><td>Step completion status</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects/{project_id}/overlays</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Save management overlays for a project.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>overlays</code></td><td>array, required</td><td>Array of overlay objects: <code>{id, product, type, amount, reason, ifrs9}</code></td></tr>
+          <tr><td><code>comment</code></td><td>string</td><td>Comment (also advances the workflow if provided)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects/{project_id}/scenario-weights</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Save scenario probability weights. Weights must sum to 1.0.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"weights": {"base": 0.50, "upside": 0.20, "downside": 0.30}}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects/{project_id}/sign-off</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Sign off the ECL calculation.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"name": "Jane Smith, CRO"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="badge badge-post">POST</span>
+        <code>/api/projects/{project_id}/reset</code>
+      </div>
+      <div class="endpoint-body">
+        <p>Reset project back to Step 0. Preserves audit log.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Data Endpoints</h2>
+    <p>All data endpoints return arrays of JSON objects. They read from Unity Catalog tables synced to Lakebase.</p>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/portfolio-summary</code></div>
+      <div class="endpoint-body"><p>Portfolio summary by product type: loan count, total GCA, total ECL, average PD/LGD.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/stage-distribution</code></div>
+      <div class="endpoint-body"><p>Loan count and GCA distribution across IFRS 9 stages (1, 2, 3).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/borrower-segments</code></div>
+      <div class="endpoint-body"><p>Statistics by borrower segment (Prime, Near-Prime, Sub-Prime).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/vintage-analysis</code></div>
+      <div class="endpoint-body"><p>Portfolio breakdown by origination vintage cohort.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/dpd-distribution</code></div>
+      <div class="endpoint-body"><p>Days past due distribution histogram.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/stage-by-product</code></div>
+      <div class="endpoint-body"><p>Stage distribution broken down by product type.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/pd-distribution</code></div>
+      <div class="endpoint-body"><p>Probability of default distribution across the portfolio.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/dq-results</code></div>
+      <div class="endpoint-body"><p>Data quality check results with pass/fail/warning status per check.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/dq-summary</code></div>
+      <div class="endpoint-body"><p>Aggregated data quality summary (total checks, pass count, fail count).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/gl-reconciliation</code></div>
+      <div class="endpoint-body"><p>GL reconciliation comparing ECL calculation totals with journal entry totals.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-summary</code></div>
+      <div class="endpoint-body"><p>High-level ECL summary: total ECL, total GCA, overall coverage ratio.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-product</code></div>
+      <div class="endpoint-body"><p>ECL broken down by product type with loan count, GCA, ECL, and coverage ratio.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/scenario-summary</code></div>
+      <div class="endpoint-body"><p>ECL by scenario (base, upside, downside) with weights and weighted contributions.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/mc-distribution</code></div>
+      <div class="endpoint-body"><p>Monte Carlo simulation ECL distribution (histogram of simulated ECL values).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-scenario-product</code></div>
+      <div class="endpoint-body"><p>ECL by scenario and product type combination.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-concentration</code></div>
+      <div class="endpoint-body"><p>ECL concentration analysis showing top exposures.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/stage-migration</code></div>
+      <div class="endpoint-body"><p>Stage migration matrix: loan counts moving between stages.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/credit-risk-exposure</code></div>
+      <div class="endpoint-body"><p>Credit risk exposure by product and stage for IFRS 7 disclosure.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/loss-allowance-by-stage</code></div>
+      <div class="endpoint-body"><p>Loss allowance (ECL provision) broken down by IFRS 9 stage.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-stage-product/{stage}</code></div>
+      <div class="endpoint-body">
+        <p>ECL by product type for a specific stage.</p>
+        <h4>Path Parameters</h4>
+        <table><tr><td><code>stage</code></td><td>integer</td><td>IFRS 9 stage (1, 2, or 3)</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-scenario-product-detail</code></div>
+      <div class="endpoint-body">
+        <p>Detailed ECL by product for a specific scenario.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>scenario</code></td><td>string</td><td>Scenario name (e.g., "base", "downside")</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/top-exposures</code></div>
+      <div class="endpoint-body">
+        <p>Top N largest loan exposures.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>limit</code></td><td>integer, default 20</td><td>Number of top exposures to return</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/loans-by-product/{product_type}</code></div>
+      <div class="endpoint-body"><p>Loan-level data filtered by product type.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/loans-by-stage/{stage}</code></div>
+      <div class="endpoint-body"><p>Loan-level data filtered by IFRS 9 stage.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/sensitivity</code></div>
+      <div class="endpoint-body"><p>Sensitivity analysis data showing ECL impact of PD/LGD shifts.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/scenario-comparison</code></div>
+      <div class="endpoint-body"><p>Side-by-side scenario comparison data.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/stress-by-stage</code></div>
+      <div class="endpoint-body"><p>Stress test results broken down by IFRS 9 stage.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/vintage-performance</code></div>
+      <div class="endpoint-body"><p>ECL performance trends by origination vintage.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/vintage-by-product</code></div>
+      <div class="endpoint-body"><p>Vintage analysis broken down by product type.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/concentration-by-segment</code></div>
+      <div class="endpoint-body"><p>Exposure concentration by borrower segment.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/concentration-by-product-stage</code></div>
+      <div class="endpoint-body"><p>Exposure concentration by product type and stage combination.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/top-concentration-risk</code></div>
+      <div class="endpoint-body"><p>Top concentration risk exposures across the portfolio.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Satellite Models &amp; Cohorts</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/satellite-model-comparison</code></div>
+      <div class="endpoint-body">
+        <p>Compare satellite model performance across algorithms and cohorts.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>run_id</code></td><td>string, optional</td><td>Filter by specific model run</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/satellite-model-selected</code></div>
+      <div class="endpoint-body">
+        <p>Best-selected satellite model per cohort.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>run_id</code></td><td>string, optional</td><td>Filter by specific model run</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/model-runs</code></div>
+      <div class="endpoint-body">
+        <p>List all model execution runs.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>run_type</code></td><td>string, optional</td><td>Filter by run type (e.g., "satellite_model")</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/model-runs/{run_id}</code></div>
+      <div class="endpoint-body"><p>Get details of a specific model run.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/model-runs</code></div>
+      <div class="endpoint-body">
+        <p>Save a model run record.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>run_id</code></td><td>string, required</td><td>Unique run identifier</td></tr>
+          <tr><td><code>run_type</code></td><td>string, default "satellite_model"</td><td>Type of run</td></tr>
+          <tr><td><code>models_used</code></td><td>array of strings</td><td>Algorithm names used</td></tr>
+          <tr><td><code>products</code></td><td>array of strings</td><td>Product types included</td></tr>
+          <tr><td><code>total_cohorts</code></td><td>integer</td><td>Number of cohorts processed</td></tr>
+          <tr><td><code>best_model_summary</code></td><td>object</td><td>Summary of best model per cohort</td></tr>
+          <tr><td><code>notes</code></td><td>string</td><td>Run notes</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/cohort-summary</code></div>
+      <div class="endpoint-body"><p>Summary statistics by cohort across all products.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/cohort-summary/{product}</code></div>
+      <div class="endpoint-body"><p>Cohort summary filtered by product type.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Drill-Down</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/drill-down-dimensions</code></div>
+      <div class="endpoint-body">
+        <p>Available drill-down dimensions for a product.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>product</code></td><td>string, default "any"</td><td>Product type filter</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-cohort</code></div>
+      <div class="endpoint-body">
+        <p>ECL broken down by cohort dimension.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>product</code></td><td>string, required</td><td>Product type</td></tr>
+          <tr><td><code>dimension</code></td><td>string, default "risk_band"</td><td>Dimension to group by</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/stage-by-cohort</code></div>
+      <div class="endpoint-body">
+        <p>Stage distribution by cohort for a product.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>product</code></td><td>string, required</td><td>Product type</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/portfolio-by-cohort</code></div>
+      <div class="endpoint-body">
+        <p>Portfolio statistics by cohort dimension.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>product</code></td><td>string, required</td><td>Product type</td></tr>
+          <tr><td><code>dimension</code></td><td>string, default "risk_band"</td><td>Dimension to group by</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/ecl-by-product-drilldown</code></div>
+      <div class="endpoint-body"><p>ECL drill-down by product with additional detail dimensions.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Attribution / Waterfall</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/attribution/{project_id}</code></div>
+      <div class="endpoint-body"><p>Get ECL attribution (waterfall) data for a project. Computes on first call if not cached.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/data/attribution/{project_id}/compute</code></div>
+      <div class="endpoint-body"><p>Force recomputation of ECL attribution.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/data/attribution/{project_id}/history</code></div>
+      <div class="endpoint-body"><p>Historical attribution data for trend analysis.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Model Registry</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/models</code></div>
+      <div class="endpoint-body">
+        <p>List all registered models.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>model_type</code></td><td>string, optional</td><td>Filter by type (PD, LGD, EAD, etc.)</td></tr>
+          <tr><td><code>status</code></td><td>string, optional</td><td>Filter by status (draft, validated, approved, champion, retired)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/models/{model_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific model by ID with full details.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/models</code></div>
+      <div class="endpoint-body">
+        <p>Register a new model.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>model_name</code></td><td>string, required</td><td>Model display name</td></tr>
+          <tr><td><code>model_type</code></td><td>string, required</td><td>PD, LGD, EAD, Staging, or Satellite</td></tr>
+          <tr><td><code>algorithm</code></td><td>string</td><td>Algorithm name</td></tr>
+          <tr><td><code>version</code></td><td>integer, default 1</td><td>Model version</td></tr>
+          <tr><td><code>description</code></td><td>string</td><td>Model description</td></tr>
+          <tr><td><code>product_type</code></td><td>string</td><td>Target product type</td></tr>
+          <tr><td><code>cohort</code></td><td>string</td><td>Training cohort</td></tr>
+          <tr><td><code>parameters</code></td><td>object</td><td>Model hyperparameters</td></tr>
+          <tr><td><code>performance_metrics</code></td><td>object</td><td>Metrics (AUC, Gini, etc.)</td></tr>
+          <tr><td><code>training_data_info</code></td><td>object</td><td>Training data metadata</td></tr>
+          <tr><td><code>created_by</code></td><td>string</td><td>Creator identity</td></tr>
+          <tr><td><code>notes</code></td><td>string</td><td>Additional notes</td></tr>
+          <tr><td><code>parent_model_id</code></td><td>string, optional</td><td>Parent model for lineage</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-put">PUT</span> <code>/api/models/{model_id}/status</code></div>
+      <div class="endpoint-body">
+        <p>Update model lifecycle status.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>status</code></td><td>string, required</td><td>New status (validated, approved, retired)</td></tr>
+          <tr><td><code>user</code></td><td>string, required</td><td>User performing the action</td></tr>
+          <tr><td><code>comment</code></td><td>string</td><td>Reason for status change</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/models/{model_id}/promote</code></div>
+      <div class="endpoint-body">
+        <p>Promote model to champion. Retires previous champion.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user": "head.of.risk@bank.com"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/models/compare</code></div>
+      <div class="endpoint-body">
+        <p>Compare multiple models side-by-side.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"model_ids": ["mdl-001", "mdl-002", "mdl-003"]}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/models/{model_id}/audit</code></div>
+      <div class="endpoint-body"><p>Get the full audit trail for a model.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>GL Journals</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/gl/generate/{project_id}</code></div>
+      <div class="endpoint-body">
+        <p>Generate GL journal entries from ECL calculation results.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user": "finance.controller@bank.com"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/gl/journals/{project_id}</code></div>
+      <div class="endpoint-body"><p>List all journals for a project.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/gl/journal/{journal_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific journal with all line items.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/gl/journal/{journal_id}/post</code></div>
+      <div class="endpoint-body">
+        <p>Post a draft journal (changes status to "posted").</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user": "finance.controller@bank.com"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/gl/journal/{journal_id}/reverse</code></div>
+      <div class="endpoint-body">
+        <p>Reverse a posted journal. Creates a new reversal journal.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>user</code></td><td>string, required</td><td>User performing reversal</td></tr>
+          <tr><td><code>reason</code></td><td>string</td><td>Reason for reversal</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/gl/trial-balance/{project_id}</code></div>
+      <div class="endpoint-body"><p>Trial balance for a project showing total debits and credits per account.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/gl/chart-of-accounts</code></div>
+      <div class="endpoint-body"><p>Full chart of accounts with account codes, names, types, and hierarchy.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Databricks Jobs</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/jobs/trigger</code></div>
+      <div class="endpoint-body">
+        <p>Trigger a Databricks Job run.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>job_key</code></td><td>string, default "satellite_ecl_sync"</td><td>"satellite_ecl_sync" or "full_pipeline"</td></tr>
+          <tr><td><code>enabled_models</code></td><td>array of strings, optional</td><td>Algorithms to enable (for satellite job)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/jobs/run/{run_id}</code></div>
+      <div class="endpoint-body"><p>Get status of a specific job run.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/jobs/runs/{job_key}</code></div>
+      <div class="endpoint-body">
+        <p>List recent runs for a job.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>limit</code></td><td>integer, default 10</td><td>Max runs to return</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/jobs/config</code></div>
+      <div class="endpoint-body"><p>Get jobs configuration including available models and job status.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/jobs/provision</code></div>
+      <div class="endpoint-body"><p>Create or update all managed Databricks Jobs with correct notebook paths.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Simulation</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/simulate</code></div>
+      <div class="endpoint-body">
+        <p>Run Monte Carlo ECL simulation.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>n_simulations</code></td><td>integer, default 1000</td><td>Number of iterations (100–5000)</td></tr>
+          <tr><td><code>pd_lgd_correlation</code></td><td>float, default 0.30</td><td>PD-LGD correlation</td></tr>
+          <tr><td><code>aging_factor</code></td><td>float, default 0.08</td><td>Stage migration aging factor</td></tr>
+          <tr><td><code>pd_floor</code></td><td>float, default 0.001</td><td>Minimum PD</td></tr>
+          <tr><td><code>pd_cap</code></td><td>float, default 0.95</td><td>Maximum PD</td></tr>
+          <tr><td><code>lgd_floor</code></td><td>float, default 0.01</td><td>Minimum LGD</td></tr>
+          <tr><td><code>lgd_cap</code></td><td>float, default 0.95</td><td>Maximum LGD</td></tr>
+          <tr><td><code>scenario_weights</code></td><td>object, optional</td><td>Custom scenario weights</td></tr>
+        </table>
+        <h4>Response</h4>
+        <p>Returns <code>ecl_by_product</code>, <code>scenario_summary</code>, <code>loss_allowance_by_stage</code>, <code>ecl_by_scenario_product</code>, and <code>run_metadata</code>.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/simulation-defaults</code></div>
+      <div class="endpoint-body"><p>Get default simulation parameters, available scenarios, and product types.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/simulate-stream</code></div>
+      <div class="endpoint-body">
+        <p>Run simulation with Server-Sent Events (SSE) for real-time progress updates. Same request body as <code>/api/simulate</code>.</p>
+        <h4>SSE Events</h4>
+        <table>
+          <tr><td><code>progress</code></td><td>Simulation progress updates</td></tr>
+          <tr><td><code>result</code></td><td>Final simulation results</td></tr>
+          <tr><td><code>error</code></td><td>Error message if simulation fails</td></tr>
+          <tr><td><code>keepalive</code></td><td>Heartbeat to keep connection alive</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/simulate-validate</code></div>
+      <div class="endpoint-body">
+        <p>Validate simulation parameters before running. Returns errors, warnings, estimated runtime, and memory usage.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Markov Chains</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/markov/estimate</code></div>
+      <div class="endpoint-body">
+        <p>Estimate a transition matrix from stage migration data.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>product_type</code></td><td>string, optional</td><td>Filter by product type</td></tr>
+          <tr><td><code>segment</code></td><td>string, optional</td><td>Filter by borrower segment</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/markov/matrices</code></div>
+      <div class="endpoint-body">
+        <p>List all estimated transition matrices.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>product_type</code></td><td>string, optional</td><td>Filter by product type</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/markov/matrix/{matrix_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific transition matrix with full data.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/markov/forecast</code></div>
+      <div class="endpoint-body">
+        <p>Forecast stage distribution over time using a transition matrix.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>matrix_id</code></td><td>string, required</td><td>Transition matrix to use</td></tr>
+          <tr><td><code>initial_distribution</code></td><td>array of floats, required</td><td>Starting stage distribution [S1, S2, S3, Default]</td></tr>
+          <tr><td><code>horizon_months</code></td><td>integer, default 60</td><td>Forecast horizon in months</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/markov/lifetime-pd/{matrix_id}</code></div>
+      <div class="endpoint-body">
+        <p>Compute lifetime PD term structure from a transition matrix.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>max_months</code></td><td>integer, default 60</td><td>Maximum months for term structure</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/markov/compare</code></div>
+      <div class="endpoint-body">
+        <p>Compare multiple transition matrices.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"matrix_ids": ["mat-001", "mat-002"]}</code></pre>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Backtesting</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/backtest/run</code></div>
+      <div class="endpoint-body">
+        <p>Run a backtest for a model type.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>model_type</code></td><td>string, default "PD"</td><td>Model type to backtest</td></tr>
+          <tr><td><code>config</code></td><td>object</td><td>Backtest configuration (observation/outcome windows)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/backtest/results</code></div>
+      <div class="endpoint-body">
+        <p>List all backtest results.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>model_type</code></td><td>string, optional</td><td>Filter by model type</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/backtest/trend/{model_type}</code></div>
+      <div class="endpoint-body"><p>Backtest trend over time for a model type.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/backtest/{backtest_id}</code></div>
+      <div class="endpoint-body"><p>Get full backtest results including metrics, traffic lights, and cohort analysis.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Hazard Models</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/hazard/estimate</code></div>
+      <div class="endpoint-body">
+        <p>Estimate a hazard model from portfolio data.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>model_type</code></td><td>string, required</td><td>"cox_ph", "discrete_time", or "kaplan_meier"</td></tr>
+          <tr><td><code>product_type</code></td><td>string, optional</td><td>Filter by product type</td></tr>
+          <tr><td><code>segment</code></td><td>string, optional</td><td>Filter by borrower segment</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/hazard/models</code></div>
+      <div class="endpoint-body">
+        <p>List all hazard models.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>model_type</code></td><td>string, optional</td><td>Filter by model type</td></tr>
+          <tr><td><code>product_type</code></td><td>string, optional</td><td>Filter by product type</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/hazard/model/{model_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific hazard model with coefficients, baseline hazard, and fit statistics.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/hazard/survival-curve</code></div>
+      <div class="endpoint-body">
+        <p>Compute survival curve for a hazard model with optional covariates.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>model_id</code></td><td>string, required</td><td>Hazard model to use</td></tr>
+          <tr><td><code>covariates</code></td><td>object, optional</td><td>Covariate values for prediction</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/hazard/term-structure/{model_id}</code></div>
+      <div class="endpoint-body">
+        <p>Compute PD term structure from a hazard model.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>max_months</code></td><td>integer, default 60</td><td>Maximum months</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/hazard/compare</code></div>
+      <div class="endpoint-body">
+        <p>Compare multiple hazard models.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"model_ids": ["haz-001", "haz-002"]}</code></pre>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Setup Wizard</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/setup/status</code></div>
+      <div class="endpoint-body"><p>Check if initial setup is complete.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/setup/validate-tables</code></div>
+      <div class="endpoint-body"><p>Validate that required Unity Catalog tables exist and are accessible.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/setup/seed-sample-data</code></div>
+      <div class="endpoint-body"><p>Create all database tables and seed sample data.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/setup/complete</code></div>
+      <div class="endpoint-body">
+        <p>Mark setup as complete.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user": "admin"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/setup/reset</code></div>
+      <div class="endpoint-body"><p>Reset setup status to re-run the wizard.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Admin Configuration</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/config</code></div>
+      <div class="endpoint-body"><p>Get full admin configuration (all sections).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-put">PUT</span> <code>/api/admin/config</code></div>
+      <div class="endpoint-body"><p>Save full admin configuration (replaces all sections).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/config/{section}</code></div>
+      <div class="endpoint-body"><p>Get a specific configuration section (e.g., "data_sources", "lgd_parameters", "scenarios").</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-put">PUT</span> <code>/api/admin/config/{section}</code></div>
+      <div class="endpoint-body"><p>Update a specific configuration section.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/admin/validate-mapping</code></div>
+      <div class="endpoint-body">
+        <p>Validate column mappings for a table.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"table_key": "model_ready_loans", "mappings": {"loan_id": "account_number"}}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/admin/validate-mapping-typed</code></div>
+      <div class="endpoint-body"><p>Validate column mappings with data type checking.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/available-tables</code></div>
+      <div class="endpoint-body"><p>List all tables in the configured schema.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/table-columns/{table}</code></div>
+      <div class="endpoint-body"><p>Get column names and types for a specific table.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/table-preview/{table}</code></div>
+      <div class="endpoint-body">
+        <p>Preview first N rows of a table.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>schema</code></td><td>string, optional</td><td>Schema name</td></tr>
+          <tr><td><code>limit</code></td><td>integer, default 5, max 20</td><td>Number of rows</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/admin/test-connection</code></div>
+      <div class="endpoint-body"><p>Test Lakebase connection and return connection details.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/admin/seed-defaults</code></div>
+      <div class="endpoint-body"><p>Seed default configuration values (chart of accounts, RBAC users, LGD parameters).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/schemas</code></div>
+      <div class="endpoint-body"><p>List available database schemas.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/suggest-mappings/{table_key}</code></div>
+      <div class="endpoint-body"><p>Auto-suggest column mappings using fuzzy name matching.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/auto-detect-workspace</code></div>
+      <div class="endpoint-body"><p>Auto-detect Databricks workspace settings (host, catalog, schema).</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/admin/discover-products</code></div>
+      <div class="endpoint-body"><p>Discover product types from the loan data.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/admin/auto-setup-lgd</code></div>
+      <div class="endpoint-body"><p>Auto-configure LGD parameters from actual portfolio data.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>RBAC &amp; Approvals</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/rbac/users</code></div>
+      <div class="endpoint-body">
+        <p>List all users.</p>
+        <h4>Query Parameters</h4>
+        <table><tr><td><code>role</code></td><td>string, optional</td><td>Filter by role (admin, manager, analyst, auditor, viewer)</td></tr></table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/rbac/users/{user_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific user with role and permissions.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/rbac/approvals</code></div>
+      <div class="endpoint-body">
+        <p>List approval requests.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>status</code></td><td>string, optional</td><td>Filter by status (pending, approved, rejected)</td></tr>
+          <tr><td><code>assigned_to</code></td><td>string, optional</td><td>Filter by assignee</td></tr>
+          <tr><td><code>type</code></td><td>string, optional</td><td>Filter by request type</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/rbac/approvals</code></div>
+      <div class="endpoint-body">
+        <p>Create an approval request.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>request_type</code></td><td>string, required</td><td>Type of approval (e.g., "model_approval", "ecl_signoff")</td></tr>
+          <tr><td><code>entity_id</code></td><td>string, required</td><td>ID of the entity being approved</td></tr>
+          <tr><td><code>entity_type</code></td><td>string</td><td>Entity type</td></tr>
+          <tr><td><code>requested_by</code></td><td>string, required</td><td>Requester user ID</td></tr>
+          <tr><td><code>assigned_to</code></td><td>string, optional</td><td>Assignee user ID</td></tr>
+          <tr><td><code>priority</code></td><td>string, default "normal"</td><td>Priority level</td></tr>
+          <tr><td><code>due_date</code></td><td>string, optional</td><td>Due date (YYYY-MM-DD)</td></tr>
+          <tr><td><code>comments</code></td><td>string</td><td>Request comments</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/rbac/approvals/{request_id}/approve</code></div>
+      <div class="endpoint-body">
+        <p>Approve a request.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user_id": "manager-001", "comment": "Approved after review"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/rbac/approvals/{request_id}/reject</code></div>
+      <div class="endpoint-body">
+        <p>Reject a request.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"user_id": "manager-001", "comment": "Insufficient documentation"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/rbac/approvals/history/{entity_id}</code></div>
+      <div class="endpoint-body"><p>Get approval history for a specific entity.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/rbac/permissions/{user_id}</code></div>
+      <div class="endpoint-body"><p>Check permissions for a user. Returns role and permission set.</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Regulatory Reports</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/reports/generate/{project_id}</code></div>
+      <div class="endpoint-body">
+        <p>Generate a regulatory report.</p>
+        <h4>Request Body</h4>
+        <table>
+          <tr><td><code>report_type</code></td><td>string, required</td><td>"ifrs7_disclosure", "ecl_movement", "stage_migration", "sensitivity_analysis", or "concentration_risk"</td></tr>
+          <tr><td><code>user</code></td><td>string</td><td>User generating the report</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/reports</code></div>
+      <div class="endpoint-body">
+        <p>List all reports.</p>
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><td><code>project_id</code></td><td>string, optional</td><td>Filter by project</td></tr>
+          <tr><td><code>report_type</code></td><td>string, optional</td><td>Filter by report type</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/reports/{report_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific report with full data.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/reports/{report_id}/export</code></div>
+      <div class="endpoint-body"><p>Export report as CSV file download.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/reports/{report_id}/finalize</code></div>
+      <div class="endpoint-body"><p>Finalize a report (locks it from further modification).</p></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Advanced ECL Features</h2>
+
+    <h3>Cure Rates</h3>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/advanced/cure-rates/compute</code></div>
+      <div class="endpoint-body">
+        <p>Compute cure rates (Stage 2/3 → Stage 1 transitions).</p>
+        <h4>Request Body</h4>
+        <pre><code>{"product_type": "Mortgages"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/cure-rates</code></div>
+      <div class="endpoint-body"><p>List all cure rate analyses.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/cure-rates/{analysis_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific cure rate analysis.</p></div>
+    </div>
+
+    <h3>Credit Conversion Factors (CCF)</h3>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/advanced/ccf/compute</code></div>
+      <div class="endpoint-body">
+        <p>Compute Credit Conversion Factors by stage and utilization band.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"product_type": "Credit Cards"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/ccf</code></div>
+      <div class="endpoint-body"><p>List all CCF analyses.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/ccf/{analysis_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific CCF analysis.</p></div>
+    </div>
+
+    <h3>Collateral Haircuts</h3>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-post">POST</span> <code>/api/advanced/collateral/compute</code></div>
+      <div class="endpoint-body">
+        <p>Compute collateral haircuts and recovery rates.</p>
+        <h4>Request Body</h4>
+        <pre><code>{"product_type": "Auto Finance"}</code></pre>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/collateral</code></div>
+      <div class="endpoint-body"><p>List all collateral analyses.</p></div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header"><span class="badge badge-get">GET</span> <code>/api/advanced/collateral/{analysis_id}</code></div>
+      <div class="endpoint-body"><p>Get a specific collateral analysis.</p></div>
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+EXIT CODE: 0
+DURATION: 455s
+
+--- STDOUT ---
+## Sprint 5 Evaluation Complete
+
+**Verdict: PASS — 9.88/10**
+
+Key findings:
+- **141/141 tests pass** (42s), full suite **3,412/3,412 pass** (111s), **0 regressions**
+- **100% contract fulfillment** — all 46 acceptance criteria verified
+- **Zero bugs found** — ECL engine implementation is mathematically sound
+- Hand-calculated ECL verification with 1e-6 tolerance — gold standard for financial calculations
+- Cholesky correlation validated at rho = 0, 0.5, -0.4, 0.99
+- All edge cases (zero PD/LGD/GCA, PD=1, large EAD, negative correlation) covered
+- All ECL source files under 200-line limit
+- All API endpoints return 200, frontend serves correctly, no regressions
+
+Report written to `harness/evaluations/sprint-5-eval.md`.
+
+
+--- STDERR ---
+

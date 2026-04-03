@@ -1,0 +1,26 @@
+EXIT CODE: 0
+DURATION: 1013s
+
+--- STDOUT ---
+Sprint 8 iteration 5 is complete. Summary:
+
+**What was done:**
+1. Fixed MINOR-1: Removed unused `userEvent` import in `RegulatoryReports.test.tsx`
+2. Added 5 deep page tests for the remaining smoke-only pages:
+   - `DataMapping.test.tsx` (8 tests)
+   - `AdvancedFeatures.test.tsx` (10 tests)
+   - `StressTesting.test.tsx` (9 tests)
+   - `SatelliteModel.test.tsx` (10 tests)
+   - `ModelExecution.test.tsx` (10 tests)
+
+**Results:**
+- **vitest**: 497 tests, 0 failures (53 test files) — up from 450
+- **pytest**: 3,838 tests, 0 failures, 61 skipped
+- **TypeScript**: 0 errors, 0 warnings
+- **Total tests**: 4,335 (was 4,288)
+- **Page deep test coverage**: 19/19 (100%) — was 14/19 (74%)
+- **Component test coverage**: 24/24 (100%)
+
+
+--- STDERR ---
+

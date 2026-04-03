@@ -1,0 +1,18 @@
+EXIT CODE: 0
+DURATION: 434s
+
+--- STDOUT ---
+Sprint 7 iteration 3 complete. Summary:
+
+**Bug Fixed**: BUG-VQA-7-001 — `GET /api/backtest/{id}` returned 500 due to missing `detail` column in `backtest_metrics` table. Added `ALTER TABLE ... ADD COLUMN IF NOT EXISTS detail JSONB` migration to `ensure_backtesting_table()` in `domain/backtesting.py:113`.
+
+**Tests Added**: 16 new regression tests in `tests/unit/test_qa_sprint_7_iter3_regression.py`:
+- 5 tests for schema migration logic (ALTER TABLE runs, ordering, idempotency, exception handling)
+- 8 tests for `get_backtest()` detail column handling (JSON string, dict, None, malformed, multiple metrics)
+- 3 tests for API route behavior (200/404/500 responses)
+
+**Full Suite**: 3,828 passed, 61 skipped, 0 failures. Zero regressions.
+
+
+--- STDERR ---
+

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Setup — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html" class="active">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Data Setup
+    </div>
+
+    <h1>Data Setup</h1>
+    <p class="subtitle">Prepare and map your loan portfolio data for ECL calculation.</p>
+
+    <h2>Required Input Tables</h2>
+    <p>The application reads from five Unity Catalog tables. These are populated by the data processing and ECL calculation pipelines (scripts <code>01_generate_data.py</code> through <code>04_sync_to_lakebase.py</code>).</p>
+
+    <h3>model_ready_loans</h3>
+    <p>The primary loan-level input table containing all attributes needed for ECL calculation.</p>
+    <table>
+      <thead>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>loan_id</code></td><td>STRING</td><td>Unique loan identifier</td></tr>
+        <tr><td><code>product_type</code></td><td>STRING</td><td>Product category (e.g., Mortgages, Personal Loans, Auto Finance, Credit Cards, SME Lending)</td></tr>
+        <tr><td><code>segment</code></td><td>STRING</td><td>Borrower segment (e.g., Prime, Near-Prime, Sub-Prime)</td></tr>
+        <tr><td><code>assessed_stage</code></td><td>INT</td><td>IFRS 9 stage assignment: 1 (performing), 2 (significant increase in credit risk), 3 (credit-impaired)</td></tr>
+        <tr><td><code>original_stage</code></td><td>INT</td><td>Stage at the beginning of the reporting period (for migration analysis)</td></tr>
+        <tr><td><code>days_past_due</code></td><td>INT</td><td>Number of days the loan is past due</td></tr>
+        <tr><td><code>gross_carrying_amount</code></td><td>DOUBLE</td><td>Gross carrying amount (GCA) of the loan</td></tr>
+        <tr><td><code>current_lifetime_pd</code></td><td>DOUBLE</td><td>Current lifetime probability of default (0.0 – 1.0)</td></tr>
+        <tr><td><code>current_12m_pd</code></td><td>DOUBLE</td><td>12-month probability of default (0.0 – 1.0)</td></tr>
+        <tr><td><code>lgd</code></td><td>DOUBLE</td><td>Loss Given Default (0.0 – 1.0)</td></tr>
+        <tr><td><code>ead</code></td><td>DOUBLE</td><td>Exposure at Default</td></tr>
+        <tr><td><code>ecl_amount</code></td><td>DOUBLE</td><td>Calculated ECL amount for this loan</td></tr>
+        <tr><td><code>remaining_months</code></td><td>INT</td><td>Remaining term to maturity in months</td></tr>
+        <tr><td><code>vintage_cohort</code></td><td>STRING</td><td>Origination vintage (e.g., "2023-Q1")</td></tr>
+        <tr><td><code>risk_band</code></td><td>STRING</td><td>Risk rating band (e.g., "A", "B", "C", "D")</td></tr>
+        <tr><td><code>collateral_type</code></td><td>STRING</td><td>Type of collateral (e.g., "Property", "Vehicle", "None")</td></tr>
+        <tr><td><code>collateral_value</code></td><td>DOUBLE</td><td>Current collateral valuation</td></tr>
+        <tr><td><code>interest_rate</code></td><td>DOUBLE</td><td>Contractual interest rate</td></tr>
+        <tr><td><code>origination_date</code></td><td>DATE</td><td>Loan origination date</td></tr>
+        <tr><td><code>maturity_date</code></td><td>DATE</td><td>Loan maturity date</td></tr>
+        <tr><td><code>reporting_date</code></td><td>DATE</td><td>Reporting period end date</td></tr>
+      </tbody>
+    </table>
+
+    <h3>loan_ecl_weighted</h3>
+    <p>Scenario-weighted ECL at the loan level — the final ECL after applying scenario weights.</p>
+    <table>
+      <thead>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>loan_id</code></td><td>STRING</td><td>Unique loan identifier</td></tr>
+        <tr><td><code>product_type</code></td><td>STRING</td><td>Product category</td></tr>
+        <tr><td><code>assessed_stage</code></td><td>INT</td><td>IFRS 9 stage (1, 2, or 3)</td></tr>
+        <tr><td><code>gross_carrying_amount</code></td><td>DOUBLE</td><td>Gross carrying amount</td></tr>
+        <tr><td><code>weighted_ecl</code></td><td>DOUBLE</td><td>Probability-weighted ECL across all scenarios</td></tr>
+        <tr><td><code>base_ecl</code></td><td>DOUBLE</td><td>ECL under the base scenario</td></tr>
+        <tr><td><code>upside_ecl</code></td><td>DOUBLE</td><td>ECL under the upside scenario</td></tr>
+        <tr><td><code>downside_ecl</code></td><td>DOUBLE</td><td>ECL under the downside scenario</td></tr>
+        <tr><td><code>coverage_ratio</code></td><td>DOUBLE</td><td>ECL / GCA ratio</td></tr>
+      </tbody>
+    </table>
+
+    <h3>loan_level_ecl</h3>
+    <p>Per-scenario ECL at the loan level — one row per loan per scenario.</p>
+    <table>
+      <thead>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>loan_id</code></td><td>STRING</td><td>Unique loan identifier</td></tr>
+        <tr><td><code>scenario</code></td><td>STRING</td><td>Scenario name (base, upside, downside)</td></tr>
+        <tr><td><code>product_type</code></td><td>STRING</td><td>Product category</td></tr>
+        <tr><td><code>assessed_stage</code></td><td>INT</td><td>IFRS 9 stage</td></tr>
+        <tr><td><code>pd</code></td><td>DOUBLE</td><td>Scenario-adjusted probability of default</td></tr>
+        <tr><td><code>lgd</code></td><td>DOUBLE</td><td>Scenario-adjusted loss given default</td></tr>
+        <tr><td><code>ead</code></td><td>DOUBLE</td><td>Exposure at default</td></tr>
+        <tr><td><code>ecl</code></td><td>DOUBLE</td><td>Calculated ECL for this scenario</td></tr>
+        <tr><td><code>gross_carrying_amount</code></td><td>DOUBLE</td><td>Gross carrying amount</td></tr>
+      </tbody>
+    </table>
+
+    <h3>portfolio_ecl_summary</h3>
+    <p>Aggregated portfolio-level ECL by product type, stage, and scenario.</p>
+    <table>
+      <thead>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>product_type</code></td><td>STRING</td><td>Product category</td></tr>
+        <tr><td><code>assessed_stage</code></td><td>INT</td><td>IFRS 9 stage</td></tr>
+        <tr><td><code>scenario</code></td><td>STRING</td><td>Scenario name</td></tr>
+        <tr><td><code>loan_count</code></td><td>INT</td><td>Number of loans in this segment</td></tr>
+        <tr><td><code>total_gca</code></td><td>DOUBLE</td><td>Total gross carrying amount</td></tr>
+        <tr><td><code>total_ecl</code></td><td>DOUBLE</td><td>Total ECL amount</td></tr>
+        <tr><td><code>avg_pd</code></td><td>DOUBLE</td><td>Average probability of default</td></tr>
+        <tr><td><code>avg_lgd</code></td><td>DOUBLE</td><td>Average loss given default</td></tr>
+        <tr><td><code>coverage_pct</code></td><td>DOUBLE</td><td>ECL coverage ratio (ECL / GCA × 100)</td></tr>
+        <tr><td><code>weight</code></td><td>DOUBLE</td><td>Scenario probability weight</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ifrs7_stage_migration</h3>
+    <p>Period-over-period stage transition counts for IFRS 7 disclosure.</p>
+    <table>
+      <thead>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>original_stage</code></td><td>INT</td><td>Stage at beginning of period</td></tr>
+        <tr><td><code>assessed_stage</code></td><td>INT</td><td>Stage at end of period</td></tr>
+        <tr><td><code>product_type</code></td><td>STRING</td><td>Product category</td></tr>
+        <tr><td><code>loan_count</code></td><td>INT</td><td>Number of loans that migrated</td></tr>
+        <tr><td><code>total_gca</code></td><td>DOUBLE</td><td>Total GCA of migrated loans</td></tr>
+        <tr><td><code>total_ecl</code></td><td>DOUBLE</td><td>Total ECL of migrated loans</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Column Mapping</h2>
+    <p>If your source data uses different column names, the Admin Configuration panel provides a mapping interface. Navigate to <strong>Admin → Data Sources</strong> to:</p>
+    <ol>
+      <li>Select your Unity Catalog table</li>
+      <li>The system auto-suggests mappings based on column name similarity</li>
+      <li>Review and adjust mappings manually</li>
+      <li>Validate that all required columns are mapped</li>
+    </ol>
+    <p>You can also use the API:</p>
+    <pre><code><span class="cmt"># Get auto-suggested mappings</span>
+curl https://&lt;app-url&gt;/api/admin/suggest-mappings/model_ready_loans
+
+<span class="cmt"># Validate a mapping</span>
+curl -X POST https://&lt;app-url&gt;/api/admin/validate-mapping \
+  -H "Content-Type: application/json" \
+  -d '{
+    "table_key": "model_ready_loans",
+    "mappings": {
+      "loan_id": "account_number",
+      "product_type": "product_category",
+      "assessed_stage": "ifrs9_stage"
+    }
+  }'</code></pre>
+
+    <h2>Data Quality Requirements</h2>
+    <p>The application runs data quality checks during Step 1 of the workflow. Key requirements:</p>
+    <table>
+      <thead>
+        <tr><th>Check</th><th>Requirement</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Completeness</td><td><code>loan_id</code>, <code>product_type</code>, <code>assessed_stage</code> must not be NULL</td><td>Error</td></tr>
+        <tr><td>Stage Values</td><td><code>assessed_stage</code> must be 1, 2, or 3</td><td>Error</td></tr>
+        <tr><td>PD Range</td><td><code>current_lifetime_pd</code> must be between 0 and 1</td><td>Error</td></tr>
+        <tr><td>LGD Range</td><td><code>lgd</code> must be between 0 and 1</td><td>Error</td></tr>
+        <tr><td>GCA Positive</td><td><code>gross_carrying_amount</code> must be &gt; 0</td><td>Error</td></tr>
+        <tr><td>DPD Consistency</td><td>Stage 1 loans should have DPD &lt; 30; Stage 3 should have DPD ≥ 90</td><td>Warning</td></tr>
+        <tr><td>Duplicate Loans</td><td>No duplicate <code>loan_id</code> values</td><td>Error</td></tr>
+        <tr><td>Vintage Format</td><td><code>vintage_cohort</code> should follow YYYY-QN format</td><td>Warning</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Sample Data Format</h2>
+    <p>Here's an example of the expected data format for <code>model_ready_loans</code>:</p>
+    <pre><code>loan_id,product_type,segment,assessed_stage,days_past_due,gross_carrying_amount,current_lifetime_pd,lgd,ead,ecl_amount,remaining_months,vintage_cohort,risk_band
+LN-000001,Mortgages,Prime,1,0,450000.00,0.0120,0.15,450000.00,810.00,240,2022-Q3,A
+LN-000002,Personal Loans,Near-Prime,2,45,25000.00,0.0850,0.45,25000.00,956.25,36,2023-Q1,C
+LN-000003,Auto Finance,Prime,1,0,35000.00,0.0200,0.35,35000.00,245.00,48,2023-Q2,B
+LN-000004,Credit Cards,Sub-Prime,3,120,8000.00,0.4500,0.80,8000.00,2880.00,12,2021-Q4,D
+LN-000005,SME Lending,Near-Prime,2,60,150000.00,0.1200,0.55,150000.00,9900.00,60,2022-Q1,C</code></pre>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

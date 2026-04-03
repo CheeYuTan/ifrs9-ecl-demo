@@ -1,0 +1,20 @@
+EXIT CODE: 0
+DURATION: 279s
+
+--- STDOUT ---
+Sprint 1 iteration 5 complete.
+
+**Summary:**
+- Fixed `SCENARIO_LABELS` missing from `mcChartData` useMemo dependency array in `stress-testing/index.tsx`
+- TypeScript: 0 errors
+- Vite build: SUCCESS
+- Frontend tests: **103/103 pass**
+- Backend tests: 927 passed (from prior run; venv needs `pip install -r requirements.txt` to restore pytest)
+- Sprint 1 passed evaluation at iteration 2 with **9.08/10**
+- Committed as `abcf529`
+
+Handoff written to `harness/handoffs/sprint-1-handoff.md`. Ready for Visual QA.
+
+
+--- STDERR ---
+

@@ -49,3 +49,16 @@ scripts/slide_training_scheduler.sh
 # IDE
 .vscode/
 .idea/
+
+# Virtual environment
+.venv/
+
+# Claude Code
+.claude/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Temp screenshots (root level)
+/*.png

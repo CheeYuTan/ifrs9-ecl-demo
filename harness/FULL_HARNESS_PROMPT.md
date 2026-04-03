@@ -1,0 +1,87 @@
+# Perfect IFRS 9 ECL Platform — Product Goals
+
+## Vision
+A customer deploys the app on Databricks, maps their loan data, and produces a fully audited, signed-off ECL report — all within a single session. No synthetic data. No broken pipelines. No half-finished features.
+
+## What Already Exists
+- 18 frontend pages, 105+ API endpoints, 324 passing tests
+- Monte Carlo ECL engine, satellite models, backtesting, Markov chains, hazard models
+- RBAC, GL journals, data mapping, admin configuration, dark mode
+- Documentation (17 HTML pages), install.sh, deploy.sh
+
+## Product Goals (what the user must be able to DO)
+
+### Goal 1: Plug-and-Play Customer Onboarding
+A new customer can deploy the app and map their data without any Databricks or IFRS 9 expertise.
+- One-click deployment on a fresh Databricks workspace succeeds without manual steps
+- Setup wizard guides first-time users through configuration
+- Data mapping wizard handles all 7 table types with smart auto-detection
+- Validation catches bad data (PD > 1, negative amounts, invalid dates) with clear messages
+- Customer can preview transformed data before committing
+- Demo mode available as optional fallback with clearly labeled synthetic data
+
+### Goal 2: Complete End-to-End Pipeline
+Every pipeline step works reliably from data ingestion to signed-off ECL.
+- Full pipeline (data processing → models → ECL calculation → sync) runs without errors on real mapped data
+- Pipeline failures show clear error messages and are resumable from the failed step
+- Pipeline progress is visible in the UI (which step is running, % complete)
+- All 8 satellite models train, evaluate, and predict correctly
+- ECL calculation produces mathematically correct results that reconcile with input data
+- 0 test failures when running the full test suite
+
+### Goal 3: World-Class Interactive Analytics
+Every visualization is interactive, correctly ordered, and insightful.
+- Every chart has drill-down with domain-correct ordering (credit grades AAA→D, stages 1→3, age ascending)
+- All drill-down levels are sorted, not just the top level
+- Portfolio by product has full drill-down capability like every other chart
+- Executive dashboard with KPIs (total ECL, stage distribution, trend, top exposures)
+- Hover shows exact values, click drills down, breadcrumbs show navigation path
+- Global search to find any loan, borrower, product, or report
+
+### Goal 4: Regulatory-Ready Reporting
+Reports that would pass an external auditor's scrutiny.
+- IFRS 7 disclosure pack exports as PDF
+- ECL movement reconciliation (opening → closing) exports as formatted Excel
+- Stage migration matrix with percentages and counts
+- Sensitivity analysis report (what-if on macro variables)
+- Executive summary report (1-page for CFO/board)
+- All reports are date-stamped, versioned, and stored with full provenance
+
+### Goal 5: Bulletproof Governance
+Complete audit trail and model governance that satisfies regulators.
+- Every action logged (who, what, when)
+- Segregation of duties enforced (maker ≠ checker ≠ approver)
+- Model lifecycle tracking from development to retirement
+- Historical ECL runs retrievable with full provenance for regulatory examination
+- Configuration changes tracked in change log
+
+### Goal 6: Complete Documentation & Guided Experience
+A user unfamiliar with the app can learn it from the docs alone.
+- Every feature documented with examples
+- Quick start guide: deployment to first ECL in under 5 minutes reading time
+- In-app contextual help with IFRS 9 paragraph references
+- API reference with request/response examples for every endpoint
+- Troubleshooting guide for common issues
+
+### Goal 7: Comprehensive Quality Assurance
+The app is thoroughly tested — every click, every edge case.
+- 500+ automated tests (unit + integration + E2E)
+- Every API endpoint has at least one test
+- Every workflow step tested (create → process → model → stress → overlay → sign-off)
+- Error states tested (missing data, invalid input, network failures)
+- Performance validated (100K loan Monte Carlo completes in reasonable time)
+- All notebooks run without errors
+
+## Non-Negotiable Requirements
+1. No synthetic data as default flow — data mapping is primary
+2. All pipeline steps work end-to-end without errors
+3. 0 test failures
+4. Every chart has interactive drill-down with correct ordering
+5. One-click deployment works
+6. Documentation covers every feature
+
+## Quality Bar
+- Quality target: 9.5/10
+- The harness does NOT stop at a fixed sprint count — it stops when ALL goals above are met and the final integration evaluation passes
+- If the evaluator discovers new gaps, they become new goals
+- Sprints are emergent from goals, not pre-planned

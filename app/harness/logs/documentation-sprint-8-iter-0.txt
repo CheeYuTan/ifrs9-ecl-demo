@@ -1,0 +1,27 @@
+EXIT CODE: 0
+DURATION: 315s
+
+--- STDOUT ---
+Documentation Batch 3 is complete. Here's what was done:
+
+**3 new feature guides written:**
+- `domain-logic-core.md` — Sprint 6: workflow state machine, 27 query builders, ECL attribution (IFRS 7.35I), 23 validation rules, data mapper, audit trail
+- `domain-logic-analytical.md` — Sprint 7: model registry, backtesting (6 metrics + Basel traffic lights), Markov chains, hazard models, advanced analytics, 3 bug fixes documented
+- `frontend-testing.md` — Sprint 8: 383% test expansion (103→497), 24/24 components + 19/19 pages covered, test patterns and running instructions
+
+**Structural updates:**
+- `overview.md` — added Test Coverage section (4,335 total tests)
+- `architecture.md` — added Domain Logic Layer section with core + analytical module breakdown
+- `faq.md` — added 4 new testing Q&As
+- `sidebars.ts` — added 3 new guide entries
+
+**Verification:**
+- Docs site builds with zero errors and zero warnings
+- 6 screenshots referenced (2 per guide), all exist on disk
+- All internal links resolve
+
+**Report:** `harness/evaluations/doc-batch-3-report.md` — self-assessed 9.8/10, PASS recommendation.
+
+
+--- STDERR ---
+

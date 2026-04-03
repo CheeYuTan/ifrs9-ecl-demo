@@ -1,0 +1,330 @@
+"""
+Default configuration constants for IFRS 9 ECL Application.
+All constant dicts live here to keep admin_config.py lean.
+"""
+
+DATA_SOURCE_CONFIG = {
+    "catalog": "lakemeter_catalog",
+    "schema": "expected_credit_loss",
+    "lakebase_schema": "expected_credit_loss",
+    "lakebase_prefix": "lb_",
+    "tables": {
+        "loan_tape": {
+            "source_table": "loan_tape",
+            "required": True,
+            "description": "Raw loan-level records. Each row = one active loan facility.",
+            "mandatory_columns": [
+                {"name": "loan_id", "type": "TEXT", "description": "Unique loan identifier", "example": "LN-000001, MORT-2024-042", "constraints": "Must be unique per row. No nulls."},
+                {"name": "borrower_id", "type": "TEXT", "description": "Borrower identifier — links to borrower_master", "example": "BRW-A1B2C3, CUST-001", "constraints": "Must match a row in borrower_master."},
+                {"name": "product_type", "type": "TEXT", "description": "Loan product category — must match products in LGD Assumptions and historical_defaults", "example": "personal_loan, mortgage, credit_card", "constraints": "Must match a product defined in Model Config > LGD Assumptions."},
+                {"name": "origination_date", "type": "DATE", "description": "Date the loan was originated / disbursed", "example": "2023-06-15", "constraints": "Must be before reporting_date."},
+                {"name": "maturity_date", "type": "DATE", "description": "Contractual maturity date of the loan", "example": "2028-06-15", "constraints": "Must be after origination_date."},
+                {"name": "original_principal", "type": "NUMERIC", "description": "Original disbursed principal amount", "example": "15000.00, 250000.50", "constraints": "Positive number in configured currency."},
+                {"name": "gross_carrying_amount", "type": "NUMERIC", "description": "Current outstanding balance (Exposure at Default basis)", "example": "12500.00", "constraints": "Positive number. Must be <= original_principal (unless capitalized interest)."},
+                {"name": "effective_interest_rate", "type": "NUMERIC", "description": "Annual effective interest rate for discounting future cash flows", "example": "0.085 (= 8.5%)", "constraints": "Decimal between 0 and 1. Annual rate, not monthly."},
+                {"name": "contractual_term_months", "type": "INT", "description": "Original contractual loan term in months", "example": "12, 36, 240", "constraints": "Positive integer."},
+                {"name": "remaining_months", "type": "INT", "description": "Months remaining until maturity from reporting date", "example": "24", "constraints": "Non-negative integer. 0 = matured."},
+                {"name": "days_past_due", "type": "INT", "description": "Number of days the borrower is past due on payments", "example": "0, 15, 45, 120", "constraints": "Non-negative integer. 0 = current. Used for SICR staging."},
+                {"name": "origination_pd", "type": "NUMERIC", "description": "Probability of default at origination (through-the-cycle or point-in-time)", "example": "0.02 (= 2%)", "constraints": "Decimal between 0 and 1. Required for SICR PD-ratio trigger."},
+                {"name": "current_lifetime_pd", "type": "NUMERIC", "description": "Current point-in-time lifetime probability of default", "example": "0.05 (= 5%)", "constraints": "Decimal between 0 and 1. Higher = riskier."},
+                {"name": "current_stage", "type": "INT", "description": "Current IFRS 9 stage before pipeline reassessment (bank's own staging)", "example": "1, 2, 3", "constraints": "Must be 1 (performing), 2 (SICR), or 3 (credit-impaired)."},
+            ],
+            "optional_columns": [
+                {"name": "months_on_book", "type": "INT", "description": "Months since origination", "default": "Calculated from origination_date", "example": "18", "constraints": "Non-negative integer."},
+                {"name": "prior_stage", "type": "INT", "description": "IFRS 9 stage from prior reporting period (for migration analysis)", "default": "current_stage", "example": "1", "constraints": "1, 2, or 3."},
+                {"name": "is_restructured", "type": "BOOLEAN", "description": "Whether the loan has been restructured/forborne", "default": "false", "example": "true, false", "constraints": "Restructured loans trigger SICR (Stage 2 minimum)."},
+                {"name": "is_write_off", "type": "BOOLEAN", "description": "Whether the loan has been written off", "default": "false", "example": "true, false", "constraints": "Written-off loans are excluded from ECL calculation."},
+                {"name": "currency", "type": "TEXT", "description": "Loan currency code", "default": "App currency setting", "example": "USD, EUR, MYR"},
+                {"name": "reporting_date", "type": "DATE", "description": "Reporting/snapshot date for this record", "default": "Project reporting date", "example": "2025-12-31"},
+                {"name": "origination_alt_score", "type": "NUMERIC", "description": "Alternative credit score at origination (if available)", "default": "null", "example": "65.0"},
+                {"name": "current_alt_score", "type": "NUMERIC", "description": "Current alternative credit score (if available)", "default": "null", "example": "58.0"},
+                {"name": "cohort_id", "type": "TEXT", "description": "Risk cohort grouping for satellite model", "default": "'__ALL__'", "example": "retail_secured, sme_unsecured"},
+                {"name": "vintage_year", "type": "TEXT", "description": "Origination year for vintage analysis", "default": "Derived from origination_date", "example": "2023"},
+                {"name": "risk_band", "type": "TEXT", "description": "Risk band classification", "default": "Derived from origination_pd terciles", "example": "Low, Medium, High"},
+            ],
+            "column_mappings": {},
+        },
+        "borrower_master": {
+            "source_table": "borrower_master",
+            "required": True,
+            "description": "Borrower-level demographics and risk attributes.",
+            "mandatory_columns": [
+                {"name": "borrower_id", "type": "TEXT", "description": "Unique borrower identifier — must match borrower_id in loan_tape", "example": "BRW-A1B2C3, CUST-001", "constraints": "Must be unique per row. Must match loan_tape.borrower_id."},
+                {"name": "segment", "type": "TEXT", "description": "Borrower segment for risk stratification and reporting", "example": "retail, corporate, sme, underbanked", "constraints": "Text category. Used for concentration analysis."},
+            ],
+            "optional_columns": [
+                {"name": "age", "type": "INT", "description": "Borrower age in years", "default": "null", "example": "25, 45, 67", "constraints": "Positive integer."},
+                {"name": "monthly_income", "type": "NUMERIC", "description": "Borrower monthly income in configured currency", "default": "null", "example": "3500.00, 12000.00", "constraints": "Non-negative."},
+                {"name": "income_source", "type": "TEXT", "description": "Employment / income type", "default": "null", "example": "full_time_employed, freelancer, gig_worker"},
+                {"name": "employment_tenure_months", "type": "INT", "description": "Months in current employment", "default": "null", "example": "24"},
+                {"name": "education_level", "type": "TEXT", "description": "Highest education level", "default": "null", "example": "bachelors, secondary, vocational"},
+                {"name": "formal_credit_score", "type": "INT", "description": "Traditional credit bureau score (if available)", "default": "null", "example": "620, 750", "constraints": "Typically 300-850. Null if thin-file borrower."},
+                {"name": "alt_data_composite_score", "type": "NUMERIC", "description": "Alternative data composite score (telco, utility, mobile money)", "default": "null", "example": "65.0, 82.0", "constraints": "Typically 0-100. Used for SICR alt-data trigger."},
+                {"name": "country", "type": "TEXT", "description": "Borrower country code", "default": "null", "example": "US, PH, MY"},
+                {"name": "region", "type": "TEXT", "description": "Borrower region/state", "default": "null", "example": "NCR, California"},
+                {"name": "dependents", "type": "INT", "description": "Number of dependents", "default": "null", "example": "0, 2, 4"},
+            ],
+            "column_mappings": {},
+        },
+        "payment_history": {
+            "source_table": "payment_history",
+            "required": True,
+            "description": "Monthly payment records per loan.",
+            "mandatory_columns": [
+                {"name": "loan_id", "type": "TEXT", "description": "Loan identifier — must match loan_tape.loan_id", "example": "LN-000001", "constraints": "Must match a loan in loan_tape."},
+                {"name": "payment_date", "type": "DATE", "description": "Date the payment was due or made", "example": "2025-06-15", "constraints": "Must be a valid date."},
+                {"name": "amount_due", "type": "NUMERIC", "description": "Contractual payment amount due", "example": "450.00", "constraints": "Positive number."},
+                {"name": "amount_paid", "type": "NUMERIC", "description": "Actual amount paid by borrower", "example": "450.00, 200.00, 0.00", "constraints": "Non-negative. 0 = missed payment."},
+                {"name": "payment_status", "type": "TEXT", "description": "Payment outcome classification", "example": "on_time, late, partial, missed", "constraints": "Must be one of: on_time, late, partial, missed."},
+            ],
+            "optional_columns": [
+                {"name": "days_late", "type": "INT", "description": "Days late for this specific payment", "default": "0", "example": "0, 5, 30"},
+                {"name": "payment_period", "type": "INT", "description": "Sequential payment number", "default": "null", "example": "1, 6, 12"},
+                {"name": "payment_method", "type": "TEXT", "description": "Payment channel", "default": "null", "example": "bank_transfer, mobile_money, cash"},
+            ],
+            "column_mappings": {},
+        },
+        "historical_defaults": {
+            "source_table": "historical_defaults",
+            "required": True,
+            "description": "Historical default events with recovery data.",
+            "mandatory_columns": [
+                {"name": "product_type", "type": "TEXT", "description": "Loan product category — must match loan_tape.product_type", "example": "personal_loan, mortgage", "constraints": "Must match product_type values in loan_tape."},
+                {"name": "default_date", "type": "DATE", "description": "Date the loan entered default status", "example": "2024-03-15", "constraints": "Must be a valid historical date."},
+                {"name": "exposure_at_default", "type": "NUMERIC", "description": "Outstanding balance at the time of default", "example": "12500.00", "constraints": "Positive number."},
+                {"name": "loss_given_default", "type": "NUMERIC", "description": "Realized loss as a fraction of exposure (1 - recovery rate)", "example": "0.45 (= 45% loss)", "constraints": "Decimal between 0 and 1."},
+            ],
+            "optional_columns": [
+                {"name": "recovery_amount", "type": "NUMERIC", "description": "Amount recovered after default", "default": "Calculated as EAD x (1 - LGD)", "example": "6875.00"},
+                {"name": "recovery_date", "type": "DATE", "description": "Date recovery was realized", "default": "null", "example": "2024-09-20"},
+                {"name": "loss_amount", "type": "NUMERIC", "description": "Net loss amount", "default": "Calculated as EAD x LGD", "example": "5625.00"},
+                {"name": "default_reason", "type": "TEXT", "description": "Reason for default", "default": "null", "example": "income_loss, over_indebtedness, business_failure"},
+                {"name": "quarter", "type": "TEXT", "description": "Quarter label for aggregation", "default": "Derived from default_date", "example": "Q1-2024"},
+                {"name": "was_restructured_before_default", "type": "BOOLEAN", "description": "Whether the loan was restructured before defaulting", "default": "false"},
+                {"name": "months_to_default", "type": "INT", "description": "Months from origination to default", "default": "null", "example": "8"},
+            ],
+            "column_mappings": {},
+        },
+        "macro_scenarios": {
+            "source_table": "macro_scenarios",
+            "required": True,
+            "description": "Forward-looking macroeconomic scenario projections.",
+            "mandatory_columns": [
+                {"name": "scenario_name", "type": "TEXT", "description": "Scenario identifier — must match scenario keys in App Settings", "example": "baseline, adverse, severely_adverse", "constraints": "Must match a scenario key defined in App Settings > Scenario Weights."},
+                {"name": "scenario_weight", "type": "NUMERIC", "description": "Probability weight for this scenario", "example": "0.30 (= 30%)", "constraints": "Decimal between 0 and 1. All scenario weights should sum to 1.0."},
+                {"name": "quarters_ahead", "type": "INT", "description": "Number of quarters into the future (1 = next quarter)", "example": "1, 4, 12", "constraints": "Positive integer. Typically 1 to 12."},
+                {"name": "unemployment_rate", "type": "NUMERIC", "description": "Projected unemployment rate (%)", "example": "5.2, 9.0", "constraints": "Percentage value (e.g., 5.2 means 5.2%). Satellite model feature."},
+                {"name": "gdp_growth_rate", "type": "NUMERIC", "description": "Projected GDP growth rate (%)", "example": "2.5, -3.0", "constraints": "Percentage value. Can be negative. Satellite model feature."},
+                {"name": "inflation_rate", "type": "NUMERIC", "description": "Projected inflation rate (%)", "example": "3.5, 8.0", "constraints": "Percentage value. Satellite model feature."},
+            ],
+            "optional_columns": [
+                {"name": "forecast_date", "type": "DATE", "description": "Calendar date for this forecast quarter", "default": "Derived from quarters_ahead", "example": "2026-03-31"},
+                {"name": "forecast_quarter", "type": "TEXT", "description": "Quarter label", "default": "Derived from forecast_date", "example": "Q1-2026"},
+                {"name": "scenario_description", "type": "TEXT", "description": "Human-readable scenario narrative", "default": "null", "example": "Deep recession with banking sector stress"},
+                {"name": "policy_interest_rate", "type": "NUMERIC", "description": "Projected central bank policy rate (%)", "default": "null", "example": "5.50"},
+                {"name": "consumer_confidence_index", "type": "NUMERIC", "description": "Consumer confidence index", "default": "null", "example": "98.0"},
+            ],
+            "column_mappings": {},
+        },
+        "general_ledger": {
+            "source_table": "general_ledger",
+            "required": False,
+            "description": "General ledger trial balance for loan accounts. Optional.",
+            "mandatory_columns": [
+                {"name": "account_name", "type": "TEXT", "description": "GL account name — must contain the product type for matching", "example": "Loans Receivable - Personal Loan", "constraints": "Product name in the account name must match loan_tape.product_type."},
+                {"name": "account_type", "type": "TEXT", "description": "Account classification", "example": "asset, contra_asset", "constraints": "Must be 'asset' for loan receivables."},
+                {"name": "gl_balance", "type": "NUMERIC", "description": "GL balance as of reporting date", "example": "15000000.00", "constraints": "Positive for assets, negative for contra-assets."},
+            ],
+            "optional_columns": [
+                {"name": "account_code", "type": "TEXT", "description": "GL account code", "default": "null", "example": "1100"},
+                {"name": "as_of_date", "type": "DATE", "description": "Balance date", "default": "Reporting date", "example": "2025-12-31"},
+                {"name": "currency", "type": "TEXT", "description": "Currency code", "default": "App currency", "example": "USD"},
+            ],
+            "column_mappings": {},
+        },
+        "collateral_register": {
+            "source_table": "collateral_register",
+            "required": False,
+            "description": "Collateral information for secured loan products. Optional.",
+            "mandatory_columns": [
+                {"name": "loan_id", "type": "TEXT", "description": "Loan identifier — must match loan_tape.loan_id", "example": "LN-000001", "constraints": "Must match a loan in loan_tape."},
+                {"name": "current_collateral_value", "type": "NUMERIC", "description": "Current market/appraised value of collateral", "example": "18000.00", "constraints": "Positive number."},
+                {"name": "loan_to_value_ratio", "type": "NUMERIC", "description": "Current LTV ratio (outstanding balance / collateral value)", "example": "0.85 (= 85%)", "constraints": "Positive decimal. Values > 1.0 indicate negative equity."},
+            ],
+            "optional_columns": [
+                {"name": "collateral_type", "type": "TEXT", "description": "Type of collateral", "default": "null", "example": "property, savings_deposit, vehicle"},
+                {"name": "original_collateral_value", "type": "NUMERIC", "description": "Collateral value at origination", "default": "null", "example": "20000.00"},
+                {"name": "last_valuation_date", "type": "DATE", "description": "Date of last collateral valuation", "default": "null", "example": "2025-11-15"},
+                {"name": "collateral_status", "type": "TEXT", "description": "Collateral adequacy status", "default": "null", "example": "adequate, impaired"},
+            ],
+            "column_mappings": {},
+        },
+        "model_ready_loans": {
+            "source_table": "model_ready_loans",
+            "required": False,
+            "description": "Pre-processed model-ready loan data with derived risk dimensions. Map this if you have externally prepared data.",
+            "mandatory_columns": [
+                {"name": "loan_id", "type": "TEXT", "description": "Unique loan identifier"},
+                {"name": "product_type", "type": "TEXT", "description": "Loan product category"},
+                {"name": "assessed_stage", "type": "INT", "description": "IFRS 9 stage (1/2/3)"},
+                {"name": "gross_carrying_amount", "type": "NUMERIC", "description": "Outstanding balance"},
+                {"name": "effective_interest_rate", "type": "NUMERIC", "description": "EIR for discounting"},
+                {"name": "current_lifetime_pd", "type": "NUMERIC", "description": "Point-in-time PD"},
+                {"name": "days_past_due", "type": "INT", "description": "Days past due"},
+                {"name": "remaining_months", "type": "INT", "description": "Remaining loan term"},
+                {"name": "segment", "type": "TEXT", "description": "Borrower segment"},
+            ],
+            "optional_columns": [
+                {"name": "borrower_id", "type": "TEXT", "description": "Borrower identifier"},
+                {"name": "credit_grade", "type": "TEXT", "description": "Credit grade classification (AAA to D)", "default": "null"},
+                {"name": "credit_risk_grade", "type": "TEXT", "description": "Credit risk grade for IFRS 7 reporting", "default": "null"},
+                {"name": "risk_band", "type": "TEXT", "description": "Risk band (Low/Medium/High)", "default": "null"},
+                {"name": "delinquency_bucket", "type": "TEXT", "description": "DPD bucket (Current, 1-30, 31-60, 61-90, 90+)", "default": "Derived from days_past_due"},
+                {"name": "region", "type": "TEXT", "description": "Geographic region", "default": "null"},
+                {"name": "age_bucket", "type": "TEXT", "description": "Borrower age group", "default": "null"},
+                {"name": "employment_type", "type": "TEXT", "description": "Employment classification", "default": "null"},
+                {"name": "vintage_year", "type": "TEXT", "description": "Origination year", "default": "Derived from origination_date"},
+                {"name": "ltv_band", "type": "TEXT", "description": "Loan-to-value band", "default": "null"},
+                {"name": "industry_sector", "type": "TEXT", "description": "Industry classification", "default": "null"},
+                {"name": "origination_pd", "type": "NUMERIC", "description": "PD at origination", "default": "null"},
+                {"name": "prior_stage", "type": "INT", "description": "Prior period stage", "default": "null"},
+                {"name": "contractual_term_months", "type": "INT", "description": "Original loan term", "default": "null"},
+                {"name": "months_on_book", "type": "INT", "description": "Months since origination", "default": "null"},
+                {"name": "original_principal", "type": "NUMERIC", "description": "Original disbursed amount", "default": "null"},
+            ],
+            "column_mappings": {},
+        },
+    },
+}
+
+MODEL_CONFIG = {
+    "satellite_models": {
+        "linear_regression": {"enabled": True, "label": "Linear Regression"},
+        "logistic_regression": {"enabled": True, "label": "Logistic Regression"},
+        "polynomial_deg2": {"enabled": True, "label": "Polynomial (Degree 2)"},
+        "ridge_regression": {"enabled": True, "label": "Ridge Regression"},
+        "random_forest": {"enabled": True, "label": "Random Forest"},
+        "elastic_net": {"enabled": True, "label": "Elastic Net"},
+        "gradient_boosting": {"enabled": True, "label": "Gradient Boosting"},
+        "xgboost": {"enabled": True, "label": "XGBoost"},
+    },
+    "default_parameters": {
+        "n_simulations": 1000,
+        "max_simulations": 50000,
+        "pd_lgd_correlation": 0.30,
+        "aging_factor": 0.08,
+        "pd_floor": 0.001,
+        "pd_cap": 0.95,
+        "lgd_floor": 0.01,
+        "lgd_cap": 0.95,
+    },
+    "sicr_thresholds": {
+        "stage_1_max_dpd": 30,
+        "stage_2_max_dpd": 90,
+        "stage_3_min_dpd": 90,
+        "pd_relative_threshold": 2.0,
+        "pd_absolute_threshold": 0.005,
+    },
+    "lgd_assumptions": {
+        "credit_card": {"lgd": 0.60, "cure_rate": 0.15},
+        "residential_mortgage": {"lgd": 0.15, "cure_rate": 0.40},
+        "commercial_loan": {"lgd": 0.25, "cure_rate": 0.30},
+        "personal_loan": {"lgd": 0.50, "cure_rate": 0.20},
+        "auto_loan": {"lgd": 0.35, "cure_rate": 0.25},
+    },
+}
+
+JOB_CONFIG = {
+    "workspace_url": "",
+    "workspace_id": "",
+    "scripts_base_path": "",
+    "job_ids": {},
+    "default_job_params": {
+        "enabled_models": "linear_regression,logistic_regression,polynomial_deg2,ridge_regression,random_forest,elastic_net,gradient_boosting,xgboost",
+    },
+    "compute": {
+        "use_serverless": True,
+        "cluster_spec": "",
+    },
+}
+
+APP_SETTINGS = {
+    "organization_name": "Horizon Bank",
+    "organization_legal_name": "Horizon Bank, Ltd.",
+    "logo_url": "",
+    "currency_code": "USD",
+    "currency_symbol": "$",
+    "currency_locale": "en-US",
+    "country": "United States",
+    "reporting_date_format": "YYYY-MM-DD",
+    "reporting_period": "Q4 2025",
+    "reporting_date": "2025-12-31",
+    "framework": "IFRS 9",
+    "framework_mode": "ifrs9",
+    "regulatory_framework": "IFRS 9 Financial Instruments (2014, amended 2022)",
+    "local_regulator": "Central Bank",
+    "local_circular": "Regulatory Circular on Credit Risk Provisioning",
+    "app_title": "IFRS 9 ECL Workspace",
+    "app_subtitle": "Forward-Looking Credit Loss Management",
+    "model_version": "v4.0",
+    "last_validation": "December 2025",
+    "governance": {
+        "cfo_name": "",
+        "cfo_title": "Chief Financial Officer",
+        "cro_name": "",
+        "cro_title": "Chief Risk Officer",
+        "head_credit_risk_name": "",
+        "head_credit_risk_title": "Head of Credit Risk",
+        "model_validator_name": "",
+        "model_validator_title": "Independent Model Validator",
+        "external_auditor_firm": "",
+        "external_auditor_partner": "",
+        "board_committee": "Board Risk Committee",
+        "approval_workflow": "Maker (Risk Analyst) -> Checker (Head of Credit Risk) -> Approver (CRO) -> Sign-Off (CFO)",
+        "gl_reconciliation_tolerance_pct": 0.50,
+        "dq_score_threshold_pct": 90.0,
+    },
+    "scenarios": [
+        {"key": "baseline", "name": "Baseline", "weight": 0.40, "pd_multiplier": 1.0, "lgd_multiplier": 1.0, "color": "#10B981"},
+        {"key": "mild_recovery", "name": "Mild Recovery", "weight": 0.10, "pd_multiplier": 0.85, "lgd_multiplier": 0.90, "color": "#34D399"},
+        {"key": "strong_growth", "name": "Strong Growth", "weight": 0.05, "pd_multiplier": 0.70, "lgd_multiplier": 0.80, "color": "#059669"},
+        {"key": "mild_downturn", "name": "Mild Downturn", "weight": 0.15, "pd_multiplier": 1.30, "lgd_multiplier": 1.15, "color": "#F59E0B"},
+        {"key": "adverse", "name": "Adverse", "weight": 0.15, "pd_multiplier": 1.80, "lgd_multiplier": 1.40, "color": "#EF4444"},
+        {"key": "stagflation", "name": "Stagflation", "weight": 0.05, "pd_multiplier": 2.00, "lgd_multiplier": 1.50, "color": "#F97316"},
+        {"key": "severely_adverse", "name": "Severely Adverse", "weight": 0.05, "pd_multiplier": 2.50, "lgd_multiplier": 1.70, "color": "#DC2626"},
+        {"key": "tail_risk", "name": "Tail Risk", "weight": 0.05, "pd_multiplier": 3.50, "lgd_multiplier": 2.00, "color": "#991B1B"},
+    ],
+}
+
+DEFAULT_CONFIG = {
+    "data_sources": DATA_SOURCE_CONFIG,
+    "model": MODEL_CONFIG,
+    "jobs": JOB_CONFIG,
+    "app_settings": APP_SETTINGS,
+}
+
+# ── Table lists used by setup wizard -----------------------------------------
+
+REQUIRED_PROCESSED_TABLES = [
+    "model_ready_loans",
+    "loan_ecl_weighted",
+    "loan_ecl_scenario",
+    "macro_scenarios",
+    "historical_defaults",
+]
+
+REQUIRED_INPUT_TABLES = [
+    "loan_tape",
+    "borrower_master",
+    "payment_history",
+    "historical_defaults",
+    "macro_scenarios",
+]
+
+# ── Type-compatibility map used by schema validation --------------------------
+
+TYPE_COMPAT = {
+    "TEXT": {"text", "character varying", "varchar", "char", "character", "name", "uuid"},
+    "INT": {"integer", "bigint", "smallint", "int", "int4", "int8", "int2", "numeric"},
+    "NUMERIC": {"numeric", "decimal", "real", "double precision", "float4", "float8", "integer", "bigint", "smallint"},
+}

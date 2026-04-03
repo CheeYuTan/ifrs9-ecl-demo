@@ -1,0 +1,39 @@
+# IFRS 9 ECL Platform — Run 7 Spec (Full 8-Agent Exercise)
+
+**Quality Target**: 9.0/10
+**SME Mode**: Active (IFRS 9 / Basel III)
+**Prior Run Score**: 9.05/10
+**Approach**: Exercise ALL 8 harness agents. Improve design quality by refactoring remaining oversized files. Strengthen domain accuracy with SME-reviewed validation improvements.
+
+## Sprint Plan
+
+### Sprint 1: Refactor Large Frontend Files (Design Quality)
+1. Split StressTesting.tsx (1022 lines) into focused sub-components (<200 lines each)
+2. Split DataMapping.tsx (874 lines) into focused sub-components (<200 lines each)
+3. Ensure zero regressions — all existing tests pass
+4. Frontend builds cleanly with no TS errors
+5. Visual QA: verify both pages render identically before/after refactoring
+
+### Sprint 2: Refactor Large Backend Files (Design Quality)
+1. Split reports.py (728 lines) into focused sub-modules
+2. Split ecl_engine.py (638 lines) into focused sub-modules
+3. Split hazard.py (634 lines) into focused sub-modules
+4. Maintain backward compatibility via re-exports
+5. All existing tests pass — zero regressions
+6. Add 10+ new tests for refactored modules
+
+### Sprint 3: Domain Accuracy Improvements (SME-Reviewed)
+1. Add EAD boundary validation (non-negative) per IFRS 9.B5.5.31
+2. Add LGD range enforcement [0, 1] per IFRS 9.B5.5.28
+3. Add Stage 3 PD consistency check (PD should be near 1.0 for defaulted) per IFRS 9.B5.5.37
+4. Add discount factor validation (EIR > -1)
+5. Add 15+ new domain validation tests with SME-derived test scenarios
+6. SME review of implementation before handoff
+
+### Documentation Batch (after Sprint 3)
+1. Documentation Agent: Update docs for refactored modules, capture screenshots
+2. Installation Agent: Clean install test (rm -rf .venv && ./install.sh)
+3. Integration Agent: Full regression sweep + cross-feature user journeys
+
+### Final Integration Evaluation
+All 8 agents participate. Must meet 9.0/10 quality target.

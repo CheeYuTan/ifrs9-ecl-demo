@@ -1,0 +1,14 @@
+EXIT CODE: 0
+DURATION: 973s
+
+--- STDOUT ---
+Sprint 6 complete. Summary:
+
+- **189 new tests** across 8 domain modules in `tests/unit/test_qa_sprint_6_domain_logic.py`
+- **3,601 total pytest** (up from 3,412), **0 failures**, **0 regressions**
+- Covers: workflow state machine, all 27 query functions, IFRS 7.35I attribution waterfall, 23+ validation rules (including D7-D10, DA-1 to DA-6 domain accuracy), data mapper validation/suggestions, audit chain verification, config diff
+- Committed as `52e08d6`
+
+
+--- STDERR ---
+

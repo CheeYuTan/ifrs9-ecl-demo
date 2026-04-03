@@ -19,11 +19,26 @@ import pandas as pd
 
 spark = SparkSession.builder.getOrCreate()
 
-PROJECT_ID = "Q4-2025-IFRS9"
-REPORTING_DATE = "2025-12-31"
-N_SIMS = 1000
-CATALOG = "lakemeter_catalog"
-SCHEMA = "expected_credit_loss"
+try:
+    CATALOG = dbutils.widgets.get("catalog")  # type: ignore[name-defined]
+except Exception:
+    CATALOG = "lakemeter_catalog"
+try:
+    SCHEMA = dbutils.widgets.get("schema")  # type: ignore[name-defined]
+except Exception:
+    SCHEMA = "expected_credit_loss"
+try:
+    PROJECT_ID = dbutils.widgets.get("project_id")  # type: ignore[name-defined]
+except Exception:
+    PROJECT_ID = "Q4-2025-IFRS9"
+try:
+    REPORTING_DATE = dbutils.widgets.get("reporting_date")  # type: ignore[name-defined]
+except Exception:
+    REPORTING_DATE = "2025-12-31"
+try:
+    N_SIMS = int(dbutils.widgets.get("n_simulations"))  # type: ignore[name-defined]
+except Exception:
+    N_SIMS = 1000
 FULL_SCHEMA = f"{CATALOG}.{SCHEMA}"
 
 SCENARIO_WEIGHTS = {

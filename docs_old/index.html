@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFRS 9 ECL Workspace — Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="landing">
+
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <a href="quickstart.html">Quick Start</a>
+    <a href="guides/ecl-workflow.html">Guides</a>
+    <a href="reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="overview.html">Overview</a>
+      <a href="installation.html">Installation</a>
+      <a href="quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="guides/data-setup.html">Data Setup</a>
+      <a href="guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="guides/model-registry.html">Model Registry</a>
+      <a href="guides/gl-journals.html">GL Journals</a>
+      <a href="guides/backtesting.html">Backtesting</a>
+      <a href="guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="guides/validation-rules.html">Validation Rules</a>
+      <a href="guides/domain-validation.html">Domain Accuracy Rules</a>
+      <a href="guides/code-architecture.html">Code Architecture</a>
+      <a href="guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="reference/api-reference.html">API Reference</a>
+      <a href="reference/data-schema.html">Data Schema</a>
+      <a href="reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="hero">
+      <h1>IFRS 9 ECL Workspace</h1>
+      <p class="subtitle">Enterprise-grade Expected Credit Loss platform on Databricks. Calculate, govern, and report ECL with full auditability — powered by Lakebase and Unity Catalog.</p>
+      <div class="hero-buttons">
+        <a href="quickstart.html" class="btn btn-primary">Get Started →</a>
+        <a href="overview.html" class="btn btn-secondary">View Documentation</a>
+      </div>
+    </div>
+
+    <div style="margin: 2rem auto; max-width: 900px; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+      <img src="screenshots/01-initial-load-light.png" alt="IFRS 9 ECL Workspace — Dashboard" style="width: 100%; display: block;" loading="lazy">
+    </div>
+
+    <h2 style="border:none; text-align:center; margin-top:0;">Key Capabilities</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon" style="background: var(--color-blue-light); color: var(--color-blue-dark);">📊</div>
+        <h3>ECL Calculation</h3>
+        <p>Monte Carlo simulation engine with configurable PD/LGD parameters, scenario weighting, and management overlays across an 8-step auditable workflow.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="background: #ede9fe; color: #7c3aed;">🏛️</div>
+        <h3>Model Governance</h3>
+        <p>Full model registry with version control, champion/challenger tracking, approval workflows, and audit trails for regulatory compliance.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="background: var(--color-green-light); color: #059669;">📒</div>
+        <h3>GL Integration</h3>
+        <p>Automated journal entry generation with double-entry accounting, chart of accounts management, posting, reversal, and trial balance reconciliation.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="background: var(--color-amber-light); color: #d97706;">📋</div>
+        <h3>Regulatory Reporting</h3>
+        <p>IFRS 7 disclosure packages, ECL movement schedules, stage migration matrices, sensitivity analysis, and concentration risk reports.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="background: var(--color-red-light); color: var(--color-red);">🔬</div>
+        <h3>Backtesting</h3>
+        <p>Traffic-light framework with AUC, Gini, KS, PSI, and Brier score metrics. Cohort-level analysis and trend monitoring over time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon" style="background: #fce7f3; color: #db2777;">⚡</div>
+        <h3>Advanced Analytics</h3>
+        <p>Markov chain transition matrices, hazard models (Cox PH, discrete-time, Kaplan-Meier), cure rate analysis, CCF estimation, and collateral haircuts.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <h2 style="border:none; text-align:center;">Built on the Databricks Lakehouse</h2>
+    <p style="text-align:center; color: var(--color-gray-500); max-width: 640px; margin: 0 auto 32px;">
+      Deploys as a Databricks App with Lakebase (managed PostgreSQL) for transactional state, Unity Catalog for data governance, and serverless compute for heavy workloads.
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>🗄️ Lakebase</h3>
+        <p>Managed PostgreSQL for workflow state, model registry, journals, and configuration — with automatic OAuth token refresh.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🔐 Unity Catalog</h3>
+        <p>Loan portfolio data governed by Unity Catalog. Column-level lineage, access controls, and data quality built in.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⚙️ Databricks Jobs</h3>
+        <p>Satellite model training and ECL calculation pipelines run as managed Databricks Jobs with monitoring and alerting.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div style="text-align:center; padding: 32px 0;">
+      <h2 style="border:none; margin-top:0;">Ready to get started?</h2>
+      <p style="color: var(--color-gray-500); margin-bottom: 24px;">Deploy in under 5 minutes with the quick start guide.</p>
+      <a href="quickstart.html" class="btn btn-primary">Quick Start Guide →</a>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks · <a href="reference/api-reference.html">API Reference</a> · <a href="reference/ifrs9-glossary.html">Glossary</a></p>
+</footer>
+
+</body>
+</html>

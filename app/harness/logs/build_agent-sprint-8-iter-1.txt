@@ -1,0 +1,18 @@
+EXIT CODE: 0
+DURATION: 1377s
+
+--- STDOUT ---
+Sprint 8 build complete. Summary:
+
+- **147 new frontend tests** across 18 new test files
+- **250 total vitest tests** (was 103) — target of 200+ exceeded
+- **13 component test files** covering ApprovalForm, ChartTooltip, CollapsibleSection, ConfirmDialog, EmptyState, ErrorDisplay, HelpTooltip (+11 IFRS9 help constants), JobRunLink, PageHeader, PageLoader, ScenarioChecklist, SimulationProgress, StepDescription
+- **16 page smoke tests** covering all 19 untested pages
+- **11 hook tests** for useEclProductData and useCohortsByProduct
+- **3838 pytest tests** — zero regressions
+- **TypeScript build** — zero errors
+- Committed as `00d68c5`
+
+
+--- STDERR ---
+

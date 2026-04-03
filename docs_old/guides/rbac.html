@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RBAC &amp; Governance — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v2.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html" class="active">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> RBAC &amp; Governance
+    </div>
+
+    <h1>RBAC &amp; Governance</h1>
+    <p class="subtitle">Role-based access control, segregation of duties, ECL immutability, and audit trail for regulatory compliance.</p>
+
+    <h2>Overview</h2>
+    <p>The IFRS 9 ECL Workspace enforces a strict governance framework to ensure that ECL calculations are produced, reviewed, and approved by authorized personnel with a complete audit trail. The system implements four roles with clearly defined permissions, segregation of duties between simulation runners and sign-off authorities, and cryptographic immutability of signed-off ECL results.</p>
+
+    <h2>Roles</h2>
+    <p>Every user is assigned exactly one of four roles. Roles are stored in the <code>rbac_users</code> table and enforced by the backend on every API call.</p>
+    <table>
+      <thead>
+        <tr><th>Role</th><th>Description</th><th>Typical User</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Analyst</strong></td><td>Runs simulations, reviews data, submits overlays, and generates draft reports. Cannot approve or sign off.</td><td>Credit Risk Analyst, Model Developer</td></tr>
+        <tr><td><strong>Reviewer</strong></td><td>Reviews ECL results, backtests, and reports. Can flag issues and add review comments but cannot sign off.</td><td>Model Validator, Senior Analyst</td></tr>
+        <tr><td><strong>Approver</strong></td><td>Signs off ECL calculations, approves models for production, and finalizes regulatory reports.</td><td>Chief Risk Officer, Head of Credit Risk</td></tr>
+        <tr><td><strong>Admin</strong></td><td>Full system access including user management, configuration, and role assignment. Cannot sign off ECL (segregation of duties).</td><td>System Administrator, IT Risk</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Permission Matrix</h2>
+    <p>The following table shows which actions each role can perform:</p>
+    <table>
+      <thead>
+        <tr><th>Action</th><th>Analyst</th><th>Reviewer</th><th>Approver</th><th>Admin</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>View portfolio data &amp; ECL results</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Run Monte Carlo simulations</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Submit management overlays</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Set scenario weights</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Advance workflow steps</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Run backtests</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Register models</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Validate models</td><td>No</td><td>Yes</td><td>No</td><td>No</td></tr>
+        <tr><td>Approve models for production</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Promote model to champion</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Generate regulatory reports</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Finalize regulatory reports</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Generate GL journals</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Post GL journals</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Sign off ECL calculation</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Add review comments</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Create / manage users</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Modify system configuration</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Reset projects</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>View audit trail</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Segregation of Duties</h2>
+    <p>Regulatory frameworks require that the person who produces an ECL calculation cannot also approve it. The platform enforces the following segregation rules:</p>
+    <ul>
+      <li><strong>Simulation runner &ne; Sign-off authority</strong> &mdash; The user who ran the Monte Carlo simulation or advanced the workflow cannot be the same user who signs off the ECL. The API rejects sign-off attempts where the signer matches the simulation runner recorded in the audit log.</li>
+      <li><strong>Model developer &ne; Model validator</strong> &mdash; The user who registered a model (<code>created_by</code>) cannot validate it. A different user with the Reviewer role must perform validation.</li>
+      <li><strong>Model validator &ne; Model approver</strong> &mdash; The user who validated a model cannot also approve it for production. An Approver-role user who was not the validator must approve.</li>
+      <li><strong>Admin cannot sign off</strong> &mdash; Admin users have full system access but are explicitly blocked from signing off ECL calculations to prevent privilege escalation.</li>
+    </ul>
+
+    <div class="callout callout-warning">
+      <strong>Enforcement</strong>
+      Segregation of duties is enforced at the API layer, not just the UI. Even direct API calls are validated against the audit trail to ensure no single user can both produce and approve an ECL result.
+    </div>
+
+    <h2>ECL Immutability After Sign-Off</h2>
+    <p>Once an ECL calculation is signed off, the results become immutable. The platform guarantees integrity through SHA-256 hash verification:</p>
+    <ol>
+      <li><strong>Hash computation</strong> &mdash; At sign-off, the system computes a SHA-256 hash over the complete ECL result set (scenario weights, weighted ECL by product and stage, overlays, and simulation parameters).</li>
+      <li><strong>Hash storage</strong> &mdash; The hash is stored alongside the sign-off record in the <code>ecl_projects</code> table, linked to the signer identity and timestamp.</li>
+      <li><strong>Tamper detection</strong> &mdash; Any subsequent read of a signed-off project recomputes the hash and compares it to the stored value. A mismatch triggers an integrity alert.</li>
+      <li><strong>No modification</strong> &mdash; The API rejects any attempt to modify overlays, scenario weights, or advance the workflow on a signed-off project. The only permitted action is to create a new project or reset (which preserves the original audit trail).</li>
+    </ol>
+    <pre><code>GET /api/projects/{project_id}
+
+{
+  "project_id": "Q4-2025-ECL",
+  "signed_off_by": "Jane Smith, CRO",
+  "signed_off_at": "2025-12-31T14:30:00Z",
+  "ecl_hash": "a3f2b8c1d4e5...sha256...",
+  "integrity_check": "PASS"
+}</code></pre>
+
+    <h2>Audit Trail</h2>
+    <p>Every action in the platform is recorded in the project audit log with the authenticated user identity. The audit trail captures:</p>
+    <table>
+      <thead>
+        <tr><th>Field</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>action</code></td><td>The action performed (e.g., <code>data_review</code>, <code>simulation_run</code>, <code>overlay_submitted</code>, <code>sign_off</code>)</td></tr>
+        <tr><td><code>user</code></td><td>Authenticated user identity (email or display name)</td></tr>
+        <tr><td><code>timestamp</code></td><td>ISO 8601 timestamp of the action</td></tr>
+        <tr><td><code>detail</code></td><td>Additional context (e.g., simulation parameters, overlay amounts, review comments)</td></tr>
+        <tr><td><code>ip_address</code></td><td>Client IP address for traceability</td></tr>
+        <tr><td><code>role</code></td><td>The user's role at the time of the action</td></tr>
+      </tbody>
+    </table>
+    <p>Retrieve the audit trail for any project:</p>
+    <pre><code>GET /api/projects/{project_id}
+
+// The audit_log field contains the full chronological trail:
+{
+  "audit_log": [
+    {
+      "action": "data_review",
+      "user": "analyst@bank.com",
+      "role": "analyst",
+      "timestamp": "2025-12-15T09:00:00Z",
+      "detail": "Portfolio data reviewed — 84,000 loans across 5 products"
+    },
+    {
+      "action": "simulation_run",
+      "user": "analyst@bank.com",
+      "role": "analyst",
+      "timestamp": "2025-12-15T10:30:00Z",
+      "detail": "Monte Carlo: 1000 iterations, PD-LGD correlation 0.30"
+    },
+    {
+      "action": "sign_off",
+      "user": "cro@bank.com",
+      "role": "approver",
+      "timestamp": "2025-12-31T14:30:00Z",
+      "detail": "ECL signed off — total weighted ECL: $42.3M"
+    }
+  ]
+}</code></pre>
+
+    <div class="callout callout-info">
+      <strong>Immutable Audit Log</strong>
+      The audit log is append-only. Even a project reset preserves the existing audit entries and adds a new "reset" entry. Audit records cannot be deleted or modified through any API endpoint.
+    </div>
+
+    <h2>Setting Up Users and Assigning Roles</h2>
+    <p>Users are managed through the Admin Configuration panel or via the RBAC API. Only users with the <strong>Admin</strong> role can create or modify user accounts.</p>
+
+    <h3>Listing Users</h3>
+    <pre><code>GET /api/rbac/users
+GET /api/rbac/users?role=approver</code></pre>
+
+    <h3>Creating a User</h3>
+    <p>Users are seeded during the setup wizard or created manually by an admin. The <code>seed-defaults</code> endpoint creates a default set of users:</p>
+    <pre><code>POST /api/admin/seed-defaults</code></pre>
+    <p>This creates default users for each role:</p>
+    <table>
+      <thead>
+        <tr><th>User ID</th><th>Email</th><th>Role</th><th>Department</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>admin-001</code></td><td>admin@bank.com</td><td>Admin</td><td>IT Risk</td></tr>
+        <tr><td><code>analyst-001</code></td><td>credit.analyst@bank.com</td><td>Analyst</td><td>Credit Risk</td></tr>
+        <tr><td><code>reviewer-001</code></td><td>model.validator@bank.com</td><td>Reviewer</td><td>Model Validation</td></tr>
+        <tr><td><code>approver-001</code></td><td>cro@bank.com</td><td>Approver</td><td>Executive</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Checking Permissions</h3>
+    <pre><code>GET /api/rbac/permissions/{user_id}
+
+{
+  "user_id": "analyst-001",
+  "role": "analyst",
+  "permissions": [
+    "view_data",
+    "run_simulation",
+    "submit_overlays",
+    "advance_workflow",
+    "register_model",
+    "run_backtest",
+    "generate_reports",
+    "view_audit_trail"
+  ]
+}</code></pre>
+
+    <h2>Approval Workflows</h2>
+    <p>Critical actions (model approval, ECL sign-off, report finalization) require formal approval requests that route to the appropriate authority:</p>
+    <pre><code>POST /api/rbac/approvals
+{
+  "request_type": "ecl_signoff",
+  "entity_id": "Q4-2025-ECL",
+  "entity_type": "project",
+  "requested_by": "analyst-001",
+  "assigned_to": "approver-001",
+  "priority": "high",
+  "due_date": "2025-12-31",
+  "comments": "Q4 ECL ready for CRO sign-off"
+}</code></pre>
+    <p>The approver can then approve or reject:</p>
+    <pre><code>POST /api/rbac/approvals/{request_id}/approve
+{
+  "user_id": "approver-001",
+  "comment": "Reviewed and approved"
+}</code></pre>
+
+    <div class="callout callout-success">
+      <strong>Regulatory Compliance</strong>
+      The combination of role-based access, segregation of duties, SHA-256 immutability, and append-only audit trails satisfies the governance requirements of IFRS 9, Basel III/IV, and most national banking regulators for ECL calculation processes.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

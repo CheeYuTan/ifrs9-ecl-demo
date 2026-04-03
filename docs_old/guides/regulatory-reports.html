@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regulatory Reports — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html" class="active">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Regulatory Reports
+    </div>
+
+    <h1>Regulatory Reports</h1>
+    <p class="subtitle">Generate IFRS 7 disclosures and regulatory reporting packages.</p>
+
+    <h2>Available Report Types</h2>
+    <table>
+      <thead>
+        <tr><th>Report Type</th><th>API Key</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>IFRS 7 Disclosure</strong></td><td><code>ifrs7_disclosure</code></td><td>Comprehensive disclosure package including credit risk exposure, stage migration, loss allowance reconciliation, and sensitivity analysis</td></tr>
+        <tr><td><strong>ECL Movement</strong></td><td><code>ecl_movement</code></td><td>Period-over-period ECL movement schedule showing drivers of change (new originations, derecognitions, stage transfers, model changes, etc.)</td></tr>
+        <tr><td><strong>Stage Migration</strong></td><td><code>stage_migration</code></td><td>Transition matrix showing loan counts and GCA moving between stages</td></tr>
+        <tr><td><strong>Sensitivity Analysis</strong></td><td><code>sensitivity_analysis</code></td><td>Impact of PD/LGD parameter shifts on total ECL</td></tr>
+        <tr><td><strong>Concentration Risk</strong></td><td><code>concentration_risk</code></td><td>Exposure concentration by product, segment, vintage, and risk band</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Generating a Report</h2>
+    <pre><code>POST /api/reports/generate/{project_id}
+{
+  "report_type": "ifrs7_disclosure",
+  "user": "regulatory.reporting@bank.com"
+}</code></pre>
+    <p>The response includes the full report data structured for display and export.</p>
+
+    <h2>IFRS 7 Disclosure Package</h2>
+    <p>The IFRS 7 disclosure report includes the following sections (mapped to IFRS 7 paragraphs):</p>
+
+    <h3>Credit Risk Exposure (IFRS 7.35M)</h3>
+    <p>Maximum exposure to credit risk by product type and stage, showing GCA and ECL coverage ratios.</p>
+
+    <h3>Stage Migration Matrix (IFRS 7.35I)</h3>
+    <p>A 3×3 matrix showing how loans moved between stages during the reporting period, with loan counts and GCA amounts.</p>
+
+    <h3>Loss Allowance Reconciliation (IFRS 7.35H)</h3>
+    <p>Opening-to-closing reconciliation of the loss allowance (ECL provision) by stage, showing:</p>
+    <ul>
+      <li>Opening balance</li>
+      <li>New originations</li>
+      <li>Derecognitions</li>
+      <li>Stage transfers (net impact)</li>
+      <li>Model parameter changes</li>
+      <li>Macroeconomic scenario changes</li>
+      <li>Management overlays</li>
+      <li>Write-offs</li>
+      <li>Closing balance</li>
+    </ul>
+
+    <h3>Sensitivity Analysis (IFRS 7.35G)</h3>
+    <p>Impact on ECL of changes to key assumptions (PD and LGD shifts of ±10%, ±20%).</p>
+
+    <h2>Report Lifecycle</h2>
+    <div class="arch-diagram">  Draft ──▶ Finalized</div>
+
+    <h3>Listing Reports</h3>
+    <pre><code>GET /api/reports?project_id=Q4-2025-ECL&amp;report_type=ifrs7_disclosure</code></pre>
+
+    <h3>Finalizing a Report</h3>
+    <pre><code>POST /api/reports/{report_id}/finalize</code></pre>
+    <p>Finalized reports cannot be modified. They serve as the official regulatory submission record.</p>
+
+    <h3>Exporting to CSV</h3>
+    <pre><code>GET /api/reports/{report_id}/export</code></pre>
+    <p>Returns the report data as a downloadable CSV file for import into external systems.</p>
+
+    <div class="callout callout-info">
+      <strong>Attribution Waterfall</strong>
+      The ECL movement report uses the attribution engine to decompose ECL changes into their constituent drivers. This is generated via <code>GET /api/data/attribution/{project_id}</code> and provides the data for the waterfall chart in the UI.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

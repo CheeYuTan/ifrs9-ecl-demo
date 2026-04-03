@@ -1,0 +1,26 @@
+EXIT CODE: 0
+DURATION: 467s
+
+--- STDOUT ---
+## Installation Test 2 Complete
+
+**Verdict: PASS** (with minor issues)
+
+Results written to `harness/evaluations/install-test-2.md`.
+
+**Key findings:**
+- **1487 tests pass, 0 failures** from clean install
+- App starts and serves health check (`{"status":"healthy","lakebase":"connected"}`)
+- Frontend builds and serves correctly (HTTP 200)
+- API endpoints functional (`/api/projects`, `/api/models`)
+- Deploy artifacts (app.yaml, .env.example, deploy.sh) all valid
+- No hardcoded secrets or ports
+
+**Issues found:**
+1. **MEDIUM**: `install.sh` silently ignores pip install failures — the `pip install ... && ok "..."` pattern doesn't trigger `set -e` on failure. Fix: separate into two statements.
+2. **LOW**: `install.sh` is not committed to git (untracked file)
+3. **INFO**: install.sh only runs 5 test files out of 1487 tests
+
+
+--- STDERR ---
+

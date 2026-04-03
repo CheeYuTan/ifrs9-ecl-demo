@@ -1,0 +1,71 @@
+{
+  "slides": [
+    {
+      "layout": "title",
+      "title": "IFRS 9 ECL Platform",
+      "subtitle": "Audit-Ready Expected Credit Loss on Databricks\nSteven Tan, Solutions Architect"
+    },
+    {
+      "layout": "section_break",
+      "title": "The Problem"
+    },
+    {
+      "layout": "content",
+      "title": "Banks Spend 3-5x More on Manual ECL Processes",
+      "body": "Quarterly ECL close takes 4-6 weeks with spreadsheet-based workflows\nAuditors flag <red>hardcoded model metrics</red> and <red>missing segregation of duties</red>\nNo traceability from input data to signed-off ECL provision\nRegulatory pressure: IFRS 9, Basel III, EBA guidelines demand forward-looking models\nSAS/legacy platforms cost $500K+ annually with 12-month implementation cycles"
+    },
+    {
+      "layout": "statement",
+      "title": "\"Our auditors questioned every number because we couldn't prove how it was calculated.\""
+    },
+    {
+      "layout": "section_break",
+      "title": "The Solution"
+    },
+    {
+      "layout": "three_column",
+      "title": "Three Pillars of Audit-Ready ECL",
+      "col1_title": "Compute",
+      "col1_body": "Monte Carlo simulation with Cholesky-correlated PD-LGD\n8 macro scenarios\nReal-time SSE streaming",
+      "col2_title": "Validate",
+      "col2_body": "4 calibration tests (Binomial, HL, Jeffreys, Spiegelhalter)\nReal LGD backtesting\n23 domain validation rules",
+      "col3_title": "Govern",
+      "col3_body": "RBAC with 4 roles\nSegregation of duties\nSHA-256 ECL hash at sign-off"
+    },
+    {
+      "layout": "content",
+      "title": "Complete 8-Step Workflow: Data to CFO Sign-Off",
+      "body": "Create Project → configure reporting period and portfolio scope\nData Processing → SICR staging with product-specific thresholds\nData Control Gate → 15+ automated quality checks\nSatellite Models → 8 model types linking macro variables to PD/LGD\nMonte Carlo Execution → vectorized simulation with convergence tracking\nStress Testing → scenario comparison and sensitivity analysis\nManagement Overlays → documented adjustments with IFRS 9 references\nCFO Sign-Off → immutable lock with cryptographic verification"
+    },
+    {
+      "layout": "two_column",
+      "title": "Before vs After: Audit Readiness",
+      "left_title": "Before (v1.0)",
+      "left_body": "<red>Hardcoded LGD metrics</red> (AUC=0.72)\n<red>No RBAC enforcement</red>\n<red>Synthetic attribution</red> fallbacks\nNo model validation framework\n4,807-line monolithic backend",
+      "right_title": "After (v2.0)",
+      "right_body": "<green>Computed-from-data</green> backtesting\n<green>4-role RBAC</green> with OAuth\n<green>Loan-level attribution</green> engine\nModel cards + sensitivity analysis\n13 focused domain modules"
+    },
+    {
+      "layout": "section_break",
+      "title": "Architecture"
+    },
+    {
+      "layout": "content",
+      "title": "End-to-End on Databricks — Zero External Dependencies",
+      "body": "Frontend: React 19 + Vite + Tailwind CSS (served by FastAPI)\nBackend: FastAPI with 138 REST endpoints across 16 route modules\nDatabase: Lakebase (managed PostgreSQL) with OAuth token refresh\nPipeline: PySpark + Delta Lake for batch ECL calculation\nGovernance: Unity Catalog for data lineage and permissions\nDeployment: Databricks Apps with one-command deploy (./deploy.sh)"
+    },
+    {
+      "layout": "content",
+      "title": "233 Tests Pass — 150 New Tests Added in v2.0",
+      "body": "45 backtesting tests: AUC/Gini/KS, Binomial, Hosmer-Lemeshow, Jeffreys\n25 RBAC tests: role permissions, auth middleware, ECL hash verification\n17 attribution tests: waterfall construction, reconciliation checks\n22 model registry tests: lifecycle, model cards, sensitivity analysis\n41 validation rules tests: all 23 domain rules across 3 categories\nZero new failures introduced during 7-sprint improvement cycle"
+    },
+    {
+      "layout": "content",
+      "title": "Get Started in 5 Minutes",
+      "body": "Clone the repository and run ./install.sh\nEdit .env.example with your Databricks workspace credentials\nRun cd app && python app.py to start on port 8000\nUse the Setup Wizard to connect to your Lakebase instance\nRun the data pipeline scripts to generate sample portfolio data\nDeploy to Databricks Apps with ./deploy.sh"
+    },
+    {
+      "layout": "closing"
+    }
+  ]
+}

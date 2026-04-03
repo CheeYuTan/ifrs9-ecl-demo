@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Accuracy Rules — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v2.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="domain-validation.html" class="active">Domain Accuracy Rules</a>
+      <a href="code-architecture.html">Code Architecture</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Domain Accuracy Rules
+    </div>
+
+    <h1>IFRS 9 Domain Accuracy Rules (DA-1 to DA-6)</h1>
+    <p class="subtitle">Six domain-specific validation rules that enforce IFRS 9 mathematical and economic constraints on ECL inputs and outputs. These rules go beyond generic data quality checks to ensure the calculation engine produces results that are compliant with the standard.</p>
+
+    <h2>Overview</h2>
+    <p>Domain Accuracy (DA) rules form a fourth validation category alongside the existing Data Integrity, Model Reasonableness, and Governance rules. While the existing categories catch general data errors and process violations, DA rules enforce constraints that are <strong>specific to the IFRS 9 impairment model</strong> and its underlying credit risk mathematics.</p>
+
+    <p>DA rules are executed as part of the pre-calculation validation gate. If any CRITICAL-severity DA rule fails, the ECL calculation is blocked until the issue is resolved.</p>
+
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Rule Count</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Data Integrity (D)</strong></td><td>10 rules</td><td>Input completeness and range checks</td></tr>
+        <tr><td><strong>Model Reasonableness (M-R)</strong></td><td>8 rules</td><td>Post-calculation economic sensibility</td></tr>
+        <tr><td><strong>Governance (G-R)</strong></td><td>5 rules</td><td>Process controls and approvals</td></tr>
+        <tr><td style="color:#8b5cf6"><strong>Domain Accuracy (DA)</strong></td><td>6 rules</td><td>IFRS 9 mathematical and economic constraints</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Rule Reference</h2>
+
+    <table>
+      <thead>
+        <tr><th>Rule ID</th><th>Description</th><th>IFRS 9 Reference</th><th>Severity</th><th>Enforcement</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>DA-1</code></td>
+          <td><strong>EAD must be non-negative</strong> &mdash; Exposure at Default represents the gross carrying amount plus any undrawn commitment. It cannot be negative.</td>
+          <td>IFRS 9.B5.5.31</td>
+          <td style="color:#ef4444">Critical</td>
+          <td>Pre-calculation</td>
+        </tr>
+        <tr>
+          <td><code>DA-2</code></td>
+          <td><strong>LGD must be in [0, 1]</strong> &mdash; Loss Given Default is the percentage of exposure lost if default occurs. It is bounded between 0 (full recovery) and 1 (total loss).</td>
+          <td>IFRS 9.B5.5.28</td>
+          <td style="color:#ef4444">Critical</td>
+          <td>Pre-calculation</td>
+        </tr>
+        <tr>
+          <td><code>DA-3</code></td>
+          <td><strong>Stage 3 PD consistency</strong> &mdash; Credit-impaired (Stage 3) loans should have PD at or near 1.0, reflecting the near-certainty of default. Threshold: PD &ge; 0.90.</td>
+          <td>IFRS 9.B5.5.37</td>
+          <td style="color:#f59e0b">High</td>
+          <td>Pre-calculation</td>
+        </tr>
+        <tr>
+          <td><code>DA-4</code></td>
+          <td><strong>Discount rate validity</strong> &mdash; The Effective Interest Rate (EIR) must be strictly greater than -1. The discount factor <code>1/(1+EIR)^t</code> is undefined at EIR = -1 (division by zero).</td>
+          <td>IFRS 9.B5.5.44</td>
+          <td style="color:#ef4444">Critical</td>
+          <td>Pre-calculation</td>
+        </tr>
+        <tr>
+          <td><code>DA-5</code></td>
+          <td><strong>ECL must be non-negative</strong> &mdash; Expected Credit Losses represent expected cash shortfalls. A loss cannot be negative (a gain would be a separate accounting entry).</td>
+          <td>IFRS 9.5.5.1</td>
+          <td style="color:#f59e0b">High</td>
+          <td>Post-calculation</td>
+        </tr>
+        <tr>
+          <td><code>DA-6</code></td>
+          <td><strong>Minimum scenario count</strong> &mdash; At least three macroeconomic scenarios (base, upside, downside) are required to capture the non-linear relationship between economic conditions and credit losses.</td>
+          <td>IFRS 9.B5.5.42</td>
+          <td style="color:#f59e0b">High</td>
+          <td>Pre-calculation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Detailed Rule Descriptions</h2>
+
+    <h3>DA-1: EAD Non-Negative (IFRS 9.B5.5.31)</h3>
+    <p>Exposure at Default (EAD) is a core component of the ECL formula: <code>ECL = PD x LGD x EAD x DF</code>. IFRS 9.B5.5.31 defines EAD as the gross carrying amount of a financial asset plus any undrawn commitment amount at the time of default. Since both components are non-negative, EAD itself must be non-negative.</p>
+    <p>This is a <strong>Critical</strong> severity rule. A negative EAD would produce a negative ECL (a credit gain), which is economically meaningless and violates the loss allowance concept.</p>
+    <pre><code># Validation logic
+violations = [v for v in ead_values if v &lt; 0]
+passed = len(violations) == 0</code></pre>
+
+    <h3>DA-2: LGD Unit Interval (IFRS 9.B5.5.28)</h3>
+    <p>Loss Given Default represents the proportion of exposure that is lost when a borrower defaults. Per IFRS 9.B5.5.28, LGD must account for the recovery of collateral and other credit enhancements. The result is always a proportion:</p>
+    <ul>
+      <li><strong>LGD = 0</strong> means full recovery (no loss on default)</li>
+      <li><strong>LGD = 1</strong> means total loss (no recovery)</li>
+      <li>Values outside [0, 1] are mathematically invalid</li>
+    </ul>
+    <p>This rule is distinct from the Data Integrity rule D-3 (which checks the same range) because DA-2 is specifically tied to the IFRS 9 definition and runs as part of the domain accuracy category. Both rules must pass.</p>
+
+    <h3>DA-3: Stage 3 PD Consistency (IFRS 9.B5.5.37)</h3>
+    <p>Under IFRS 9, Stage 3 loans are <strong>credit-impaired</strong>. The definition of credit impairment in Appendix A includes events such as significant financial difficulty, breach of contract, or the borrower entering bankruptcy. For loans already in default, the probability of default is near-certain.</p>
+    <p>This rule checks that all Stage 3 loans have a PD of at least 0.90. A lower PD would be inconsistent with the credit-impaired classification. The 0.90 threshold (rather than 1.0) allows for partial cure expectations where the borrower may recover from default.</p>
+
+    <div class="callout callout-warning">
+      <strong>Cure Rate Consideration</strong>
+      If your institution has a documented cure rate policy allowing Stage 3 loans to have PDs below 0.90, you may need to adjust the <code>min_stage3_pd</code> threshold in the validation configuration. Document the rationale for audit purposes.
+    </div>
+
+    <h3>DA-4: Discount Rate Validity (IFRS 9.B5.5.44)</h3>
+    <p>IFRS 9.5.5.17 requires that ECL is measured as the <em>present value</em> of expected cash shortfalls, discounted at the Effective Interest Rate (EIR). The discount factor formula is:</p>
+    <pre><code>DF = 1 / (1 + EIR) ^ t</code></pre>
+    <p>For this formula to produce a valid, positive result, EIR must be strictly greater than -1 (i.e., greater than -100%). At EIR = -1, the denominator becomes zero, creating a division-by-zero error. This is a mathematical constraint rather than an economic one, but it is critical to prevent calculation failures.</p>
+
+    <h3>DA-5: ECL Non-Negative (IFRS 9.5.5.1)</h3>
+    <p>IFRS 9.5.5.1 states that an entity shall recognize a loss allowance for expected credit losses. The term "loss" inherently implies a non-negative value. A negative ECL would mean the entity expects to <em>gain</em> from credit risk, which contradicts the impairment model.</p>
+    <p>This rule runs as a post-calculation check, verifying that the ECL engine has not produced any negative values through rounding errors, misconfigured parameters, or bugs in the simulation logic.</p>
+
+    <h3>DA-6: Minimum Scenario Count (IFRS 9.B5.5.42)</h3>
+    <p>IFRS 9.B5.5.42 explicitly requires that the measurement of expected credit losses shall reflect "an unbiased and probability-weighted amount that is determined by evaluating a range of possible outcomes." The standard guidance recommends at least three scenarios:</p>
+    <ul>
+      <li><strong>Base</strong> &mdash; the most likely economic outcome</li>
+      <li><strong>Upside</strong> &mdash; a more favorable economic outcome</li>
+      <li><strong>Downside</strong> &mdash; an adverse economic outcome</li>
+    </ul>
+    <p>Using fewer than three scenarios fails to capture the non-linear relationship between macroeconomic conditions and credit losses, which is a core requirement of the forward-looking ECL model.</p>
+
+    <h2>Integration with the ECL Workflow</h2>
+    <p>DA rules are integrated into the standard validation pipeline. They run alongside other pre-calculation rules when a project advances through the ECL workflow:</p>
+    <pre><code># Pre-calculation gate includes DA rules
+results = run_all_pre_calculation_checks(
+    scenario_weights=weights,
+    pd_values=pds,
+    lgd_values=lgds,
+    eir_values=eirs,
+    remaining_months=months,
+    gca_values=gcas,
+    ead_values=eads,          # DA-1: EAD non-negative
+    stage_pd_pairs=pairs,     # DA-3: Stage 3 PD consistency
+)
+# DA-2 (LGD interval), DA-4 (discount rate), DA-6 (scenario count)
+# are also evaluated automatically</code></pre>
+
+    <p>DA-5 (ECL non-negative) runs as a post-calculation check and can be called independently after the Monte Carlo simulation completes.</p>
+
+    <h2>API Access</h2>
+    <p>Domain accuracy results are included in the standard validation results endpoints:</p>
+    <pre><code>GET /api/data/dq-results
+
+// Response includes DA rules alongside D, M-R, and G-R rules:
+[
+  {"rule_id": "DA-1", "category": "domain_accuracy", "severity": "CRITICAL",
+   "status": "PASS", "message": "EAD non-negative check: 0 negative values out of 5000",
+   "detail": {"violations_count": 0, "total_values": 5000, "ifrs_ref": "IFRS 9.B5.5.31"}},
+  {"rule_id": "DA-3", "category": "domain_accuracy", "severity": "HIGH",
+   "status": "FAIL", "message": "Stage 3 PD consistency: 12 of 45 Stage 3 loans have PD < 0.90",
+   "detail": {"violations_count": 12, "total_stage3": 45, "min_stage3_pd": 0.90,
+              "ifrs_ref": "IFRS 9.B5.5.37"}}
+]</code></pre>
+
+    <div class="callout callout-info">
+      <strong>IFRS 9 Reference Traceability</strong>
+      Each DA rule includes an <code>ifrs_ref</code> field in its detail output, mapping the rule directly to the relevant paragraph of the IFRS 9 standard. This supports audit trail requirements and regulatory documentation.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

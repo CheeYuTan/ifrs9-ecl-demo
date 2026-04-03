@@ -1,0 +1,16 @@
+EXIT CODE: 0
+DURATION: 904s
+
+--- STDOUT ---
+Sprint 7, iteration 2 complete.
+
+**Summary:**
+- **84 new tests** added in `tests/unit/test_qa_sprint_7_iter2_domain.py`
+- Combined Sprint 7 total: **204 tests** (120 iter 1 + 84 iter 2), exceeding the 180+ contract target
+- Full suite: **3,812 passed**, 61 skipped, **zero regressions**
+- Coverage gaps filled across all 10+ domain modules: model_registry (generate_model_card, assumptions/limitations, sensitivity full flow), markov (matrix math, forecast, list/compare), hazard (orchestrator, compare, covariates), advanced (cure rates structure, CCF revolving logic, collateral), backtesting (trend, list filtering), period close (constants, unknown step)
+- Committed: `31979eb`
+
+
+--- STDERR ---
+

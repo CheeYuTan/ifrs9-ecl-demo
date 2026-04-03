@@ -16,12 +16,28 @@ import psycopg2
 import psycopg2.extras
 from databricks.sdk import WorkspaceClient
 
-LAKEBASE_INSTANCE = "horizon-ecl-db"
+try:
+    LAKEBASE_INSTANCE = dbutils.widgets.get("lakebase_instance")  # type: ignore[name-defined]
+except Exception:
+    LAKEBASE_INSTANCE = "ifrs9-ecl-demo-db"
 LAKEBASE_DB = "databricks_postgres"
-UC_SCHEMA = "lakemeter_catalog.expected_credit_loss"
-
-PG_SCHEMA = "expected_credit_loss"
-PG_PREFIX = "lb_"
+try:
+    _catalog = dbutils.widgets.get("catalog")  # type: ignore[name-defined]
+except Exception:
+    _catalog = "lakemeter_catalog"
+try:
+    _schema = dbutils.widgets.get("schema")  # type: ignore[name-defined]
+except Exception:
+    _schema = "expected_credit_loss"
+UC_SCHEMA = f"{_catalog}.{_schema}"
+try:
+    PG_SCHEMA = dbutils.widgets.get("lakebase_schema")  # type: ignore[name-defined]
+except Exception:
+    PG_SCHEMA = "expected_credit_loss"
+try:
+    PG_PREFIX = dbutils.widgets.get("lakebase_prefix")  # type: ignore[name-defined]
+except Exception:
+    PG_PREFIX = "lb_"
 
 _w = WorkspaceClient()
 
@@ -84,9 +100,11 @@ def _pg(name: str) -> str:
     return f"{PG_SCHEMA}.{PG_PREFIX}{name}"
 
 
-# ── DDL ──────────────────────────────────────────────────────────────────────
+# ── DDL (deferred to function to avoid module-load evaluation) ────────────────
 
-DDL = f"""
+def _build_ddl():
+    """Build DDL string using current PG_SCHEMA and PG_PREFIX values."""
+    return f"""
 CREATE SCHEMA IF NOT EXISTS {PG_SCHEMA};
 
 DROP TABLE IF EXISTS {_pg('loan_level_ecl')} CASCADE;
@@ -100,6 +118,8 @@ DROP TABLE IF EXISTS {_pg('gl_reconciliation')} CASCADE;
 DROP TABLE IF EXISTS {_pg('ifrs7_stage_migration')} CASCADE;
 DROP TABLE IF EXISTS {_pg('ifrs7_credit_risk_exposure')} CASCADE;
 DROP TABLE IF EXISTS {_pg('satellite_model_metadata')} CASCADE;
+DROP TABLE IF EXISTS {_pg('satellite_model_comparison')} CASCADE;
+DROP TABLE IF EXISTS {_pg('satellite_model_selected')} CASCADE;
 DROP TABLE IF EXISTS {_pg('sicr_thresholds')} CASCADE;
 DROP TABLE IF EXISTS {_pg('borrower_master')} CASCADE;
 
@@ -108,21 +128,23 @@ CREATE TABLE {_pg('borrower_master')} (
     segment             TEXT,
     age                 INT,
     gender              TEXT,
+    marital_status      TEXT,
+    dependents          INT,
+    education_level     TEXT,
+    employment_type     TEXT,
+    employment_tenure_years INT,
+    annual_income       DOUBLE PRECISION,
+    existing_debt_ratio DOUBLE PRECISION,
+    credit_score        INT,
+    credit_grade        TEXT,
     country             TEXT,
     region              TEXT,
-    income_source       TEXT,
-    monthly_income      DOUBLE PRECISION,
-    employment_tenure_months INT,
-    education_level     TEXT,
-    formal_credit_score DOUBLE PRECISION,
-    rent_payment_score  DOUBLE PRECISION,
-    utility_payment_score DOUBLE PRECISION,
-    mobile_money_velocity DOUBLE PRECISION,
-    bank_account_age_months INT,
-    alt_data_composite_score DOUBLE PRECISION,
-    has_student_loan    BOOLEAN,
-    dependents          INT,
-    onboarding_date     TEXT
+    industry_sector     TEXT,
+    company_name        TEXT,
+    years_in_business   DOUBLE PRECISION,
+    annual_revenue      DOUBLE PRECISION,
+    onboarding_date     TEXT,
+    age_bucket          TEXT
 );
 
 CREATE TABLE {_pg('model_ready_loans')} (
@@ -136,44 +158,51 @@ CREATE TABLE {_pg('model_ready_loans')} (
     effective_interest_rate DOUBLE PRECISION,
     contractual_term_months INT,
     months_on_book      INT,
-    remaining_months    INT,
+    remaining_months    DOUBLE PRECISION,
     days_past_due       INT,
+    delinquency_bucket  TEXT,
     origination_pd      DOUBLE PRECISION,
     current_lifetime_pd DOUBLE PRECISION,
-    origination_alt_score DOUBLE PRECISION,
-    current_alt_score   DOUBLE PRECISION,
     assessed_stage      INT NOT NULL,
     prior_stage         INT,
-    consecutive_on_time_payments INT,
     sicr_trigger_reasons TEXT,
     is_restructured     BOOLEAN,
     currency            TEXT,
+    credit_grade        TEXT,
+    risk_band           TEXT,
+    vintage_year        TEXT,
+    age_bucket          TEXT,
+    employment_type     TEXT,
+    region              TEXT,
+    industry_sector     TEXT,
+    ltv_ratio           DOUBLE PRECISION,
+    ltv_band            TEXT,
+    credit_limit        DOUBLE PRECISION,
+    utilization_rate    DOUBLE PRECISION,
     segment             TEXT,
     age                 INT,
-    income_source       TEXT,
-    monthly_income      DOUBLE PRECISION,
-    employment_tenure_months INT,
+    annual_income       DOUBLE PRECISION,
+    credit_score        INT,
     education_level     TEXT,
-    formal_credit_score DOUBLE PRECISION,
-    rent_payment_score  DOUBLE PRECISION,
-    utility_payment_score DOUBLE PRECISION,
-    mobile_money_velocity DOUBLE PRECISION,
-    bank_account_age_months INT,
-    alt_data_composite_score DOUBLE PRECISION,
-    has_student_loan    BOOLEAN,
+    marital_status      TEXT,
     dependents          INT,
+    employment_tenure_years INT,
+    existing_debt_ratio DOUBLE PRECISION,
     country             TEXT,
     current_collateral_value DOUBLE PRECISION,
     loan_to_value_ratio DOUBLE PRECISION,
     vintage_cohort      TEXT,
     pmt_on_time_rate    DOUBLE PRECISION,
     total_payments      INT,
-    missed_payments     INT
+    missed_payments     INT,
+    partial_payments    INT,
+    last_on_time_date   TEXT
 );
 
 CREATE TABLE {_pg('loan_level_ecl')} (
     loan_id             TEXT NOT NULL,
     product_type        TEXT,
+    cohort_id           TEXT,
     assessed_stage      INT,
     scenario            TEXT NOT NULL,
     scenario_weight     DOUBLE PRECISION,
@@ -200,6 +229,7 @@ CREATE TABLE {_pg('loan_level_ecl')} (
 CREATE TABLE {_pg('loan_ecl_weighted')} (
     loan_id             TEXT PRIMARY KEY,
     product_type        TEXT,
+    cohort_id           TEXT,
     assessed_stage      INT,
     gross_carrying_amount DOUBLE PRECISION,
     weighted_ecl        DOUBLE PRECISION
@@ -207,12 +237,13 @@ CREATE TABLE {_pg('loan_ecl_weighted')} (
 
 CREATE TABLE {_pg('portfolio_ecl_summary')} (
     product_type        TEXT NOT NULL,
+    cohort_id           TEXT NOT NULL DEFAULT '__ALL__',
     assessed_stage      INT NOT NULL,
     loan_count          INT,
     total_gca           DOUBLE PRECISION,
     total_ecl           DOUBLE PRECISION,
     coverage_ratio      DOUBLE PRECISION,
-    PRIMARY KEY (product_type, assessed_stage)
+    PRIMARY KEY (product_type, cohort_id, assessed_stage)
 );
 
 CREATE TABLE {_pg('scenario_ecl_summary')} (
@@ -232,10 +263,6 @@ CREATE TABLE {_pg('mc_ecl_distribution')} (
     ecl_p75             DOUBLE PRECISION,
     ecl_p95             DOUBLE PRECISION,
     ecl_p99             DOUBLE PRECISION,
-    avg_pd_multiplier   DOUBLE PRECISION,
-    avg_lgd_multiplier  DOUBLE PRECISION,
-    pd_vol              DOUBLE PRECISION,
-    lgd_vol             DOUBLE PRECISION,
     n_simulations       INT
 );
 
@@ -302,51 +329,97 @@ CREATE TABLE {_pg('sicr_thresholds')} (
 
 CREATE TABLE {_pg('ifrs7_stage_migration')} (
     product_type        TEXT NOT NULL,
+    cohort_id           TEXT NOT NULL DEFAULT '__ALL__',
     original_stage      INT NOT NULL,
     assessed_stage      INT NOT NULL,
     loan_count          INT,
     total_gca           DOUBLE PRECISION,
-    PRIMARY KEY (product_type, original_stage, assessed_stage)
+    PRIMARY KEY (product_type, cohort_id, original_stage, assessed_stage)
 );
 
 CREATE TABLE {_pg('ifrs7_credit_risk_exposure')} (
     product_type        TEXT NOT NULL,
+    cohort_id           TEXT NOT NULL DEFAULT '__ALL__',
     assessed_stage      INT NOT NULL,
     credit_risk_grade   TEXT NOT NULL,
     loan_count          INT,
     total_gca           DOUBLE PRECISION,
-    PRIMARY KEY (product_type, assessed_stage, credit_risk_grade)
+    PRIMARY KEY (product_type, cohort_id, assessed_stage, credit_risk_grade)
+);
+
+CREATE TABLE {_pg('satellite_model_comparison')} (
+    product_type        TEXT NOT NULL,
+    cohort_id           TEXT NOT NULL,
+    model_type          TEXT NOT NULL,
+    r_squared           DOUBLE PRECISION,
+    rmse                DOUBLE PRECISION,
+    aic                 DOUBLE PRECISION,
+    bic                 DOUBLE PRECISION,
+    cv_rmse             DOUBLE PRECISION,
+    coefficients_json   TEXT,
+    best_params_json    TEXT,
+    formula             TEXT,
+    n_observations      INT,
+    run_timestamp       TEXT,
+    PRIMARY KEY (product_type, cohort_id, model_type)
+);
+
+CREATE TABLE {_pg('satellite_model_selected')} (
+    product_type        TEXT NOT NULL,
+    cohort_id           TEXT NOT NULL,
+    model_type          TEXT NOT NULL,
+    r_squared           DOUBLE PRECISION,
+    rmse                DOUBLE PRECISION,
+    aic                 DOUBLE PRECISION,
+    bic                 DOUBLE PRECISION,
+    coefficients_json   TEXT,
+    best_params_json    TEXT,
+    formula             TEXT,
+    selection_reason    TEXT,
+    n_observations      INT,
+    run_timestamp       TEXT,
+    PRIMARY KEY (product_type, cohort_id)
 );
 
 CREATE INDEX idx_loans_product ON {_pg('model_ready_loans')}(product_type);
 CREATE INDEX idx_loans_stage ON {_pg('model_ready_loans')}(assessed_stage);
-CREATE INDEX idx_loans_vintage ON {_pg('model_ready_loans')}(vintage_cohort);
+CREATE INDEX idx_loans_credit_grade ON {_pg('model_ready_loans')}(credit_grade);
+CREATE INDEX idx_loans_region ON {_pg('model_ready_loans')}(region);
+CREATE INDEX idx_loans_age_bucket ON {_pg('model_ready_loans')}(age_bucket);
+CREATE INDEX idx_loans_employment ON {_pg('model_ready_loans')}(employment_type);
+CREATE INDEX idx_loans_vintage ON {_pg('model_ready_loans')}(vintage_year);
 CREATE INDEX idx_loans_segment ON {_pg('model_ready_loans')}(segment);
+CREATE INDEX idx_loans_delinquency ON {_pg('model_ready_loans')}(delinquency_bucket);
+CREATE INDEX idx_loans_ltv_band ON {_pg('model_ready_loans')}(ltv_band);
+CREATE INDEX idx_loans_industry ON {_pg('model_ready_loans')}(industry_sector);
 CREATE INDEX idx_loan_ecl_product ON {_pg('loan_level_ecl')}(product_type);
+CREATE INDEX idx_loan_ecl_cohort ON {_pg('loan_level_ecl')}(cohort_id);
 CREATE INDEX idx_loan_ecl_scenario ON {_pg('loan_level_ecl')}(scenario);
 CREATE INDEX idx_loan_ecl_stage ON {_pg('loan_level_ecl')}(assessed_stage);
 CREATE INDEX idx_weighted_product ON {_pg('loan_ecl_weighted')}(product_type);
+CREATE INDEX idx_weighted_cohort ON {_pg('loan_ecl_weighted')}(cohort_id);
 CREATE INDEX idx_borrower_segment ON {_pg('borrower_master')}(segment);
+CREATE INDEX idx_borrower_credit_grade ON {_pg('borrower_master')}(credit_grade);
+CREATE INDEX idx_borrower_region ON {_pg('borrower_master')}(region);
+CREATE INDEX idx_sat_comp_product ON {_pg('satellite_model_comparison')}(product_type);
+CREATE INDEX idx_sat_sel_product ON {_pg('satellite_model_selected')}(product_type);
 """
 
 
 # ── sync logic ───────────────────────────────────────────────────────────────
 
-TABLES = [
-    ("borrower_master", _pg("borrower_master")),
-    ("model_ready_loans", _pg("model_ready_loans")),
-    ("loan_level_ecl", _pg("loan_level_ecl")),
-    ("loan_ecl_weighted", _pg("loan_ecl_weighted")),
-    ("portfolio_ecl_summary", _pg("portfolio_ecl_summary")),
-    ("scenario_ecl_summary", _pg("scenario_ecl_summary")),
-    ("mc_ecl_distribution", _pg("mc_ecl_distribution")),
-    ("dq_results", _pg("dq_results")),
-    ("gl_reconciliation", _pg("gl_reconciliation")),
-    ("ifrs7_stage_migration", _pg("ifrs7_stage_migration")),
-    ("ifrs7_credit_risk_exposure", _pg("ifrs7_credit_risk_exposure")),
-    ("satellite_model_metadata", _pg("satellite_model_metadata")),
-    ("sicr_thresholds", _pg("sicr_thresholds")),
+_TABLE_NAMES = [
+    "borrower_master", "model_ready_loans", "loan_level_ecl",
+    "loan_ecl_weighted", "portfolio_ecl_summary", "scenario_ecl_summary",
+    "mc_ecl_distribution", "dq_results", "gl_reconciliation",
+    "ifrs7_stage_migration", "ifrs7_credit_risk_exposure",
+    "satellite_model_metadata", "satellite_model_comparison",
+    "satellite_model_selected", "sicr_thresholds",
 ]
+
+def _build_tables_list():
+    """Build the (uc_table, pg_table) list at call time, not import time."""
+    return [(name, _pg(name)) for name in _TABLE_NAMES]
 
 
 def sync_table(spark, pg_conn, uc_table: str, pg_table: str):
@@ -433,8 +506,9 @@ def main():
     print("\n[2/4] Creating schema and tables in Lakebase ...")
     pg = get_lakebase_connection()
     pg.autocommit = True
+    ddl = _build_ddl()
     with pg.cursor() as cur:
-        for stmt in DDL.split(";"):
+        for stmt in ddl.split(";"):
             stmt = stmt.strip()
             if stmt:
                 cur.execute(stmt + ";")
@@ -444,8 +518,9 @@ def main():
     print("\n[3/4] Reading from UC via Spark ...")
     print("  Spark session ready")
 
+    tables = _build_tables_list()
     print("\n[4/4] Syncing tables ...")
-    for uc_table, pg_table in TABLES:
+    for uc_table, pg_table in tables:
         try:
             sync_table(spark, pg, uc_table, pg_table)
         except Exception as e:

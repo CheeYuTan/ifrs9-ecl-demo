@@ -1,0 +1,16 @@
+EXIT CODE: 0
+DURATION: 955s
+
+--- STDOUT ---
+Sprint 8 iteration 4 is complete. Summary:
+
+**Added 63 new vitest tests** (387 → 450) across 6 new page test files and 2 deepened component test files:
+
+- **6 new deep page tests**: RegulatoryReports (10), MarkovChains (11), HazardModels (10), DataControl (8), Overlays (8), SignOff (8) — deep page coverage from 8/19 → 14/19
+- **2 deepened component tests**: SimulationPanel (4→8), SetupWizard (4→8) — no longer smoke-only
+- **All 4,288 tests pass**: 450 vitest + 3,838 pytest, zero regressions
+- **Committed**: `95120cd`
+
+
+--- STDERR ---
+

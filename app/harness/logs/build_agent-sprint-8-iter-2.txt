@@ -1,0 +1,30 @@
+EXIT CODE: 0
+DURATION: 860s
+
+--- STDOUT ---
+Sprint 8, iteration 2 is complete. Here's the summary:
+
+**What was done:**
+- Added 8 new test files covering all previously untested components (78 new tests)
+- Total vitest tests: **328** (up from 250 in iter 1, 103 pre-sprint)
+- **100% component coverage**: all 23 components now have tests
+- All 3,838 pytest + 328 vitest = **4,166 total tests pass**
+- TypeScript compiles cleanly (zero errors)
+
+**New test files:**
+| Component | Tests | Key Coverage |
+|-----------|-------|-------------|
+| DrillDownChart | 10 | Figure rendering, breadcrumb, drill-down hint, custom props, dimension loading |
+| HelpPanel | 12 | Open/close, step-specific help, keyboard shortcuts (?/Escape), external links |
+| NotebookLink | 10 | Job config loading, URL construction, dedup, compact mode, not-provisioned |
+| ThreeLevelDrillDown | 11 | 3-level breadcrumb, drill-down hints, level0Colors, data reset |
+| ScenarioProductBarChart | 10 | Empty state, scenario bars, breadcrumb, data reset, partial scenarios |
+| SimulationResults | 16 | Metrics display, timing breakdown, convergence, log toggle, callbacks |
+| SimulationPanel | 4 | Collapse/expand, defaults loading |
+| SetupWizard | 4 | Loading state, step labels, wizard rendering |
+
+Handoff written to `harness/handoffs/sprint-8-handoff.md`. Ready for Visual QA → Evaluator.
+
+
+--- STDERR ---
+

@@ -1,0 +1,15 @@
+EXIT CODE: 0
+DURATION: 1033s
+
+--- STDOUT ---
+Sprint 7 build complete. Summary:
+
+- **120 new tests** across 30+ test classes covering 10+ domain modules
+- **1 bug found & fixed**: numpy types not JSON-serializable in `domain/backtesting.py` (line 305) — added `_json_default()` handler + 5 regression tests
+- **Full suite**: 3,728 passed, 0 failed, 61 skipped
+- **Files**: `tests/unit/test_qa_sprint_7_domain_analytical.py` (new), `domain/backtesting.py` (bug fix)
+- **Committed**: `ad88c26`
+
+
+--- STDERR ---
+

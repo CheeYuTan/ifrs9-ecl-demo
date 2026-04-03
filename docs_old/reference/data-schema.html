@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Schema — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="../guides/ecl-workflow.html">Guides</a>
+    <a href="api-reference.html" class="active">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="../guides/data-setup.html">Data Setup</a>
+      <a href="../guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="../guides/model-registry.html">Model Registry</a>
+      <a href="../guides/gl-journals.html">GL Journals</a>
+      <a href="../guides/backtesting.html">Backtesting</a>
+      <a href="../guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="../guides/validation-rules.html">Validation Rules</a>
+      <a href="../guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="../guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="api-reference.html">API Reference</a>
+      <a href="data-schema.html" class="active">Data Schema</a>
+      <a href="ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="api-reference.html">Reference</a> <span>/</span> Data Schema
+    </div>
+
+    <h1>Data Schema</h1>
+    <p class="subtitle">Complete schema for all Lakebase database tables used by the application.</p>
+
+    <div class="callout callout-info">
+      <strong>Schema &amp; Prefix</strong>
+      All tables are created in the <code>expected_credit_loss</code> schema by default. Unity Catalog source tables use the <code>lb_</code> prefix. Both are configurable via Admin Configuration.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Workflow Tables</h2>
+
+    <h3>ecl_projects</h3>
+    <p>Stores ECL project state, workflow progress, and audit trail.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>project_id</code></td><td>TEXT</td><td>—</td><td>Primary key. Unique project identifier.</td></tr>
+        <tr><td><code>project_name</code></td><td>TEXT</td><td>—</td><td>Display name for the project.</td></tr>
+        <tr><td><code>project_type</code></td><td>TEXT</td><td>—</td><td>Project type (e.g., "ifrs9").</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td>—</td><td>Project description.</td></tr>
+        <tr><td><code>reporting_date</code></td><td>TEXT</td><td>—</td><td>Reporting period end date.</td></tr>
+        <tr><td><code>current_step</code></td><td>INT</td><td>0</td><td>Current workflow step (0–7).</td></tr>
+        <tr><td><code>step_status</code></td><td>TEXT</td><td>—</td><td>JSON array of step completion statuses.</td></tr>
+        <tr><td><code>audit_log</code></td><td>TEXT</td><td>—</td><td>JSON array of audit entries (action, user, timestamp, detail).</td></tr>
+        <tr><td><code>overlays</code></td><td>TEXT</td><td>—</td><td>JSON array of management overlay objects.</td></tr>
+        <tr><td><code>scenario_weights</code></td><td>TEXT</td><td>—</td><td>JSON object of scenario → weight mappings.</td></tr>
+        <tr><td><code>signed_off_by</code></td><td>TEXT</td><td>—</td><td>Name of person who signed off.</td></tr>
+        <tr><td><code>signed_off_at</code></td><td>TIMESTAMP</td><td>—</td><td>Sign-off timestamp.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Project creation timestamp.</td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Last update timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Model Registry Tables</h2>
+
+    <h3>model_registry</h3>
+    <p>Central registry for all PD, LGD, EAD, and satellite models.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>model_id</code></td><td>TEXT</td><td>—</td><td>Primary key. Auto-generated UUID.</td></tr>
+        <tr><td><code>model_name</code></td><td>TEXT</td><td>—</td><td>Model display name.</td></tr>
+        <tr><td><code>model_type</code></td><td>TEXT</td><td>—</td><td>PD, LGD, EAD, Staging, or Satellite.</td></tr>
+        <tr><td><code>algorithm</code></td><td>TEXT</td><td>—</td><td>Algorithm name (e.g., XGBoost, Ridge).</td></tr>
+        <tr><td><code>version</code></td><td>INT</td><td>1</td><td>Model version number.</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td>—</td><td>Model description.</td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td>'draft'</td><td>Lifecycle status: draft, validated, approved, champion, retired.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Target product type.</td></tr>
+        <tr><td><code>cohort</code></td><td>TEXT</td><td>—</td><td>Training cohort identifier.</td></tr>
+        <tr><td><code>parameters</code></td><td>JSONB</td><td>—</td><td>Model hyperparameters.</td></tr>
+        <tr><td><code>performance_metrics</code></td><td>JSONB</td><td>—</td><td>Performance metrics (AUC, Gini, etc.).</td></tr>
+        <tr><td><code>training_data_info</code></td><td>JSONB</td><td>—</td><td>Training data metadata.</td></tr>
+        <tr><td><code>is_champion</code></td><td>BOOLEAN</td><td>FALSE</td><td>Whether this is the current champion model.</td></tr>
+        <tr><td><code>created_by</code></td><td>TEXT</td><td>'system'</td><td>Creator identity.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Registration timestamp.</td></tr>
+        <tr><td><code>approved_by</code></td><td>TEXT</td><td>—</td><td>Approver identity.</td></tr>
+        <tr><td><code>approved_at</code></td><td>TIMESTAMP</td><td>—</td><td>Approval timestamp.</td></tr>
+        <tr><td><code>promoted_by</code></td><td>TEXT</td><td>—</td><td>Who promoted to champion.</td></tr>
+        <tr><td><code>promoted_at</code></td><td>TIMESTAMP</td><td>—</td><td>Champion promotion timestamp.</td></tr>
+        <tr><td><code>retired_by</code></td><td>TEXT</td><td>—</td><td>Who retired the model.</td></tr>
+        <tr><td><code>retired_at</code></td><td>TIMESTAMP</td><td>—</td><td>Retirement timestamp.</td></tr>
+        <tr><td><code>notes</code></td><td>TEXT</td><td>—</td><td>Additional notes.</td></tr>
+        <tr><td><code>parent_model_id</code></td><td>TEXT</td><td>—</td><td>Parent model for lineage tracking.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>model_registry_audit</h3>
+    <p>Audit trail for all model status changes.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>audit_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>model_id</code></td><td>TEXT</td><td>—</td><td>Reference to model_registry.</td></tr>
+        <tr><td><code>action</code></td><td>TEXT</td><td>—</td><td>Action performed (registered, validated, approved, promoted, retired).</td></tr>
+        <tr><td><code>old_status</code></td><td>TEXT</td><td>—</td><td>Previous status.</td></tr>
+        <tr><td><code>new_status</code></td><td>TEXT</td><td>—</td><td>New status.</td></tr>
+        <tr><td><code>performed_by</code></td><td>TEXT</td><td>—</td><td>User who performed the action.</td></tr>
+        <tr><td><code>performed_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Action timestamp.</td></tr>
+        <tr><td><code>comment</code></td><td>TEXT</td><td>—</td><td>Comment or reason.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>model_runs</h3>
+    <p>Records of satellite model execution runs.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>run_id</code></td><td>TEXT</td><td>—</td><td>Primary key. Unique run identifier.</td></tr>
+        <tr><td><code>run_type</code></td><td>TEXT</td><td>—</td><td>Type of run (e.g., "satellite_model").</td></tr>
+        <tr><td><code>run_timestamp</code></td><td>TIMESTAMP</td><td>NOW()</td><td>When the run was executed.</td></tr>
+        <tr><td><code>models_used</code></td><td>TEXT</td><td>—</td><td>JSON array of algorithm names.</td></tr>
+        <tr><td><code>products</code></td><td>TEXT</td><td>—</td><td>JSON array of product types.</td></tr>
+        <tr><td><code>total_cohorts</code></td><td>INT</td><td>0</td><td>Number of cohorts processed.</td></tr>
+        <tr><td><code>best_model_summary</code></td><td>TEXT</td><td>—</td><td>JSON summary of best model per cohort.</td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td>'completed'</td><td>Run status.</td></tr>
+        <tr><td><code>notes</code></td><td>TEXT</td><td>—</td><td>Run notes.</td></tr>
+        <tr><td><code>created_by</code></td><td>TEXT</td><td>'system'</td><td>Who triggered the run.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Attribution Table</h2>
+
+    <h3>ecl_attribution</h3>
+    <p>ECL waterfall attribution data decomposing ECL changes into drivers.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>attribution_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>project_id</code></td><td>TEXT</td><td>—</td><td>Reference to ecl_projects.</td></tr>
+        <tr><td><code>reporting_date</code></td><td>TEXT</td><td>—</td><td>Reporting period.</td></tr>
+        <tr><td><code>computed_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Computation timestamp.</td></tr>
+        <tr><td><code>opening_ecl</code></td><td>JSONB</td><td>—</td><td>Opening ECL by stage: <code>{stage1, stage2, stage3, total}</code>.</td></tr>
+        <tr><td><code>closing_ecl</code></td><td>JSONB</td><td>—</td><td>Closing ECL by stage.</td></tr>
+        <tr><td><code>new_originations</code></td><td>JSONB</td><td>—</td><td>ECL from new loan originations.</td></tr>
+        <tr><td><code>derecognitions</code></td><td>JSONB</td><td>—</td><td>ECL released from derecognized loans.</td></tr>
+        <tr><td><code>stage_transfers</code></td><td>JSONB</td><td>—</td><td>ECL impact of stage migrations.</td></tr>
+        <tr><td><code>model_changes</code></td><td>JSONB</td><td>—</td><td>ECL impact of model parameter changes.</td></tr>
+        <tr><td><code>macro_changes</code></td><td>JSONB</td><td>—</td><td>ECL impact of macroeconomic scenario changes.</td></tr>
+        <tr><td><code>management_overlays</code></td><td>JSONB</td><td>—</td><td>Management overlay impact.</td></tr>
+        <tr><td><code>write_offs</code></td><td>JSONB</td><td>—</td><td>Write-off impact.</td></tr>
+        <tr><td><code>unwind_discount</code></td><td>JSONB</td><td>—</td><td>Discount unwind impact.</td></tr>
+        <tr><td><code>fx_changes</code></td><td>JSONB</td><td>—</td><td>Foreign exchange impact.</td></tr>
+        <tr><td><code>residual</code></td><td>JSONB</td><td>—</td><td>Residual (unexplained) movement.</td></tr>
+        <tr><td><code>waterfall_data</code></td><td>JSONB</td><td>—</td><td>Pre-computed waterfall chart data.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Backtesting Tables</h2>
+
+    <h3>backtest_results</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>backtest_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>model_id</code></td><td>TEXT</td><td>—</td><td>Reference to model being tested.</td></tr>
+        <tr><td><code>model_type</code></td><td>TEXT</td><td>'PD'</td><td>Model type (PD, LGD, EAD).</td></tr>
+        <tr><td><code>backtest_date</code></td><td>TIMESTAMP</td><td>NOW()</td><td>When the backtest was run.</td></tr>
+        <tr><td><code>observation_window</code></td><td>TEXT</td><td>—</td><td>Observation period.</td></tr>
+        <tr><td><code>outcome_window</code></td><td>TEXT</td><td>—</td><td>Outcome period.</td></tr>
+        <tr><td><code>overall_traffic_light</code></td><td>TEXT</td><td>'Green'</td><td>Overall result: Green, Amber, or Red.</td></tr>
+        <tr><td><code>pass_count</code></td><td>INT</td><td>0</td><td>Number of Green metrics.</td></tr>
+        <tr><td><code>amber_count</code></td><td>INT</td><td>0</td><td>Number of Amber metrics.</td></tr>
+        <tr><td><code>fail_count</code></td><td>INT</td><td>0</td><td>Number of Red metrics.</td></tr>
+        <tr><td><code>total_loans</code></td><td>INT</td><td>0</td><td>Number of loans in backtest.</td></tr>
+        <tr><td><code>config</code></td><td>JSONB</td><td>—</td><td>Backtest configuration.</td></tr>
+        <tr><td><code>created_by</code></td><td>TEXT</td><td>'system'</td><td>Who ran the backtest.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>backtest_metrics</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>metric_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>backtest_id</code></td><td>TEXT</td><td>—</td><td>Reference to backtest_results.</td></tr>
+        <tr><td><code>metric_name</code></td><td>TEXT</td><td>—</td><td>Metric name (AUC, Gini, KS, PSI, Brier).</td></tr>
+        <tr><td><code>metric_value</code></td><td>FLOAT</td><td>—</td><td>Computed metric value.</td></tr>
+        <tr><td><code>threshold_green</code></td><td>FLOAT</td><td>—</td><td>Green threshold.</td></tr>
+        <tr><td><code>threshold_amber</code></td><td>FLOAT</td><td>—</td><td>Amber threshold.</td></tr>
+        <tr><td><code>pass_fail</code></td><td>TEXT</td><td>'Green'</td><td>Traffic light: Green, Amber, or Red.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>backtest_cohort_results</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>cohort_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>backtest_id</code></td><td>TEXT</td><td>—</td><td>Reference to backtest_results.</td></tr>
+        <tr><td><code>cohort_name</code></td><td>TEXT</td><td>—</td><td>Cohort identifier.</td></tr>
+        <tr><td><code>predicted_rate</code></td><td>FLOAT</td><td>—</td><td>Model-predicted default rate.</td></tr>
+        <tr><td><code>actual_rate</code></td><td>FLOAT</td><td>—</td><td>Observed actual default rate.</td></tr>
+        <tr><td><code>count</code></td><td>INT</td><td>0</td><td>Number of loans in cohort.</td></tr>
+        <tr><td><code>abs_diff</code></td><td>FLOAT</td><td>—</td><td>Absolute difference (predicted − actual).</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>GL Journal Tables</h2>
+
+    <h3>gl_chart_of_accounts</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>account_code</code></td><td>TEXT</td><td>—</td><td>Primary key. Account code (e.g., "1210").</td></tr>
+        <tr><td><code>account_name</code></td><td>TEXT</td><td>—</td><td>Account name.</td></tr>
+        <tr><td><code>account_type</code></td><td>TEXT</td><td>—</td><td>Type: asset, contra-asset, expense, income.</td></tr>
+        <tr><td><code>parent_account</code></td><td>TEXT</td><td>—</td><td>Parent account code for hierarchy.</td></tr>
+        <tr><td><code>is_ecl_related</code></td><td>BOOLEAN</td><td>TRUE</td><td>Whether this account is ECL-related.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>gl_journal_entries</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>journal_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>project_id</code></td><td>TEXT</td><td>—</td><td>Reference to ecl_projects.</td></tr>
+        <tr><td><code>journal_date</code></td><td>DATE</td><td>CURRENT_DATE</td><td>Journal date.</td></tr>
+        <tr><td><code>journal_type</code></td><td>TEXT</td><td>—</td><td>Type: ecl_provision, overlay, reversal.</td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td>'draft'</td><td>Status: draft, posted, reversed.</td></tr>
+        <tr><td><code>created_by</code></td><td>TEXT</td><td>'system'</td><td>Creator.</td></tr>
+        <tr><td><code>posted_by</code></td><td>TEXT</td><td>—</td><td>Who posted the journal.</td></tr>
+        <tr><td><code>posted_at</code></td><td>TIMESTAMP</td><td>—</td><td>Posting timestamp.</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td>—</td><td>Journal description.</td></tr>
+        <tr><td><code>reference</code></td><td>TEXT</td><td>—</td><td>External reference (e.g., original journal ID for reversals).</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>gl_journal_lines</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>line_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>journal_id</code></td><td>TEXT</td><td>—</td><td>Reference to gl_journal_entries.</td></tr>
+        <tr><td><code>account_code</code></td><td>TEXT</td><td>—</td><td>GL account code.</td></tr>
+        <tr><td><code>debit</code></td><td>NUMERIC(18,2)</td><td>0</td><td>Debit amount.</td></tr>
+        <tr><td><code>credit</code></td><td>NUMERIC(18,2)</td><td>0</td><td>Credit amount.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Product type for drill-down.</td></tr>
+        <tr><td><code>stage</code></td><td>TEXT</td><td>—</td><td>IFRS 9 stage for drill-down.</td></tr>
+        <tr><td><code>description</code></td><td>TEXT</td><td>—</td><td>Line description.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Markov Chain Tables</h2>
+
+    <h3>markov_transition_matrices</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>matrix_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>model_name</code></td><td>TEXT</td><td>—</td><td>Descriptive name.</td></tr>
+        <tr><td><code>estimation_date</code></td><td>DATE</td><td>CURRENT_DATE</td><td>When the matrix was estimated.</td></tr>
+        <tr><td><code>matrix_data</code></td><td>JSONB</td><td>—</td><td>4×4 transition matrix (Stage 1, 2, 3, Default).</td></tr>
+        <tr><td><code>matrix_type</code></td><td>TEXT</td><td>'annual'</td><td>Matrix period type.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Product type filter used.</td></tr>
+        <tr><td><code>segment</code></td><td>TEXT</td><td>—</td><td>Segment filter used.</td></tr>
+        <tr><td><code>methodology</code></td><td>TEXT</td><td>'cohort'</td><td>Estimation methodology.</td></tr>
+        <tr><td><code>n_observations</code></td><td>INT</td><td>—</td><td>Number of observations used.</td></tr>
+        <tr><td><code>computed_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Computation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>markov_forecasts</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>forecast_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>matrix_id</code></td><td>TEXT</td><td>—</td><td>Reference to transition matrix.</td></tr>
+        <tr><td><code>horizon_months</code></td><td>INT</td><td>—</td><td>Forecast horizon.</td></tr>
+        <tr><td><code>forecast_data</code></td><td>JSONB</td><td>—</td><td>Time series of stage distributions.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Hazard Model Tables</h2>
+
+    <h3>hazard_model_results</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>model_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>model_type</code></td><td>TEXT</td><td>—</td><td>cox_ph, discrete_time, or kaplan_meier.</td></tr>
+        <tr><td><code>estimation_date</code></td><td>DATE</td><td>CURRENT_DATE</td><td>Estimation date.</td></tr>
+        <tr><td><code>coefficients</code></td><td>JSONB</td><td>—</td><td>Model coefficients with standard errors and p-values.</td></tr>
+        <tr><td><code>baseline_hazard</code></td><td>JSONB</td><td>—</td><td>Baseline hazard function by time period.</td></tr>
+        <tr><td><code>concordance_index</code></td><td>FLOAT</td><td>—</td><td>C-index (discrimination measure).</td></tr>
+        <tr><td><code>log_likelihood</code></td><td>FLOAT</td><td>—</td><td>Log-likelihood of the fitted model.</td></tr>
+        <tr><td><code>aic</code></td><td>FLOAT</td><td>—</td><td>Akaike Information Criterion.</td></tr>
+        <tr><td><code>bic</code></td><td>FLOAT</td><td>—</td><td>Bayesian Information Criterion.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Product type filter.</td></tr>
+        <tr><td><code>segment</code></td><td>TEXT</td><td>—</td><td>Segment filter.</td></tr>
+        <tr><td><code>n_observations</code></td><td>INT</td><td>0</td><td>Number of observations.</td></tr>
+        <tr><td><code>n_events</code></td><td>INT</td><td>0</td><td>Number of default events.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>hazard_survival_curves</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>curve_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>model_id</code></td><td>TEXT</td><td>—</td><td>Reference to hazard_model_results.</td></tr>
+        <tr><td><code>segment</code></td><td>TEXT</td><td>—</td><td>Segment this curve applies to.</td></tr>
+        <tr><td><code>time_points</code></td><td>JSONB</td><td>—</td><td>Array of time points (months).</td></tr>
+        <tr><td><code>survival_probs</code></td><td>JSONB</td><td>—</td><td>Array of survival probabilities.</td></tr>
+        <tr><td><code>hazard_rates</code></td><td>JSONB</td><td>—</td><td>Array of hazard rates.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>RBAC Tables</h2>
+
+    <h3>rbac_users</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>user_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td>—</td><td>User email address.</td></tr>
+        <tr><td><code>display_name</code></td><td>TEXT</td><td>—</td><td>Display name.</td></tr>
+        <tr><td><code>role</code></td><td>TEXT</td><td>'analyst'</td><td>Role: admin, manager, analyst, auditor, viewer.</td></tr>
+        <tr><td><code>department</code></td><td>TEXT</td><td>''</td><td>Department name.</td></tr>
+        <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>TRUE</td><td>Whether the user is active.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>rbac_approval_requests</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>request_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>request_type</code></td><td>TEXT</td><td>—</td><td>Type of approval request.</td></tr>
+        <tr><td><code>entity_id</code></td><td>TEXT</td><td>—</td><td>ID of entity being approved.</td></tr>
+        <tr><td><code>entity_type</code></td><td>TEXT</td><td>''</td><td>Entity type.</td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td>'pending'</td><td>Status: pending, approved, rejected.</td></tr>
+        <tr><td><code>requested_by</code></td><td>TEXT</td><td>—</td><td>Requester user ID.</td></tr>
+        <tr><td><code>assigned_to</code></td><td>TEXT</td><td>—</td><td>Assigned approver.</td></tr>
+        <tr><td><code>approved_by</code></td><td>TEXT</td><td>—</td><td>Who approved/rejected.</td></tr>
+        <tr><td><code>approved_at</code></td><td>TIMESTAMP</td><td>—</td><td>Approval/rejection timestamp.</td></tr>
+        <tr><td><code>rejection_reason</code></td><td>TEXT</td><td>''</td><td>Reason for rejection.</td></tr>
+        <tr><td><code>comments</code></td><td>TEXT</td><td>''</td><td>Request comments.</td></tr>
+        <tr><td><code>priority</code></td><td>TEXT</td><td>'normal'</td><td>Priority level.</td></tr>
+        <tr><td><code>due_date</code></td><td>DATE</td><td>—</td><td>Due date for the approval.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Regulatory Report Tables</h2>
+
+    <h3>regulatory_reports</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>report_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>project_id</code></td><td>TEXT</td><td>—</td><td>Reference to ecl_projects.</td></tr>
+        <tr><td><code>report_type</code></td><td>TEXT</td><td>—</td><td>Report type (ifrs7_disclosure, ecl_movement, etc.).</td></tr>
+        <tr><td><code>report_date</code></td><td>DATE</td><td>CURRENT_DATE</td><td>Report date.</td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td>'draft'</td><td>Status: draft or finalized.</td></tr>
+        <tr><td><code>generated_by</code></td><td>TEXT</td><td>'system'</td><td>Who generated the report.</td></tr>
+        <tr><td><code>report_data</code></td><td>JSONB</td><td>'{}'</td><td>Full report data payload.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <h2>Advanced ECL Tables</h2>
+
+    <h3>cure_rate_analyses</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>analysis_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Product type filter.</td></tr>
+        <tr><td><code>segment</code></td><td>TEXT</td><td>—</td><td>Segment filter.</td></tr>
+        <tr><td><code>observation_period</code></td><td>TEXT</td><td>—</td><td>Observation period description.</td></tr>
+        <tr><td><code>cure_rates</code></td><td>JSONB</td><td>—</td><td>Cure rates by stage transition.</td></tr>
+        <tr><td><code>methodology</code></td><td>TEXT</td><td>—</td><td>Estimation methodology.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ccf_analyses</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>analysis_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>product_type</code></td><td>TEXT</td><td>—</td><td>Product type filter.</td></tr>
+        <tr><td><code>ccf_by_stage</code></td><td>JSONB</td><td>—</td><td>CCF values by IFRS 9 stage.</td></tr>
+        <tr><td><code>ccf_by_utilization</code></td><td>JSONB</td><td>—</td><td>CCF values by utilization band.</td></tr>
+        <tr><td><code>methodology</code></td><td>TEXT</td><td>—</td><td>Estimation methodology.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>collateral_analyses</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>analysis_id</code></td><td>TEXT</td><td>—</td><td>Primary key.</td></tr>
+        <tr><td><code>collateral_type</code></td><td>TEXT</td><td>—</td><td>Type of collateral.</td></tr>
+        <tr><td><code>haircut_pct</code></td><td>FLOAT</td><td>—</td><td>Haircut percentage.</td></tr>
+        <tr><td><code>recovery_rate</code></td><td>FLOAT</td><td>—</td><td>Expected recovery rate.</td></tr>
+        <tr><td><code>time_to_recovery_months</code></td><td>FLOAT</td><td>—</td><td>Average time to recovery.</td></tr>
+        <tr><td><code>methodology</code></td><td>TEXT</td><td>—</td><td>Estimation methodology.</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOW()</td><td>Creation timestamp.</td></tr>
+      </tbody>
+    </table>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

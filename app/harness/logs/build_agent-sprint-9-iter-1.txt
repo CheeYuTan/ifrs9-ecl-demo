@@ -1,0 +1,9 @@
+EXIT CODE: 0
+DURATION: 220s
+
+--- STDOUT ---
+Now I have enough context. Let me write all three test files.
+
+
+--- STDERR ---
+

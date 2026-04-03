@@ -1,0 +1,15 @@
+EXIT CODE: 0
+DURATION: 661s
+
+--- STDOUT ---
+Sprint 2 Build Agent complete. Summary:
+
+- **128 new tests** covering all 18 simulation + satellite endpoints
+- **2846 total pytest tests** passing (0 failures, 61 skipped)
+- **Zero regressions** from existing test suite
+- Tests cover: happy paths, error cases (400/422/404/500), edge cases (empty data, zero denominators, NaN/Inf/Decimal serialization, boundary values), SSE streaming, parameter validation, config passthrough, internal helpers
+- Committed as `cc601e5`
+
+
+--- STDERR ---
+

@@ -1,0 +1,22 @@
+EXIT CODE: 0
+DURATION: 754s
+
+--- STDOUT ---
+Integration test 3 is complete. Here's the summary:
+
+**Verdict: PASS**
+
+| Category | Result |
+|----------|--------|
+| Test suites | 4,335 tests, 0 failures (3,838 pytest + 497 vitest) |
+| Feature dependency matrix | 18/18 data flows verified |
+| Regression sweep | 28/28 sprint criteria PASS across all 8 sprints |
+| User journeys | 25/25 steps PASS (3 journeys: ECL workflow, model management, admin) |
+| Edge cases | 21/21 PASS (SQL injection, XSS, boundary values, empty states) |
+| Cross-feature consistency | Verified — 79,739 loans, 31.3M ECL, 5 products, 3 stages, 9 scenarios |
+
+Report written to `harness/evaluations/integration-test-3.md`.
+
+
+--- STDERR ---
+

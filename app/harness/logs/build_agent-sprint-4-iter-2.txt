@@ -1,0 +1,18 @@
+EXIT CODE: 0
+DURATION: 726s
+
+--- STDOUT ---
+Sprint 4 iteration 2 complete. Summary:
+
+**3 bugs fixed:**
+1. **Audit export HTTP 500** — `pandas.Timestamp` objects in `get_audit_trail()`, `get_config_audit_log()`, and `get_config_diff()` now converted to ISO strings before JSON serialization
+2. **IFRS 7.35I reconciliation column** — `ensure_attribution_table()` now runs `ALTER TABLE ADD COLUMN IF NOT EXISTS reconciliation JSONB` to migrate existing tables, and `compute_attribution()` calls it before INSERT
+3. **IFRS 7.35J missing table** — `_build_35j()` now detects table-not-found errors specifically and returns user-friendly guidance
+
+**11 regression tests added** in `tests/regression/test_sprint_4_bugs.py`
+
+**Full suite: 3,271 passed, 61 skipped, 0 failures**
+
+
+--- STDERR ---
+

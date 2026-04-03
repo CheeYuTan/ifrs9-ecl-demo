@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installation — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html" class="active">Installation</a>
+    <a href="quickstart.html">Quick Start</a>
+    <a href="guides/ecl-workflow.html">Guides</a>
+    <a href="reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="overview.html">Overview</a>
+      <a href="installation.html" class="active">Installation</a>
+      <a href="quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="guides/data-setup.html">Data Setup</a>
+      <a href="guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="guides/model-registry.html">Model Registry</a>
+      <a href="guides/gl-journals.html">GL Journals</a>
+      <a href="guides/backtesting.html">Backtesting</a>
+      <a href="guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="guides/validation-rules.html">Validation Rules</a>
+      <a href="guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="reference/api-reference.html">API Reference</a>
+      <a href="reference/data-schema.html">Data Schema</a>
+      <a href="reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="index.html">Home</a> <span>/</span> Installation
+    </div>
+
+    <h1>Installation</h1>
+    <p class="subtitle">Deploy IFRS 9 ECL Workspace to your Databricks environment.</p>
+
+    <div class="callout callout-success">
+      <strong>One-Command Setup</strong>
+      For the fastest path to running locally:
+      <pre><code>git clone &lt;repo-url&gt; && cd "Expected Credit Losses"
+cp .env.example .env    # Edit with your Databricks credentials
+./install.sh            # Installs deps, builds frontend, runs tests
+cd app && python app.py # Start the server on :8000</code></pre>
+    </div>
+
+    <h2>Prerequisites</h2>
+    <p>Before you begin, ensure you have the following:</p>
+    <ul class="checklist">
+      <li>A Databricks workspace on AWS, Azure, or GCP with Unity Catalog enabled</li>
+      <li>A Lakebase database instance provisioned in your workspace</li>
+      <li>Unity Catalog catalog and schema with loan portfolio data (or use sample data)</li>
+      <li>Databricks CLI installed and authenticated (<code>databricks auth login</code>)</li>
+      <li>Python 3.10 or later</li>
+      <li>Node.js 18+ (only if building the frontend from source)</li>
+      <li>Workspace admin or <code>CAN_MANAGE</code> permission on Databricks Apps</li>
+    </ul>
+
+    <div class="callout callout-info">
+      <strong>Lakebase Provisioning</strong>
+      If you don't have a Lakebase instance yet, create one from the Databricks workspace UI under <strong>SQL → Lakebase</strong>, or via the CLI:
+      <pre><code>databricks lakebase create-database-instance \
+  --name ifrs9-ecl-demo-db \
+  --capacity SMALL</code></pre>
+    </div>
+
+    <h2>Step-by-Step Installation</h2>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>Clone the Repository</h3>
+        <p>Clone the IFRS 9 ECL Workspace repository to your local machine:</p>
+        <pre><code>git clone https://github.com/your-org/ifrs9-ecl-workspace.git
+cd ifrs9-ecl-workspace</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>Configure Lakebase Connection</h3>
+        <p>The application connects to Lakebase automatically when deployed as a Databricks App (via auto-injected <code>PGHOST</code>, <code>PGDATABASE</code>, <code>PGUSER</code>, <code>PGPASSWORD</code> environment variables). For local development, set the Lakebase instance name:</p>
+        <pre><code>export LAKEBASE_INSTANCE_NAME="ifrs9-ecl-demo-db"
+export DATABRICKS_CONFIG_PROFILE="your-profile"</code></pre>
+        <p>The backend will use the Databricks SDK to generate OAuth tokens and connect automatically.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>Build the Frontend (Optional)</h3>
+        <p>A pre-built frontend is included in <code>app/static/</code>. To rebuild from source:</p>
+        <pre><code>cd app/frontend
+npm install
+npm run build
+cd ../..</code></pre>
+        <p>The build output is placed in <code>app/static/</code> and served by FastAPI.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>Deploy as a Databricks App</h3>
+        <p>Deploy the application using the Databricks CLI:</p>
+        <pre><code>databricks apps deploy ifrs9-ecl \
+  --source-code-path ./app</code></pre>
+        <p>Configure the app resource to attach your Lakebase instance. In the Databricks UI, go to <strong>Compute → Apps → ifrs9-ecl → Resources</strong> and add a Lakebase resource pointing to your database instance.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h3>Run the Setup Wizard</h3>
+        <p>On first launch, the application displays a setup wizard that:</p>
+        <ol>
+          <li>Tests the Lakebase connection</li>
+          <li>Creates all required database tables and schemas</li>
+          <li>Validates that Unity Catalog source tables are accessible</li>
+          <li>Seeds default configuration (chart of accounts, RBAC users, etc.)</li>
+          <li>Optionally loads sample data for demonstration</li>
+        </ol>
+        <p>You can also trigger setup via the API:</p>
+        <pre><code>curl -X POST https://&lt;app-url&gt;/api/setup/seed-sample-data
+curl -X POST https://&lt;app-url&gt;/api/setup/complete \
+  -H "Content-Type: application/json" \
+  -d '{"user": "admin"}'</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">6</div>
+      <div class="step-content">
+        <h3>Configure Data Sources</h3>
+        <p>Navigate to the <strong>Admin</strong> panel in the application to configure:</p>
+        <ul>
+          <li><strong>Unity Catalog tables</strong> — map your catalog.schema.table paths</li>
+          <li><strong>Column mappings</strong> — map your column names to the expected schema</li>
+          <li><strong>LGD parameters</strong> — configure Loss Given Default by product type</li>
+          <li><strong>Scenario weights</strong> — set base/upside/downside scenario probabilities</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Verification</h2>
+    <p>After deployment, verify the application is running correctly:</p>
+
+    <h3>Health Check</h3>
+    <pre><code>curl https://&lt;app-url&gt;/api/health</code></pre>
+    <p>Expected response:</p>
+    <pre><code>{
+  "status": "healthy",
+  "lakebase": "connected",
+  "rows": 1
+}</code></pre>
+
+    <h3>Setup Status</h3>
+    <pre><code>curl https://&lt;app-url&gt;/api/setup/status</code></pre>
+    <p>Should return <code>"setup_complete": true</code> after the wizard finishes.</p>
+
+    <h3>List Projects</h3>
+    <pre><code>curl https://&lt;app-url&gt;/api/projects</code></pre>
+    <p>Should return an array (empty if no projects created yet).</p>
+
+    <h2>Local Development</h2>
+    <p>To run the application locally for development:</p>
+    <pre><code><span class="cmt"># Terminal 1: Backend</span>
+cd app
+pip install -r requirements.txt
+python app.py
+
+<span class="cmt"># Terminal 2: Frontend (hot-reload)</span>
+cd app/frontend
+npm install
+npm run dev</code></pre>
+
+    <div class="callout callout-warning">
+      <strong>OAuth Token Refresh</strong>
+      The backend includes a background thread that refreshes the Lakebase connection pool every 45 minutes. OAuth tokens expire after ~60 minutes, so this ensures uninterrupted operation. If you see authentication errors, the pool will automatically reinitialize.
+    </div>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <thead>
+        <tr><th>Issue</th><th>Solution</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>PGHOST not set</code></td><td>Ensure the Lakebase resource is attached to the Databricks App, or set <code>LAKEBASE_INSTANCE_NAME</code> for local dev.</td></tr>
+        <tr><td><code>password authentication failed</code></td><td>OAuth token expired. The auto-refresh thread should handle this. Restart the app if persistent.</td></tr>
+        <tr><td><code>relation does not exist</code></td><td>Run the setup wizard or call <code>POST /api/setup/seed-sample-data</code> to create tables.</td></tr>
+        <tr><td>Frontend shows blank page</td><td>Ensure <code>app/static/</code> contains the built React app. Run <code>npm run build</code> in <code>app/frontend/</code>.</td></tr>
+        <tr><td>Jobs fail to trigger</td><td>Ensure Databricks Jobs are provisioned via <code>POST /api/jobs/provision</code> and notebook paths are correct.</td></tr>
+      </tbody>
+    </table>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

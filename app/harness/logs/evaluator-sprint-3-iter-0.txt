@@ -1,0 +1,20 @@
+EXIT CODE: 0
+DURATION: 309s
+
+--- STDOUT ---
+## Sprint 3 Evaluation Complete
+
+**Score: 9.83/10 — PASS**
+
+Key findings:
+- **178/178 tests pass**, full suite 3,046 pass with zero regressions
+- **All 11 contract criteria met** — 23 endpoints covered, domain properties verified, governance transitions parametrized
+- **22/23 live API endpoints verified** independently — all respond correctly with proper error handling
+- **1 pre-existing bug** (BUG-3-001: backtest_metrics schema mismatch) — not introduced by Sprint 3
+- **Test quality is high** — realistic domain data, mathematical property assertions, full status transition matrix coverage
+
+Evaluation written to `harness/evaluations/sprint-3-eval.md`.
+
+
+--- STDERR ---
+

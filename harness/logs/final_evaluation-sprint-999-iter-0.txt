@@ -1,0 +1,28 @@
+EXIT CODE: 0
+DURATION: 630s
+
+--- STDOUT ---
+## Final Integration Evaluation Complete
+
+**Verdict: FAIL — 8.85/10 (target: 9.0)**
+
+### What's strong:
+- **1043 tests** (940 backend + 103 frontend), all passing, zero failures
+- **19 SPA pages**, **32+ API endpoints**, all operational
+- **IFRS 9 domain accuracy**: 3-stage model, 8 scenarios, 29 validation rules, Monte Carlo convergence diagnostics
+- **22 bugs fixed** in QA sweep, dark mode across 42 files, lazy loading, error boundaries, ARIA accessibility
+- TypeScript compiles cleanly, frontend builds in 1.94s, install.sh verified
+
+### What's blocking the 9.0:
+1. **36 files exceed 200-line limit** (Code Quality: 8.0) — worst: SetupWizard.tsx (985), AdminDataMappings.tsx (730), jobs.py (666)
+2. **No rate limiting** on write endpoints (Production Readiness gap)
+3. **Sprint 2 debt** — seed not persisted to DB, compare endpoint not granular, simulation cap hardcoded
+
+### Recommended dynamic sprint:
+One **Production Hardening** sprint to add slowapi rate limiting, persist simulation seed, make cap configurable, and split the 3-4 worst oversized files. Expected post-fix score: ~9.05/10.
+
+Full report written to `harness/evaluations/final-integration-eval.md`.
+
+
+--- STDERR ---
+

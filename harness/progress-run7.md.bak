@@ -1,0 +1,40 @@
+# Harness Run 7 — Progress (Full 8-Agent Exercise)
+
+## Sprint Status
+
+| # | Sprint | Status | New Tests | Key Changes |
+|---|--------|--------|-----------|-------------|
+| 1 | Refactor Frontend Files | **DONE** | 0 | StressTesting.tsx 1022→8 files, DataMapping.tsx 874→7 files |
+| 2 | Refactor Backend Files | **DONE** | 0 | reports.py 728→10 modules, ecl_engine.py 638→8 modules, hazard.py 634→7 modules |
+| 3 | Domain Accuracy Rules | **DONE** | 40 | 6 new IFRS 9 DA rules (DA-1 to DA-6), SME reviewed |
+
+## Documentation Batch
+
+| Agent | Status | Output |
+|-------|--------|--------|
+| Documentation | **PASS** | 2 new guides (domain-validation, code-architecture), index updated |
+| Installation | **PASS** | 6/6 checks pass (imports, deps, tests, frontend, app.yaml, script review) |
+| Integration | **PASS** | 1025/1025 tests, cross-module imports, zero regressions |
+
+## 8-Agent Exercise
+
+| Agent | Exercised | Evidence |
+|-------|-----------|----------|
+| 1. User Spec | Yes | harness/spec.md |
+| 2. SME | Yes | harness/sme/domain-brief-run7.md, sprint-3-run7-review.md |
+| 3. Build | Yes | 3 sprints implemented |
+| 4. Visual QA | Yes | TypeScript compilation + design consistency |
+| 5. Evaluator | Yes | harness/evaluations/final-integration-eval.md |
+| 6. Documentation | Yes | docs/guides/domain-validation.html, code-architecture.html |
+| 7. Installation | Yes | harness/evaluations/installation-test-run7.md |
+| 8. Integration | Yes | harness/evaluations/integration-test-run7.md |
+
+## Test Counts
+- **Run 6**: 985 passed, 0 failed, 61 skipped
+- **Run 7**: 1025 passed, 0 failed, 61 skipped
+- **New tests added**: 40
+
+## Quality Score
+- **Run 6 final**: 9.05/10
+- **Run 7 final**: 9.30/10
+- **Target**: 9.0/10 ✅ MET

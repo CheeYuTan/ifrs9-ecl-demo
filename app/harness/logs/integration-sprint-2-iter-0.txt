@@ -1,0 +1,22 @@
+EXIT CODE: 0
+DURATION: 274s
+
+--- STDOUT ---
+## Integration Test Complete
+
+**Verdict: PASS**
+
+Key findings:
+- **2039 tests passing** (1487 backend + 103 frontend + 329 Sprint 1 theme + 120 Sprint 2 theme), 0 failures
+- **Zero violations** in all 27 audited files (19 Sprint 1 + 8 Sprint 2) across all 16 scanner patterns
+- **Zero regressions** — Sprint 1 tests still pass after Sprint 2 changes
+- **Theme system properly integrated** — ThemeProvider, CSS variables, dark: classes, and CSS safety nets all working together
+- **Documented exceptions** are valid (Toast info, HelpTooltip tooltip, App.tsx hero stepper on always-dark gradient)
+
+**Caveat**: Chrome DevTools MCP visual testing was blocked by permissions. Visual sweep in light/dark modes should be done when access is granted.
+
+Report written to `harness/evaluations/integration-test-1.md`.
+
+
+--- STDERR ---
+

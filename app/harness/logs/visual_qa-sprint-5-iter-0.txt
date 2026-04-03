@@ -1,0 +1,24 @@
+EXIT CODE: 0
+DURATION: 439s
+
+--- STDOUT ---
+## Sprint 5 Visual QA Complete
+
+**Recommendation: PROCEED**
+
+Sprint 5 is a test-only sprint (141 new ECL engine tests, no UI changes). Results:
+
+- **21 API endpoints tested**: 19 return 200 OK, 2 return expected 404s
+- **Frontend**: SPA + docs site serving correctly, all assets intact
+- **Full test suite**: 3,412 passed, 0 failed, 0 regressions
+- **Sprint 5 tests**: 141 passed in 41.95s
+- **Domain validation**: Simulation defaults return IFRS 9-compliant parameters (PD/LGD bounds, 8 scenarios, correlation)
+- **Bugs found**: 0
+
+Reports written to:
+- `harness/evaluations/sprint-5-manifest.md`
+- `harness/evaluations/sprint-5-visual-qa.md`
+
+
+--- STDERR ---
+

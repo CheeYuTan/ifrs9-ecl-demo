@@ -1,0 +1,22 @@
+EXIT CODE: 0
+DURATION: 996s
+
+--- STDOUT ---
+Sprint 1 iteration 2 build complete. Summary:
+
+**Changes made:**
+1. **Extracted `domain/config_audit.py`** (83 lines) from `audit_trail.py` — config audit log, config diff functions
+2. **`audit_trail.py`**: 244 → 180 lines (within 200-line limit)
+3. **`workflow.py`**: 208 → 200 lines (inlined `_ensure_signoff_columns`)
+4. **Updated `routes/audit.py`** imports to use new module
+5. **Fixed test mocks** in `test_audit_trail.py` and `test_config_audit_sprint6.py` to patch both modules
+
+**Test results:** 914 passed, 61 skipped, 0 failures
+**Frontend build:** SUCCESS (0 errors)
+**All eval iteration 1 fixes verified in place** (route ordering, error handling, 4 new tests)
+
+Handoff written to `harness/handoffs/sprint-1-handoff.md`. Ready for Visual QA → Evaluator.
+
+
+--- STDERR ---
+

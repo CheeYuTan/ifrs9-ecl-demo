@@ -1,0 +1,30 @@
+EXIT CODE: 0
+DURATION: 895s
+
+--- STDOUT ---
+Sprint 5 Build Agent complete. Summary:
+
+**Sprint 5: ECL Engine — Monte Carlo Correctness**
+
+- **141 new tests** in `tests/unit/test_qa_sprint_5_ecl_engine.py`
+- **Full suite: 3,412 passed, 0 failed, 61 skipped**
+- **0 bugs found** — ECL engine implementation is solid
+- **0 regressions**
+
+Tests cover all 9 `ecl/` module files across 12 test classes:
+- **Helpers**: `_emit`, convergence checks, DataFrame serialization
+- **Constants**: LGD values, satellite coefficients, scenario weights validation
+- **Config**: Table name generation, product maps, admin config loading
+- **Data loader**: SQL query verification, missing column defaults
+- **Monte Carlo core math**: Cholesky correlation (rho=0/0.5/-0.4/0.99), lognormal shocks, PD/LGD clipping, discount factors, amortization, aging, prepayment, survival
+- **Hand-calculated ECL**: Single-quarter and two-quarter ECL verified to 1e-6 relative tolerance against analytic formula ECL = PD_q × LGD × EAD × DF
+- **Aggregation**: Output structure, coverage ratio, percentile ordering, convergence diagnostics
+- **Simulation integration**: Deterministic seeds, custom weights, missing scenarios, progress phases
+- **Edge cases**: Single loan, PD=0/1, LGD=0/1, GCA=0/1e12, Stage 1/2/3 ordering, single/many scenarios
+- **Numerical stability**: Zero EIR, high volatility, correlation near 1.0, 100-loan portfolio
+
+Committed as `995bf6b`. Handoff written to `harness/handoffs/sprint-5-handoff.md`.
+
+
+--- STDERR ---
+

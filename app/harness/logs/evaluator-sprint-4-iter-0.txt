@@ -1,0 +1,30 @@
+EXIT CODE: 0
+DURATION: 381s
+
+--- STDOUT ---
+## Sprint 4 Evaluation Complete
+
+**Weighted Score: 8.68/10** — below the 9.5 quality target.
+
+**Verdict: REFINE**
+
+### What's Good
+- All 15/15 contract criteria PASS
+- 225 new tests (exceeds 150 target by 50%)
+- 3,271 total tests, 0 failures, 0 regressions
+- BUG-S4-001 (audit timestamps) properly fixed
+- Test code quality is high — proper mocking, domain-specific validation, parametrized edge cases
+
+### What Needs Fixing (3 bugs)
+
+1. **CRITICAL — BUG-S4-E-001**: Attribution compute still HTTP 500. The `except: pass` at `domain/attribution.py:62-63` silently swallows the DB privilege error. Fix: re-raise with a clear message or use DROP+CREATE fallback.
+
+2. **MAJOR — BUG-S4-E-002**: CSV report export broken for all reports. `routes/reports.py:75` uses `rows[0].keys()` as fieldnames but some rows have additional keys. Fix: collect all unique keys across all rows.
+
+3. **MAJOR — BUG-S4-E-003**: Pipeline health endpoint NaN crash. `routes/period_close.py:85-88` returns raw result with no error handling. Fix: sanitize NaN values, handle zero-runs case.
+
+Full evaluation written to `harness/evaluations/sprint-4-eval.md`.
+
+
+--- STDERR ---
+

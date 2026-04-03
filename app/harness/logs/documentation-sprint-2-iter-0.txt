@@ -1,0 +1,26 @@
+EXIT CODE: 0
+DURATION: 285s
+
+--- STDOUT ---
+Documentation batch 1 is complete. Here's what was delivered:
+
+**3 new guides created:**
+1. **Light & Dark Mode** (`admin-guide/theming/light-dark-mode.md`) — CSS custom properties, brand colours, design patterns, visual comparison with 4 screenshots
+2. **Core Component Theming** (`admin-guide/theming/core-components.md`) — All 19 Sprint 1 components documented with light/dark class mappings, 2 screenshots
+3. **Workflow Page Theming** (`admin-guide/theming/workflow-pages.md`) — 8 workflow pages, SatelliteModel fix details, troubleshooting guide, 3 screenshots
+
+**2 existing pages updated:**
+- `admin-guide/theme.md` — Added links to new theming guides
+- `intro.md` — Added Light & Dark Mode to capabilities table
+
+**10 screenshots** copied to `docs/static/img/theme-audit/`
+
+**Sidebar** updated with new "Theming (Technical)" category
+
+**Build**: `npm run build` succeeded with zero warnings and zero broken links.
+
+**Report**: `harness/evaluations/doc-batch-1-report.md`
+
+
+--- STDERR ---
+

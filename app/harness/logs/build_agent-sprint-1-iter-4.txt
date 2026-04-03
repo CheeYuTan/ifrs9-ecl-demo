@@ -1,0 +1,16 @@
+EXIT CODE: 0
+DURATION: 537s
+
+--- STDOUT ---
+Sprint 1, iteration 4 complete.
+
+**Summary:**
+- Added **36 new tests** in `test_qa_sprint_1_iter4_error_paths.py` covering error paths, boundary values, and edge cases
+- Sprint 1 total: **272 tests** across 3 files
+- Full suite: **2,691 passed**, 61 skipped, **0 failures**
+- Key coverage added: backend exception propagation (create, overlays, weights), partial failure paths, RBAC permission rejection, verify-hash edge cases (empty string hash, None signed_off_at), data boundary values (stage=0/-1, empty scenario, URL-encoded types), setup edge cases (empty body, None return)
+- Committed as `1614509`
+
+
+--- STDERR ---
+

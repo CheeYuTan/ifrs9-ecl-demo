@@ -1,0 +1,26 @@
+EXIT CODE: 0
+DURATION: 585s
+
+--- STDOUT ---
+## Installation Test 8 — Complete
+
+**Verdict: CONDITIONAL PASS**
+
+**What works:**
+- All 3,838 Python tests pass
+- All 497 frontend tests pass  
+- App starts, health check returns 200, frontend serves correctly
+- No hardcoded ports or secrets in source
+- `app.yaml` properly configured with Lakebase resource
+
+**Issues found:**
+1. **CRITICAL**: No `install.sh` script exists — users must manually set up
+2. **MAJOR**: No `.env.example` — ~15 env vars undocumented
+3. **MAJOR**: `fpdf2` missing from installed environment (listed in requirements.txt)
+4. **MINOR**: `DATABRICKS_SQL_WAREHOUSE_ID` not declared in `app.yaml`
+
+Report written to `harness/evaluations/install-test-8.md`.
+
+
+--- STDERR ---
+

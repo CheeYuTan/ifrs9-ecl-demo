@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Configuration — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html" class="active">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Admin Configuration
+    </div>
+
+    <h1>Admin Configuration</h1>
+    <p class="subtitle">Configure data sources, column mappings, LGD parameters, and application settings.</p>
+
+    <h2>Setup Wizard</h2>
+    <p>The setup wizard runs on first launch and handles initial configuration. It can be re-run at any time:</p>
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /api/setup/status</code></td><td>Check if setup is complete</td></tr>
+        <tr><td><code>POST /api/setup/validate-tables</code></td><td>Validate that required Unity Catalog tables exist</td></tr>
+        <tr><td><code>POST /api/setup/seed-sample-data</code></td><td>Create tables and seed sample data</td></tr>
+        <tr><td><code>POST /api/setup/complete</code></td><td>Mark setup as complete</td></tr>
+        <tr><td><code>POST /api/setup/reset</code></td><td>Reset setup status to re-run the wizard</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Configuration Sections</h2>
+    <p>The admin configuration is organized into sections. Each section can be read and updated independently:</p>
+
+    <h3>Data Sources</h3>
+    <p>Configure Unity Catalog table paths and Lakebase schema settings:</p>
+    <pre><code>GET /api/admin/config/data_sources
+
+{
+  "catalog": "main",
+  "schema": "ifrs9",
+  "lakebase_schema": "expected_credit_loss",
+  "lakebase_prefix": "lb_",
+  "tables": {
+    "model_ready_loans": "main.ifrs9.model_ready_loans",
+    "loan_ecl_weighted": "main.ifrs9.loan_ecl_weighted",
+    "loan_level_ecl": "main.ifrs9.loan_level_ecl",
+    "portfolio_ecl_summary": "main.ifrs9.portfolio_ecl_summary",
+    "ifrs7_stage_migration": "main.ifrs9.ifrs7_stage_migration"
+  }
+}</code></pre>
+
+    <h3>LGD Parameters</h3>
+    <p>Configure Loss Given Default by product type:</p>
+    <pre><code>PUT /api/admin/config/lgd_parameters
+{
+  "Mortgages": {"lgd": 0.15, "cure_rate": 0.30},
+  "Personal Loans": {"lgd": 0.45, "cure_rate": 0.15},
+  "Auto Finance": {"lgd": 0.35, "cure_rate": 0.20},
+  "Credit Cards": {"lgd": 0.80, "cure_rate": 0.10},
+  "SME Lending": {"lgd": 0.55, "cure_rate": 0.12}
+}</code></pre>
+
+    <h3>Scenario Configuration</h3>
+    <p>Configure macroeconomic scenarios and their default weights:</p>
+    <pre><code>PUT /api/admin/config/scenarios
+{
+  "base": {"weight": 0.50, "pd_multiplier": 1.0, "lgd_multiplier": 1.0},
+  "upside": {"weight": 0.20, "pd_multiplier": 0.8, "lgd_multiplier": 0.9},
+  "downside": {"weight": 0.30, "pd_multiplier": 1.5, "lgd_multiplier": 1.2}
+}</code></pre>
+
+    <h2>Column Mapping</h2>
+    <p>If your source tables use different column names, configure mappings:</p>
+
+    <h3>Auto-Suggest Mappings</h3>
+    <pre><code>GET /api/admin/suggest-mappings/model_ready_loans</code></pre>
+    <p>Uses fuzzy matching to suggest column mappings based on name similarity.</p>
+
+    <h3>Validate Mappings</h3>
+    <pre><code>POST /api/admin/validate-mapping
+{
+  "table_key": "model_ready_loans",
+  "mappings": {
+    "loan_id": "account_number",
+    "product_type": "product_category"
+  }
+}</code></pre>
+
+    <h3>Validate with Type Checking</h3>
+    <pre><code>POST /api/admin/validate-mapping-typed
+{
+  "table_key": "model_ready_loans",
+  "mappings": {
+    "loan_id": "account_number",
+    "gross_carrying_amount": "balance"
+  }
+}</code></pre>
+    <p>Validates both column existence and data type compatibility.</p>
+
+    <h2>Data Discovery</h2>
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /api/admin/available-tables</code></td><td>List all tables in the configured schema</td></tr>
+        <tr><td><code>GET /api/admin/table-columns/{table}</code></td><td>Get column names and types for a table</td></tr>
+        <tr><td><code>GET /api/admin/table-preview/{table}</code></td><td>Preview first N rows of a table</td></tr>
+        <tr><td><code>GET /api/admin/schemas</code></td><td>List available schemas</td></tr>
+        <tr><td><code>GET /api/admin/discover-products</code></td><td>Discover product types from the data</td></tr>
+        <tr><td><code>GET /api/admin/auto-detect-workspace</code></td><td>Auto-detect Databricks workspace settings</td></tr>
+        <tr><td><code>POST /api/admin/auto-setup-lgd</code></td><td>Auto-configure LGD parameters from data</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Connection Testing</h2>
+    <pre><code>POST /api/admin/test-connection</code></pre>
+    <p>Tests the Lakebase connection and returns connection details (host, database, user, SSL status).</p>
+
+    <h2>Seeding Defaults</h2>
+    <pre><code>POST /api/admin/seed-defaults</code></pre>
+    <p>Seeds default configuration values including chart of accounts, RBAC users, and LGD parameters. Safe to run multiple times (uses upsert logic).</p>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

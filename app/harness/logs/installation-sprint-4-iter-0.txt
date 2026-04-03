@@ -1,0 +1,20 @@
+EXIT CODE: 0
+DURATION: 408s
+
+--- STDOUT ---
+Installation test complete. **Verdict: PASS** with one major finding.
+
+**Results summary:**
+- **1878 tests passed** (1775 Python + 103 frontend), 0 failures
+- Health endpoint returns 200 with `{"status":"healthy"}`
+- Frontend serves correctly at `/`
+- All deploy artifacts valid (app.yaml, deploy.sh, .env.example)
+- No hardcoded secrets or ports
+
+**Key finding — BUG-INST-001**: `install.sh` silently swallows pip failures because `pip install ... -q && ok "..."` doesn't trigger `set -e` exit when pip fails. The script reports "Setup complete!" even when no Python packages are installed. Fix: change to `pip install ... -q || fail "Failed to install"`.
+
+Report written to `harness/evaluations/install-test-4.md`.
+
+
+--- STDERR ---
+

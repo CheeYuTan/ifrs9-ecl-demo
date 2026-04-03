@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Registry — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html" class="active">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Model Registry
+    </div>
+
+    <h1>Model Registry</h1>
+    <p class="subtitle">Version control, governance, and lifecycle management for PD, LGD, and EAD models.</p>
+
+    <h2>Model Lifecycle</h2>
+    <p>Every model in the registry follows a governed lifecycle:</p>
+    <div class="arch-diagram">  Draft ──▶ Validated ──▶ Approved ──▶ Champion
+    │                                       │
+    │                                       ▼
+    └──────────────────────────────────▶ Retired</div>
+
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Description</th><th>Who Can Transition</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Draft</strong></td><td>Newly registered model, not yet validated</td><td>Any analyst</td></tr>
+        <tr><td><strong>Validated</strong></td><td>Model has been backtested and meets performance thresholds</td><td>Model validator</td></tr>
+        <tr><td><strong>Approved</strong></td><td>Model approved for production use by model governance committee</td><td>Manager / approver</td></tr>
+        <tr><td><strong>Champion</strong></td><td>Currently active production model (one per model type + product)</td><td>Manager (via promote)</td></tr>
+        <tr><td><strong>Retired</strong></td><td>No longer in use, preserved for audit</td><td>Manager</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Registering a Model</h2>
+    <pre><code>POST /api/models
+{
+  "model_name": "PD Mortgage Model v3",
+  "model_type": "PD",
+  "algorithm": "XGBoost",
+  "version": 3,
+  "description": "Mortgage PD model using XGBoost with macro variables",
+  "product_type": "Mortgages",
+  "cohort": "2024-Q4",
+  "parameters": {
+    "n_estimators": 200,
+    "max_depth": 6,
+    "learning_rate": 0.05
+  },
+  "performance_metrics": {
+    "auc": 0.82,
+    "gini": 0.64,
+    "ks": 0.38,
+    "psi": 0.05
+  },
+  "training_data_info": {
+    "n_samples": 25000,
+    "n_features": 12,
+    "training_period": "2020-01 to 2024-06"
+  },
+  "created_by": "model.developer@bank.com"
+}</code></pre>
+
+    <h2>Updating Model Status</h2>
+    <pre><code>PUT /api/models/{model_id}/status
+{
+  "status": "validated",
+  "user": "model.validator@bank.com",
+  "comment": "Backtesting passed with Green traffic light"
+}</code></pre>
+
+    <h2>Promoting to Champion</h2>
+    <p>When a model is approved, it can be promoted to champion. This automatically retires the previous champion for the same model type and product.</p>
+    <pre><code>POST /api/models/{model_id}/promote
+{
+  "user": "head.of.risk@bank.com"
+}</code></pre>
+
+    <h2>Comparing Models</h2>
+    <p>Compare performance metrics across multiple models side-by-side:</p>
+    <pre><code>POST /api/models/compare
+{
+  "model_ids": ["mdl-001", "mdl-002", "mdl-003"]
+}</code></pre>
+    <p>Returns all models with their parameters, performance metrics, and status for comparison.</p>
+
+    <h2>Audit Trail</h2>
+    <p>Every status change is recorded in the audit trail:</p>
+    <pre><code>GET /api/models/{model_id}/audit</code></pre>
+    <p>Returns a chronological list of all actions (registration, validation, approval, promotion, retirement) with who performed each action and when.</p>
+
+    <h2>Model Types</h2>
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Description</th><th>Key Metrics</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>PD</strong></td><td>Probability of Default models</td><td>AUC, Gini, KS, PSI</td></tr>
+        <tr><td><strong>LGD</strong></td><td>Loss Given Default models</td><td>R², RMSE, MAE</td></tr>
+        <tr><td><strong>EAD</strong></td><td>Exposure at Default models</td><td>R², RMSE, CCF accuracy</td></tr>
+        <tr><td><strong>Staging</strong></td><td>Stage assignment models</td><td>Accuracy, migration stability</td></tr>
+        <tr><td><strong>Satellite</strong></td><td>Macroeconomic satellite models</td><td>R², forecast accuracy</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warning">
+      <strong>Governance Requirement</strong>
+      Models must be in "approved" or "champion" status to be used in production ECL calculations. Draft and validated models can be used for testing and comparison only.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Start — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="overview.html">Overview</a>
+    <a href="installation.html">Installation</a>
+    <a href="quickstart.html" class="active">Quick Start</a>
+    <a href="guides/ecl-workflow.html">Guides</a>
+    <a href="reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="overview.html">Overview</a>
+      <a href="installation.html">Installation</a>
+      <a href="quickstart.html" class="active">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="guides/data-setup.html">Data Setup</a>
+      <a href="guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="guides/model-registry.html">Model Registry</a>
+      <a href="guides/gl-journals.html">GL Journals</a>
+      <a href="guides/backtesting.html">Backtesting</a>
+      <a href="guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="guides/validation-rules.html">Validation Rules</a>
+      <a href="guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="reference/api-reference.html">API Reference</a>
+      <a href="reference/data-schema.html">Data Schema</a>
+      <a href="reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="index.html">Home</a> <span>/</span> Quick Start
+    </div>
+
+    <h1>Quick Start</h1>
+    <p class="subtitle">Get from zero to a complete ECL calculation in under 5 minutes.</p>
+
+    <div class="callout callout-info">
+      <strong>Prerequisites</strong>
+      This guide assumes you have already <a href="installation.html">installed</a> the application and it is running. If not, follow the installation guide first.
+    </div>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>Deploy the App</h3>
+        <p>Deploy the application to your Databricks workspace:</p>
+        <pre><code>databricks apps deploy ifrs9-ecl --source-code-path ./app</code></pre>
+        <p>Wait for the app to start (usually 30–60 seconds). Open the app URL shown in the CLI output.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>Run the Setup Wizard</h3>
+        <p>On first launch, you'll see the Setup Wizard. It walks you through:</p>
+        <ol>
+          <li><strong>Connection Test</strong> — verifies Lakebase connectivity</li>
+          <li><strong>Table Validation</strong> — checks that required Unity Catalog tables exist</li>
+          <li><strong>Sample Data</strong> — optionally seeds ~84,000 synthetic loans across 5 product types</li>
+          <li><strong>Configuration</strong> — sets default scenario weights, LGD parameters, and chart of accounts</li>
+        </ol>
+        <p>Click <strong>"Seed Sample Data"</strong> to load the demonstration dataset, then <strong>"Complete Setup"</strong>.</p>
+        <p>Or via the API:</p>
+        <pre><code>curl -X POST https://&lt;app-url&gt;/api/setup/seed-sample-data
+curl -X POST https://&lt;app-url&gt;/api/setup/complete \
+  -H "Content-Type: application/json" \
+  -d '{"user": "admin"}'</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>Load Sample Data</h3>
+        <p>If you chose to seed sample data, the application creates synthetic loan portfolios with:</p>
+        <table>
+          <thead>
+            <tr><th>Product Type</th><th>Approx. Loans</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mortgages</td><td>~25,000</td><td>Residential mortgage loans</td></tr>
+            <tr><td>Personal Loans</td><td>~20,000</td><td>Unsecured personal loans</td></tr>
+            <tr><td>Auto Finance</td><td>~15,000</td><td>Vehicle financing</td></tr>
+            <tr><td>Credit Cards</td><td>~14,000</td><td>Revolving credit facilities</td></tr>
+            <tr><td>SME Lending</td><td>~10,000</td><td>Small business loans</td></tr>
+          </tbody>
+        </table>
+        <p>Each loan includes PD, LGD, EAD, staging (1/2/3), days past due, borrower segment, and vintage cohort data.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>Create Your First Project</h3>
+        <p>Navigate to the <strong>Create Project</strong> page and fill in:</p>
+        <ul>
+          <li><strong>Project ID</strong>: <code>Q4-2025-ECL</code></li>
+          <li><strong>Project Name</strong>: <code>Q4 2025 ECL Calculation</code></li>
+          <li><strong>Reporting Date</strong>: <code>2025-12-31</code></li>
+        </ul>
+        <p>Or via the API:</p>
+        <pre><code>curl -X POST https://&lt;app-url&gt;/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "Q4-2025-ECL",
+    "project_name": "Q4 2025 ECL Calculation",
+    "project_type": "ifrs9",
+    "reporting_date": "2025-12-31"
+  }'</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h3>Run Through the ECL Workflow</h3>
+        <p>The 8-step workflow guides you through the entire ECL process:</p>
+        <table>
+          <thead>
+            <tr><th>Step</th><th>Name</th><th>What Happens</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Data &amp; Portfolio Review</td><td>Review portfolio summary, stage distribution, data quality checks</td></tr>
+            <tr><td>2</td><td>Model Execution</td><td>Run satellite models, review PD/LGD calibration results</td></tr>
+            <tr><td>3</td><td>ECL Calculation</td><td>View ECL by product, stage, and scenario; run Monte Carlo simulations</td></tr>
+            <tr><td>4</td><td>Scenario Analysis</td><td>Set scenario weights (base/upside/downside), review weighted ECL</td></tr>
+            <tr><td>5</td><td>Management Overlays</td><td>Add post-model adjustments with justification</td></tr>
+            <tr><td>6</td><td>Stress Testing</td><td>Review sensitivity analysis, scenario comparisons, vintage performance</td></tr>
+            <tr><td>7</td><td>Reporting &amp; Disclosure</td><td>Generate IFRS 7 reports, GL journals, stage migration schedules</td></tr>
+            <tr><td>8</td><td>Sign-Off</td><td>Review audit trail, sign off the ECL calculation</td></tr>
+          </tbody>
+        </table>
+        <p>At each step, click <strong>"Advance"</strong> to move to the next step. The workflow tracks who performed each action and when.</p>
+      </div>
+    </div>
+
+    <h2>What's Next?</h2>
+    <ul>
+      <li><a href="guides/data-setup.html">Data Setup Guide</a> — prepare and map your real loan data</li>
+      <li><a href="guides/ecl-workflow.html">ECL Workflow Guide</a> — detailed walkthrough of each step</li>
+      <li><a href="guides/model-registry.html">Model Registry Guide</a> — manage PD/LGD models</li>
+      <li><a href="reference/api-reference.html">API Reference</a> — automate with the REST API</li>
+    </ul>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

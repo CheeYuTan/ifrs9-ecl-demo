@@ -1,0 +1,19 @@
+EXIT CODE: 0
+DURATION: 335s
+
+--- STDOUT ---
+Installation test complete. **Verdict: PASS**
+
+Summary:
+- **Clean install**: `.venv`, `__pycache__`, `node_modules` deleted and recreated from scratch
+- **Dependencies**: All 9 Python packages + 426 npm packages resolved successfully
+- **Tests**: **3046 backend + 103 frontend = 3149 tests passed, 0 failures**
+- **App startup**: Health endpoint returns `{"status": "healthy"}`, frontend serves React SPA at `/`
+- **Deploy artifacts**: `app.yaml` valid, no hardcoded secrets/ports
+- **Advisory**: Missing `install.sh`, `.env.example`, `deploy.sh` (not blocking, but would improve DX)
+
+Report written to `harness/evaluations/install-test-3.md`.
+
+
+--- STDERR ---
+

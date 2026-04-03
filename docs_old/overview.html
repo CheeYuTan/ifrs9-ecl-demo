@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="overview.html" class="active">Overview</a>
+    <a href="installation.html">Installation</a>
+    <a href="quickstart.html">Quick Start</a>
+    <a href="guides/ecl-workflow.html">Guides</a>
+    <a href="reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="overview.html" class="active">Overview</a>
+      <a href="installation.html">Installation</a>
+      <a href="quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="guides/data-setup.html">Data Setup</a>
+      <a href="guides/ecl-workflow.html">ECL Workflow</a>
+      <a href="guides/model-registry.html">Model Registry</a>
+      <a href="guides/gl-journals.html">GL Journals</a>
+      <a href="guides/backtesting.html">Backtesting</a>
+      <a href="guides/rbac.html">RBAC &amp; Governance</a>
+      <a href="guides/validation-rules.html">Validation Rules</a>
+      <a href="guides/regulatory-reports.html">Regulatory Reports</a>
+      <a href="guides/admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="reference/api-reference.html">API Reference</a>
+      <a href="reference/data-schema.html">Data Schema</a>
+      <a href="reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="index.html">Home</a> <span>/</span> Overview
+    </div>
+
+    <h1>Overview</h1>
+    <p class="subtitle">What is IFRS 9 ECL Workspace and why does it exist?</p>
+
+    <h2>What is IFRS 9 ECL Workspace?</h2>
+    <p>IFRS 9 ECL Workspace is an end-to-end Expected Credit Loss platform built natively on the Databricks Lakehouse. It replaces legacy SAS-based ECL systems with a modern, cloud-native architecture that combines:</p>
+    <ul>
+      <li><strong>A React single-page application</strong> for the user interface — an 8-step guided workflow that takes credit risk teams from data ingestion through to sign-off.</li>
+      <li><strong>A FastAPI backend</strong> that orchestrates all business logic, model execution, and reporting.</li>
+      <li><strong>Lakebase (managed PostgreSQL)</strong> for transactional state — workflow progress, model registry, GL journals, approval workflows, and configuration.</li>
+      <li><strong>Unity Catalog</strong> for governed loan portfolio data, satellite model outputs, and ECL results.</li>
+      <li><strong>Databricks Jobs</strong> for heavy compute — satellite model training, ECL calculation, and data synchronization.</li>
+    </ul>
+
+    <h2>Key Features</h2>
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>8-Step ECL Workflow</td><td>Guided process from data review → model execution → scenario weighting → overlays → stress testing → reporting → sign-off</td></tr>
+        <tr><td>Monte Carlo Simulation</td><td>Configurable simulation engine (100–5,000 runs) with PD/LGD correlation, aging factors, and scenario weights</td></tr>
+        <tr><td>Model Registry</td><td>Version-controlled models with draft → validated → approved → champion lifecycle and audit trails</td></tr>
+        <tr><td>Satellite Models</td><td>7 regression algorithms (Linear, Ridge, Elastic Net, Polynomial, Logistic, Random Forest, XGBoost, Gradient Boosting) for PD/LGD calibration</td></tr>
+        <tr><td>GL Journal Generation</td><td>Double-entry journal entries with chart of accounts, posting, reversal, and trial balance</td></tr>
+        <tr><td>Regulatory Reports</td><td>IFRS 7 disclosure, ECL movement, stage migration, sensitivity analysis, concentration risk</td></tr>
+        <tr><td>Backtesting</td><td>Traffic-light framework (AUC, Gini, KS, PSI, Brier) with cohort analysis and trend monitoring</td></tr>
+        <tr><td>Markov Chains</td><td>Transition matrix estimation, stage distribution forecasting, lifetime PD term structures</td></tr>
+        <tr><td>Hazard Models</td><td>Cox PH, discrete-time logistic, and Kaplan-Meier survival analysis with covariate effects</td></tr>
+        <tr><td>Advanced ECL</td><td>Cure rate modeling, Credit Conversion Factor (CCF) estimation, collateral haircut analysis</td></tr>
+        <tr><td>RBAC &amp; Approvals</td><td>Role-based access (admin, manager, analyst, auditor, viewer) with multi-level approval workflows</td></tr>
+        <tr><td>Admin Configuration</td><td>Setup wizard, column mapping, data source configuration, LGD auto-detection, product discovery</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Architecture</h2>
+    <div class="arch-diagram">┌─────────────────────────────────────────────────────────────────────┐
+│                        Databricks Workspace                         │
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────────┐    ┌──────────────────┐  │
+│  │  React SPA   │───▶│   FastAPI App     │───▶│    Lakebase      │  │
+│  │  (Frontend)  │    │   (Backend)       │    │   (PostgreSQL)   │  │
+│  │              │    │                   │    │                  │  │
+│  │ • 8-step     │    │ • Workflow engine │    │ • Projects       │  │
+│  │   workflow   │    │ • ECL simulation  │    │ • Model registry │  │
+│  │ • Charts     │    │ • Model registry  │    │ • GL journals    │  │
+│  │ • Reports    │    │ • GL journals     │    │ • Approvals      │  │
+│  │ • Admin      │    │ • Reports         │    │ • Config         │  │
+│  └──────────────┘    │ • RBAC            │    └──────────────────┘  │
+│                      └────────┬──────────┘                          │
+│                               │                                     │
+│                      ┌────────▼──────────┐                          │
+│                      │  Unity Catalog     │                          │
+│                      │                    │                          │
+│                      │ • model_ready_loans│                          │
+│                      │ • loan_ecl_weighted│                          │
+│                      │ • loan_level_ecl   │                          │
+│                      │ • portfolio_ecl_   │                          │
+│                      │   summary          │                          │
+│                      │ • ifrs7_stage_     │                          │
+│                      │   migration        │                          │
+│                      └────────┬──────────┘                          │
+│                               │                                     │
+│                      ┌────────▼──────────┐                          │
+│                      │ Databricks Jobs    │                          │
+│                      │                    │                          │
+│                      │ • Satellite model  │                          │
+│                      │   training         │                          │
+│                      │ • ECL calculation  │                          │
+│                      │ • Lakebase sync    │                          │
+│                      └───────────────────┘                          │
+└─────────────────────────────────────────────────────────────────────┘</div>
+
+    <h2>Comparison with SAS IFRS 9</h2>
+    <table>
+      <thead>
+        <tr><th>Capability</th><th>SAS IFRS 9</th><th>ECL Workspace</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Deployment</td><td>On-premises SAS server</td><td>Databricks App (cloud-native)</td></tr>
+        <tr><td>Database</td><td>SAS datasets / Oracle</td><td>Lakebase (managed PostgreSQL)</td></tr>
+        <tr><td>Data Governance</td><td>Manual / SAS metadata</td><td>Unity Catalog (column-level lineage)</td></tr>
+        <tr><td>ECL Calculation</td><td>SAS procedures</td><td>Monte Carlo simulation engine</td></tr>
+        <tr><td>Model Training</td><td>SAS Enterprise Miner</td><td>7 satellite model algorithms</td></tr>
+        <tr><td>GL Integration</td><td>Manual export / batch</td><td>Automated double-entry journals</td></tr>
+        <tr><td>Workflow</td><td>Manual / email-based</td><td>8-step guided workflow with audit trail</td></tr>
+        <tr><td>Approval Process</td><td>Email / SharePoint</td><td>Built-in RBAC with approval workflows</td></tr>
+        <tr><td>Reporting</td><td>SAS Visual Analytics</td><td>Interactive React dashboards + CSV export</td></tr>
+        <tr><td>Backtesting</td><td>Custom SAS macros</td><td>Built-in traffic-light framework</td></tr>
+        <tr><td>Markov Chains</td><td>Custom code</td><td>Built-in with forecasting &amp; comparison</td></tr>
+        <tr><td>Hazard Models</td><td>SAS PHREG</td><td>Cox PH, discrete-time, Kaplan-Meier</td></tr>
+        <tr><td>Cost</td><td>SAS license + infrastructure</td><td>Databricks consumption-based pricing</td></tr>
+        <tr><td>Scalability</td><td>Vertical (bigger server)</td><td>Horizontal (serverless compute)</td></tr>
+        <tr><td>API Access</td><td>Limited</td><td>Full REST API (80+ endpoints)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Supported Data Sources</h2>
+    <p>The application reads loan portfolio data from Unity Catalog tables. The following input tables are required:</p>
+    <table>
+      <thead>
+        <tr><th>Table</th><th>Description</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>model_ready_loans</code></td><td>Loan-level data with PD, LGD, EAD, staging, and borrower attributes</td><td>Unity Catalog</td></tr>
+        <tr><td><code>loan_ecl_weighted</code></td><td>Scenario-weighted ECL at loan level</td><td>ECL calculation pipeline</td></tr>
+        <tr><td><code>loan_level_ecl</code></td><td>Per-scenario ECL at loan level</td><td>ECL calculation pipeline</td></tr>
+        <tr><td><code>portfolio_ecl_summary</code></td><td>Aggregated portfolio-level ECL by product, stage, and scenario</td><td>ECL calculation pipeline</td></tr>
+        <tr><td><code>ifrs7_stage_migration</code></td><td>Period-over-period stage transition counts</td><td>Data processing pipeline</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>Flexible Schema Mapping</strong>
+      The Admin Configuration panel allows you to map your existing column names to the expected schema — no data transformation required. See the <a href="guides/admin-config.html">Admin Configuration guide</a>.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

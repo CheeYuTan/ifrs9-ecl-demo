@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECL Workflow — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo">
+    <span class="logo-icon">E9</span>
+    IFRS 9 ECL Workspace
+  </a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html" class="active">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> ECL Workflow
+    </div>
+
+    <h1>8-Step ECL Workflow</h1>
+    <p class="subtitle">A guided process from data review through to sign-off, with full auditability at every step.</p>
+
+    <div class="callout callout-info">
+      <strong>Workflow State</strong>
+      Each project tracks its current step (0–7), audit log, overlays, scenario weights, and sign-off status. Steps must be completed in order. The workflow state is stored in Lakebase and persists across sessions.
+    </div>
+
+    <h2>Step 1: Data &amp; Portfolio Review</h2>
+    <div class="screenshot-container" style="margin: 1.5rem 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+      <img src="../screenshots/03_data_processing.png" alt="Data Processing step showing portfolio summary and stage distribution" style="width: 100%; display: block;" loading="lazy">
+      <p style="font-size: 0.8rem; color: #9EB7BE; padding: 0.5rem 1rem; margin: 0;">Data Processing step — portfolio summary with stage distribution and DQ checks</p>
+    </div>
+    <h4>Purpose</h4>
+    <p>Review the loan portfolio composition, data quality, and stage distribution before proceeding with model execution.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Portfolio Summary</strong> — total loans, GCA, and ECL by product type</li>
+      <li><strong>Stage Distribution</strong> — count and GCA breakdown across Stage 1, 2, and 3</li>
+      <li><strong>Borrower Segments</strong> — distribution by risk segment (Prime, Near-Prime, Sub-Prime)</li>
+      <li><strong>Vintage Analysis</strong> — origination vintage cohort breakdown</li>
+      <li><strong>DPD Distribution</strong> — days past due histogram</li>
+      <li><strong>PD Distribution</strong> — probability of default distribution</li>
+      <li><strong>Data Quality Results</strong> — automated DQ checks with pass/fail/warning status</li>
+    </ul>
+    <h4>What to Check</h4>
+    <ul>
+      <li>Are all product types represented?</li>
+      <li>Is the stage distribution reasonable (typically 80–90% Stage 1)?</li>
+      <li>Are there any critical DQ failures?</li>
+      <li>Do the GCA totals reconcile with your source system?</li>
+    </ul>
+    <h4>API</h4>
+    <pre><code>POST /api/projects/{project_id}/advance
+{
+  "action": "data_review",
+  "user": "credit.analyst@bank.com",
+  "detail": "Portfolio data reviewed and validated",
+  "status": "completed"
+}</code></pre>
+
+    <h2>Step 2: Model Execution</h2>
+    <h4>Purpose</h4>
+    <p>Run satellite models to calibrate PD and LGD parameters, then review model performance.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Satellite Model Comparison</strong> — performance of different algorithms (Linear, Ridge, XGBoost, etc.) across product cohorts</li>
+      <li><strong>Best Model Selection</strong> — automatically selected best-performing model per cohort</li>
+      <li><strong>Cohort Summary</strong> — model results broken down by product type and risk segment</li>
+      <li><strong>Model Run History</strong> — previous model execution runs with metadata</li>
+    </ul>
+    <h4>What to Check</h4>
+    <ul>
+      <li>Are model performance metrics (R², RMSE, MAE) within acceptable ranges?</li>
+      <li>Is the best model selection reasonable for each cohort?</li>
+      <li>Are there any cohorts with poor model fit?</li>
+    </ul>
+    <h4>Triggering Model Runs</h4>
+    <pre><code>POST /api/jobs/trigger
+{
+  "job_key": "satellite_ecl_sync",
+  "enabled_models": ["linear_regression", "ridge_regression", "xgboost"]
+}</code></pre>
+
+    <h2>Step 3: ECL Calculation</h2>
+    <h4>Purpose</h4>
+    <p>Review the calculated ECL across products, stages, and scenarios. Optionally run Monte Carlo simulations with custom parameters.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>ECL by Product</strong> — total ECL, GCA, and coverage ratio per product type</li>
+      <li><strong>ECL by Stage</strong> — loss allowance breakdown by IFRS 9 stage</li>
+      <li><strong>Scenario Summary</strong> — ECL under base, upside, and downside scenarios with weights</li>
+      <li><strong>Monte Carlo Distribution</strong> — simulation results showing ECL distribution</li>
+      <li><strong>Top Exposures</strong> — largest individual loan exposures</li>
+    </ul>
+    <h4>Monte Carlo Simulation</h4>
+    <p>The simulation engine supports configurable parameters:</p>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Default</th><th>Range</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>n_simulations</code></td><td>1,000</td><td>100–5,000</td><td>Number of Monte Carlo iterations</td></tr>
+        <tr><td><code>pd_lgd_correlation</code></td><td>0.30</td><td>0–1</td><td>Correlation between PD and LGD shocks</td></tr>
+        <tr><td><code>aging_factor</code></td><td>0.08</td><td>0–0.5</td><td>Stage migration aging factor</td></tr>
+        <tr><td><code>pd_floor</code></td><td>0.001</td><td>0–1</td><td>Minimum PD value</td></tr>
+        <tr><td><code>pd_cap</code></td><td>0.95</td><td>0–1</td><td>Maximum PD value</td></tr>
+        <tr><td><code>lgd_floor</code></td><td>0.01</td><td>0–1</td><td>Minimum LGD value</td></tr>
+        <tr><td><code>lgd_cap</code></td><td>0.95</td><td>0–1</td><td>Maximum LGD value</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Step 4: Scenario Analysis</h2>
+    <h4>Purpose</h4>
+    <p>Set probability weights for each macroeconomic scenario and review the weighted ECL.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Scenario Weights</strong> — adjustable sliders for base, upside, and downside probabilities (must sum to 100%)</li>
+      <li><strong>Weighted ECL Impact</strong> — how different weight combinations affect total ECL</li>
+      <li><strong>Scenario Comparison</strong> — side-by-side ECL under each scenario</li>
+    </ul>
+    <h4>API</h4>
+    <pre><code>POST /api/projects/{project_id}/scenario-weights
+{
+  "weights": {
+    "base": 0.50,
+    "upside": 0.20,
+    "downside": 0.30
+  }
+}</code></pre>
+
+    <h2>Step 5: Management Overlays</h2>
+    <h4>Purpose</h4>
+    <p>Apply post-model adjustments (overlays) to account for factors not captured by the models — such as emerging risks, sector-specific concerns, or expert judgment.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Overlay Entry Form</strong> — add overlays by product type with amount, type (absolute/percentage), and justification</li>
+      <li><strong>Overlay Summary</strong> — total overlay impact on ECL</li>
+      <li><strong>IFRS 9 Reference</strong> — link to relevant IFRS 9 paragraphs for each overlay type</li>
+    </ul>
+    <h4>API</h4>
+    <pre><code>POST /api/projects/{project_id}/overlays
+{
+  "overlays": [
+    {
+      "id": "OVL-001",
+      "product": "SME Lending",
+      "type": "absolute",
+      "amount": 500000,
+      "reason": "Emerging sector risk in commercial real estate",
+      "ifrs9": "IFRS 9.5.5.17(c)"
+    }
+  ],
+  "comment": "Management overlay for CRE sector risk"
+}</code></pre>
+
+    <h2>Step 6: Stress Testing</h2>
+    <h4>Purpose</h4>
+    <p>Review sensitivity analysis and stress test results to understand ECL behavior under adverse conditions.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Sensitivity Analysis</strong> — ECL impact of PD/LGD shifts (±10%, ±20%, ±50%)</li>
+      <li><strong>Scenario Comparison</strong> — detailed comparison across all scenarios</li>
+      <li><strong>Stress by Stage</strong> — how stress scenarios affect each IFRS 9 stage</li>
+      <li><strong>Vintage Performance</strong> — ECL trends by origination vintage</li>
+      <li><strong>Concentration Risk</strong> — exposure concentration by segment, product, and risk band</li>
+    </ul>
+
+    <h2>Step 7: Reporting &amp; Disclosure</h2>
+    <h4>Purpose</h4>
+    <p>Generate regulatory reports and GL journal entries for the ECL calculation.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>IFRS 7 Disclosure</strong> — comprehensive disclosure package with credit risk exposure, stage migration, and loss allowance reconciliation</li>
+      <li><strong>ECL Movement Schedule</strong> — period-over-period ECL movement by driver</li>
+      <li><strong>GL Journals</strong> — generated double-entry journal entries ready for posting</li>
+      <li><strong>Stage Migration Matrix</strong> — transition matrix with loan counts and GCA</li>
+    </ul>
+    <p>See the <a href="gl-journals.html">GL Journals guide</a> and <a href="regulatory-reports.html">Regulatory Reports guide</a> for details.</p>
+
+    <h2>Step 8: Sign-Off</h2>
+    <h4>Purpose</h4>
+    <p>Review the complete audit trail and sign off the ECL calculation.</p>
+    <h4>What You See</h4>
+    <ul>
+      <li><strong>Audit Trail</strong> — chronological log of every action taken during the workflow, with timestamps and user identities</li>
+      <li><strong>Summary Dashboard</strong> — final ECL figures, scenario weights, overlays, and key metrics</li>
+      <li><strong>Sign-Off Form</strong> — enter your name to formally sign off the calculation</li>
+    </ul>
+    <h4>API</h4>
+    <pre><code>POST /api/projects/{project_id}/sign-off
+{
+  "name": "Jane Smith, Chief Risk Officer"
+}</code></pre>
+
+    <div class="callout callout-success">
+      <strong>Audit Trail</strong>
+      Every step advancement, overlay submission, scenario weight change, and sign-off is recorded in the project's audit log with the user identity and timestamp. This provides a complete audit trail for regulatory review.
+    </div>
+
+    <h2>Resetting a Project</h2>
+    <p>If you need to restart the workflow (e.g., after data corrections), you can reset a project back to Step 0:</p>
+    <pre><code>POST /api/projects/{project_id}/reset</code></pre>
+    <p>This clears the step progress but preserves the audit log showing the reset action.</p>
+
+    <h2>Common Issues</h2>
+    <table>
+      <thead>
+        <tr><th>Issue</th><th>Solution</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Cannot advance past Step 1</td><td>Check that data quality results have no critical errors. Review DQ results at <code>GET /api/data/dq-results</code>.</td></tr>
+        <tr><td>Scenario weights don't sum to 100%</td><td>Adjust weights so they sum to exactly 1.0 (100%). The API validates this.</td></tr>
+        <tr><td>Monte Carlo simulation is slow</td><td>Reduce <code>n_simulations</code> to 500 for faster results. Use the streaming endpoint <code>POST /api/simulate-stream</code> for progress updates.</td></tr>
+        <tr><td>Overlays not reflected in ECL</td><td>Overlays are recorded as post-model adjustments. They appear in the attribution waterfall and GL journals but don't modify the underlying ECL calculation.</td></tr>
+      </tbody>
+    </table>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

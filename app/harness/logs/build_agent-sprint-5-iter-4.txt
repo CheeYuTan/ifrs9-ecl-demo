@@ -1,0 +1,9 @@
+EXIT CODE: 1
+DURATION: 214s
+
+--- STDOUT ---
+API Error: Unable to connect to API (ConnectionRefused)
+
+
+--- STDERR ---
+

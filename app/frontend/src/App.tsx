@@ -505,9 +505,9 @@ export default function App() {
                     <span className="h-3 w-px bg-slate-200" />
                     <span className="text-slate-400 font-mono">{project.project_id}</span>
                     <span className="h-3 w-px bg-slate-200" />
-                    <span className="text-slate-500 font-semibold">{project.reporting_date}</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-semibold">{project.reporting_date}</span>
                     <span className="h-3 w-px bg-slate-200" />
-                    <span className="text-slate-500 font-semibold uppercase">{project.project_type}</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-semibold uppercase">{project.project_type}</span>
                     {project.signed_off_by ? (
                       <span className="ml-auto text-emerald-600 font-semibold flex items-center gap-1">
                         <CheckCircle2 size={12} /> Signed off by {project.signed_off_by}
@@ -551,7 +551,7 @@ export default function App() {
                   <div className="mt-8 flex justify-between items-center">
                     {canGoPrev ? (
                       <button onClick={() => setActiveTab(activeTab - 1)}
-                        className="group flex items-center gap-2 px-5 py-3 text-sm font-semibold text-slate-500 glass-card rounded-2xl hover:shadow-md transition">
+                        className="group flex items-center gap-2 px-5 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 glass-card rounded-2xl hover:shadow-md transition">
                         <ChevronLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
                         {STEPS[activeTab - 1]?.label}
                       </button>

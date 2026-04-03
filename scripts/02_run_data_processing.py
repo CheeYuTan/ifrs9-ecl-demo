@@ -3,6 +3,9 @@ IFRS 9 Data Processing Pipeline
 ================================
 Performs data quality checks, GL reconciliation, SICR assessment,
 and produces model-ready dataset for the ECL calculation engine.
+
+Supports: Credit Card, Residential Mortgage, Commercial Loan,
+Personal Loan, Auto Loan.
 """
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
@@ -12,25 +15,43 @@ import pandas as pd
 
 spark = SparkSession.builder.getOrCreate()
 
-PROJECT_ID = "Q4-2025-IFRS9"
-REPORTING_DATE = "2025-12-31"
+try:
+    CATALOG = dbutils.widgets.get("catalog")  # type: ignore[name-defined]
+except Exception:
+    CATALOG = "lakemeter_catalog"
+try:
+    SCHEMA = dbutils.widgets.get("schema")  # type: ignore[name-defined]
+except Exception:
+    SCHEMA = "expected_credit_loss"
+try:
+    PROJECT_ID = dbutils.widgets.get("project_id")  # type: ignore[name-defined]
+except Exception:
+    PROJECT_ID = "Q4-2025-IFRS9"
+try:
+    REPORTING_DATE = dbutils.widgets.get("reporting_date")  # type: ignore[name-defined]
+except Exception:
+    REPORTING_DATE = "2025-12-31"
 PORTFOLIO_FILTER = "all"
-CATALOG = "lakemeter_catalog"
-SCHEMA = "expected_credit_loss"
 FULL_SCHEMA = f"{CATALOG}.{SCHEMA}"
 
-# Product-specific SICR thresholds — calibrated from back-testing
-SICR_THRESHOLDS = {
-    "credit_builder":      {"pd_relative": 2.5, "pd_absolute": 0.008, "alt_drop": 20, "ltv_max": 1.20},
-    "emergency_microloan": {"pd_relative": 2.0, "pd_absolute": 0.010, "alt_drop": 18, "ltv_max": None},
-    "career_transition":   {"pd_relative": 2.2, "pd_absolute": 0.008, "alt_drop": 22, "ltv_max": None},
-    "bnpl_professional":   {"pd_relative": 2.0, "pd_absolute": 0.006, "alt_drop": 20, "ltv_max": None},
-    "payroll_advance":     {"pd_relative": 1.8, "pd_absolute": 0.012, "alt_drop": 15, "ltv_max": None},
-}
-DEFAULT_SICR = {"pd_relative": 2.0, "pd_absolute": 0.008, "alt_drop": 20, "ltv_max": None}
+DEFAULT_SICR = {"pd_relative": 2.0, "pd_absolute": 0.008, "dpd_stage2": 30, "dpd_stage3": 90}
+
+try:
+    import json as _json
+    _sicr_json = dbutils.widgets.get("sicr_thresholds")  # type: ignore[name-defined]
+    SICR_THRESHOLDS = _json.loads(_sicr_json)
+except Exception:
+    SICR_THRESHOLDS = {}
+
+_discovered_products = spark.table(f"{FULL_SCHEMA}.loan_tape").select("product_type").distinct().collect()
+for _row in _discovered_products:
+    _p = _row["product_type"]
+    if _p not in SICR_THRESHOLDS:
+        SICR_THRESHOLDS[_p] = dict(DEFAULT_SICR)
 
 print("=" * 70)
 print("IFRS 9 ECL — Data Processing Pipeline")
+print(f"Products: {', '.join(SICR_THRESHOLDS.keys())}")
 print("=" * 70)
 
 loan_tape = spark.table(f"{FULL_SCHEMA}.loan_tape")
@@ -38,6 +59,9 @@ borrower_master = spark.table(f"{FULL_SCHEMA}.borrower_master")
 payment_history = spark.table(f"{FULL_SCHEMA}.payment_history")
 general_ledger = spark.table(f"{FULL_SCHEMA}.general_ledger")
 collateral_register = spark.table(f"{FULL_SCHEMA}.collateral_register")
+
+loan_tape_cols = set(loan_tape.columns)
+borrower_cols = set(borrower_master.columns)
 
 snapshot_stats = loan_tape.agg(
     F.count("*").alias("total_loans"),
@@ -48,7 +72,6 @@ snapshot_stats = loan_tape.agg(
 snapshot_id = f"{PROJECT_ID}_{REPORTING_DATE}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 print(f"Snapshot: {snapshot_stats['total_loans']:,} loans, ${snapshot_stats['total_gca']:,.2f} GCA")
 
-# Exclude written-off loans from ECL calculation (they are already recognized as losses)
 active_loans = loan_tape.filter(F.col("is_write_off") == False)
 writeoff_count = loan_tape.filter(F.col("is_write_off") == True).count()
 print(f"  Active loans: {active_loans.count():,} (excluded {writeoff_count:,} write-offs)")
@@ -68,7 +91,6 @@ def run_dq(check_id, cat, desc, sev, expr, threshold=0):
                         "snapshot_id": snapshot_id, "reporting_date": REPORTING_DATE})
     print(f"  {'PASS' if passed else 'FAIL'} [{sev}] {desc}: {result}")
 
-# Completeness checks
 run_dq("C01", "completeness", "Missing GCA", "critical", F.col("gross_carrying_amount").isNull())
 run_dq("C02", "completeness", "Missing EIR", "critical", F.col("effective_interest_rate").isNull())
 run_dq("C03", "completeness", "Missing origination_date", "critical", F.col("origination_date").isNull())
@@ -76,31 +98,30 @@ run_dq("C04", "completeness", "Missing product_type", "critical", F.col("product
 run_dq("C05", "completeness", "Missing borrower_id", "critical", F.col("borrower_id").isNull())
 run_dq("C06", "completeness", "Missing origination_pd", "critical", F.col("origination_pd").isNull())
 
-# Validity checks
-run_dq("V01", "validity", "EIR out of range (0-36%)", "critical",
-       (F.col("effective_interest_rate") < 0) | (F.col("effective_interest_rate") > 0.36))
+run_dq("V01", "validity", "EIR out of range (0-30%)", "critical",
+       (F.col("effective_interest_rate") < 0) | (F.col("effective_interest_rate") > 0.30))
 run_dq("V02", "validity", "Negative GCA", "critical", F.col("gross_carrying_amount") <= 0)
 run_dq("V03", "validity", "Negative DPD", "critical", F.col("days_past_due") < 0)
 run_dq("V04", "validity", "Origination after reporting date", "critical",
        F.col("origination_date") > F.lit(REPORTING_DATE))
 run_dq("V05", "validity", "Invalid stage (not 1/2/3)", "critical",
        ~F.col("current_stage").isin(1, 2, 3))
-run_dq("V06", "validity", "Maturity before origination", "critical",
-       F.col("maturity_date") < F.col("origination_date"))
 
-# Cross-field consistency checks
-run_dq("X01", "consistency", "DPD>0 but current_pd <= origination_pd", "high",
+if "maturity_date" in loan_tape_cols:
+    run_dq("V06", "validity", "Maturity before origination", "critical",
+           F.col("maturity_date").isNotNull() & (F.col("maturity_date") < F.col("origination_date")))
+
+run_dq("X01", "consistency", "DPD>30 but current_pd <= origination_pd", "high",
        (F.col("days_past_due") > 30) & (F.col("current_lifetime_pd") <= F.col("origination_pd")))
 run_dq("X02", "consistency", "Stage 3 but DPD < 90", "high",
        (F.col("current_stage") == 3) & (F.col("days_past_due") < 90))
 run_dq("X03", "consistency", "Stage 1 but DPD >= 30 (backstop violation)", "high",
        (F.col("current_stage") == 1) & (F.col("days_past_due") >= 30))
-run_dq("X04", "consistency", "GCA exceeds original principal by >10%", "medium",
-       F.col("gross_carrying_amount") > F.col("original_principal") * 1.10)
-run_dq("X05", "consistency", "Remaining months exceeds contractual term", "medium",
-       F.col("remaining_months") > F.col("contractual_term_months"))
 
-# IFRS 9 specific checks
+if "credit_grade" in loan_tape_cols:
+    run_dq("X04", "consistency", "Missing credit grade", "medium",
+           F.col("credit_grade").isNull())
+
 run_dq("I01", "ifrs9", "Missing origination PD for SICR assessment", "critical",
        F.col("origination_pd").isNull())
 run_dq("I02", "ifrs9", "Missing EIR for ECL discounting", "critical",
@@ -143,45 +164,49 @@ for gl_row in gl_rows:
 spark.createDataFrame(pd.DataFrame(recon_results)).write.mode("overwrite").option("overwriteSchema", "true") \
     .saveAsTable(f"{FULL_SCHEMA}.gl_reconciliation")
 
-# ── SICR Assessment (Product-Specific Thresholds) ────────────────────────────
-print("\n[SICR ASSESSMENT — Product-Specific Thresholds]")
-enriched = active_loans.join(borrower_master, "borrower_id", "left") \
+# ── SICR Assessment ───────────────────────────────────────────────────────────
+print("\n[SICR ASSESSMENT]")
+
+borrower_cols_to_drop = [c for c in borrower_master.columns if c in active_loans.columns and c != "borrower_id"]
+borrower_for_join = borrower_master.drop(*borrower_cols_to_drop)
+enriched = active_loans.join(borrower_for_join, "borrower_id", "left") \
     .join(collateral_register.select("loan_id", "current_collateral_value", "loan_to_value_ratio"), "loan_id", "left")
 
-# Build product-specific threshold columns
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+
 sicr_threshold_data = []
 for product, thresh in SICR_THRESHOLDS.items():
-    sicr_threshold_data.append((product, thresh["pd_relative"], thresh["pd_absolute"],
-                                thresh["alt_drop"], thresh.get("ltv_max")))
-sicr_thresh_df = spark.createDataFrame(sicr_threshold_data,
-    ["_product", "_pd_rel_thresh", "_pd_abs_thresh", "_alt_drop_thresh", "_ltv_thresh"])
+    sicr_threshold_data.append((
+        product,
+        float(thresh.get("pd_relative", 2.0)),
+        float(thresh.get("pd_absolute", 0.008)),
+    ))
+sicr_schema = StructType([
+    StructField("_product", StringType(), False),
+    StructField("_pd_rel_thresh", DoubleType(), False),
+    StructField("_pd_abs_thresh", DoubleType(), False),
+])
+sicr_thresh_df = spark.createDataFrame(sicr_threshold_data, schema=sicr_schema)
 
 enriched = enriched.join(sicr_thresh_df, enriched["product_type"] == sicr_thresh_df["_product"], "left") \
-    .fillna({"_pd_rel_thresh": 2.0, "_pd_abs_thresh": 0.008, "_alt_drop_thresh": 20})
+    .fillna({"_pd_rel_thresh": 2.0, "_pd_abs_thresh": 0.008})
 
 sicr = enriched.withColumn("sicr_pd_relative",
     F.when(F.col("origination_pd") > 0, F.col("current_lifetime_pd") / F.col("origination_pd")).otherwise(1.0)
 ).withColumn("sicr_pd_absolute", F.col("current_lifetime_pd") - F.col("origination_pd")
-).withColumn("sicr_alt_drop", F.col("origination_alt_score") - F.col("current_alt_score")
 ).withColumn("sicr_trigger_pd",
     (F.col("sicr_pd_relative") > F.col("_pd_rel_thresh")) & (F.col("sicr_pd_absolute") > F.col("_pd_abs_thresh"))
 ).withColumn("sicr_trigger_dpd", F.col("days_past_due") >= 30
-).withColumn("sicr_trigger_alt", F.col("sicr_alt_drop") > F.col("_alt_drop_thresh")
-).withColumn("sicr_trigger_collateral",
-    F.col("_ltv_thresh").isNotNull() & (F.col("loan_to_value_ratio") > F.col("_ltv_thresh"))
 ).withColumn("sicr_trigger_restructured", F.col("is_restructured") == True
 ).withColumn("impairment_dpd90", F.col("days_past_due") >= 90
 ).withColumn("assessed_stage",
     F.when(F.col("impairment_dpd90"), 3)
-     .when(F.col("sicr_trigger_pd") | F.col("sicr_trigger_dpd") | F.col("sicr_trigger_alt") |
-           F.col("sicr_trigger_collateral") | F.col("sicr_trigger_restructured"), 2)
+     .when(F.col("sicr_trigger_pd") | F.col("sicr_trigger_dpd") | F.col("sicr_trigger_restructured"), 2)
      .otherwise(1)
 ).withColumn("sicr_trigger_reasons",
     F.concat_ws(", ",
         F.when(F.col("sicr_trigger_pd"), F.lit("PD_deterioration")),
         F.when(F.col("sicr_trigger_dpd"), F.lit("30+DPD_backstop")),
-        F.when(F.col("sicr_trigger_alt"), F.lit("alt_data_deterioration")),
-        F.when(F.col("sicr_trigger_collateral"), F.lit("collateral_erosion")),
         F.when(F.col("sicr_trigger_restructured"), F.lit("forbearance_restructured")),
         F.when(F.col("impairment_dpd90"), F.lit("90+DPD_credit_impaired")),
     )
@@ -206,28 +231,25 @@ payment_stats = payment_history.groupBy("loan_id").agg(
 # ── Model-Ready Dataset ──────────────────────────────────────────────────────
 print("\n[MODEL-READY DATASET]")
 
-# Include prior_stage if available in the loan tape
+all_fields = set(f.name for f in sicr.schema.fields)
+
 select_cols = [
-    "loan_id", "borrower_id", "product_type", "origination_date", "maturity_date",
+    "loan_id", "borrower_id", "product_type",
+    "origination_date", "maturity_date",
     "original_principal", "gross_carrying_amount", "effective_interest_rate",
     "contractual_term_months", "months_on_book", "remaining_months",
-    "days_past_due", "origination_pd", "current_lifetime_pd",
-    "origination_alt_score", "current_alt_score", "assessed_stage",
-    "sicr_trigger_reasons", "is_restructured", "currency",
-    "segment", "age", "income_source", "monthly_income",
-    "employment_tenure_months", "education_level", "formal_credit_score",
-    "rent_payment_score", "utility_payment_score", "mobile_money_velocity",
-    "bank_account_age_months", "alt_data_composite_score",
-    "has_student_loan", "dependents", "country",
+    "days_past_due", "delinquency_bucket", "origination_pd", "current_lifetime_pd",
+    "assessed_stage", "prior_stage", "sicr_trigger_reasons", "is_restructured", "currency",
+    "credit_grade", "risk_band", "vintage_year", "age_bucket", "employment_type", "region",
+    "industry_sector", "ltv_ratio", "ltv_band",
+    "credit_limit", "utilization_rate",
+    "segment", "age", "annual_income", "credit_score", "education_level",
+    "marital_status", "dependents", "employment_tenure_years", "existing_debt_ratio",
+    "country",
     "current_collateral_value", "loan_to_value_ratio",
 ]
 
-if "prior_stage" in [f.name for f in sicr.schema.fields]:
-    select_cols.append("prior_stage")
-if "consecutive_on_time_payments" in [f.name for f in sicr.schema.fields]:
-    select_cols.append("consecutive_on_time_payments")
-
-available_cols = [c for c in select_cols if c in [f.name for f in sicr.schema.fields]]
+available_cols = [c for c in select_cols if c in all_fields]
 model_ready = sicr.select(*available_cols)
 
 model_ready = model_ready.withColumn("vintage_cohort",
@@ -243,22 +265,18 @@ model_ready.write.mode("overwrite").option("overwriteSchema", "true") \
 cnt = model_ready.count()
 print(f"  Written {cnt:,} rows to {FULL_SCHEMA}.model_ready_loans")
 
-# ── SICR Threshold Metadata (for audit/governance) ───────────────────────────
+# ── SICR Threshold Metadata ──────────────────────────────────────────────────
 sicr_meta = []
 for product, thresh in SICR_THRESHOLDS.items():
     sicr_meta.append({
         "product_type": product,
-        "pd_relative_threshold": thresh["pd_relative"],
-        "pd_absolute_threshold": thresh["pd_absolute"],
-        "alt_score_drop_threshold": thresh["alt_drop"],
-        "ltv_threshold": thresh.get("ltv_max"),
-        "dpd_backstop_stage2": 30,
-        "dpd_backstop_stage3": 90,
-        "cure_period_months": 3,
-        "calibration_date": "2025-09-30",
+        "pd_relative_threshold": thresh.get("pd_relative", 2.0),
+        "pd_absolute_threshold": thresh.get("pd_absolute", 0.008),
+        "dpd_backstop_stage2": thresh.get("dpd_stage2", 30),
+        "dpd_backstop_stage3": thresh.get("dpd_stage3", 90),
         "reporting_date": REPORTING_DATE,
     })
 spark.createDataFrame(pd.DataFrame(sicr_meta)).write.mode("overwrite").option("overwriteSchema", "true") \
     .saveAsTable(f"{FULL_SCHEMA}.sicr_thresholds")
 
-print("\nData processing complete!")
+print("\n✅ Data processing complete!")

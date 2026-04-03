@@ -1,0 +1,24 @@
+EXIT CODE: 0
+DURATION: 387s
+
+--- STDOUT ---
+Documentation Batch 2 is complete. Summary:
+
+**New pages written:**
+1. `admin-guide/theming/admin-secondary-pages.md` — Sprint 3: 10 admin/secondary pages, 28 violations fixed, 160 tests
+2. `admin-guide/theming/data-mapping-theming.md` — Sprint 4: 8 data mapping files, 6 violations fixed, 128 tests
+
+**Updated pages:**
+3. `admin-guide/theming/light-dark-mode.md` — Added audit coverage summary table (45 files, 737 tests)
+4. `admin-guide/theme.md` — Added links to new sub-pages
+5. `sidebars.ts` — Added 2 new entries to Theming category
+
+**Screenshots:** 21 captured (light + dark mode) across all audited pages
+
+**Build:** `npm run build` succeeds with zero warnings and zero broken links.
+
+Report written to `harness/evaluations/doc-batch-2-report.md`.
+
+
+--- STDERR ---
+

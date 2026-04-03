@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Architecture — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v2.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="domain-validation.html">Domain Accuracy Rules</a>
+      <a href="code-architecture.html" class="active">Code Architecture</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Code Architecture
+    </div>
+
+    <h1>Code Architecture</h1>
+    <p class="subtitle">Modular backend structure organized by domain responsibility. Each package owns its data access, business logic, and API routes, with strict separation of concerns and a 200-line file size limit.</p>
+
+    <h2>High-Level Directory Structure</h2>
+    <pre><code>app/
+  app.py                    # FastAPI application entry point, route registration
+  app.yaml                  # Databricks Apps deployment descriptor
+  backend.py                # Legacy monolith (being decomposed)
+  ecl_engine.py             # Monte Carlo ECL simulation engine
+  jobs.py                   # Databricks Jobs integration
+  admin_config.py           # Admin configuration CRUD
+  admin_config_defaults.py  # Default configuration values
+  admin_config_schema.py    # Pydantic schemas for admin config
+  admin_config_setup.py     # Initial setup and migration
+
+  db/                       # Database connection layer
+    pool.py                 # Lakebase connection pool with OAuth refresh
+
+  domain/                   # Business logic (pure functions, no HTTP)
+    queries.py              # SQL query builders for loan data
+    model_runs.py           # ECL run orchestration
+    workflow.py             # 8-step workflow state machine
+    validation_rules.py     # 29 validation rules (D, M-R, G-R, DA)
+    model_registry.py       # Model CRUD, champion/challenger logic
+    data_mapper.py          # Data mapping and transformation
+    attribution.py          # ECL attribution and waterfall analysis
+    markov.py               # Markov chain transition matrices
+    advanced.py             # CCF, collateral haircuts, cure rates
+    backtesting.py          # Backtest execution engine
+    backtesting_stats.py    # Statistical metrics (AUC, Gini, KS, PSI)
+    backtesting_traffic.py  # Traffic-light framework
+    audit_trail.py          # Audit log recording
+    period_close.py         # Period close workflow
+    health.py               # Health check logic
+    hazard.py               # Hazard model facade
+    hazard_tables.py        # Hazard/survival table storage
+    hazard_retrieval.py     # Hazard data retrieval
+    hazard_analysis.py      # Survival curve analysis
+    hazard_cox_ph.py        # Cox Proportional Hazards model
+    hazard_nonparam.py      # Kaplan-Meier and discrete-time models
+    hazard_estimation.py    # Hazard rate estimation utilities
+
+  routes/                   # HTTP layer (thin controllers, no business logic)
+    projects.py             # /api/projects/* endpoints
+    data.py                 # /api/data/* endpoints
+    simulation.py           # /api/simulation/* endpoints
+    models.py               # /api/models/* endpoints
+    satellite.py            # /api/satellite/* endpoints
+    gl_journals.py          # /api/gl/* endpoints
+    reports.py              # /api/reports/* endpoints
+    backtesting.py          # /api/backtesting/* endpoints
+    hazard.py               # /api/hazard/* endpoints
+    markov.py               # /api/markov/* endpoints
+    advanced.py             # /api/advanced/* endpoints
+    data_mapping.py         # /api/data-mapping/* endpoints
+    attribution.py          # /api/attribution/* endpoints
+    rbac.py                 # /api/rbac/* endpoints
+    admin.py                # /api/admin/* endpoints
+    period_close.py         # /api/period-close/* endpoints
+    audit.py                # /api/audit/* endpoints
+    jobs.py                 # /api/jobs/* endpoints
+    setup.py                # /api/setup/* endpoints
+    _utils.py               # Shared route utilities
+
+  reporting/                # Report generation (IFRS 7, GL, analytics)
+    reports.py              # Report orchestrator
+    report_crud.py          # Report storage and retrieval
+    report_helpers.py       # Shared formatting utilities
+    gl_journals.py          # Journal entry generation
+    pdf_export.py           # PDF report generation
+    ifrs7_disclosure.py     # IFRS 7 disclosure package builder
+    _ifrs7_sections_a.py    # IFRS 7 sections: gross carrying amount, reconciliation
+    _ifrs7_sections_b.py    # IFRS 7 sections: sensitivity, concentration
+    ecl_movement.py         # ECL movement schedule
+    stage_migration.py      # Stage migration matrix
+    sensitivity.py          # Sensitivity analysis facade
+    sensitivity_report.py   # Sensitivity report generation
+    concentration.py        # Concentration risk facade
+    concentration_report.py # Concentration risk report generation
+
+  governance/               # Access control and compliance
+    rbac.py                 # Role-based access control engine
+
+  middleware/               # Cross-cutting concerns
+    auth.py                 # OAuth authentication middleware
+    error_handler.py        # Global error handling
+    request_id.py           # Request ID injection for tracing
+
+  frontend/                 # React SPA (served as static assets)
+    src/
+      pages/                # One file per page/route
+      components/           # Shared UI components
+      hooks/                # Custom React hooks
+      lib/                  # Utilities, API client, formatting
+
+scripts/                    # Standalone pipeline scripts
+  models/                   # Satellite model implementations
+    linear_regression.py
+    logistic_regression.py
+    ridge_regression.py
+    elastic_net.py
+    random_forest.py
+    gradient_boosting.py
+    polynomial_regression.py
+    xgboost_model.py</code></pre>
+
+    <h2>Package Responsibilities</h2>
+
+    <h3>domain/ &mdash; Business Logic</h3>
+    <p>The <code>domain/</code> package contains all business logic as pure functions with no HTTP or framework dependencies. Each module handles a specific domain concept:</p>
+    <table>
+      <thead>
+        <tr><th>Module Group</th><th>Files</th><th>Responsibility</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ECL Core</strong></td>
+          <td><code>queries.py</code>, <code>model_runs.py</code>, <code>workflow.py</code></td>
+          <td>Loan data access, ECL run orchestration, and the 8-step workflow state machine that governs project progression from data review through sign-off.</td>
+        </tr>
+        <tr>
+          <td><strong>Validation</strong></td>
+          <td><code>validation_rules.py</code></td>
+          <td>29 validation rules across four categories: Data Integrity (D-1 to D-10), Model Reasonableness (M-R1 to M-R8), Governance (G-R1 to G-R5), and Domain Accuracy (DA-1 to DA-6). See <a href="validation-rules.html">Validation Rules</a> and <a href="domain-validation.html">Domain Accuracy Rules</a>.</td>
+        </tr>
+        <tr>
+          <td><strong>Models</strong></td>
+          <td><code>model_registry.py</code>, <code>data_mapper.py</code></td>
+          <td>Model version control with champion/challenger tracking, and data mapping between source schemas and the ECL calculation schema.</td>
+        </tr>
+        <tr>
+          <td><strong>Analytics</strong></td>
+          <td><code>attribution.py</code>, <code>markov.py</code>, <code>advanced.py</code></td>
+          <td>ECL waterfall attribution, Markov chain transition matrices for stage migration, and advanced features (CCF estimation, collateral haircuts, cure rates).</td>
+        </tr>
+        <tr>
+          <td><strong>Backtesting</strong></td>
+          <td><code>backtesting.py</code>, <code>backtesting_stats.py</code>, <code>backtesting_traffic.py</code></td>
+          <td>Backtest execution, statistical metrics (AUC, Gini, KS, PSI, Brier score), and traffic-light framework for model performance monitoring.</td>
+        </tr>
+        <tr>
+          <td><strong>Hazard Models</strong></td>
+          <td><code>hazard.py</code>, <code>hazard_tables.py</code>, <code>hazard_retrieval.py</code>, <code>hazard_analysis.py</code>, <code>hazard_cox_ph.py</code>, <code>hazard_nonparam.py</code>, <code>hazard_estimation.py</code></td>
+          <td>Survival analysis suite: Cox Proportional Hazards, Kaplan-Meier estimator, discrete-time hazard models, and survival curve analysis. The <code>hazard.py</code> module serves as a facade that delegates to specialized sub-modules.</td>
+        </tr>
+        <tr>
+          <td><strong>Governance</strong></td>
+          <td><code>audit_trail.py</code>, <code>period_close.py</code>, <code>health.py</code></td>
+          <td>Immutable audit log, period close workflow with lock/unlock, and system health checks.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>routes/ &mdash; HTTP Controllers</h3>
+    <p>The <code>routes/</code> package contains thin FastAPI routers. Each file registers endpoints for a single domain area. Route handlers perform request validation, call into <code>domain/</code> functions, and return responses. They contain <strong>no business logic</strong>.</p>
+
+    <div class="callout callout-info">
+      <strong>Design Principle</strong>
+      Routes are thin wrappers. If you need to add business logic, it belongs in <code>domain/</code>. If you need to add a new endpoint, it belongs in <code>routes/</code>. A route file should never exceed 200 lines.
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Route File</th><th>URL Prefix</th><th>Endpoints</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>projects.py</code></td><td><code>/api/projects</code></td><td>CRUD, workflow advancement, status</td></tr>
+        <tr><td><code>data.py</code></td><td><code>/api/data</code></td><td>Portfolio data, DQ results, loan details</td></tr>
+        <tr><td><code>simulation.py</code></td><td><code>/api/simulation</code></td><td>ECL run trigger, progress, results</td></tr>
+        <tr><td><code>models.py</code></td><td><code>/api/models</code></td><td>Model registry CRUD, champion/challenger</td></tr>
+        <tr><td><code>satellite.py</code></td><td><code>/api/satellite</code></td><td>Satellite model training and prediction</td></tr>
+        <tr><td><code>gl_journals.py</code></td><td><code>/api/gl</code></td><td>Journal entries, posting, trial balance</td></tr>
+        <tr><td><code>reports.py</code></td><td><code>/api/reports</code></td><td>IFRS 7 disclosure, movement, migration</td></tr>
+        <tr><td><code>backtesting.py</code></td><td><code>/api/backtesting</code></td><td>Backtest execution and results</td></tr>
+        <tr><td><code>hazard.py</code></td><td><code>/api/hazard</code></td><td>Hazard model fitting and survival curves</td></tr>
+        <tr><td><code>markov.py</code></td><td><code>/api/markov</code></td><td>Transition matrix computation</td></tr>
+        <tr><td><code>advanced.py</code></td><td><code>/api/advanced</code></td><td>CCF, collateral, cure rates</td></tr>
+        <tr><td><code>data_mapping.py</code></td><td><code>/api/data-mapping</code></td><td>Source-to-target field mappings</td></tr>
+        <tr><td><code>rbac.py</code></td><td><code>/api/rbac</code></td><td>Role assignments and permissions</td></tr>
+        <tr><td><code>admin.py</code></td><td><code>/api/admin</code></td><td>Configuration management</td></tr>
+        <tr><td><code>jobs.py</code></td><td><code>/api/jobs</code></td><td>Databricks Jobs status and triggers</td></tr>
+      </tbody>
+    </table>
+
+    <h3>reporting/ &mdash; Report Generation</h3>
+    <p>The <code>reporting/</code> package is responsible for all regulatory and management report generation. It is decomposed into specialized sub-modules:</p>
+
+    <table>
+      <thead>
+        <tr><th>Sub-module</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>reports.py</code></td><td>Report orchestrator that coordinates section assembly</td></tr>
+        <tr><td><code>report_crud.py</code></td><td>Report persistence (save, load, list, delete)</td></tr>
+        <tr><td><code>report_helpers.py</code></td><td>Shared formatting and calculation utilities</td></tr>
+        <tr><td><code>ifrs7_disclosure.py</code></td><td>IFRS 7 disclosure package builder</td></tr>
+        <tr><td><code>_ifrs7_sections_a.py</code></td><td>Gross carrying amount by stage, loss allowance reconciliation</td></tr>
+        <tr><td><code>_ifrs7_sections_b.py</code></td><td>Sensitivity analysis tables, concentration risk tables</td></tr>
+        <tr><td><code>ecl_movement.py</code></td><td>ECL movement schedule (opening to closing balance)</td></tr>
+        <tr><td><code>stage_migration.py</code></td><td>Stage migration matrix with loan counts and amounts</td></tr>
+        <tr><td><code>sensitivity_report.py</code></td><td>PD/LGD/scenario sensitivity analysis</td></tr>
+        <tr><td><code>concentration_report.py</code></td><td>Concentration risk by product, rating, geography</td></tr>
+        <tr><td><code>gl_journals.py</code></td><td>Double-entry journal entry generation</td></tr>
+        <tr><td><code>pdf_export.py</code></td><td>PDF rendering for offline distribution</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Hazard Models &mdash; Sub-Module Architecture</h3>
+    <p>The hazard model subsystem in <code>domain/</code> follows a facade pattern. The top-level <code>hazard.py</code> provides a unified API while delegating to specialized implementations:</p>
+
+    <pre><code>domain/
+  hazard.py              # Facade: public API, model selection
+    hazard_tables.py     # Storage: save/load survival tables
+    hazard_retrieval.py  # Query: fetch fitted models and curves
+    hazard_analysis.py   # Analysis: survival curve comparison, CI bands
+    hazard_cox_ph.py     # Cox PH: semi-parametric proportional hazards
+    hazard_nonparam.py   # Non-parametric: Kaplan-Meier, discrete-time
+    hazard_estimation.py # Utilities: hazard rate and cumulative hazard</code></pre>
+
+    <p>This decomposition keeps each file under 200 lines while maintaining a clean public interface. External code should only import from <code>hazard.py</code>; the sub-modules are internal implementation details.</p>
+
+    <h3>scripts/models/ &mdash; Satellite Model Library</h3>
+    <p>The <code>scripts/models/</code> directory contains pluggable satellite model implementations. Each file implements a single model type with a consistent interface for training and prediction:</p>
+    <table>
+      <thead>
+        <tr><th>Model</th><th>File</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Linear Regression</td><td><code>linear_regression.py</code></td><td>Baseline PD/LGD modeling</td></tr>
+        <tr><td>Logistic Regression</td><td><code>logistic_regression.py</code></td><td>Binary default classification</td></tr>
+        <tr><td>Ridge Regression</td><td><code>ridge_regression.py</code></td><td>Regularized PD estimation</td></tr>
+        <tr><td>Elastic Net</td><td><code>elastic_net.py</code></td><td>Mixed L1/L2 regularization</td></tr>
+        <tr><td>Random Forest</td><td><code>random_forest.py</code></td><td>Non-linear risk factor interactions</td></tr>
+        <tr><td>Gradient Boosting</td><td><code>gradient_boosting.py</code></td><td>High-accuracy PD scoring</td></tr>
+        <tr><td>Polynomial Regression</td><td><code>polynomial_regression.py</code></td><td>Non-linear macro-PD relationships</td></tr>
+        <tr><td>XGBoost</td><td><code>xgboost_model.py</code></td><td>Production PD/LGD with GPU acceleration</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Design Principles</h2>
+    <ul>
+      <li><strong>200-line file limit</strong> &mdash; No Python file exceeds 200 lines of logic. When a module grows beyond this, it is decomposed (as done with hazard models and IFRS 7 reports).</li>
+      <li><strong>Separation of concerns</strong> &mdash; <code>routes/</code> handles HTTP, <code>domain/</code> handles logic, <code>reporting/</code> handles output generation, <code>db/</code> handles connections, <code>middleware/</code> handles cross-cutting.</li>
+      <li><strong>Facade pattern</strong> &mdash; Complex subsystems (hazard models, reporting) expose a single public module that delegates to internal sub-modules.</li>
+      <li><strong>No circular imports</strong> &mdash; Dependencies flow one way: <code>routes</code> imports <code>domain</code>; <code>domain</code> imports <code>db</code>; nothing imports <code>routes</code>.</li>
+      <li><strong>Testability</strong> &mdash; Business logic in <code>domain/</code> is pure functions that can be unit-tested without HTTP or database dependencies.</li>
+    </ul>
+
+    <h2>Dependency Flow</h2>
+    <pre><code>  Frontend (React SPA)
+       |
+       v
+  routes/ (FastAPI routers)
+       |
+       v
+  domain/ (business logic)    reporting/ (report generation)
+       |                           |
+       v                           v
+  db/pool.py (Lakebase connection pool)
+       |
+       v
+  Lakebase (managed PostgreSQL)    Unity Catalog (Delta Lake)</code></pre>
+
+    <div class="callout callout-info">
+      <strong>Adding a New Feature</strong>
+      To add a new feature: (1) create a domain module in <code>domain/</code> with business logic, (2) create a route file in <code>routes/</code> with API endpoints, (3) register the router in <code>app.py</code>, (4) add a frontend page in <code>frontend/src/pages/</code>. If the feature needs reports, add a sub-module in <code>reporting/</code>.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>

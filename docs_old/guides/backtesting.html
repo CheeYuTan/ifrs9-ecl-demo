@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backtesting — IFRS 9 ECL Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="logo"><span class="logo-icon">E9</span> IFRS 9 ECL Workspace</a>
+  <nav>
+    <a href="../overview.html">Overview</a>
+    <a href="../installation.html">Installation</a>
+    <a href="../quickstart.html">Quick Start</a>
+    <a href="ecl-workflow.html" class="active">Guides</a>
+    <a href="../reference/api-reference.html">API</a>
+    <span class="version-badge">v1.0</span>
+  </nav>
+</header>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="../overview.html">Overview</a>
+      <a href="../installation.html">Installation</a>
+      <a href="../quickstart.html">Quick Start</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Guides</div>
+      <a href="data-setup.html">Data Setup</a>
+      <a href="ecl-workflow.html">ECL Workflow</a>
+      <a href="model-registry.html">Model Registry</a>
+      <a href="gl-journals.html">GL Journals</a>
+      <a href="backtesting.html" class="active">Backtesting</a>
+      <a href="rbac.html">RBAC &amp; Governance</a>
+      <a href="validation-rules.html">Validation Rules</a>
+      <a href="regulatory-reports.html">Regulatory Reports</a>
+      <a href="admin-config.html">Admin Configuration</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Reference</div>
+      <a href="../reference/api-reference.html">API Reference</a>
+      <a href="../reference/data-schema.html">Data Schema</a>
+      <a href="../reference/ifrs9-glossary.html">IFRS 9 Glossary</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="breadcrumbs">
+      <a href="../index.html">Home</a> <span>/</span> <a href="ecl-workflow.html">Guides</a> <span>/</span> Backtesting
+    </div>
+
+    <h1>Backtesting</h1>
+    <p class="subtitle">Validate model performance using the traffic-light framework with industry-standard metrics.</p>
+
+    <div class="screenshot-container" style="margin: 1.5rem 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+      <img src="../screenshots/10-backtesting.png" alt="Backtesting dashboard with traffic-light metrics" style="width: 100%; display: block;" loading="lazy">
+      <p style="font-size: 0.8rem; color: #9EB7BE; padding: 0.5rem 1rem; margin: 0;">Backtesting dashboard — discrimination metrics with traffic-light status</p>
+    </div>
+
+    <h2>Traffic-Light Framework</h2>
+    <p>Each backtest metric is evaluated against thresholds and assigned a traffic-light color:</p>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th style="color:#10b981">Green</th><th style="color:#f59e0b">Amber</th><th style="color:#ef4444">Red</th><th>Direction</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>AUC</strong> (Area Under ROC Curve)</td><td>≥ 0.70</td><td>0.60 – 0.70</td><td>&lt; 0.60</td><td>Higher is better</td></tr>
+        <tr><td><strong>Gini</strong> Coefficient</td><td>≥ 0.40</td><td>0.20 – 0.40</td><td>&lt; 0.20</td><td>Higher is better</td></tr>
+        <tr><td><strong>KS</strong> (Kolmogorov-Smirnov)</td><td>≥ 0.30</td><td>0.15 – 0.30</td><td>&lt; 0.15</td><td>Higher is better</td></tr>
+        <tr><td><strong>PSI</strong> (Population Stability Index)</td><td>≤ 0.10</td><td>0.10 – 0.25</td><td>&gt; 0.25</td><td>Lower is better</td></tr>
+        <tr><td><strong>Brier</strong> Score</td><td>≤ 0.15</td><td>0.15 – 0.25</td><td>&gt; 0.25</td><td>Lower is better</td></tr>
+      </tbody>
+    </table>
+
+    <p>The overall traffic light for a backtest is determined by the worst individual metric result.</p>
+
+    <h2>Running a Backtest</h2>
+    <pre><code>POST /api/backtest/run
+{
+  "model_type": "PD",
+  "config": {
+    "observation_window": "2024-Q1 to 2024-Q2",
+    "outcome_window": "2024-Q3 to 2024-Q4"
+  }
+}</code></pre>
+    <p>The backtest engine:</p>
+    <ol>
+      <li>Pulls loan-level data from the portfolio</li>
+      <li>Computes predicted vs. actual default rates by cohort</li>
+      <li>Calculates all five metrics (AUC, Gini, KS, PSI, Brier)</li>
+      <li>Assigns traffic-light colors based on thresholds</li>
+      <li>Stores results in the backtest results table</li>
+    </ol>
+
+    <h2>Viewing Results</h2>
+    <h3>List All Backtests</h3>
+    <pre><code>GET /api/backtest/results?model_type=PD</code></pre>
+
+    <h3>Get Specific Backtest</h3>
+    <pre><code>GET /api/backtest/{backtest_id}</code></pre>
+    <p>Returns the full backtest result including:</p>
+    <ul>
+      <li>Overall traffic light (Green/Amber/Red)</li>
+      <li>Individual metric values and traffic lights</li>
+      <li>Cohort-level predicted vs. actual rates</li>
+      <li>Configuration and metadata</li>
+    </ul>
+
+    <h2>Trend Analysis</h2>
+    <p>Monitor how model performance changes over time:</p>
+    <pre><code>GET /api/backtest/trend/PD</code></pre>
+    <p>Returns a time series of backtest results for the specified model type, enabling trend analysis and early detection of model degradation.</p>
+
+    <h2>Interpreting Results</h2>
+    <table>
+      <thead>
+        <tr><th>Overall Result</th><th>Action Required</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:#10b981"><strong>Green</strong></td><td>Model performing well. No action needed. Continue monitoring.</td></tr>
+        <tr><td style="color:#f59e0b"><strong>Amber</strong></td><td>Model showing signs of degradation. Investigate root cause. Consider recalibration.</td></tr>
+        <tr><td style="color:#ef4444"><strong>Red</strong></td><td>Model not fit for purpose. Immediate recalibration or replacement required. Escalate to model governance.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warning">
+      <strong>Regulatory Expectation</strong>
+      Regulators expect backtesting to be performed at least quarterly. Results should be documented and any Amber/Red outcomes should have documented remediation plans.
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <p>IFRS 9 ECL Workspace · Built on Databricks</p>
+</footer>
+
+</body>
+</html>
