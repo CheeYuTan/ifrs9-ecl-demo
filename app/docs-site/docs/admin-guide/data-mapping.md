@@ -27,125 +27,56 @@ The data mapping wizard guides administrators through five sequential steps for 
 Navigate the three-level Unity Catalog hierarchy to locate your source tables:
 
 ```
-Catalog --> Schema --> Table
+Catalog > Schema > Table
 ```
 
-**API endpoints:**
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/data-mapping/catalogs` | List all accessible catalogs |
-| `GET /api/data-mapping/schemas/{catalog}` | List schemas in a catalog |
-| `GET /api/data-mapping/tables/{catalog}/{schema}` | List tables in a schema |
-| `GET /api/data-mapping/columns/{catalog}/{schema}/{table}` | Get column metadata for a table |
-
-Each table listing returns the table name, type, and any associated comments from Unity Catalog metadata.
+The wizard displays all accessible catalogs in your workspace. Select a catalog to see its schemas, then select a schema to see the available tables. Each table listing shows the table name, type, and any comments from Unity Catalog metadata.
 
 ### Step 2: Preview Source Data
 
-Once a source table is selected, preview its contents to verify you have the right data:
+Once a source table is selected, the wizard shows a preview of the first few rows. Use this to confirm the table contains the expected loan data before proceeding. The preview also shows column names and inferred data types, which helps when setting up mappings in the next step.
 
-```
-POST /api/data-mapping/preview
-```
+### Step 3: Auto-Suggest Mappings
 
-**Request body:**
+The platform can automatically suggest column mappings using fuzzy name matching. The auto-suggest engine compares your source column names against the expected target column names using similarity scoring. For example:
 
-```json
-{
-  "source_table": "my_catalog.lending.loan_portfolio",
-  "limit": 10
-}
-```
+| Your Source Column | Auto-Suggested Target | Match Reason |
+|---|---|---|
+| `outstanding_balance` | `gross_carrying_amount` | Semantic similarity |
+| `facility_id` | `loan_id` | Functional match |
+| `customer_number` | `borrower_id` | Functional match |
+| `product_category` | `product_type` | Near-exact match |
 
-The preview returns the first N rows as JSON records along with column names and inferred types. Use this to confirm the table contains the expected loan data before proceeding.
+Suggestions are presented for your review and can be adjusted before applying. Always review auto-suggested mappings — the engine uses heuristics and may occasionally suggest incorrect matches.
 
-### Step 3: Validate Column Mappings
+:::tip
+Run auto-suggest first, even if you plan to customize mappings. It provides a useful starting point and reduces manual configuration effort.
+:::
 
-After defining your column mappings (source column --> target column), validate them for completeness and type compatibility:
+### Step 4: Validate Column Mappings
 
-```
-POST /api/data-mapping/validate
-```
+After defining your column mappings (source column to target column), the wizard validates them for completeness and type compatibility. Validation checks that:
 
-**Request body:**
-
-```json
-{
-  "table_key": "loan_tape",
-  "source_table": "my_catalog.lending.loan_portfolio",
-  "mappings": {
-    "loan_id": "facility_id",
-    "borrower_id": "customer_number",
-    "product_type": "product_category",
-    "gross_carrying_amount": "outstanding_balance"
-  }
-}
-```
-
-Validation checks:
 - All mandatory columns have a mapping defined
 - Source column data types are compatible with target types
-- Source columns exist in the source table
+- All referenced source columns exist in the source table
 
-### Step 4: Auto-Suggest Mappings
-
-The platform can automatically suggest column mappings using fuzzy name matching:
-
-```
-POST /api/data-mapping/suggest
-```
-
-**Request body:**
-
-```json
-{
-  "table_key": "loan_tape",
-  "source_table": "my_catalog.lending.loan_portfolio"
-}
-```
-
-The auto-suggest engine compares source column names against the expected target column names using similarity scoring. For example, `outstanding_balance` would match to `gross_carrying_amount` and `facility_id` would match to `loan_id`. Suggestions are returned as a proposed mapping dictionary that you can review and adjust before applying.
+If validation fails, the wizard highlights the specific issues so you can correct them before proceeding.
 
 ### Step 5: Apply Mapping
 
-Ingest data from Unity Catalog into Lakebase using the validated mappings:
+Once validation passes, apply the mapping to ingest data from Unity Catalog into Lakebase. Two apply modes are available:
 
-```
-POST /api/data-mapping/apply
-```
+| Mode | Behavior | When to Use |
+|------|----------|-------------|
+| **Overwrite** | Drop existing data and replace with new data | Initial setup and full period-end refreshes |
+| **Append** | Add new rows to the existing data | Incremental loads where you are adding new records |
 
-**Request body:**
+After applying, the wizard shows a confirmation with the number of rows ingested and any warnings.
 
-```json
-{
-  "table_key": "loan_tape",
-  "source_table": "my_catalog.lending.loan_portfolio",
-  "mappings": {
-    "loan_id": "facility_id",
-    "borrower_id": "customer_number",
-    "product_type": "product_category"
-  },
-  "mode": "overwrite"
-}
-```
+### Checking Mapping Status
 
-**Apply modes:**
-
-| Mode | Behavior |
-|------|----------|
-| `overwrite` | Drop existing data in the target table and replace with new data. Use for full refreshes. |
-| `append` | Add new rows to the existing target table. Use for incremental loads. |
-
-### Mapping Status
-
-Check the current ingestion status for all ECL tables:
-
-```
-GET /api/data-mapping/status
-```
-
-Returns a summary of which tables have been mapped, their row counts, and last ingestion timestamps.
+The Data Mapping page shows a status dashboard for all ECL tables, including which tables have been mapped, their current row counts, and the timestamp of the last successful ingestion.
 
 ## Required ECL Tables
 
@@ -259,4 +190,10 @@ Numeric source types are accepted for INT targets because PostgreSQL can cast be
 - **Use overwrite mode for initial setup** and when refreshing data for a new reporting period. Use append mode only for incremental scenarios where you are adding new records to an existing dataset.
 - **Verify product_type consistency.** The `product_type` values in `loan_tape`, `historical_defaults`, and the LGD Assumptions configuration must all match exactly. Mismatched product types will cause ECL calculations to use default LGD values.
 - **Run the auto-suggest step first.** Even if you plan to customize mappings, the auto-suggest provides a useful starting point and reduces manual configuration effort.
-- **Check mapping status after apply.** Use `GET /api/data-mapping/status` to confirm all tables were ingested with the expected row counts.
+- **Check mapping status after apply.** Confirm all tables were ingested with the expected row counts on the Data Mapping status dashboard.
+
+## What's Next?
+
+- [Model Configuration](model-configuration) — Configure satellite models, SICR thresholds, and LGD assumptions
+- [App Settings](app-settings) — Set up organization identity, scenarios, and governance
+- [Jobs & Pipelines](jobs-pipelines) — Run the ECL calculation pipeline after data is mapped

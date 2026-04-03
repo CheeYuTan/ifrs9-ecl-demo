@@ -18,69 +18,15 @@ The platform exposes two health check endpoints for monitoring and alerting inte
 
 ### Quick Health Check
 
-```
-GET /api/health
-```
+Available at the `/api/health` endpoint, the quick health check performs a lightweight connectivity test against Lakebase. It returns immediately and is suitable for load balancer probes and uptime monitors.
 
-Performs a lightweight connectivity test by executing `SELECT 1` against Lakebase. Returns immediately and is suitable for load balancer probes and uptime monitors.
-
-**Healthy response:**
-```json
-{
-  "status": "healthy",
-  "lakebase": "connected"
-}
-```
-
-**Degraded response:**
-```json
-{
-  "status": "degraded",
-  "lakebase": "error",
-  "error": "SSL connection has been closed unexpectedly"
-}
-```
+The response indicates either **healthy** (database connected) or **degraded** (database unreachable, with an error description).
 
 ### Detailed Health Check
 
-```
-GET /api/health/detailed
-```
+Available at the `/api/health/detailed` endpoint, the detailed health check runs a comprehensive verification across all platform subsystems. This check takes longer to respond and should be used for monitoring dashboards rather than high-frequency probes.
 
-Runs a comprehensive check across all platform subsystems. This endpoint takes longer to respond and should be called by monitoring dashboards rather than high-frequency probes.
-
-**Response structure:**
-```json
-{
-  "status": "healthy",
-  "services": {
-    "lakebase": {
-      "status": "connected",
-      "healthy": true
-    },
-    "tables": {
-      "tables": {
-        "ecl_workflow": { "exists": true, "row_count": 12 },
-        "model_ready_loans": { "exists": true, "row_count": 45231 },
-        "loan_level_ecl": { "exists": true, "row_count": 45231 },
-        "loan_ecl_weighted": { "exists": true, "row_count": 3 },
-        "app_config": { "exists": true, "row_count": 8 }
-      },
-      "all_present": true,
-      "missing": []
-    },
-    "config": {
-      "loaded": true,
-      "sections": ["data_sources", "model_config", "sicr_config", ...],
-      "section_count": 8
-    },
-    "scipy": {
-      "available": true,
-      "version": "1.13.0"
-    }
-  }
-}
-```
+The detailed check reports the status of each subsystem and whether all required tables exist with their current row counts.
 
 ### Health Check Components
 
@@ -216,30 +162,10 @@ This forms a linked chain where modifying any historical entry would break the h
 
 ### Verifying Chain Integrity
 
-```
-GET /api/audit/{project_id}/verify
-```
+The platform provides an audit chain verification feature accessible from the **Audit** section of each project. Verification recomputes every hash in the chain and confirms they match the stored values.
 
-Returns:
-
-```json
-{
-  "valid": true,
-  "entries": 47,
-  "message": "Audit chain is intact"
-}
-```
-
-If tampering is detected:
-
-```json
-{
-  "valid": false,
-  "entries": 47,
-  "broken_at_index": 23,
-  "message": "Hash chain broken at entry 23"
-}
-```
+- **If the chain is intact**: Verification confirms the number of entries and reports "Audit chain is intact."
+- **If tampering is detected**: Verification identifies the exact entry where the chain breaks, indicating which record was modified.
 
 ### INSERT-Only Design
 
@@ -255,64 +181,31 @@ The platform uses a layered middleware stack that processes every HTTP request.
 
 ### Request ID Middleware
 
-Every request is assigned a unique identifier for tracing through logs and error reports.
+Every request is assigned a unique identifier for tracing through logs and error reports. If the client sends an `X-Request-ID` header, that value is used; otherwise, a unique ID is generated automatically. The request ID appears in the response headers and all related log entries, making it easy to trace a specific request through the system.
 
-- If the client sends an `X-Request-ID` header, that value is used.
-- Otherwise, a 12-character UUID segment is generated.
-- The request ID is attached to `request.state.request_id` for use in route handlers.
-- The response includes the `X-Request-ID` header.
-- All non-static requests are logged with timing information.
-
-**Log format:**
-
-```
-INFO  request_id=a1b2c3d4e5f6 method=GET path=/api/health status=200 duration_ms=12.3
-```
+All non-static requests are logged with the request ID, HTTP method, path, status code, and response time in milliseconds.
 
 ### Error Handler Middleware
 
-Unhandled exceptions are caught and returned as structured JSON responses:
-
-```json
-{
-  "error": "internal_server_error",
-  "message": "division by zero",
-  "request_id": "a1b2c3d4e5f6",
-  "path": "/api/models/run"
-}
-```
-
-This prevents raw stack traces from reaching API consumers while preserving enough detail for troubleshooting. The full stack trace is logged server-side at ERROR level with the corresponding `request_id`.
+Unhandled exceptions are caught and returned as structured error responses that include the request ID and a human-readable error message. This prevents raw technical details from reaching end users while preserving enough context for troubleshooting. The full stack trace is logged server-side for investigation.
 
 ## Configuration Management
 
 ### Viewing Current Configuration
 
-```
-GET /api/admin/config
-```
-
-Returns the full platform configuration as a JSON object with all sections (data sources, model configuration, SICR settings, etc.).
+The full platform configuration can be viewed from the **Admin > Settings** page. All four configuration sections (data sources, model configuration, jobs, and app settings) are displayed with their current values. See [App Settings](app-settings) for details on each section.
 
 ### Resetting to Factory Defaults
 
-```
-POST /api/admin/seed-defaults
-```
-
-Resets all configuration sections to their factory default values. This operation overwrites any user customizations.
+The factory reset option is available from the Admin Settings page. It resets all configuration sections to their default values.
 
 :::danger
-This endpoint destroys all custom configuration. Use it only during initial setup or when recovering from a corrupt configuration state. There is no confirmation prompt on the API level.
+Factory reset destroys all custom configuration including data source mappings, model parameters, SICR thresholds, scenario definitions, and governance settings. Use it only during initial setup or when recovering from a corrupt configuration state.
 :::
 
 ### Testing Database Connectivity
 
-```
-POST /api/admin/test-connection
-```
-
-Tests the database connection by executing a simple query and returns the result. Use this to verify connectivity after infrastructure changes.
+The Admin Settings page includes a **Test Connection** button that verifies the database connection by executing a simple query. Use this to verify connectivity after infrastructure changes or Lakebase maintenance.
 
 ## Operational Procedures
 
@@ -349,3 +242,10 @@ The platform uses Python's standard `logging` module. Key loggers:
 | `domain.health` | Health check results |
 | `middleware.request_id` | Per-request timing and status codes |
 | `middleware.error_handler` | Unhandled exceptions with full stack traces |
+
+## What's Next?
+
+- [App Settings](app-settings) — Configure organization identity, scenarios, and governance
+- [User Management](user-management) — Manage user accounts and RBAC roles
+- [Troubleshooting](troubleshooting) — Resolve specific platform issues by subsystem
+- [Jobs & Pipelines](jobs-pipelines) — Monitor and manage ECL calculation jobs

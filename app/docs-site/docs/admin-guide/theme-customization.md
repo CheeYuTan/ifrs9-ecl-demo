@@ -6,245 +6,109 @@ description: "Customizing the platform appearance with color presets, dark mode,
 
 # Theme Customization
 
-The IFRS 9 ECL Platform provides a flexible theming system that supports light and dark modes, eight built-in color presets, and fully custom brand colors. Theme preferences are persisted per-user in the browser and applied instantly without a page reload.
+The IFRS 9 ECL Platform provides a flexible theming system that supports light and dark modes, eight built-in color presets, and fully custom brand colors. Theme preferences are applied instantly and persisted per-user in the browser.
 
 :::info Who Should Read This
-System administrators responsible for platform appearance, and developers extending the frontend with custom components that need to respect the active theme.
+System administrators responsible for configuring the platform's visual appearance and ensuring it aligns with organizational brand guidelines.
 :::
 
-## Theme Configuration Model
+## Overview
 
-The theme system is driven by a `ThemeConfig` object with three properties:
+The theme system has three configurable dimensions:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `mode` | `'light' \| 'dark'` | Controls whether the UI renders in light or dark mode. |
-| `colors` | `ThemeColors` | An object with `brand`, `brandDark`, and `brandLight` hex values. |
-| `preset` | `string` | The name of the active preset (e.g., `'emerald'`), or `'custom'` for user-defined colors. |
+| Setting | Options | Description |
+|---------|---------|-------------|
+| **Mode** | Light or Dark | Controls the overall appearance — light backgrounds with dark text, or dark backgrounds with light text. |
+| **Color Preset** | 8 built-in presets | A professionally designed color palette applied to buttons, links, accents, and highlights. |
+| **Custom Colors** | Any hex color | Override the preset with your organization's exact brand colors. |
 
-The `ThemeColors` interface defines the three color channels used throughout the platform:
+The default configuration is **Emerald** preset in **Light** mode — a finance-oriented green that conveys stability and professionalism.
 
-```typescript
-interface ThemeColors {
-  brand: string;      // Primary brand color (buttons, links, active states)
-  brandDark: string;  // Darker variant (hover states, focused elements)
-  brandLight: string; // Light variant (backgrounds, subtle highlights)
-}
-```
+## Switching Between Light and Dark Mode
 
-The default configuration ships with:
+Users can toggle between light and dark mode using the theme toggle in the application header. The change takes effect immediately without a page reload.
 
-```typescript
-const DEFAULT_THEME: ThemeConfig = {
-  mode: 'light',
-  colors: PRESETS.emerald,
-  preset: 'emerald',
-};
-```
+- **Light mode**: White backgrounds, dark text — suitable for well-lit office environments and printed reports
+- **Dark mode**: Dark backgrounds, light text — reduces eye strain during extended analysis sessions
+
+:::tip
+Dark mode works well for analysts who spend long periods reviewing ECL dashboards and charts. Light mode is generally preferred for presentations and screen-sharing with auditors.
+:::
 
 ## Built-in Color Presets
 
-Eight professionally designed color presets are available out of the box. Each preset defines a harmonized triad of brand, dark, and light variants.
+Eight professionally designed color presets are available. Each preset defines a harmonized set of primary, dark, and light color variants used throughout the platform for buttons, links, charts, and highlighted areas.
 
-| Preset | Brand | Dark | Light | Use Case |
-|--------|-------|------|-------|----------|
-| **emerald** | `#00D09C` | `#00B386` | `#E6FBF5` | Default. Finance-oriented green conveying stability. |
-| **blue** | `#3B82F6` | `#2563EB` | `#EFF6FF` | Corporate blue. Suitable for conservative institutions. |
-| **purple** | `#8B5CF6` | `#7C3AED` | `#F5F3FF` | Modern aesthetic for innovation-focused teams. |
-| **rose** | `#F43F5E` | `#E11D48` | `#FFF1F2` | Bold and attention-grabbing. Use with caution in audit contexts. |
-| **amber** | `#F59E0B` | `#D97706` | `#FFFBEB` | Warm tone. Works well for warning-oriented dashboards. |
-| **indigo** | `#6366F1` | `#4F46E5` | `#EEF2FF` | Deep blue-purple. Strong contrast for data-dense views. |
-| **cyan** | `#06B6D4` | `#0891B2` | `#ECFEFF` | Cool tone. Good for analytical and reporting interfaces. |
-| **orange** | `#F97316` | `#EA580C` | `#FFF7ED` | Energetic. Useful for development or staging environments. |
+| Preset | Primary Color | Recommended Use Case |
+|--------|--------------|---------------------|
+| **Emerald** (default) | Green (`#00D09C`) | Finance-oriented. Conveys stability — ideal for credit risk platforms. |
+| **Blue** | Blue (`#3B82F6`) | Corporate blue. Suitable for conservative institutions and central banks. |
+| **Purple** | Purple (`#8B5CF6`) | Modern aesthetic. Good for innovation-focused teams and fintech. |
+| **Rose** | Red-pink (`#F43F5E`) | Bold and attention-grabbing. Use with caution in audit contexts. |
+| **Amber** | Yellow (`#F59E0B`) | Warm tone. Works well for warning-oriented dashboards. |
+| **Indigo** | Deep blue (`#6366F1`) | Strong contrast. Effective for data-dense analytical views. |
+| **Cyan** | Teal (`#06B6D4`) | Cool tone. Good for analytical and reporting interfaces. |
+| **Orange** | Orange (`#F97316`) | Energetic. Useful for development or staging environments to distinguish from production. |
 
-To apply a preset programmatically:
+To change the preset, navigate to **Settings > Theme** in the application and select the desired preset from the color palette grid. The change is applied immediately across all pages.
 
-```typescript
-const { setPreset } = useTheme();
-setPreset('blue');
-```
+## Custom Brand Colors
 
-## The `useTheme` Hook
+When the built-in presets do not match your organization's brand guidelines, you can define custom colors. The platform uses three color values:
 
-All theme operations are accessed through the `useTheme` React hook, exported from `src/lib/theme.tsx`. This hook provides the current theme state and mutation functions.
+| Color Role | Where It Appears | Example |
+|-----------|-----------------|---------|
+| **Primary brand** | Buttons, links, active navigation tabs, chart accents | Your main corporate color |
+| **Brand dark** | Hover states, focused elements, emphasis borders | A darker shade of your primary color |
+| **Brand light** | Subtle backgrounds, highlighted panels, notification backgrounds | A very light tint of your primary color |
 
-```typescript
-const {
-  theme,           // Current ThemeConfig object
-  setMode,         // (mode: 'light' | 'dark') => void
-  toggleMode,      // () => void — switches between light and dark
-  setPreset,       // (preset: string) => void — applies a built-in preset
-  setCustomColors, // (colors: ThemeColors) => void — applies custom colors
-  isDark,          // boolean — shorthand for theme.mode === 'dark'
-} = useTheme();
-```
+To apply custom colors, navigate to **Settings > Theme**, select **Custom**, and enter the three hex color values. The platform validates that all values are valid 6-digit hex colors before applying.
 
-### Setting Mode
-
-Switch between light and dark mode explicitly:
-
-```typescript
-setMode('dark');   // Force dark mode
-setMode('light');  // Force light mode
-toggleMode();      // Toggle from current to opposite
-```
-
-### Applying Custom Colors
-
-When the built-in presets do not match your organization's brand guidelines, you can supply arbitrary hex colors:
-
-```typescript
-setCustomColors({
-  brand: '#1A5276',
-  brandDark: '#154360',
-  brandLight: '#EBF5FB',
-});
-```
-
-When custom colors are applied, the `preset` field is automatically set to `'custom'` to distinguish it from the built-in presets.
-
-## LocalStorage Persistence
-
-Theme preferences are persisted in the browser's `localStorage` under the key **`ecl-theme`**. The stored value is a JSON-serialized `ThemeConfig` object.
-
-On application load, the `ThemeProvider` attempts to read from `localStorage`. If a stored configuration exists, it is merged with the default theme to ensure forward compatibility when new fields are added. If no stored configuration is found, or if the stored JSON is malformed, the default emerald light theme is applied.
-
-```
-// Example localStorage entry
-localStorage.getItem('ecl-theme')
-// → '{"mode":"dark","colors":{"brand":"#3B82F6","brandDark":"#2563EB","brandLight":"#EFF6FF"},"preset":"blue"}'
-```
-
-To reset a user's theme to defaults, clear the storage key:
-
-```javascript
-localStorage.removeItem('ecl-theme');
-location.reload();
-```
-
-:::caution
-Theme preferences are per-browser, per-user. They are not synchronized across devices or stored server-side. If you need organization-wide defaults, configure the `DEFAULT_THEME` constant in `src/lib/theme.tsx`.
+:::tip
+When choosing custom colors, ensure sufficient contrast between text and background elements. The primary brand color should be legible as text on both white and dark backgrounds. A good rule of thumb: the dark variant should be 10-20% darker than the primary, and the light variant should be a very pale tint (90-95% white).
 :::
 
-## CSS Variables
+## How Theme Preferences Are Stored
 
-When the theme changes, three CSS custom properties are updated on the `document.documentElement` (the `html` root element):
+Theme preferences are stored locally in each user's web browser. This means:
 
-| CSS Variable | Source | Example Value |
-|-------------|--------|---------------|
-| `--color-brand` | `colors.brand` | `#00D09C` |
-| `--color-brand-dark` | `colors.brandDark` | `#00B386` |
-| `--color-brand-light` | `colors.brandLight` | `#E6FBF5` |
+- Each user can have their own preferred theme without affecting others
+- Preferences persist across browser sessions (closing and reopening the browser)
+- Preferences are **not** synchronized across devices — a user's laptop and desktop may have different themes
+- Clearing browser data resets the theme to the organizational default
 
-These variables are set via `style.setProperty()` directly on the root element, ensuring they cascade into all components regardless of CSS specificity.
+:::caution
+Theme preferences are per-browser, per-user. They are not stored on the server. If you need a consistent appearance across all users (for example, during a regulatory audit), coordinate with your team to use the same preset, or set the organizational default as described below.
+:::
 
-Use them in custom CSS or inline styles:
+## Setting Organizational Defaults
 
-```css
-.custom-header {
-  background-color: var(--color-brand);
-  border-bottom: 2px solid var(--color-brand-dark);
-}
+To change the default theme for all new users (and any user who has not customized their theme), the frontend must be rebuilt with an updated default configuration. This is a deployment-level change.
 
-.highlight-panel {
-  background-color: var(--color-brand-light);
-}
-```
+**Steps:**
 
-## Dark Mode Implementation
+1. Identify the desired default mode (light or dark) and preset (or custom colors)
+2. Request a frontend rebuild with the updated default configuration from your development team
+3. Redeploy the application
 
-Dark mode is implemented via a `dark` CSS class on the root `html` element. When dark mode is active, the class is added; when light mode is active, it is removed.
+After redeployment, any user who has not previously customized their theme will see the new defaults. Existing users who have already set a preference are not affected — their stored preference takes precedence.
 
-```javascript
-// Internal implementation
-if (mode === 'dark') {
-  document.documentElement.classList.add('dark');
-} else {
-  document.documentElement.classList.remove('dark');
-}
-```
-
-This approach is fully compatible with Tailwind CSS's dark mode variant system. The platform's Tailwind configuration uses `darkMode: 'class'`, which means any utility prefixed with `dark:` will activate when the `dark` class is present on the root `html` element.
-
-## Tailwind CSS Integration
-
-All platform components use Tailwind CSS utility classes that respond to the theme configuration.
-
-### Using Brand Colors in Tailwind
-
-The CSS variables are mapped to Tailwind's color system via the `tailwind.config.js` file. Components can reference brand colors as standard Tailwind utilities:
-
-```html
-<!-- These classes resolve to the active theme's brand color -->
-<button class="bg-brand hover:bg-brand-dark text-white">
-  Run Backtest
-</button>
-
-<div class="bg-brand-light border border-brand rounded-lg p-4">
-  Highlighted content area
-</div>
-```
-
-### Dark Mode Variants
-
-Write dark-mode-aware styles using Tailwind's `dark:` prefix:
-
-```html
-<div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <h2 class="text-brand dark:text-brand-light">ECL Summary</h2>
-</div>
-```
-
-### Common Patterns
-
-| Element | Light Mode | Dark Mode |
-|---------|-----------|-----------|
-| Page background | `bg-white` | `dark:bg-gray-900` |
-| Card background | `bg-gray-50` | `dark:bg-gray-800` |
-| Primary text | `text-gray-900` | `dark:text-gray-100` |
-| Secondary text | `text-gray-600` | `dark:text-gray-400` |
-| Borders | `border-gray-200` | `dark:border-gray-700` |
-| Brand accent | `text-brand` | `dark:text-brand-light` |
-
-## ThemeProvider Setup
-
-The `ThemeProvider` component must wrap the entire application to make the `useTheme` hook available. This is already configured in the platform's root layout, but if you are embedding platform components in another application, ensure the provider is present:
-
-```tsx
-import { ThemeProvider } from '@/lib/theme';
-
-function App() {
-  return (
-    <ThemeProvider>
-      {/* All child components can use useTheme() */}
-      <YourApplicationLayout />
-    </ThemeProvider>
-  );
-}
-```
-
-The provider initializes the theme from `localStorage` on mount, applies it to the DOM, and re-applies on every change. The `useEffect` inside the provider ensures that both the CSS variables and the `dark` class are kept in sync with the React state.
-
-## Organizational Defaults
-
-To change the default theme for all new users in your organization, modify the `DEFAULT_THEME` constant in `frontend/src/lib/theme.tsx`:
-
-```typescript
-const DEFAULT_THEME: ThemeConfig = {
-  mode: 'dark',               // Organization prefers dark mode
-  colors: PRESETS.blue,        // Corporate blue
-  preset: 'blue',
-};
-```
-
-After rebuilding and redeploying the frontend, any user who has not previously customized their theme will see the new defaults. Existing users who have a stored preference in `localStorage` are not affected.
+:::info
+Changing organizational defaults requires a frontend rebuild and redeployment. It cannot be done through the admin UI alone. For details on the frontend build process, see the [Developer Reference](../developer/architecture).
+:::
 
 ## Troubleshooting Theme Issues
 
 | Symptom | Cause | Resolution |
 |---------|-------|------------|
-| Theme resets on every page load | `localStorage` is blocked or full | Check browser privacy settings; clear storage and retry. |
-| Dark mode flickers on load | Theme is applied after initial render | Ensure `ThemeProvider` is at the root of the component tree, not lazy-loaded. |
-| CSS variables not updating | Component uses hardcoded colors | Replace hardcoded hex values with `var(--color-brand)` references. |
-| Custom colors not persisting | `setCustomColors` called with invalid hex | Ensure all three color values are valid 6-digit hex strings. |
-| Tailwind dark styles not applying | `darkMode` not set to `'class'` in config | Verify `tailwind.config.js` contains `darkMode: 'class'`. |
+| Theme resets on every page load | Browser `localStorage` is blocked or full | Check the browser's privacy settings. Ensure the platform's domain is not blocked from storing data. Clear browser storage and retry. |
+| Dark mode flickers briefly on load | Theme is applied after the initial page render | This is a known cosmetic issue during page loads. It does not affect functionality. |
+| Colors do not match the selected preset | A previous custom color selection is overriding the preset | Re-select the desired preset from the theme settings. This clears any custom color override. |
+| Custom colors are not saving | Invalid hex color values | Ensure all three color values are valid 6-digit hex strings starting with `#` (e.g., `#1A5276`). |
+| Different users see different themes | Theme preferences are per-browser | This is expected behavior. Each user's preference is independent. Coordinate with users if a consistent appearance is required. |
+
+## What's Next?
+
+- [App Settings](app-settings) — Configure organization name, currency, scenarios, and governance structure
+- [System Administration](system-administration) — Monitor platform health and manage database connections
+- [Troubleshooting](troubleshooting) — Resolve common platform issues

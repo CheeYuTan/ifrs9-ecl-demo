@@ -88,129 +88,39 @@ generate_data --> data_processing
 
 Generates a synthetic loan portfolio with borrower data, payment histories, default events, and macroeconomic scenarios. Use this for demonstrations, testing, and development environments only. Production deployments should use the Data Mapping wizard to ingest real data.
 
-## Job API
+## Triggering Jobs
 
-### Trigger a Job
+Jobs are triggered from the **Jobs** page in the application. Select a job type and optionally override parameters before running.
 
-```
-POST /api/jobs/trigger
-```
+### Available Parameters
 
-**Request body:**
+When triggering a job, you can override these parameters for the run:
 
-```json
-{
-  "job_key": "satellite_ecl_sync",
-  "enabled_models": ["linear_regression", "xgboost"]
-}
-```
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| **Enabled Models** | All enabled in config | Select which satellite models to train for this run |
+| **Simulation Count** | 1,000 | Number of Monte Carlo simulation paths |
+| **PD-LGD Correlation** | 0.30 | Correlation between PD and LGD shocks |
+| **Aging Factor** | 0.08 | Annual PD aging adjustment |
+| **PD Floor / Cap** | 0.001 / 0.95 | Bounds on simulated PD values |
+| **LGD Floor / Cap** | 0.01 / 0.95 | Bounds on simulated LGD values |
+| **Random Seed** | None | Fix the seed for reproducible results |
+| **Scenario Weights** | Config default | Override probability weights for this run |
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `job_key` | string | Yes | One of: `satellite_ecl_sync`, `full_pipeline`, `monte_carlo`, `demo_data` |
-| `enabled_models` | string[] | No | Override enabled models for satellite jobs. Defaults to all enabled models in config. |
-| `n_simulations` | int | No | Monte Carlo simulation count (default: 1000) |
-| `pd_lgd_correlation` | float | No | PD-LGD correlation (default: 0.30) |
-| `aging_factor` | float | No | Aging factor (default: 0.08) |
-| `pd_floor` | float | No | PD floor (default: 0.001) |
-| `pd_cap` | float | No | PD cap (default: 0.95) |
-| `lgd_floor` | float | No | LGD floor (default: 0.01) |
-| `lgd_cap` | float | No | LGD cap (default: 0.95) |
-| `random_seed` | int | No | Random seed for reproducible simulations |
-| `scenario_weights` | object | No | Scenario weight overrides (e.g., `{"baseline": 0.5, "adverse": 0.3, "severe": 0.2}`) |
+Per-run overrides do not change the persisted configuration — they apply only to that specific run.
 
-**Response:**
+### Monitoring Job Runs
 
-```json
-{
-  "run_id": 123456,
-  "job_id": 789,
-  "models": ["linear_regression", "xgboost"],
-  "parallel": true,
-  "run_url": "https://workspace.databricks.com/?o=12345#job/789/run/123456"
-}
-```
+After triggering a job, the Jobs page shows real-time status including:
 
-### Get Run Status
+- Overall job state (Running, Succeeded, Failed)
+- Per-task breakdown — each satellite model task shows its individual status
+- Execution duration
+- Direct link to the Databricks workspace for detailed logs
 
-```
-GET /api/jobs/run/{run_id}
-```
+### Job Provisioning
 
-Returns detailed status for a specific job run, including per-task breakdown:
-
-```json
-{
-  "run_id": 123456,
-  "job_id": 789,
-  "lifecycle_state": "RUNNING",
-  "result_state": null,
-  "state_message": "",
-  "run_url": "https://...",
-  "start_time": 1704067200000,
-  "end_time": null,
-  "run_duration_ms": 45000,
-  "tasks": [
-    {
-      "task_key": "model_xgboost",
-      "lifecycle_state": "RUNNING",
-      "result_state": null,
-      "run_url": "https://...",
-      "execution_duration_ms": 30000
-    },
-    {
-      "task_key": "model_linear_regression",
-      "lifecycle_state": "TERMINATED",
-      "result_state": "SUCCESS",
-      "run_url": "https://...",
-      "execution_duration_ms": 15000
-    }
-  ]
-}
-```
-
-### List Job Runs
-
-```
-GET /api/jobs/runs/{job_key}?limit=10
-```
-
-Returns the most recent runs for a specific job key. Useful for monitoring job history and identifying failures.
-
-### Get Jobs Configuration
-
-```
-GET /api/jobs/config
-```
-
-Returns the current state of all managed jobs:
-
-```json
-{
-  "available_models": ["linear_regression", "logistic_regression", "..."],
-  "job_ids": { "satellite_ecl_sync": 789, "full_pipeline": 790 },
-  "workspace_url": "https://workspace.databricks.com",
-  "workspace_id": "12345",
-  "scripts_base": "/Workspace/Users/admin@company.com/ifrs9-ecl-demo/scripts",
-  "jobs": {
-    "satellite_ecl_sync": {
-      "job_id": 789,
-      "name": "IFRS9 ECL - Satellite Model + ECL + Sync",
-      "task_count": 11,
-      "paths_ok": true,
-      "status": "ok"
-    }
-  }
-}
-```
-
-### Provision Jobs
-
-```
-POST /api/jobs/provision
-```
-
-Force-creates or updates all four managed jobs with the correct notebook paths and serverless environment configuration. This is normally called automatically on first trigger, but you can call it explicitly to pre-provision jobs or to update notebook paths after a code redeployment.
+Jobs are auto-provisioned on first trigger — the platform creates the Databricks workflow with the correct notebook paths and serverless environment. After a code redeployment, use the **Provision Jobs** button on the Jobs page to update notebook paths.
 
 ## Monte Carlo Job Parameters
 
@@ -226,64 +136,26 @@ The Monte Carlo job accepts parameters that control simulation behavior. These p
 | `random_seed` | int | None | Fix the random seed for reproducible results. Omit for non-deterministic runs. |
 | `scenario_weights` | JSON | Config default | Override scenario probability weights. Must be a JSON object mapping scenario keys to weights that sum to 1.0. |
 
-Example: trigger a production Monte Carlo run with increased simulations and a fixed seed:
+:::tip
+For production period-end runs, increase simulations to 5,000-10,000 and set a random seed for reproducibility. For development and testing, 1,000 simulations is sufficient.
+:::
 
-```json
-POST /api/jobs/trigger
-{
-  "job_key": "monte_carlo",
-  "n_simulations": 10000,
-  "random_seed": 42,
-  "scenario_weights": {
-    "baseline": 0.40,
-    "mild_downturn": 0.20,
-    "adverse": 0.20,
-    "severely_adverse": 0.10,
-    "tail_risk": 0.10
-  }
-}
-```
+## Scripts Base Path
 
-## Scripts Base Path Detection
+The platform needs to know where pipeline notebook scripts are deployed in the workspace. It uses an automatic four-step detection strategy:
 
-The platform needs to know where pipeline notebook scripts are deployed in the workspace. It uses a four-step detection strategy:
+1. **Admin config override** — If you set the scripts base path explicitly in **Admin > Jobs Configuration**, that value is used. This is the recommended approach for production.
+2. **App source code path** — Derived from the Databricks App deployment location.
+3. **App info lookup** — Queried from the Databricks Apps API.
+4. **Workspace convention** — Falls back to the standard user workspace path.
 
-1. **Admin config override**: Check `jobs.scripts_base_path` in admin configuration. If set, use this value. This is the recommended approach for production.
-2. **App source code path**: Derive from `DATABRICKS_SOURCE_CODE_PATH` environment variable. The scripts folder is assumed to be a sibling of the app source code folder.
-3. **App info lookup**: Query the Databricks Apps API to get the active deployment's source code path and derive the scripts folder.
-4. **Workspace convention**: Fall back to `/Workspace/Users/{current_user}/ifrs9-ecl-demo/scripts`.
-
-To set an explicit scripts base path:
-
-```json
-PUT /api/admin/config/jobs
-{
-  "scripts_base_path": "/Workspace/Repos/production/ifrs9-ecl/scripts"
-}
-```
+If auto-detection is not finding the correct path, set it explicitly in **Admin > Jobs Configuration** under the **Scripts Base Path** field.
 
 ## Compute Configuration
 
-Jobs default to **serverless compute**, which requires no cluster management and provides fast startup times. The compute configuration is stored in the `jobs` config section:
+Jobs default to **serverless compute**, which requires no cluster management and provides fast startup times. The serverless environment automatically includes the required Python dependencies (scikit-learn, xgboost, optuna, psycopg2-binary).
 
-```json
-{
-  "compute": {
-    "use_serverless": true,
-    "cluster_spec": ""
-  }
-}
-```
-
-All jobs specify a serverless environment with the following Python dependencies:
-
-- `scikit-learn`
-- `xgboost`
-- `optuna`
-- `psycopg2-binary`
-- `faker`
-
-If you need to use a dedicated cluster instead of serverless, set `use_serverless` to `false` and provide a cluster specification in `cluster_spec`.
+If you need to use a dedicated cluster instead of serverless, change the compute setting in **Admin > Jobs Configuration** to use a cluster specification.
 
 ## Job Permissions
 
@@ -306,82 +178,42 @@ The period-end close pipeline is a governed workflow that validates data, verifi
 | 5 | `report_generation` | Report Generation | Validates that report generation prerequisites are met. |
 | 6 | `attribution` | Attribution Computation | Validates that ECL attribution/waterfall decomposition prerequisites are met. |
 
-### Pipeline API
+### Running the Pipeline
 
-**Start a pipeline:**
+The period-end close pipeline is accessed from the project's workflow page. To run it:
 
-```
-POST /api/period-close/start
-{
-  "project_id": "PRJ-001",
-  "triggered_by": "admin@company.com"
-}
-```
-
-**Execute a step:**
-
-```
-POST /api/period-close/execute-step
-{
-  "run_id": "PIPE-PRJ-001-20251231120000",
-  "step_key": "data_freshness"
-}
-```
-
-**Complete a pipeline:**
-
-```
-POST /api/period-close/complete
-{
-  "run_id": "PIPE-PRJ-001-20251231120000"
-}
-```
-
-**Get pipeline run:**
-
-```
-GET /api/period-close/run/{run_id}
-```
+1. Navigate to the project's workflow page
+2. Click **Start Period-End Close**
+3. Execute each step sequentially — the pipeline guides you through the six steps in order
+4. Review the results of each step before proceeding to the next
+5. Once all steps complete successfully, click **Complete Pipeline**
 
 ### Pipeline Step States
 
-Each step transitions through the following states:
+Each step transitions through the following states: **Pending** (not yet started) to **Running** (executing checks) to **Completed** (all checks passed) or **Failed** (one or more checks did not pass).
 
-```
-pending --> running --> completed
-                   \-> failed
-```
-
-When a step fails, it records the error message and duration. Subsequent steps can still be attempted, but a pipeline with any failed step should not be used for sign-off.
+When a step fails, the pipeline shows the specific error message. Subsequent steps can still be attempted, but a pipeline with any failed step should not be used for sign-off. Investigate and resolve failures before proceeding.
 
 ### Pipeline Health Monitoring
 
-```
-GET /api/period-close/health/{project_id}
-```
+The pipeline dashboard shows a health summary for each project, including:
 
-Returns a health summary for a project's pipeline history:
-
-```json
-{
-  "last_run": { "run_id": "PIPE-PRJ-001-...", "status": "completed", "..." },
-  "total_runs": 3,
-  "last_status": "completed",
-  "last_duration": 45.2,
-  "recent_runs": [ "..." ]
-}
-```
-
-Use this endpoint to build monitoring dashboards and alerting rules. Key metrics to monitor:
-
-- **last_status**: Should be `completed` after each reporting period
-- **last_duration**: Track execution time trends to detect performance degradation
-- **failed steps**: Any failed step requires investigation before sign-off
+- **Last run status** — Should be "Completed" after each reporting period
+- **Execution duration** — Track trends to detect performance degradation
+- **Total runs** — History of all pipeline executions for the project
+- **Failed steps** — Any failed step requires investigation before sign-off
 
 ## Best Practices
 
 - **Pre-provision jobs** after each deployment using `POST /api/jobs/provision` to ensure notebook paths are current.
 - **Use the satellite_ecl_sync job** for routine model refreshes. Reserve the full_pipeline job for period-end runs where data processing must also execute.
 - **Set a random seed** for production Monte Carlo runs to ensure reproducibility. Run without a seed during development for variety in results.
-- **Monitor job completion** via the run status API or the Databricks workspace UI. Set up alerting on job failures for production environments.
+- **Monitor job completion** via the Jobs page or the Databricks workspace UI. Set up alerting on job failures for production environments.
 - **Run the period-end close pipeline** sequentially through all six steps. Do not skip steps, even if you believe the data is correct. The pipeline provides an auditable record that all checks passed.
+
+## What's Next?
+
+- [Model Configuration](model-configuration) — Configure the satellite models and parameters used by these jobs
+- [App Settings](app-settings) — Define scenarios and governance thresholds used during period-end close
+- [System Administration](system-administration) — Monitor platform health and job infrastructure
+- [Troubleshooting](troubleshooting) — Resolve job execution failures and script path issues

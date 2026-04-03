@@ -1,69 +1,74 @@
-# Sprint 6 Handoff: Domain Logic — Workflow, Queries, Attribution, Validation (Iteration 2)
+# Sprint 6 Handoff: Admin Guide — Complete (9 Pages)
 
 ## What Was Built
 
-196 tests covering 8 domain modules (189 original + 7 new in iteration 2):
+Complete rewrite of all 9 Admin Guide documentation pages with strict persona compliance — removing all developer-facing code (Python, TypeScript, CSS, SQL DDL, JSON API payloads) and rewriting in admin-oriented plain language. Every page now has "Who Should Read This" admonitions, cross-references, and "What's Next?" sections.
 
-| Module | Tests | Coverage Focus |
-|--------|-------|---------------|
-| `domain/workflow.py` | 27 | State machine, step validation, create/advance/reset/sign-off, audit events |
-| `domain/queries.py` | 30 | All 27 query functions with SQL structure + column verification |
-| `domain/attribution.py` | 20 | Full compute_attribution, waterfall sum-to-total, materiality, overlays |
-| `domain/validation_rules.py` | 39 | D7-D10, DA-1 to DA-6, M-R3, M-R7, G-R4, boundary conditions |
-| `domain/data_mapper.py` | 22 | _safe_identifier, type mapping, validate/suggest/get_mapping_status |
-| `domain/model_runs.py` | 10 | Cohort queries, ECL drill-down explicit dimension, upsert + insert |
-| `domain/audit_trail.py` | 7 | Hash computation, chain verification (multi-entry, tampering) |
-| `domain/config_audit.py` | 10 | Config diff time ranges, JSON parsing, timestamp conversion |
+## Pages Delivered
 
-## Iteration 2 Fixes (All 5 Evaluator Issues Resolved)
+| Page | Lines | Key Changes |
+|------|-------|------------|
+| setup-installation.md | 251 | Replaced JSON health check responses with plain descriptions; added What's Next |
+| data-mapping.md | 199 | Replaced API endpoint/JSON sections with admin wizard walkthrough; added What's Next |
+| model-configuration.md | 158 | Replaced JSON config PUT examples with UI navigation instructions; added What's Next |
+| app-settings.md | 167 | Major rewrite — removed SQL DDL, JSON payloads, API reference section; admin-focused settings reference |
+| jobs-pipelines.md | 219 | Replaced JSON request/response bodies with parameter tables and UI instructions; added What's Next |
+| theme-customization.md | 114 | Major rewrite — removed all TypeScript, CSS, JavaScript, HTML code; admin-only perspective |
+| system-administration.md | 251 | Replaced JSON responses and code blocks with plain descriptions; added What's Next |
+| user-management.md | 192 | Major rewrite — removed Python code, SQL DDL, JSON payloads; admin user management focus |
+| troubleshooting.md | 307 | Replaced JSON config snippets and grep commands with UI-based instructions; added What's Next |
 
-1. **Strengthened 6 thin query tests** (ISSUE-S6-1): `get_vintage_by_product`, `get_concentration_by_product_stage`, `get_ecl_by_scenario_product`, `get_dq_results`, `get_dq_summary`, `get_gl_reconciliation` now provide realistic mock data, verify column structure, and assert SQL keywords (GROUP BY, table names, ORDER BY)
+**Total: 9 pages, 1,858 lines**
 
-2. **Waterfall sum-to-total test** (ISSUE-S6-2): `test_waterfall_components_sum_to_ecl_change` — IFRS 7.35I compliance verification
+## Persona Compliance Verification
 
-3. **Residual materiality boolean test** (ISSUE-S6-3): `test_residual_within_materiality` — verifies `within_materiality` is a boolean reflecting 5% threshold
+Zero code blocks of the following types remain in any admin guide page:
+- Python (`python`)
+- TypeScript/JavaScript (`typescript`, `tsx`, `javascript`)
+- CSS (`css`)
+- HTML (`html`)
+- SQL (`sql`)
+- JSON (`json`)
 
-4. **get_mapping_status tests** (ISSUE-S6-4): 2 tests — status dict keys/counts + graceful DB error handling
-
-5. **2 additional model_runs tests** (ISSUE-S6-5): explicit dimension + insert new run
-
-6. **Bonus**: `test_prior_attribution_returns_none` — validates opening==closing when no prior exists
+Only admin-relevant content remains: plain-language descriptions, configuration tables, YAML deployment config (in setup-installation only), and text-based flow diagrams.
 
 ## How to Test
 
+Build verification:
 ```bash
-cd "/Users/steven.tan/Expected Credit Losses/app"
-source .venv/bin/activate
-python -m pytest tests/unit/test_qa_sprint_6_domain_logic.py -v
+cd docs-site && npm run build
 ```
 
-## Test Results
+Navigate the built site to verify:
+- All 9 admin guide pages load correctly
+- Sidebar shows all pages in correct order (positions 1-9)
+- All internal cross-references resolve (build uses `onBrokenLinks: 'throw'`)
+- No code blocks visible in any admin guide page
+
+## Build Results
 
 ```
-Sprint 6 tests: 196 passed in 10.25s
-Full suite:     3,608 passed, 61 skipped, 0 failures in 114.03s
-Regressions:    0
+npm run build → SUCCESS
+Errors: 0
+Warnings: 0
+Deployed to: docs_site/
 ```
-
-## Contract Criteria Status
-
-| Module | Required | Delivered | Status |
-|--------|----------|-----------|--------|
-| Workflow | 25+ | 27 | ✅ |
-| Queries | 30+ | 30 | ✅ (6 strengthened with SQL assertions) |
-| Attribution | 20+ | 20 | ✅ (+3 from iter 1) |
-| Validation | 20+ | 39 | ✅ |
-| Data Mapper | 20+ | 22 | ✅ (+2 from iter 1) |
-| Audit/Config | 15+ | 17 | ✅ |
-| Model Runs | 10+ | 10 | ✅ (+2 from iter 1) |
 
 ## Known Limitations
 
-- `domain/data_mapper.py`: UC browsing functions require live Databricks SDK — deferred to Sprint 9 integration tests
-- `domain/queries.py`: SQL correctness verified structurally but not against live DB — integration testing in Sprint 9
+- Screenshot placeholders referenced in some pages but no actual screenshots captured yet (deferred to Visual QA)
+- The `setup-installation.md` page retains YAML code blocks for `app.yaml` — this is deployment configuration that admins need, not developer code
 
 ## Files Changed
 
-- `tests/unit/test_qa_sprint_6_domain_logic.py` — 7 new tests, 6 tests strengthened
-- `harness/state.json` — updated test counts
+- `docs-site/docs/admin-guide/setup-installation.md` — light cleanup, added What's Next
+- `docs-site/docs/admin-guide/data-mapping.md` — replaced API/JSON wizard with admin walkthrough, added What's Next
+- `docs-site/docs/admin-guide/model-configuration.md` — replaced JSON config examples with UI instructions, added What's Next
+- `docs-site/docs/admin-guide/app-settings.md` — major rewrite, removed SQL/JSON/API
+- `docs-site/docs/admin-guide/jobs-pipelines.md` — replaced JSON payloads with tables, added What's Next
+- `docs-site/docs/admin-guide/theme-customization.md` — major rewrite, admin-only perspective
+- `docs-site/docs/admin-guide/system-administration.md` — replaced JSON responses, added What's Next
+- `docs-site/docs/admin-guide/user-management.md` — major rewrite, removed all code
+- `docs-site/docs/admin-guide/troubleshooting.md` — replaced code snippets with UI instructions, added What's Next
+- `harness/contracts/sprint-6.md` — sprint contract
 - `harness/handoffs/sprint-6-handoff.md` — this file

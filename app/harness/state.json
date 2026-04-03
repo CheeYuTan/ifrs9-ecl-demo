@@ -5,59 +5,77 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 5,
+  "current_sprint": 6,
   "planned_sprints": 8,
   "remaining_spec_items": [
-    "Sprint 6: Admin Guide — Complete",
-    "Sprint 7: Developer Reference — Complete",
+    "Sprint 7: Developer Reference \u2014 Complete",
     "Sprint 8: Homepage, Navigation & Polish"
   ],
   "sprints_completed": [
     {
       "sprint": 1,
-      "feature": "Foundation — Restructure & Getting Started",
+      "feature": "Foundation \u2014 Restructure & Getting Started",
       "score": 9.5,
       "debt": false,
-      "trajectory": [8.9, 9.5],
+      "trajectory": [
+        8.9,
+        9.5
+      ],
       "iterations": 2
     },
     {
       "sprint": 2,
-      "feature": "User Guide — Workflow Steps 1-4",
+      "feature": "User Guide \u2014 Workflow Steps 1-4",
       "score": 9.4,
       "debt": true,
-      "trajectory": [9.4],
+      "trajectory": [
+        9.4
+      ],
       "iterations": 1
     },
     {
       "sprint": 3,
-      "feature": "User Guide — Workflow Steps 5-8",
+      "feature": "User Guide \u2014 Workflow Steps 5-8",
       "score": 9.5,
       "debt": false,
-      "trajectory": [9.5],
+      "trajectory": [
+        9.5
+      ],
       "iterations": 1
     },
     {
       "sprint": 4,
-      "feature": "User Guide — Feature Pages Part 1",
+      "feature": "User Guide \u2014 Feature Pages Part 1",
       "score": 9.5,
       "debt": false,
-      "trajectory": [9.5],
+      "trajectory": [
+        9.5
+      ],
+      "iterations": 1
+    },
+    {
+      "sprint": 5,
+      "score": 9.68,
+      "debt": false,
+      "trajectory": [
+        9.68
+      ],
       "iterations": 1
     }
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 4,
-  "last_doc_sprint": 0,
-  "last_install_test": 0,
-  "last_integration_test": 0,
+  "feature_sprints_since_doc_sprint": 0,
+  "last_doc_sprint": 5,
+  "last_install_test": 5,
+  "last_integration_test": 5,
   "context_resets": 0,
-  "current_iteration": 4,
+  "current_iteration": 0,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd docs-site && npm start",
   "build_command": "cd docs-site && npm run build",
   "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 5 iteration 4: Verified all 5 Sprint 5 pages (962 lines total), build 0 errors with onBrokenLinks: throw, deployed to docs_site/. All prior bug fixes intact. No new issues found.",
-  "last_updated": "2026-04-04T04:30:00"
+  "last_action": "Sprint 6 iter 1: Rewrote all 9 Admin Guide pages for persona compliance — removed all Python/TS/CSS/SQL/JSON code blocks, added What's Next sections, build 0 errors, deployed to docs_site/.",
+  "last_updated": "2026-04-04T06:00:00",
+  "score_trajectory": []
 }

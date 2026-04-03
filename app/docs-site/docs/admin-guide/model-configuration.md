@@ -40,32 +40,17 @@ Satellite models link macroeconomic variables (GDP growth, unemployment, inflati
 
 ### Enabling and Disabling Models
 
-Each model has an `enabled` flag. When a satellite model job runs, only enabled models are trained and evaluated. To disable a model:
-
-```json
-{
-  "satellite_models": {
-    "xgboost": { "enabled": true, "label": "XGBoost" },
-    "elastic_net": { "enabled": false, "label": "Elastic Net" }
-  }
-}
-```
+Each model has an enabled/disabled toggle on the Model Configuration page. When a satellite model job runs, only enabled models are trained and evaluated.
 
 Disabling models that are not relevant to your portfolio reduces job execution time without affecting the accuracy of enabled models. The aggregation step combines results only from models that completed successfully.
 
+:::tip
+For initial development and testing, enable only 2-3 models (e.g., Linear Regression, Ridge Regression, XGBoost) to reduce job runtime. Enable the full suite for production period-end calculations.
+:::
+
 ### Model Selection During Job Execution
 
-When triggering a satellite model job via the API, you can override the enabled model list per run:
-
-```json
-POST /api/jobs/trigger
-{
-  "job_key": "satellite_ecl_sync",
-  "enabled_models": ["linear_regression", "ridge_regression", "xgboost"]
-}
-```
-
-This override applies only to that specific run. The persisted configuration is not changed.
+When triggering a satellite model job from the Jobs page, you can override the enabled model list for that specific run. This override applies only to that run — the persisted configuration is not changed. See [Jobs & Pipelines](jobs-pipelines) for details.
 
 ## Default Parameters
 
@@ -84,19 +69,7 @@ Default parameters govern Monte Carlo simulation behavior and PD/LGD bounds. The
 
 ### Adjusting Parameters
 
-Update default parameters through the admin configuration API:
-
-```json
-PUT /api/admin/config/model
-{
-  "default_parameters": {
-    "n_simulations": 5000,
-    "pd_lgd_correlation": 0.35,
-    "pd_floor": 0.0005,
-    "pd_cap": 0.99
-  }
-}
-```
+Update default parameters through the **Admin > Model Configuration** page. Changes are saved immediately and recorded in the configuration audit log.
 
 :::caution
 Increasing `n_simulations` significantly (above 10,000) will increase Monte Carlo job runtime proportionally. For initial development and testing, 1,000 simulations provides reasonable accuracy. For production period-end reporting, 5,000-10,000 simulations is typical.
@@ -132,18 +105,7 @@ SICR thresholds should reflect your institution's credit risk appetite and histo
 - **Mortgage portfolios**: Increase `pd_relative_threshold` to 2.5-3.0 because mortgage PDs are naturally low and volatile
 - **Microfinance portfolios**: Lower `pd_absolute_threshold` to 0.003 for greater sensitivity to small PD changes
 
-```json
-PUT /api/admin/config/model
-{
-  "sicr_thresholds": {
-    "stage_1_max_dpd": 30,
-    "stage_2_max_dpd": 90,
-    "stage_3_min_dpd": 90,
-    "pd_relative_threshold": 2.5,
-    "pd_absolute_threshold": 0.003
-  }
-}
-```
+Update SICR thresholds through the **Admin > Model Configuration** page under the SICR Thresholds section. Changes are tracked in the configuration audit log and take effect on the next model run.
 
 ## LGD Assumptions
 
@@ -161,22 +123,7 @@ Loss Given Default assumptions are configured per product type. Each product has
 
 ### Adding Custom Products
 
-If your portfolio contains product types not listed above, add them to the LGD assumptions:
-
-```json
-PUT /api/admin/config/model
-{
-  "lgd_assumptions": {
-    "credit_card": { "lgd": 0.60, "cure_rate": 0.15 },
-    "residential_mortgage": { "lgd": 0.15, "cure_rate": 0.40 },
-    "commercial_loan": { "lgd": 0.25, "cure_rate": 0.30 },
-    "personal_loan": { "lgd": 0.50, "cure_rate": 0.20 },
-    "auto_loan": { "lgd": 0.35, "cure_rate": 0.25 },
-    "microfinance_group": { "lgd": 0.45, "cure_rate": 0.18 },
-    "trade_finance": { "lgd": 0.20, "cure_rate": 0.35 }
-  }
-}
-```
+If your portfolio contains product types not listed above, add them through the **Admin > Model Configuration** page under the LGD Assumptions section. For each new product type, provide a base LGD estimate and a cure rate.
 
 :::warning
 Product type keys in the LGD assumptions must exactly match the `product_type` values in your `loan_tape` data. If a loan has a `product_type` that is not found in the LGD assumptions, the platform will use a fallback LGD of 0.45 (45%), which may not reflect your portfolio's actual risk profile.
@@ -184,13 +131,7 @@ Product type keys in the LGD assumptions must exactly match the `product_type` v
 
 ### Auto-Setup from Data
 
-The platform can automatically discover product types from your mapped data and propose LGD assumptions:
-
-```
-POST /api/admin/auto-setup-lgd
-```
-
-This endpoint scans `historical_defaults` to identify distinct product types and calculates empirical LGD values from observed loss data. The results are presented as suggestions that require manual review and approval before being applied.
+The platform can automatically discover product types from your mapped data and propose LGD assumptions. Navigate to **Admin > Model Configuration** and click **Auto-Setup LGD**. The platform scans your historical default data to identify distinct product types and calculates empirical LGD values from observed loss data. The results are presented as suggestions that require manual review and approval before being applied.
 
 ## Model Lifecycle
 
@@ -206,9 +147,12 @@ Each satellite model follows a governance lifecycle that ensures only validated 
 
 ### Valid Status Transitions
 
-```
-draft --> pending_review --> approved --> active --> retired
-                        \-> draft (rejected, sent back for revision)
-```
+A model progresses through the lifecycle as follows: **Draft** (newly trained) to **Pending Review** (submitted for validation) to **Approved** (passed validation) to **Active** (promoted as the current champion) to **Retired** (superseded by a newer version). A model can also be sent back from Pending Review to Draft if rejected.
 
 Model status changes are recorded in the model registry audit table with the user who performed the action, a timestamp, and any review comments. See the [User Guide](../user-guide/workflow-overview) for details on the model selection and validation workflow.
+
+## What's Next?
+
+- [App Settings](app-settings) — Configure organization identity, scenarios, and governance thresholds
+- [Jobs & Pipelines](jobs-pipelines) — Trigger satellite model jobs using the configuration defined here
+- [Data Mapping](data-mapping) — Ensure your source data is mapped before running models

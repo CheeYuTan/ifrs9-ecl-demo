@@ -173,14 +173,7 @@ If your dataset does not meet these thresholds:
 
 **Resolution:**
 
-1. **Increase simulations** -- Adjust the `n_simulations` parameter in the admin configuration under `model_config.default_parameters`:
-   ```json
-   {
-     "n_simulations": 10000,
-     "max_simulations": 50000,
-     "pd_lgd_correlation": 0.30
-   }
-   ```
+1. **Increase simulations** -- Navigate to **Admin > Model Configuration** and increase the `n_simulations` parameter under Default Parameters.
 
 2. **Convergence guidelines:**
    - 1,000 simulations: Suitable for small, homogeneous portfolios.
@@ -261,15 +254,10 @@ Common build issues:
 - Platform behavior is erratic due to corrupted or invalid configuration.
 - You need to return to a known-good state.
 
-**Endpoint:**
-```
-POST /api/admin/seed-defaults
-```
-
-This resets all configuration sections to factory defaults. Use it when:
-- Configuration has been corrupted by invalid manual edits.
-- You want to start fresh after experimentation.
-- Upgrading from a previous version that had incompatible config structure.
+**Resolution:** Use the **Reset to Factory Defaults** option on the Admin Settings page. This resets all configuration sections to platform defaults. Use it when:
+- Configuration has been corrupted by invalid manual edits
+- You want to start fresh after experimentation
+- Upgrading from a previous version that had incompatible config structure
 
 :::danger
 This operation destroys all custom configuration including data source mappings, model parameters, SICR thresholds, and job settings. There is no undo. Export your current configuration first if you may need to restore it.
@@ -290,32 +278,30 @@ Every API request is tagged with an `X-Request-ID` for end-to-end tracing.
 
 When a user reports an error:
 
-1. Ask for the `X-Request-ID` from the error response (it is included in the JSON error body).
-2. Search the application logs for that request ID:
-   ```
-   grep "request_id=a1b2c3d4e5f6" /path/to/app.log
-   ```
-3. The logs will show the complete request lifecycle including method, path, status code, duration, and any error stack traces.
-
-**Example log sequence:**
-```
-INFO  request_id=a1b2c3d4e5f6 method=POST path=/api/models/run status=500 duration_ms=1234.5
-ERROR Unhandled error: request_id=a1b2c3d4e5f6 path=/api/models/run error=division by zero
-```
+1. Ask for the `X-Request-ID` from the error response (it is included in the error message displayed to the user).
+2. Search the application logs for that request ID. The logs will show the complete request lifecycle including the HTTP method, path, status code, response time, and any error details.
+3. Use the request ID to correlate entries across different log sources if your organization uses centralized logging.
 
 ## Quick Diagnostic Checklist
 
 When the platform is not functioning correctly, work through this checklist:
 
-| Step | Check | Command / Endpoint |
-|------|-------|--------------------|
-| 1 | Is the application running? | Check process / container status |
-| 2 | Can it reach Lakebase? | `GET /api/health` |
-| 3 | Are all tables present? | `GET /api/health/detailed` |
-| 4 | Is the config loaded? | `GET /api/admin/config` |
-| 5 | Is SciPy available? | `GET /api/health/detailed` (check `scipy` section) |
-| 6 | Are credentials valid? | Check logs for token refresh status |
-| 7 | Is the user authenticated? | Check `X-Forwarded-User` header is present |
-| 8 | Does the user have permission? | `GET /api/rbac/check-permission` |
-| 9 | Is the project locked? | Check `signed_off` flag on the project |
-| 10 | Is the audit chain intact? | `GET /api/audit/{project_id}/verify` |
+| Step | Check | How to Verify |
+|------|-------|--------------|
+| 1 | Is the application running? | Check the Databricks Apps status in the workspace UI |
+| 2 | Can it reach Lakebase? | Use the quick health check (Health page or `/api/health`) |
+| 3 | Are all tables present? | Use the detailed health check |
+| 4 | Is the config loaded? | Check the Admin Settings page |
+| 5 | Is SciPy available? | Check the detailed health check (SciPy section) |
+| 6 | Are credentials valid? | Check application logs for token refresh status |
+| 7 | Is the user authenticated? | Verify the user appears in the application header |
+| 8 | Does the user have permission? | Check the user's role on the User Management page |
+| 9 | Is the project locked? | Check the project's sign-off status on its workflow page |
+| 10 | Is the audit chain intact? | Use the audit verification feature on the project page |
+
+## What's Next?
+
+- [Setup & Installation](setup-installation) — Review deployment configuration and connection settings
+- [System Administration](system-administration) — Detailed health monitoring and operational procedures
+- [User Management](user-management) — Resolve permission and authentication issues
+- [App Settings](app-settings) — Review and fix configuration issues

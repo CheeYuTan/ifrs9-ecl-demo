@@ -186,44 +186,13 @@ The platform exposes two health check endpoints for monitoring and alerting.
 
 ### Basic Health Check
 
-```
-GET /api/health
-```
-
-Executes `SELECT 1` against Lakebase and returns:
-
-```json
-{
-  "status": "healthy",
-  "lakebase": "connected",
-  "rows": 1
-}
-```
-
-If the database is unreachable:
-
-```json
-{
-  "status": "degraded",
-  "lakebase": "error",
-  "error": "connection refused"
-}
-```
+The quick health check is available at `/api/health`. It tests database connectivity and reports either **healthy** (database connected) or **degraded** (database unreachable). Use this endpoint for load balancer probes and uptime monitoring.
 
 ### Detailed Health Check
 
-```
-GET /api/health/detailed
-```
+The detailed health check at `/api/health/detailed` performs comprehensive verification including Lakebase connectivity, required table existence, configuration integrity, and scientific library availability (scipy, scikit-learn). Use this for deployment validation and periodic monitoring.
 
-Performs comprehensive verification including:
-
-- Lakebase connectivity
-- Required table existence
-- Configuration integrity
-- Scientific library availability (scipy, scikit-learn)
-
-Use the detailed health check for deployment validation and periodic monitoring. Use the basic health check for load balancer probes.
+For more on health monitoring, see [System Administration](system-administration).
 
 ## Local Development Setup
 
@@ -258,3 +227,10 @@ The platform will use Priority 3 (SDK-based) connection, authenticating via your
 :::tip
 The local development server uses `uvicorn` with the port from `DATABRICKS_APP_PORT` (default `8000`). All API routes are prefixed with `/api/` and the React frontend is served as a single-page application from the root path.
 :::
+
+## What's Next?
+
+- [Data Mapping](data-mapping) — Connect your Unity Catalog tables to the platform
+- [App Settings](app-settings) — Configure organization identity, currency, and scenarios
+- [Model Configuration](model-configuration) — Set up satellite models and SICR thresholds
+- [System Administration](system-administration) — Monitor health checks and manage connections
