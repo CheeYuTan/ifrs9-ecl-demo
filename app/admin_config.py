@@ -40,6 +40,7 @@ def ensure_config_table():
             updated_by   TEXT DEFAULT 'system'
         )
     """)
+    backend.execute(f"COMMENT ON TABLE {CONFIG_TABLE} IS 'ifrs9ecl: Application configuration settings'")
     log.info("Ensured %s table exists", CONFIG_TABLE)
 
 

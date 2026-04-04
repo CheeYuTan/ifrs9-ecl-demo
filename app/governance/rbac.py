@@ -54,6 +54,7 @@ def ensure_rbac_tables():
             created_at    TIMESTAMP DEFAULT NOW()
         )
     """)
+    execute(f"COMMENT ON TABLE {RBAC_USERS_TABLE} IS 'ifrs9ecl: User directory and role assignments'")
     execute(f"""
         CREATE TABLE IF NOT EXISTS {RBAC_APPROVALS_TABLE} (
             request_id      TEXT PRIMARY KEY,
@@ -72,6 +73,7 @@ def ensure_rbac_tables():
             created_at      TIMESTAMP DEFAULT NOW()
         )
     """)
+    execute(f"COMMENT ON TABLE {RBAC_APPROVALS_TABLE} IS 'ifrs9ecl: Approval workflow requests'")
     for uid, email, name, role, dept in SEED_USERS:
         execute(f"""
             INSERT INTO {RBAC_USERS_TABLE} (user_id, email, display_name, role, department)

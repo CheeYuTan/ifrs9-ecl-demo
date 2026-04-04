@@ -109,6 +109,9 @@ def ensure_backtesting_table():
             abs_diff FLOAT
         )
     """)
+    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_results IS 'ifrs9ecl: Model backtesting results and metrics'")
+    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_metrics IS 'ifrs9ecl: Model backtesting results and metrics'")
+    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_cohort_results IS 'ifrs9ecl: Model backtesting results and metrics'")
     # Migrate existing tables: add columns that CREATE TABLE IF NOT EXISTS won't add
     try:
         execute(f"ALTER TABLE {SCHEMA}.backtest_metrics ADD COLUMN IF NOT EXISTS detail JSONB")

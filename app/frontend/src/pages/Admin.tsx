@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Database, Settings, Cpu, Briefcase, Shield, Palette, Info, Save, Undo2,
+  BarChart3,
 } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { fetchJson } from './admin/types';
@@ -12,6 +13,7 @@ import AdminJobsConfig from './admin/AdminJobsConfig';
 import AdminAppSettings from './admin/AdminAppSettings';
 import AdminThemeConfig from './admin/AdminThemeConfig';
 import AdminSystemConfig from './admin/AdminSystemConfig';
+import AdminAnalytics from './admin/AdminAnalytics';
 
 // ── Tab definition ──────────────────────────────────────────────────────────
 
@@ -22,6 +24,7 @@ const TABS = [
   { key: 'app', label: 'App Settings', icon: Settings, desc: 'Organization & UI' },
   { key: 'theme', label: 'Theme', icon: Palette, desc: 'Colors & dark mode' },
   { key: 'system', label: 'System', icon: Shield, desc: 'Import / export' },
+  { key: 'analytics', label: 'Analytics', icon: BarChart3, desc: 'Platform usage' },
 ] as const;
 
 type TabKey = typeof TABS[number]['key'];
@@ -161,6 +164,7 @@ export default function Admin() {
           {activeTab === 'app' && <AdminAppSettings config={config} onChange={handleChange} />}
           {activeTab === 'theme' && <AdminThemeConfig />}
           {activeTab === 'system' && <AdminSystemConfig config={config} onReload={loadConfig} />}
+          {activeTab === 'analytics' && <AdminAnalytics />}
         </motion.div>
       </AnimatePresence>
     </div>

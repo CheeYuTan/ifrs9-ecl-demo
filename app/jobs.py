@@ -16,6 +16,8 @@ ALL_MODELS = [
     "gradient_boosting", "xgboost",
 ]
 
+RESOURCE_TAGS = {"app": "ifrs9ecl"}
+
 NOTEBOOK_SCRIPTS = {
     "03a_run_single_model": "03a_run_single_model.py",
     "03a_aggregate_models": "03a_aggregate_models.py",
@@ -348,6 +350,7 @@ def _ensure_job(job_key: str, job_name: str, build_fn) -> int:
         "queue": {"enabled": True},
         "tasks": job_def["tasks"],
         "environments": job_def.get("environments", []),
+        "tags": RESOURCE_TAGS,
     }
 
     if job_id:
@@ -380,8 +383,13 @@ def _ensure_job(job_key: str, job_name: str, build_fn) -> int:
                             needs_update = True
                             break
 
+            if not needs_update:
+                existing_tags = existing.get("settings", {}).get("tags", {})
+                if existing_tags != RESOURCE_TAGS:
+                    needs_update = True
+
             if needs_update:
-                log.info("Updating job %s (%s) — paths, tasks, or environments changed", job_id, job_key)
+                log.info("Updating job %s (%s) — paths, tasks, environments, or tags changed", job_id, job_key)
                 _rest_api("POST", "/api/2.1/jobs/reset", {
                     "job_id": int(job_id),
                     "new_settings": new_settings,

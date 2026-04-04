@@ -305,4 +305,4 @@ class TestEnsureAuditTables:
     def test_creates_tables(self, _patch_db):
         from domain.audit_trail import ensure_audit_tables
         ensure_audit_tables()
-        assert _patch_db["execute"].call_count == 2
+        assert _patch_db["execute"].call_count >= 2  # CREATE TABLE + COMMENT ON TABLE

@@ -1,3 +1,4 @@
+# Resource tag: app=ifrs9ecl (applied to all Databricks Jobs and table comments)
 command:
   - python
   - app.py

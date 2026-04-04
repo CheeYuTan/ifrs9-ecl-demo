@@ -24,6 +24,7 @@ def ensure_model_runs_table():
             created_by      TEXT DEFAULT 'system'
         )
     """)
+    execute(f"COMMENT ON TABLE {MODEL_RUNS_TABLE} IS 'ifrs9ecl: Model execution history'")
 
 
 def save_model_run(run_id: str, run_type: str, models_used: list, products: list,

@@ -36,6 +36,7 @@ def ensure_model_registry_table():
             parent_model_id TEXT
         )
     """)
+    execute(f"COMMENT ON TABLE {SCHEMA}.model_registry IS 'ifrs9ecl: Model governance and lifecycle tracking'")
     _migrate_model_registry_columns()
     execute(f"""
         CREATE TABLE IF NOT EXISTS {SCHEMA}.model_registry_audit (
@@ -49,6 +50,7 @@ def ensure_model_registry_table():
             comment TEXT
         )
     """)
+    execute(f"COMMENT ON TABLE {SCHEMA}.model_registry_audit IS 'ifrs9ecl: Model status change log'")
     log.info("Ensured model_registry tables exist")
 
 

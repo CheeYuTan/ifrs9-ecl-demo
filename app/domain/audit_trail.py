@@ -38,6 +38,7 @@ def ensure_audit_tables():
             created_at      TIMESTAMP DEFAULT NOW()
         )
     """)
+    execute(f"COMMENT ON TABLE {AUDIT_TABLE} IS 'ifrs9ecl: Immutable hash-chained audit log'")
     execute(f"""
         CREATE TABLE IF NOT EXISTS {CONFIG_AUDIT_TABLE} (
             id              SERIAL PRIMARY KEY,
@@ -49,6 +50,7 @@ def ensure_audit_tables():
             changed_at      TIMESTAMP DEFAULT NOW()
         )
     """)
+    execute(f"COMMENT ON TABLE {CONFIG_AUDIT_TABLE} IS 'ifrs9ecl: Configuration change tracking'")
     log.info("Ensured audit trail tables exist")
 
 

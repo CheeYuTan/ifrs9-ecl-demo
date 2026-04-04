@@ -46,6 +46,7 @@ def ensure_pipeline_table():
             triggered_by TEXT DEFAULT 'system'
         )
     """)
+    execute(f"COMMENT ON TABLE {PIPELINE_TABLE} IS 'ifrs9ecl: Period-end close pipeline runs'")
 
 
 def _run_id(project_id):
