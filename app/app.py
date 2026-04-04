@@ -66,8 +66,10 @@ app = FastAPI(
 
 # Production middleware — order matters: outermost first
 from middleware.request_id import RequestIDMiddleware
+from middleware.analytics import AnalyticsMiddleware
 from middleware.error_handler import ErrorHandlerMiddleware
 app.add_middleware(ErrorHandlerMiddleware)
+app.add_middleware(AnalyticsMiddleware)
 app.add_middleware(RequestIDMiddleware)
 
 

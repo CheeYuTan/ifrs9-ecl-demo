@@ -1,24 +1,34 @@
-# Sprint 2 Contract: User Guide — Workflow Steps 1-4
+# Sprint 2 Contract: Analytics Middleware + Request Tracking
 
 ## Acceptance Criteria
 
-- [ ] `step-1-create-project.md` — Full page following User Guide template: prerequisites, step-by-step with screenshot references, project states, form fields explained, tips, "What's Next?"
-- [ ] `step-2-data-processing.md` — KPI cards explained, stage distribution chart, portfolio table, drill-down interactions, IFRS 9 context for each metric
-- [ ] `step-3-data-control.md` — DQ checks and GL reconciliation explained, materiality thresholds, approval/rejection workflow, maker-checker process
-- [ ] `step-4-satellite-model.md` — 8 model types explained for business users (no math), model comparison dashboard, cohort analysis, R-squared/RMSE in plain language, pipeline execution, approval
-- [ ] All pages use correct IFRS 9 terminology (PD, LGD, EAD, SICR, Stage 1/2/3)
-- [ ] Zero Python/JSON code in any page (User Guide persona rule)
-- [ ] Zero API endpoint references in any page
-- [ ] Every page has: frontmatter, prerequisites, "What You'll Do", step-by-step, "Understanding the Results", tips/warnings, "What's Next?"
-- [ ] Screenshot placeholders reference `/img/screenshots/` paths
-- [ ] `npm run build` succeeds with 0 errors
-- [ ] All internal cross-references resolve (links to other steps, overview, quick-start)
+- [ ] `middleware/analytics.py` exists with `AnalyticsMiddleware` class extending `BaseHTTPMiddleware`
+- [ ] Middleware captures: user_id (from `X-Forwarded-User` / `X-User-Id` headers), endpoint, method, status_code, duration_ms, request_id (from `request.state.request_id`), user_agent
+- [ ] Fire-and-forget recording via `threading.Thread(daemon=True)` — does not block responses
+- [ ] Excluded paths: `/assets/`, `/docs/`, `/api/health` — no recording for these
+- [ ] Middleware registered in `app.py` between `ErrorHandlerMiddleware` and `RequestIDMiddleware`
+- [ ] All existing tests (~3946+45) continue passing
+- [ ] New unit tests cover: path exclusion, header extraction, fire-and-forget behavior, middleware ordering, error handling during recording
+
+## API Contract
+
+No new API endpoints in this sprint. The middleware operates transparently on all requests.
 
 ## Test Plan
-- Build test: `cd docs-site && npm run build` — 0 errors, 0 warnings
-- Link check: verify all `[text](path)` references point to existing docs
-- Persona check: grep for Python/JSON/API patterns — must return 0 hits in the 4 files
-- Word count: each page should be 150-300 lines (substantive, not stubs)
+
+- **Unit tests** (`tests/unit/test_analytics_middleware.py`):
+  1. Path exclusion: `/assets/foo.js`, `/docs/guide`, `/api/health` are skipped
+  2. Normal path: `/api/projects` is recorded
+  3. Header extraction: `X-Forwarded-User` and `X-User-Id` fallback
+  4. Default user_id when no header present
+  5. Fire-and-forget: `threading.Thread` is called with `daemon=True`
+  6. Duration measurement: duration_ms is calculated and > 0
+  7. Error during recording does not crash the response
+  8. Middleware ordering verification in `app.py`
+  9. Request ID extracted from `request.state.request_id`
+  10. User-Agent header captured
 
 ## Production Readiness Items This Sprint
-- N/A (documentation project — no backend/frontend code changes)
+
+- Zero performance impact: fire-and-forget threading ensures <1ms added latency
+- Graceful degradation: recording failures are logged but never block responses
