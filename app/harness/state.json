@@ -3,7 +3,7 @@
   "app_name": "IFRS 9 ECL Analytics Dashboard",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
-  "current_phase": "VISUAL_QA",
+  "current_phase": "BUILD_AGENT",
   "spec_complete": true,
   "current_sprint": 1,
   "planned_sprints": 5,
@@ -14,7 +14,14 @@
     "Sprint 5: Integration Test + Installation Test + Documentation \u2014 E2E test, SQL query validation, full pytest, clean install, admin guide update, commit+push"
   ],
   "sprints_completed": [
-    {"sprint": 1, "feature": "Usage Analytics Backend", "score": null, "iterations": 1, "trajectory": [], "tests": 15}
+    {
+      "sprint": 1,
+      "feature": "Usage Analytics Backend",
+      "score": null,
+      "iterations": 1,
+      "trajectory": [],
+      "tests": 23
+    }
   ],
   "dynamically_added_sprints": [],
   "feature_sprints_since_doc_sprint": 0,
@@ -22,13 +29,13 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 1,
+  "current_iteration": 2,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 1 build complete. 15 new tests, 3971 total passed. Ready for Visual QA.",
-  "last_updated": "2026-04-04T10:15:00",
-  "score_trajectory": []
+  "last_action": "Sprint 1 iter 2: Fixed 4 eval bugs (already in codebase), added 8 regression tests. 3979 passed, docs build clean.",
+  "last_updated": "2026-04-04T10:30:00",
+  "score_trajectory": [8.9]
 }
