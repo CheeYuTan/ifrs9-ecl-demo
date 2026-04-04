@@ -8,7 +8,7 @@ BUG-S1-004: onBrokenLinks set to 'warn' instead of 'throw'
 import re
 from pathlib import Path
 
-DOCS_SITE = Path(__file__).parents[2] / "app" / "docs-site"
+DOCS_SITE = Path(__file__).parents[2] / "docs-site"
 
 
 class TestBugS1001_HomepageTitleNoHelloFrom:
