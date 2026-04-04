@@ -129,7 +129,8 @@ class TestProjectEndpoints:
 
     def test_sign_off(self, client, mock_db, _project_data):
         signed = {**_project_data, "signed_off_by": "CFO"}
-        with patch("backend.sign_off_project", return_value=signed):
+        with patch("backend.get_project", return_value=_project_data), \
+             patch("backend.sign_off_project", return_value=signed):
             resp = client.post("/api/projects/test-001/sign-off", json={"name": "CFO"})
         assert resp.status_code == 200
         assert resp.json()["signed_off_by"] == "CFO"

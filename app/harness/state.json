@@ -29,14 +29,14 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 3,
+  "current_iteration": 5,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 1 iter 3: Added 11 docs verification tests (image refs, links, content quality), upgraded CSS to navy financial theme, added card styling for feature section. 45 Sprint 1 tests pass, docs build clean.",
-  "last_updated": "2026-04-04T11:05:00",
+  "last_action": "Sprint 1 iter 5: Fixed pre-existing test_sign_off integration test (mock scoping). All 3946+45 tests pass, docs build clean. Ready for re-evaluation.",
+  "last_updated": "2026-04-04T11:15:00",
   "score_trajectory": [
     8.9
   ]
