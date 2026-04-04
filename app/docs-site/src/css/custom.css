@@ -1,30 +1,38 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * IFRS 9 ECL Platform — Financial services color palette.
+ * Navy blue primary conveys trust, stability, and professionalism.
  */
 
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #1a3a5c;
+  --ifm-color-primary-dark: #173353;
+  --ifm-color-primary-darker: #15304e;
+  --ifm-color-primary-darkest: #112740;
+  --ifm-color-primary-light: #1d4165;
+  --ifm-color-primary-lighter: #1f446a;
+  --ifm-color-primary-lightest: #254e7a;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: #5b9bd5;
+  --ifm-color-primary-dark: #4590d0;
+  --ifm-color-primary-darker: #3a88cd;
+  --ifm-color-primary-darkest: #2a72b5;
+  --ifm-color-primary-light: #71a6da;
+  --ifm-color-primary-lighter: #7caedc;
+  --ifm-color-primary-lightest: #a2c7e7;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Hero banner — professional gradient */
+.hero--primary {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2d5f8a 100%);
+}
+
+[data-theme='dark'] .hero--primary {
+  background: linear-gradient(135deg, #0d1f33 0%, #1a3a5c 100%);
 }
