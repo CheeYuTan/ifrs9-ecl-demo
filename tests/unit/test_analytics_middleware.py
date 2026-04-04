@@ -229,27 +229,26 @@ class TestAnalyticsMiddlewareDispatch:
 # ---------------------------------------------------------------------------
 
 class TestMiddlewareOrdering:
+    @staticmethod
+    def _find_app_py() -> "Path":
+        from pathlib import Path
+        for p in Path(__file__).absolute().parents:
+            if (p / "app.py").is_file():
+                return p / "app.py"
+            if (p / "app" / "app.py").is_file():
+                return p / "app" / "app.py"
+        raise FileNotFoundError("Cannot locate app.py")
+
     def test_analytics_middleware_registered(self):
         """AnalyticsMiddleware is imported and used in app.py."""
-        import ast
-        import os
-        app_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "app.py",
-        )
-        source = open(app_path).read()
+        source = self._find_app_py().read_text()
         assert "AnalyticsMiddleware" in source
         assert "from middleware.analytics import AnalyticsMiddleware" in source
 
     def test_middleware_order(self):
         """AnalyticsMiddleware is added after ErrorHandler (outermost)
         and before RequestID (innermost) in add_middleware calls."""
-        import os
-        app_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "app.py",
-        )
-        source = open(app_path).read()
+        source = self._find_app_py().read_text()
         lines = source.split("\n")
         mw_lines = [
             (i, line.strip()) for i, line in enumerate(lines)

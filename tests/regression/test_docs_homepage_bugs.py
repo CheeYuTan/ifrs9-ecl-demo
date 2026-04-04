@@ -8,7 +8,18 @@ BUG-S1-004: onBrokenLinks set to 'warn' instead of 'throw'
 import re
 from pathlib import Path
 
-DOCS_SITE = Path(__file__).parents[2] / "docs-site"
+
+def _find_app_root() -> Path:
+    """Find the app root directory containing docs-site/, handling symlinked tests."""
+    for p in Path(__file__).absolute().parents:
+        if (p / "docs-site").is_dir():
+            return p
+        if (p / "app" / "docs-site").is_dir():
+            return p / "app"
+    raise FileNotFoundError("Cannot locate app root with docs-site/")
+
+
+DOCS_SITE = _find_app_root() / "docs-site"
 
 
 class TestBugS1001_HomepageTitleNoHelloFrom:
