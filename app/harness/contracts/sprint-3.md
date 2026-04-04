@@ -1,23 +1,35 @@
-# Sprint 3 Contract: User Guide — Workflow Steps 5-8
+# Sprint 3 Contract: Dashboard SQL Queries (7 Files)
 
 ## Acceptance Criteria
+- [ ] `dashboards/` directory created with 7 SQL query files + `__init__.py`
+- [ ] `01_user_activity.sql`: DAU, actions/user, login frequency from `audit_trail` + `app_usage_analytics`
+- [ ] `02_project_analytics.sql`: Projects over time, status distribution, completion rates from `ecl_workflow`
+- [ ] `03_model_performance.sql`: AUC/Gini/KS trends, model registry status from `backtest_metrics` + `model_registry`
+- [ ] `04_job_execution.sql`: Pipeline run counts, success/failure rates, durations from `pipeline_runs`
+- [ ] `05_api_usage.sql`: Endpoint popularity, p50/p95 latency, error rates from `app_usage_analytics`
+- [ ] `06_cost_allocation.sql`: Storage by table via `pg_total_relation_size()`, compute estimates by job type
+- [ ] `07_system_health.sql`: Error rate trends, latency trends, requests per minute
+- [ ] All queries PostgreSQL-compatible, use `COALESCE`/`NULLIF` for empty tables, `DATE_TRUNC` for time-series
+- [ ] `dashboards/__init__.py` with `load_query()` and `list_queries()` utilities
+- [ ] Unit tests: SQL syntax validation, empty-table handling, date range parameterization
+- [ ] All existing ~4011 tests continue to pass
 
-- [ ] `step-5-model-execution.md` — ≥150 lines, covers Monte Carlo simulation for business users (no math/code), running a simulation, monitoring convergence, understanding results and confidence intervals
-- [ ] `step-6-stress-testing.md` — ≥150 lines, covers all 5 analysis tabs (Monte Carlo Distribution, Sensitivity, Vintage, Concentration, Migration), interpretation guidance for each
-- [ ] `step-7-overlays.md` — ≥150 lines, covers why overlays exist (IFRS 9 B5.5.17), adding overlays with rationale, governance framework (15% cap), impact on ECL, expiry/classification
-- [ ] `step-8-sign-off.md` — ≥150 lines, covers 4-point attestation, hash verification, audit trail, attribution waterfall, segregation of duties, project immutability post-sign-off
-- [ ] All pages follow established template: frontmatter → intro → prerequisites → What You'll Do → Step-by-Step → Understanding Results → Tips/Best Practices → What's Next
-- [ ] Zero Python/JSON/API references in any page (strict User Guide persona isolation)
-- [ ] All IFRS 9 terminology correct per spec terminology table
-- [ ] `npm run build` succeeds with 0 errors
-- [ ] Deployed to `docs_site/`
+## Table References (schema: `expected_credit_loss`)
+| Query File | Source Tables |
+|------------|-------------|
+| 01 | `audit_trail`, `app_usage_analytics` |
+| 02 | `ecl_workflow` |
+| 03 | `backtest_metrics`, `model_registry` |
+| 04 | `pipeline_runs` |
+| 05 | `app_usage_analytics` |
+| 06 | `pg_total_relation_size()` (system), `pipeline_runs` |
+| 07 | `app_usage_analytics` |
 
 ## Test Plan
-- Build verification: `cd docs-site && npm run build` — 0 errors
-- Line count: `wc -l` on each file ≥ 150
-- Content audit: no code blocks, no API endpoints, no JSON, no Python in any of the 4 files
-- Cross-reference: all internal links resolve (checked via build warnings)
-- Deploy: `rm -rf ../docs_site/* && cp -r build/* ../docs_site/`
+- Unit tests: SQL file loading via `dashboards` module, syntax validation, parameterization
+- Verify each SQL query handles empty tables (COALESCE/NULLIF present)
+- Regression: all existing tests pass
 
-## Production Readiness Items This Sprint
-- N/A (documentation-only sprint)
+## Production Readiness Items
+- SQL files use `{schema}` placeholder for schema name substitution
+- No hardcoded schema names in SQL files
