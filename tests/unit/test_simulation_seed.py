@@ -40,8 +40,16 @@ def _make_scenarios_df():
 def _patch_engine():
     loans = _make_loans_df()
     scenarios = _make_scenarios_df()
+    # Patch config + product maps to avoid flaky DB calls that break determinism
+    stable_lgd = {"mortgage": 0.15, "personal_loan": 0.50}
+    stable_sat = {
+        "mortgage": {"pd_lgd_corr": 0.20, "annual_prepay_rate": 0.08, "lgd_std": 0.08},
+        "personal_loan": {"pd_lgd_corr": 0.32, "annual_prepay_rate": 0.10, "lgd_std": 0.14},
+    }
     with patch("ecl_engine._load_loans", return_value=loans), \
-         patch("ecl_engine._load_scenarios", return_value=scenarios):
+         patch("ecl_engine._load_scenarios", return_value=scenarios), \
+         patch("ecl_engine._load_config", return_value=(stable_lgd, None)), \
+         patch("ecl_engine._build_product_maps", return_value=(stable_lgd, stable_sat)):
         yield loans, scenarios
 
 

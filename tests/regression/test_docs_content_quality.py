@@ -9,7 +9,7 @@ These tests run without Node.js / npm — they parse markdown and config files d
 import re
 from pathlib import Path
 
-DOCS_SITE = Path(__file__).parents[2] / "docs-site"
+DOCS_SITE = Path(__file__).parents[2] / "app" / "docs-site"
 DOCS_DIR = DOCS_SITE / "docs"
 STATIC_DIR = DOCS_SITE / "static"
 

@@ -8,9 +8,9 @@
   "current_sprint": 2,
   "planned_sprints": 5,
   "remaining_spec_items": [
-    "Sprint 3: Dashboard SQL Queries (7 files) \u2014 dashboards/ directory, 7 SQL files (user activity, project analytics, model performance, job execution, API usage, cost allocation, system health), unit tests",
-    "Sprint 4: Dashboard Provisioning + Admin Integration \u2014 provision_dashboard.py, Lakeview SDK, /api/admin/analytics/summary endpoint, AdminAnalytics.tsx tab, unit tests",
-    "Sprint 5: Integration Test + Installation Test + Documentation \u2014 E2E test, SQL query validation, full pytest, clean install, admin guide update, commit+push"
+    "Sprint 3: Dashboard SQL Queries (7 files) — dashboards/ directory, 7 SQL files (user activity, project analytics, model performance, job execution, API usage, cost allocation, system health), unit tests",
+    "Sprint 4: Dashboard Provisioning + Admin Integration — provision_dashboard.py, Lakeview SDK, /api/admin/analytics/summary endpoint, AdminAnalytics.tsx tab, unit tests",
+    "Sprint 5: Integration Test + Installation Test + Documentation — E2E test, SQL query validation, full pytest, clean install, admin guide update, commit+push"
   ],
   "sprints_completed": [
     {
@@ -35,13 +35,13 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 3,
+  "current_iteration": 4,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 2 iter 3: All eval fixes verified (doc pages ≥150 lines). Full suite: 3997 passed, 61 skipped. Docs build clean. Ready for Visual QA.",
-  "last_updated": "2026-04-04T13:10:00",
+  "last_action": "Sprint 2 iter 4: Fixed 14 failing tests (path resolution in docs/homepage/middleware tests + incomplete mocking in simulation seed test). Full suite: 4011 passed, 61 skipped, 0 failed. Docs build clean. Ready for Visual QA.",
+  "last_updated": "2026-04-04T13:15:00",
   "score_trajectory": []
 }

@@ -235,7 +235,7 @@ class TestMiddlewareOrdering:
         import os
         app_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "app.py",
+            "app", "app.py",
         )
         source = open(app_path).read()
         assert "AnalyticsMiddleware" in source
@@ -247,7 +247,7 @@ class TestMiddlewareOrdering:
         import os
         app_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "app.py",
+            "app", "app.py",
         )
         source = open(app_path).read()
         lines = source.split("\n")
