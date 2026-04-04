@@ -200,6 +200,15 @@ from domain.advanced import (  # noqa: F401
     list_collateral_analyses,
 )
 
+# ── Usage Analytics ────────────────────────────────────────────────────────
+from domain.usage_analytics import (  # noqa: F401
+    USAGE_TABLE,
+    ensure_usage_table,
+    record_request,
+    get_usage_stats,
+    get_recent_requests,
+)
+
 # ── Period-End Close ──────────────────────────────────────────────────────
 from domain.period_close import (  # noqa: F401
     PIPELINE_TABLE, PIPELINE_STEPS,

@@ -49,6 +49,7 @@ def ensure_workflow_table():
             updated_at      TIMESTAMP DEFAULT NOW()
         )
     """)
+    execute(f"COMMENT ON TABLE {WF_TABLE} IS 'ifrs9ecl: ECL project workflow state and step tracking'")
     log.info("Ensured %s table exists", WF_TABLE)
     try:
         from domain.audit_trail import ensure_audit_tables
@@ -90,6 +91,11 @@ def ensure_workflow_table():
     try:
         from governance.rbac import ensure_rbac_tables
         _ensure_fns.append(("ensure_rbac_tables", ensure_rbac_tables))
+    except ImportError:
+        pass
+    try:
+        from domain.usage_analytics import ensure_usage_table
+        _ensure_fns.append(("ensure_usage_table", ensure_usage_table))
     except ImportError:
         pass
     for fn_name, fn in _ensure_fns:

@@ -1,89 +1,43 @@
-# Sprint 1 Handoff: Foundation — Restructure & Getting Started
+# Sprint 1 Handoff: Usage Analytics Backend
 
 ## What Was Built
-
-### Directory Restructure
-- Created persona-based directory structure: `docs/user-guide/`, `docs/admin-guide/`, `docs/developer/`
-- Removed old flat structure: `docs/guides/` directory (8 files), `docs/getting-started.md`, `docs/architecture.md`, `docs/faq.md`
-- Created 30 stub pages across all persona directories to support the full sidebar
-
-### Sidebar Configuration (sidebars.ts)
-- Rewrote from flat single-category layout to 4 persona-based categories:
-  - **Getting Started** (2 pages): overview, quick-start
-  - **User Guide** (18 pages): workflow-overview + 8 step pages + 9 feature pages
-  - **Admin Guide** (9 pages): setup through troubleshooting
-  - **Developer Reference** (5 pages): architecture through testing
-
-### Navigation (docusaurus.config.ts)
-- Navbar: 3 persona links (User Guide, Admin Guide, Developer Reference)
-- Footer: 4 columns organized by persona with key page links
-- Homepage CTA updated to point to overview
-
-### Content Pages (3 fully written pages)
-1. **overview.md** — "What is IFRS 9 ECL?" — business-language, zero code, explains platform capabilities, user roles, key stats
-2. **quick-start.md** — "Your First ECL Project" — login, create project, run simulation, sign off — with screenshot placeholders referencing existing images
-3. **user-guide/workflow-overview.md** — "The 8-Step ECL Workflow" — ASCII flow diagram, step summaries with descriptions and links, post-workflow actions, tips
-
-### Build & Deploy
-- `npm run build` succeeds with 0 errors
-- Built output deployed to `docs_site/`
+- `domain/usage_analytics.py`: New domain module with `ensure_usage_table()`, `record_request()`, `get_usage_stats()`, `get_recent_requests()`
+- New Lakebase table `expected_credit_loss.app_usage_analytics` (id, timestamp, user_id, method, endpoint, status_code, duration_ms, request_id, user_agent)
+- Wired into `domain/workflow.py` init chain (after `ensure_rbac_tables`)
+- Re-exported in `backend.py` for unified imports
+- 15 unit tests covering table creation, idempotency, record insertion, stats queries, edge cases
 
 ## How to Test
+- Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python app.py`
+- The table is auto-created on startup via the init chain
+- No HTTP endpoints this sprint (domain layer only) — Sprint 2 adds middleware + Sprint 4 adds admin API
 
-```bash
-# Build the docs site
-cd docs-site && npm run build
-
-# Serve locally
-npm run serve
-# Navigate to http://localhost:3000/docs/
+### Verify programmatically:
+```python
+from domain.usage_analytics import ensure_usage_table, record_request, get_usage_stats, get_recent_requests
+ensure_usage_table()  # idempotent
+record_request("test-user", "GET", "/api/projects", 200, 42.5, "req-123", "test-agent")
+stats = get_usage_stats(days=7)
+recent = get_recent_requests(limit=10)
 ```
-
-**Pages to verify:**
-- http://localhost:3000/docs/overview — full content, business language, no code
-- http://localhost:3000/docs/quick-start — step-by-step with screenshots
-- http://localhost:3000/docs/user-guide/workflow-overview — ASCII diagram, step links
-- Sidebar: all 4 categories visible, all pages link correctly
-- Navbar: User Guide, Admin Guide, Developer Reference links work
-- Footer: all 4 columns with correct links
 
 ## Test Results
-
 ```
-npm run build: SUCCESS — 0 errors, 0 warnings
-All 34 pages generated successfully
+pytest tests/unit/test_usage_analytics.py -v
+15 passed in 0.10s
 ```
 
 ## Known Limitations
-- Stub pages contain placeholder text ("This page will be completed in Sprint N")
-- Screenshots reference existing images in `/img/guides/` — not all pages have matching screenshots yet
-- Homepage features section still shows stock Docusaurus content (will be redesigned in Sprint 8)
+- No HTTP API to query analytics yet (Sprint 4)
+- No middleware to auto-record requests yet (Sprint 2)
+- Table uses PostgreSQL INTERVAL syntax for date filtering (Lakebase compatible)
 
 ## Files Changed
 
-### New Files (30)
-- `docs/quick-start.md`
-- `docs/user-guide/workflow-overview.md`
-- `docs/user-guide/step-1-create-project.md` through `step-8-sign-off.md` (8 files)
-- `docs/user-guide/model-registry.md`, `backtesting.md`, `regulatory-reports.md`, `gl-journals.md`, `approval-workflow.md`, `attribution.md`, `markov-hazard.md`, `advanced-features.md`, `faq.md` (9 files)
-- `docs/admin-guide/setup-installation.md` through `troubleshooting.md` (9 files)
-- `docs/developer/architecture.md` through `testing.md` (5 files)
+### New Files
+- `domain/usage_analytics.py` — domain module (96 lines)
+- `tests/unit/test_usage_analytics.py` — 15 unit tests (131 lines)
 
-### Modified Files (3)
-- `docs/overview.md` — complete rewrite for business audience
-- `sidebars.ts` — persona-based category structure
-- `docusaurus.config.ts` — navbar + footer persona links
-
-### Deleted Files (12)
-- `docs/getting-started.md` (replaced by `quick-start.md`)
-- `docs/architecture.md` (moved to `developer/architecture.md`)
-- `docs/faq.md` (moved to `user-guide/faq.md`)
-- `docs/guides/core-workflow-data.md`
-- `docs/guides/simulation-engine.md`
-- `docs/guides/model-analytics.md`
-- `docs/guides/operational-governance.md`
-- `docs/guides/ecl-engine.md`
-- `docs/guides/domain-logic-core.md`
-- `docs/guides/domain-logic-analytical.md`
-- `docs/guides/frontend-testing.md`
-- `src/pages/markdown-page.md`
+### Modified Files
+- `domain/workflow.py` — added `ensure_usage_table` to init chain (4 lines added)
+- `backend.py` — added usage analytics re-exports (7 lines added)

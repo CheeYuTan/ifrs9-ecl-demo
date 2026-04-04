@@ -1,37 +1,24 @@
-# Sprint 1 Contract: Foundation — Restructure & Getting Started
+# Sprint 1 Contract: Usage Analytics Backend
 
 ## Acceptance Criteria
+- [ ] New table `expected_credit_loss.app_usage_analytics` with columns: id SERIAL, timestamp TIMESTAMP DEFAULT NOW(), user_id TEXT, method TEXT, endpoint TEXT, status_code INT, duration_ms FLOAT, request_id TEXT, user_agent TEXT
+- [ ] `ensure_usage_table()` creates table idempotently (safe to call multiple times)
+- [ ] Table has `COMMENT ON TABLE` with `ifrs9ecl:` prefix tag
+- [ ] `record_request()` inserts a usage record with all fields
+- [ ] `get_usage_stats(days=7)` returns summary metrics (total requests, unique users, avg duration)
+- [ ] `get_recent_requests(limit=50)` returns recent N records ordered by timestamp desc
+- [ ] Module registered in `backend.py` re-exports
+- [ ] `ensure_usage_table()` wired into `domain/workflow.py` init chain (after `ensure_rbac_tables`)
+- [ ] All unit tests pass
 
-### Directory Restructure
-- [ ] New directory structure: `docs/user-guide/`, `docs/admin-guide/`, `docs/developer/`
-- [ ] Old flat guide files relocated to proper persona directories or removed
-- [ ] Stub pages created for ALL sidebar entries so sidebar links resolve
-
-### Sidebar Configuration
-- [ ] `sidebars.ts` rewritten with persona-based categories matching spec
-- [ ] Getting Started section: overview, quick-start
-- [ ] User Guide category with workflow-overview + step stubs + feature page stubs
-- [ ] Admin Guide category with all 9 page stubs
-- [ ] Developer Reference category with all 5 page stubs
-
-### Navigation
-- [ ] `docusaurus.config.ts` navbar has persona links (User Guide, Admin Guide, Developer Reference)
-- [ ] Footer updated with persona-organized links
-- [ ] Homepage CTA points to correct overview path
-
-### Content Pages (3 real pages this sprint)
-- [ ] `overview.md` — business-language, zero code, explains IFRS 9 ECL platform
-- [ ] `quick-start.md` — first login, navigating the app, creating first project, screenshot placeholders
-- [ ] `user-guide/workflow-overview.md` — 8-step ECL workflow with visual diagram, links to step pages
-
-### Build Verification
-- [ ] `cd docs-site && npm run build` succeeds with 0 errors
-- [ ] No broken internal links
+## API Contract
+- No new HTTP endpoints this sprint (backend domain layer only)
+- Functions: `ensure_usage_table()`, `record_request(...)`, `get_usage_stats(days)`, `get_recent_requests(limit)`
 
 ## Test Plan
-- Build: `cd docs-site && npm run build` — 0 errors
-- Verify sidebar renders all categories and pages
+- Unit tests (~10): table creation DDL, idempotency, record_request insertion, get_usage_stats with data, get_usage_stats empty table, get_recent_requests with data, get_recent_requests empty, SCHEMA/PREFIX usage, backend.py re-export accessibility
 
-## Production Readiness Items
-- Clean persona-based directory structure
-- No broken links in build output
+## Production Readiness Items This Sprint
+- Table creation follows existing pattern (CREATE TABLE IF NOT EXISTS)
+- COMMENT ON TABLE for catalog discoverability
+- Logging consistent with existing domain modules

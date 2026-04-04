@@ -1,89 +1,34 @@
 {
   "status": "IN_PROGRESS",
-  "app_name": "IFRS 9 ECL Documentation Transformation",
+  "app_name": "IFRS 9 ECL Analytics Dashboard",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
-  "current_phase": "BUILD_AGENT",
+  "current_phase": "VISUAL_QA",
   "spec_complete": true,
-  "current_sprint": 7,
-  "planned_sprints": 8,
+  "current_sprint": 1,
+  "planned_sprints": 5,
   "remaining_spec_items": [
-    "Sprint 8: Homepage, Navigation & Polish"
+    "Sprint 2: Analytics Middleware + Request Tracking \u2014 middleware/analytics.py, path exclusion, fire-and-forget threading, app.py registration, unit tests",
+    "Sprint 3: Dashboard SQL Queries (7 files) \u2014 dashboards/ directory, 7 SQL files (user activity, project analytics, model performance, job execution, API usage, cost allocation, system health), unit tests",
+    "Sprint 4: Dashboard Provisioning + Admin Integration \u2014 provision_dashboard.py, Lakeview SDK, /api/admin/analytics/summary endpoint, AdminAnalytics.tsx tab, unit tests",
+    "Sprint 5: Integration Test + Installation Test + Documentation \u2014 E2E test, SQL query validation, full pytest, clean install, admin guide update, commit+push"
   ],
   "sprints_completed": [
-    {
-      "sprint": 1,
-      "feature": "Foundation \u2014 Restructure & Getting Started",
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        8.9,
-        9.5
-      ],
-      "iterations": 2
-    },
-    {
-      "sprint": 2,
-      "feature": "User Guide \u2014 Workflow Steps 1-4",
-      "score": 9.4,
-      "debt": true,
-      "trajectory": [
-        9.4
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 3,
-      "feature": "User Guide \u2014 Workflow Steps 5-8",
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        9.5
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 4,
-      "feature": "User Guide \u2014 Feature Pages Part 1",
-      "score": 9.5,
-      "debt": false,
-      "trajectory": [
-        9.5
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 5,
-      "score": 9.68,
-      "debt": false,
-      "trajectory": [
-        9.68
-      ],
-      "iterations": 1
-    },
-    {
-      "sprint": 6,
-      "score": 9.55,
-      "debt": false,
-      "trajectory": [
-        9.55
-      ],
-      "iterations": 1
-    }
+    {"sprint": 1, "feature": "Usage Analytics Backend", "score": null, "iterations": 1, "trajectory": [], "tests": 15}
   ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 1,
-  "last_doc_sprint": 5,
-  "last_install_test": 5,
-  "last_integration_test": 5,
+  "feature_sprints_since_doc_sprint": 0,
+  "last_doc_sprint": 0,
+  "last_install_test": 0,
+  "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 0,
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
-  "dev_server_command": "cd docs-site && npm start",
-  "build_command": "cd docs-site && npm run build",
-  "deploy_command": "rm -rf docs_site/* && cp -r docs-site/build/* docs_site/",
-  "last_action": "Sprint 7 iter 1: Developer Reference complete — 5 pages with What's Next cross-references, fixed 3 Sprint 6 regression bugs, build 0 errors, 3957 tests passed, deployed to docs_site/.",
-  "last_updated": "2026-04-04T06:00:00",
+  "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
+  "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
+  "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
+  "last_action": "Sprint 1 build complete. 15 new tests, 3971 total passed. Ready for Visual QA.",
+  "last_updated": "2026-04-04T10:15:00",
   "score_trajectory": []
 }
