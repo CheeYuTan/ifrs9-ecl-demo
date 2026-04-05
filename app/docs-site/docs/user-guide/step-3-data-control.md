@@ -148,6 +148,14 @@ In many organizations, the person who processed the data (Step 2) should not be 
 External auditors typically expect to see documented evidence that data quality was assessed before ECL calculation. The DQ score, check results, GL reconciliation, and approval comments on this page form that evidence. A blank approval comment — even when all checks pass — may prompt an auditor to ask how the review was performed.
 :::
 
+:::tip Re-running After Data Corrections
+If you reject the data and the data team makes corrections, they will re-run the data processing pipeline. When you return to this step, you will see fresh DQ results based on the corrected data. Compare the new DQ score against the previous run to confirm the issues were resolved. The platform retains the rejection history in the audit trail, creating a clear before-and-after record of the data remediation.
+:::
+
+:::info Segregation of Duties and the Maker-Checker Process
+Under SOX Section 302 and BCBS 239, organizations are expected to maintain segregation of duties in their ECL process. The maker-checker pattern on this page ensures that the person who prepared the data (the "maker") is not the same person who approves it (the "checker"). If your organization enforces this policy, the platform will prevent the same user from both processing and approving the data within the same project.
+:::
+
 ## What's Next?
 
 Proceed to [Step 4: Satellite Models](step-4-satellite-model) to select the macroeconomic models that will link PD and LGD to forward-looking economic scenarios.

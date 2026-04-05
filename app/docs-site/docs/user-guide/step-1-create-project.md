@@ -132,6 +132,12 @@ Every action taken on a project — creation, step advances, model runs, approva
 
 The audit trail cannot be edited or deleted. It provides a complete, verifiable history of every decision made during the ECL process.
 
+Each audit entry is linked to the previous entry via a cryptographic hash chain. This means any attempt to tamper with historical entries — deleting a record, changing a timestamp, or modifying a comment — would break the chain and be immediately detectable. Auditors can verify the integrity of the entire trail by running the hash-chain verification from the project's detail page.
+
+:::tip Reviewing the Audit Trail Before Sign-Off
+Before the final sign-off in Step 8, review the full audit trail to confirm that every workflow step was completed by an authorized user. This is a common auditor request and having the trail ready saves time during external audits.
+:::
+
 ## Tips & Best Practices
 
 :::tip Choose Meaningful Project IDs

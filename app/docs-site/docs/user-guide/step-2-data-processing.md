@@ -122,9 +122,10 @@ This advances the project to Step 3: Data Control. The completion is recorded in
 
 The metrics on this page are descriptive — they summarize what is in the portfolio, not what the ECL will be. Use them to answer:
 
-- **Is the full portfolio loaded?** Compare the total loan count and GCA against your expectations.
-- **Is the stage distribution reasonable?** Most loans should be in Stage 1. If Stage 2 or 3 is unusually high, investigate whether this reflects genuine credit deterioration or a data issue.
+- **Is the full portfolio loaded?** Compare the total loan count and GCA against your expectations. A missing product line or a significant drop in loan count compared to the prior period may indicate a data pipeline issue.
+- **Is the stage distribution reasonable?** Most loans should be in Stage 1. If Stage 2 or 3 is unusually high, investigate whether this reflects genuine credit deterioration or a data issue. A typical retail portfolio has 85-95% of GCA in Stage 1.
 - **Are risk parameters populated?** Check that PD, EIR, and DPD values are present and in expected ranges. Missing or zero values will cause problems in later steps.
+- **Are there unexpected concentrations?** If a single product type accounts for more than 50% of total GCA, or if a single vintage cohort dominates Stage 2, flag this for further review. Concentrations affect portfolio diversification assumptions used in the ECL models.
 
 ## Tips & Best Practices
 

@@ -27,13 +27,13 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 2,
+  "current_iteration": 3,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 2 iteration 2: Verified all eval fixes already in place. Doc pages all >=150 lines. npm build passes. 4206 tests pass, 0 failures. Handoff updated.",
-  "last_updated": "2026-04-05T11:35:00",
+  "last_action": "Sprint 2 iteration 3: Expanded 3 doc pages to 154-161 lines (comfortable margin above 150). Added IFRS 9 domain content (hash-chain, concentration risk, SOX segregation). npm build passes. 4206 tests pass, 0 failures.",
+  "last_updated": "2026-04-05T12:15:00",
   "score_trajectory": []
 }
