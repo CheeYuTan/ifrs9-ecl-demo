@@ -8,9 +8,9 @@
   "current_sprint": 2,
   "planned_sprints": 5,
   "remaining_spec_items": [
-    "Sprint 3: Frontend Permission Infrastructure — permissions.ts + usePermissions hook + api.ts types + Sidebar admin gate",
-    "Sprint 4: Frontend UI Integration — ProjectMembers.tsx sharing UI + 8 workflow pages gating + AccessDenied component",
-    "Sprint 5: Integration Testing + Deployment — e2e tests + installation test + audit trail verification + regression sweep"
+    "Sprint 3: Frontend Permission Infrastructure \u2014 permissions.ts + usePermissions hook + api.ts types + Sidebar admin gate",
+    "Sprint 4: Frontend UI Integration \u2014 ProjectMembers.tsx sharing UI + 8 workflow pages gating + AccessDenied component",
+    "Sprint 5: Integration Testing + Deployment \u2014 e2e tests + installation test + audit trail verification + regression sweep"
   ],
   "sprints_completed": [
     {
@@ -27,13 +27,13 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 1,
+  "current_iteration": 2,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 2 iteration 1: Built API layer + route protection. 31 new tests, 4206 total passing. Handoff written.",
-  "last_updated": "2026-04-05T11:30:00",
+  "last_action": "Sprint 2 iteration 2: Verified all eval fixes already in place. Doc pages all >=150 lines. npm build passes. 4206 tests pass, 0 failures. Handoff updated.",
+  "last_updated": "2026-04-05T11:35:00",
   "score_trajectory": []
 }
