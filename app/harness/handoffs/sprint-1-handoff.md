@@ -1,4 +1,4 @@
-# Sprint 1 Handoff: Backend Permission Engine (Iteration 3)
+# Sprint 1 Handoff: Backend Permission Engine (Iteration 4)
 
 ## What Was Built
 
@@ -10,39 +10,47 @@
 - `_audit_permission_change()`: Best-effort audit trail logging for all permission changes
 - Re-exports all CRUD operations from `project_members.py` for backward compatibility
 
-### CRUD Operations — `governance/project_members.py` (149 lines, NEW in iter 3)
+### CRUD Operations — `governance/project_members.py` (149 lines)
 - `add_project_member()`, `remove_project_member()`, `list_project_members()`, `get_project_member()`
 - `transfer_ownership(project_id, new_owner_id, performed_by)`: Updates ecl_workflow.owner_id, removes new owner from members table, audits
 
 ### Modified Files
 - **`domain/workflow.py`**: Added `owner_id TEXT` column, ALTER TABLE, backfill, `create_project()` accepts `owner_id`
-- **`backend.py`**: Re-exports for all project_permissions public symbols (unchanged — backward compat via re-exports)
+- **`backend.py`**: Re-exports for all project_permissions public symbols
 
-### Docs-Site Fixes (from iteration 2 — unchanged)
-- **`docs-site/src/pages/index.tsx`**: `title={siteConfig.title}` (no "Hello from" prefix), IFRS 9-specific description
-- **`docs-site/src/components/HomepageFeatures/index.tsx`**: IFRS 9-relevant feature cards (3-Stage Impairment Model, Monte Carlo Simulation, Regulatory Reporting) with styled cards
-- **`docs-site/docusaurus.config.ts`**: `onBrokenLinks: 'throw'`
+### Docs-Site Fixes (from iteration 2 — all 4 eval bugs fixed)
+- **BUG-S1-001**: `docs-site/src/pages/index.tsx` — `title={siteConfig.title}` (no "Hello from" prefix)
+- **BUG-S1-002**: `docs-site/src/pages/index.tsx` — IFRS 9-specific meta description
+- **BUG-S1-003**: `docs-site/src/components/HomepageFeatures/index.tsx` — IFRS 9-relevant feature cards (3-Stage Impairment Model, Monte Carlo Simulation, Regulatory Reporting) with styled cards, no stock Docusaurus dinosaur SVGs
+- **BUG-S1-004**: `docs-site/docusaurus.config.ts` — `onBrokenLinks: 'throw'`
 
 ### Iteration 3 Changes
-- **Split `project_permissions.py`** (was 272 lines, now 149) → extracted CRUD to `project_members.py` (149 lines) — both well within 200-line limit
-- **Split `test_project_permissions.py`** (was 547 lines) → extracted CRUD/transfer/audit tests to `test_project_members.py` (245 lines)
-- Fixed test fixture `_patch_db` — no longer patches `query_df` in `project_permissions` (it was moved to `project_members`)
+- Split `project_permissions.py` (272→149 lines) → extracted CRUD to `project_members.py` (149 lines)
+- Split `test_project_permissions.py` (547 lines) → extracted CRUD/transfer/audit tests to `test_project_members.py` (245 lines)
+- Both source files well within 200-line limit
+
+### Iteration 4 Changes
+- Verified all 84 tests still pass after iteration 3 changes
+- Verified docs-site build succeeds with 0 errors, 0 warnings
+- All 4 eval bugs confirmed fixed with regression tests guarding them
+- No new code changes needed — all eval feedback addressed in iterations 2-3
 
 ### Test Files
 - **`tests/unit/test_project_permissions.py`** (37 tests): Role hierarchy, ensure table, effective role, access checks, permission matrix, backend re-exports, workflow integration
 - **`tests/unit/test_project_members.py`** (28 tests): Add/remove/list/get member CRUD, transfer ownership, audit integration
-- **`tests/regression/test_docs_homepage_bugs.py`** (8 tests): Guards all 4 eval bugs
+- **`tests/regression/test_docs_homepage_bugs.py`** (8 tests): Guards all 4 eval bugs (BUG-S1-001 through BUG-S1-004)
 - **`tests/regression/test_docs_content_quality.py`** (11 tests): Image references, links, content quality, config
 
 ## How to Test
 - Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python app.py`
 - Run tests: `cd /Users/steven.tan/Expected\ Credit\ Losses && python -m pytest tests/unit/test_project_permissions.py tests/unit/test_project_members.py tests/regression/test_docs_homepage_bugs.py tests/regression/test_docs_content_quality.py -v`
 - Build docs: `cd docs-site && npm run build`
-- No new HTTP endpoints this sprint (backend domain layer only)
+- Docs site homepage: http://localhost:PORT/docs/
+- No new HTTP endpoints this sprint (backend domain layer only — API in Sprint 2)
 
 ## Test Results
 - `pytest` exit code: 0
-- Tests: **84 passed** (37 core permissions + 28 CRUD/members + 8 homepage regression + 11 content quality)
+- Tests: **84 passed** (37 permissions + 28 members + 8 homepage regression + 11 content quality)
 - Docs-site build: **SUCCESS** — 0 errors, 0 warnings, all pages generated
 
 ## Known Limitations
@@ -50,10 +58,15 @@
 - No middleware integration yet (Sprint 2) — `require_project_access()` dependency not yet created
 - Anonymous/dev mode bypass logic is designed but will be enforced at the middleware layer in Sprint 2
 
-## Files Changed (iteration 3)
-- `governance/project_permissions.py` — slimmed to 149 lines (core logic only)
-- `governance/project_members.py` — NEW: 149 lines (CRUD operations extracted)
-- `tests/unit/test_project_permissions.py` — slimmed to 333 lines (core logic tests only)
-- `tests/unit/test_project_members.py` — NEW: 245 lines (CRUD/audit tests extracted)
-- `harness/handoffs/sprint-1-handoff.md` — updated
-- `harness/state.json` — updated
+## Files Changed (cumulative across all iterations)
+- `governance/project_permissions.py` — 149 lines (core logic)
+- `governance/project_members.py` — 149 lines (CRUD operations)
+- `domain/workflow.py` — owner_id column additions
+- `backend.py` — re-exports
+- `docs-site/src/pages/index.tsx` — fixed title + meta description
+- `docs-site/src/components/HomepageFeatures/index.tsx` — IFRS 9 feature cards
+- `docs-site/docusaurus.config.ts` — onBrokenLinks: 'throw'
+- `tests/unit/test_project_permissions.py` — 37 tests
+- `tests/unit/test_project_members.py` — 28 tests
+- `tests/regression/test_docs_homepage_bugs.py` — 8 regression tests
+- `tests/regression/test_docs_content_quality.py` — 11 content quality tests
