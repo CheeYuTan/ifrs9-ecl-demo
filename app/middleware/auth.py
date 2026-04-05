@@ -91,6 +91,73 @@ def require_permission(action: str):
     return _check
 
 
+def require_project_access(min_role: str = "viewer", project_id_param: str = "project_id"):
+    """FastAPI dependency that checks project-level access (Layer 2).
+
+    Combines with Layer 1 RBAC: user must have the right global role AND
+    the right project role.  Anonymous (no auth header) bypasses all checks.
+    Admin RBAC role overrides project-level checks.
+
+    Returns the user dict enriched with ``project_role``.
+    """
+    def _check(request: Request):
+        has_auth_header = bool(
+            request.headers.get("X-Forwarded-User")
+            or request.headers.get("X-User-Id")
+            or request.headers.get("x-user-id")
+        )
+        if not has_auth_header:
+            user = dict(ANONYMOUS_USER)
+            user["project_role"] = "owner"
+            return user
+
+        user = get_current_user(request)
+
+        # Admin override — full access to all projects
+        if user.get("role") == "admin":
+            user["project_role"] = "owner"
+            return user
+
+        pid = request.path_params.get(project_id_param)
+        if not pid:
+            raise HTTPException(400, "Missing project_id in path")
+
+        from governance.project_permissions import check_project_access
+        result = check_project_access(user["user_id"], pid, min_role)
+        if not result["allowed"]:
+            raise HTTPException(
+                403,
+                f"Project access denied: {result['reason']}"
+            )
+        user["project_role"] = result["effective_role"]
+        return user
+    return _check
+
+
+def require_admin():
+    """FastAPI dependency that requires admin RBAC role.
+
+    Anonymous (no auth header) bypasses the check (dev mode).
+    """
+    def _check(request: Request):
+        has_auth_header = bool(
+            request.headers.get("X-Forwarded-User")
+            or request.headers.get("X-User-Id")
+            or request.headers.get("x-user-id")
+        )
+        if not has_auth_header:
+            return dict(ANONYMOUS_USER)
+
+        user = get_current_user(request)
+        if user.get("role") != "admin":
+            raise HTTPException(
+                403,
+                f"Admin access required. Current role: '{user.get('role')}'"
+            )
+        return user
+    return _check
+
+
 def require_project_not_locked(project_id_param: str = "project_id"):
     """FastAPI dependency that blocks mutations on signed-off projects."""
     def _check(request: Request, **kwargs):

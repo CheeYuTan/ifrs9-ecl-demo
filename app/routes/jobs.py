@@ -1,9 +1,14 @@
-"""Databricks jobs routes — /api/jobs/*"""
+"""Databricks jobs routes — /api/jobs/*
+
+Job triggers require authenticated user with run_backtests RBAC permission.
+Anonymous dev mode bypasses the check.
+"""
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional
 import jobs
+from middleware.auth import require_permission
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +31,10 @@ class TriggerJobRequest(BaseModel):
 
 
 @router.post("/trigger")
-def trigger_job(body: TriggerJobRequest):
+def trigger_job(
+    body: TriggerJobRequest,
+    user: dict = Depends(require_permission("run_backtests")),
+):
     try:
         if body.job_key == "satellite_ecl_sync":
             result = jobs.trigger_satellite_ecl_job(body.enabled_models)

@@ -1,12 +1,20 @@
-"""Admin config routes — /api/admin/*"""
+"""Admin config routes — /api/admin/*
+
+All endpoints require admin RBAC role (Layer 1). Anonymous dev mode bypasses.
+"""
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 import admin_config
+from middleware.auth import require_admin
 
 log = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/admin", tags=["admin"])
+router = APIRouter(
+    prefix="/api/admin",
+    tags=["admin"],
+    dependencies=[Depends(require_admin())],
+)
 
 
 class ValidateMappingRequest(BaseModel):

@@ -25,7 +25,7 @@ class InMemoryWorkflowStore:
     def __init__(self):
         self.projects: dict[str, dict] = {}
 
-    def create_project(self, project_id, name, ptype, desc, rdate):
+    def create_project(self, project_id, name, ptype, desc, rdate, owner_id="usr-004"):
         step_status = {s: "pending" for s in STEPS}
         step_status["create_project"] = "completed"
         audit = [{
@@ -41,6 +41,7 @@ class InMemoryWorkflowStore:
             "project_type": ptype,
             "description": desc,
             "reporting_date": rdate,
+            "owner_id": owner_id,
             "current_step": 1,
             "step_status": step_status,
             "audit_log": audit,

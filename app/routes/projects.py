@@ -1,9 +1,18 @@
-"""Project workflow routes — /api/projects/*"""
+"""Project workflow routes — /api/projects/*
+
+Protected with two-layer permission model:
+  - Layer 1 (RBAC): Global role via require_permission
+  - Layer 2 (Project): Per-project role via require_project_access
+"""
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 import backend
 from routes._utils import df_to_records, serialize_project
-from middleware.auth import get_current_user, require_permission
+from middleware.auth import (
+    get_current_user,
+    require_permission,
+    require_project_access,
+)
 
 router = APIRouter(prefix="/api", tags=["projects"])
 
@@ -42,23 +51,58 @@ class SignOff(BaseModel):
 
 
 @router.get("/projects")
-def list_projects():
-    return df_to_records(backend.list_projects())
+def list_projects(request: Request):
+    """List projects filtered by user access.
+
+    Anonymous / admin: see all projects.
+    Authenticated non-admin: see only projects where user is owner or member.
+    """
+    has_auth = bool(
+        request.headers.get("X-Forwarded-User")
+        or request.headers.get("X-User-Id")
+        or request.headers.get("x-user-id")
+    )
+    all_projects = df_to_records(backend.list_projects())
+    if not has_auth:
+        return all_projects
+
+    user = get_current_user(request)
+    if user.get("role") == "admin":
+        return all_projects
+
+    # Filter to projects the user can access
+    from governance.project_permissions import get_effective_role
+    return [
+        p for p in all_projects
+        if get_effective_role(user["user_id"], p["project_id"]) is not None
+    ]
 
 @router.get("/projects/{project_id}")
-def get_project(project_id: str):
+def get_project(
+    project_id: str,
+    user: dict = Depends(require_project_access("viewer")),
+):
     p = backend.get_project(project_id)
     if not p:
         raise HTTPException(404, "Project not found")
     return serialize_project(p)
 
 @router.post("/projects")
-def create_project(body: ProjectCreate):
-    p = backend.create_project(body.project_id, body.project_name, body.project_type, body.description, body.reporting_date)
+def create_project(body: ProjectCreate, request: Request):
+    user = get_current_user(request)
+    owner_id = user["user_id"] if user["user_id"] != "anonymous" else "usr-004"
+    p = backend.create_project(
+        body.project_id, body.project_name, body.project_type,
+        body.description, body.reporting_date, owner_id=owner_id,
+    )
     return serialize_project(p)
 
 @router.post("/projects/{project_id}/advance")
-def advance_step(project_id: str, body: StepAction):
+def advance_step(
+    project_id: str,
+    body: StepAction,
+    user: dict = Depends(require_project_access("editor")),
+):
     try:
         p = backend.advance_step(project_id, body.action, body.action, body.user, body.detail, body.status)
         return serialize_project(p)
@@ -66,7 +110,11 @@ def advance_step(project_id: str, body: StepAction):
         raise HTTPException(404, str(e))
 
 @router.post("/projects/{project_id}/overlays")
-def save_overlays(project_id: str, body: OverlaySave):
+def save_overlays(
+    project_id: str,
+    body: OverlaySave,
+    user: dict = Depends(require_project_access("editor")),
+):
     overlays = [o.model_dump() for o in body.overlays]
     p = backend.save_overlays(project_id, overlays)
     if body.comment:
@@ -74,13 +122,22 @@ def save_overlays(project_id: str, body: OverlaySave):
     return serialize_project(p)
 
 @router.post("/projects/{project_id}/scenario-weights")
-def save_weights(project_id: str, body: ScenarioWeights):
+def save_weights(
+    project_id: str,
+    body: ScenarioWeights,
+    user: dict = Depends(require_project_access("editor")),
+):
     p = backend.save_scenario_weights(project_id, body.weights)
     return serialize_project(p)
 
 @router.post("/projects/{project_id}/sign-off")
-def sign_off(project_id: str, body: SignOff,
-             user: dict = Depends(require_permission("sign_off_projects"))):
+def sign_off(
+    project_id: str,
+    body: SignOff,
+    rbac_user: dict = Depends(require_permission("sign_off_projects")),
+    proj_user: dict = Depends(require_project_access("owner")),
+):
+    """Dual-gate: requires both RBAC sign_off_projects AND project owner role."""
     proj = backend.get_project(project_id)
     if proj and proj.get("signed_off"):
         raise HTTPException(403, "Project already signed off and immutable")
@@ -106,7 +163,10 @@ def sign_off(project_id: str, body: SignOff,
 
 
 @router.get("/projects/{project_id}/verify-hash")
-def verify_hash(project_id: str):
+def verify_hash(
+    project_id: str,
+    user: dict = Depends(require_project_access("viewer")),
+):
     """Verify the ECL hash for a signed-off project."""
     proj = backend.get_project(project_id)
     if not proj:
@@ -132,7 +192,10 @@ def verify_hash(project_id: str):
     }
 
 @router.get("/projects/{project_id}/approval-history")
-def approval_history(project_id: str):
+def approval_history(
+    project_id: str,
+    user: dict = Depends(require_project_access("viewer")),
+):
     """Get approval history for a project (from RBAC approval requests)."""
     try:
         from governance.rbac import get_approval_history
@@ -142,7 +205,10 @@ def approval_history(project_id: str):
         raise HTTPException(500, f"Failed to get approval history: {e}")
 
 @router.post("/projects/{project_id}/reset")
-def reset_project(project_id: str):
+def reset_project(
+    project_id: str,
+    user: dict = Depends(require_project_access("manager")),
+):
     try:
         p = backend.reset_project(project_id)
         return serialize_project(p)

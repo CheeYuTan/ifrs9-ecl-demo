@@ -1,60 +1,67 @@
-# Sprint 2 Handoff: Analytics Middleware + Request Tracking (Iteration 5)
+# Sprint 2 Handoff: API Layer + Route Protection (Iteration 1)
 
 ## What Was Built
 
-- `middleware/analytics.py` (93 lines): Starlette `BaseHTTPMiddleware` that captures API request metrics (user, endpoint, method, status, duration, request_id, user_agent) and records them to Lakebase via fire-and-forget daemon threads
-- Middleware registered in `app.py` between `ErrorHandlerMiddleware` (outermost) and `RequestIDMiddleware` (innermost)
-- 20 unit tests covering path exclusion, header extraction, fire-and-forget behavior, middleware ordering, error tolerance
-- User guide docs expanded to ≥150 lines (Step 1, 2, 3)
+### New Files
+- **`routes/project_members.py`** (109 lines): REST API for project membership management
+  - `GET /api/projects/{id}/members` — list members + owner (viewer+ required)
+  - `POST /api/projects/{id}/members` — add member with role (manager+ required)
+  - `DELETE /api/projects/{id}/members/{user_id}` — remove member (manager+ required)
+  - `POST /api/projects/{id}/transfer-ownership` — transfer ownership (owner required)
+- **`tests/unit/test_route_protection.py`** (31 tests): Comprehensive tests for all new middleware and route protection
 
-## Iteration 5 Changes
-
-Fixed remaining path resolution bugs in 3 test files where `DOCS_SITE` and `app_path` used an extra `"app"` segment, causing `FileNotFoundError` on paths like `app/app/docs-site/...` and `app/app/app.py`:
-
-1. **`tests/regression/test_docs_content_quality.py`** — `DOCS_SITE` path had extraneous `/ "app" /` segment. Removed to resolve to correct `app/docs-site/` path. (Fixed in iter 4 but reverted; re-fixed.)
-2. **`tests/regression/test_docs_homepage_bugs.py`** — Same `DOCS_SITE` path issue. Removed `/ "app" /` segment.
-3. **`tests/unit/test_analytics_middleware.py`** — `TestMiddlewareOrdering` class: `app_path` joined with `"app", "app.py"` instead of just `"app.py"`. Fixed both `test_analytics_middleware_registered` and `test_middleware_order` methods.
-
-## Key Design Decisions
-
-- **Fire-and-forget via `threading.Thread(daemon=True)`**: Recording runs in a daemon thread so it never blocks the HTTP response. If recording fails (DB down, pool exhausted), the exception is logged and swallowed.
-- **Path exclusions**: `/assets/*`, `/docs/*`, and `/api/health` are excluded to avoid recording static asset requests, documentation serving, and health checks.
-- **User identity**: Extracted from `X-Forwarded-User` header (Databricks Apps proxy), falling back to `X-User-Id`, then `"anonymous"`.
-- **Request ID reuse**: Reads `request.state.request_id` set by the inner `RequestIDMiddleware` for cross-referencing with request logs.
+### Modified Files
+- **`middleware/auth.py`**: Added two new FastAPI dependencies:
+  - `require_project_access(min_role)` — two-layer project access check (anonymous bypass, admin override, role hierarchy)
+  - `require_admin()` — admin RBAC role gate (anonymous bypass)
+- **`routes/projects.py`**: All endpoints now enforced with project-level access:
+  - `GET /projects` — filters by user access (anonymous/admin see all)
+  - `GET /projects/{id}` — viewer+ required
+  - `POST /projects` — sets authenticated user as owner
+  - `POST /projects/{id}/advance` — editor+ required
+  - `POST /projects/{id}/overlays` — editor+ required
+  - `POST /projects/{id}/scenario-weights` — editor+ required
+  - `POST /projects/{id}/sign-off` — dual-gate: RBAC `sign_off_projects` AND project owner role
+  - `POST /projects/{id}/reset` — manager+ required
+  - `GET /projects/{id}/verify-hash` — viewer+ required
+  - `GET /projects/{id}/approval-history` — viewer+ required
+- **`routes/admin.py`**: Router-level `require_admin()` dependency — all admin endpoints now require admin RBAC role
+- **`routes/jobs.py`**: Job trigger endpoint now requires `run_backtests` RBAC permission
+- **`app.py`**: Registered `project_members_router`
+- **`tests/unit/test_qa_sprint_1_core_routes.py`**: Updated 4 create_project assertions to include `owner_id` kwarg
+- **`tests/integration/test_workflow.py`**: Updated InMemoryWorkflowStore to accept `owner_id` parameter
 
 ## How to Test
 
 - Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python app.py`
-- Make any API request (e.g., `GET /api/health/detailed`, `GET /api/projects`)
-- Verify: records appear in `expected_credit_loss.app_usage_analytics` table
-- Verify: `/assets/*`, `/docs/*`, and `/api/health` requests are NOT recorded
+- **Anonymous (no headers)**: All endpoints accessible (dev mode bypass)
+- **With auth**: `curl -H "X-User-Id: usr-001" http://localhost:8000/api/projects` — returns only projects usr-001 has access to
+- **Admin**: `curl -H "X-User-Id: usr-004" http://localhost:8000/api/admin/config` — admin can access admin routes
+- **Non-admin denied**: `curl -H "X-User-Id: usr-001" http://localhost:8000/api/admin/config` — returns 403
+- **Members API**: `curl -H "X-User-Id: usr-004" http://localhost:8000/api/projects/PROJ001/members`
 
 ## Test Results
 
-- `pytest tests/unit/test_analytics_middleware.py`: **20 passed** in 0.10s
-- `pytest tests/` (full suite): **4011 passed, 61 skipped, 0 failed** in 600s
-- `npm run build` (docs site): **Success** — 0 errors, 0 warnings
-- User guide page line counts: Step 1 (152), Step 2 (154), Step 3 (154), Step 4 (176) — all ≥150
+- `pytest tests/unit/test_route_protection.py`: **31 passed** in 44.8s
+- `pytest tests/` (full suite): **4206 passed, 61 skipped, 0 failed** in 685s
+- Zero regressions
 
 ## Known Limitations
 
-- Recording is best-effort: if the DB pool is exhausted or unavailable, analytics records are silently dropped (logged at ERROR level)
-- No batching: each request spawns one thread and one INSERT. For very high-throughput scenarios, a batching approach would be more efficient.
+- Project list filtering (`GET /api/projects`) calls `get_effective_role` per project — O(n) DB queries. For large project counts, a single SQL JOIN would be more efficient. Acceptable for current scale.
+- Jobs route protection uses RBAC `run_backtests` permission rather than project-level access, since job triggers don't always have a project_id context.
 
-## Files Changed (Iteration 5)
+## Files Changed
 
-- **Modified**: `tests/regression/test_docs_content_quality.py` (fixed DOCS_SITE path — removed extra "app" segment)
-- **Modified**: `tests/regression/test_docs_homepage_bugs.py` (fixed DOCS_SITE path — removed extra "app" segment)
-- **Modified**: `tests/unit/test_analytics_middleware.py` (fixed app_path in TestMiddlewareOrdering — removed extra "app" segment)
-
-## Files Changed (All Sprint 2 Iterations)
-
-- **Created**: `middleware/analytics.py` (93 lines)
-- **Created**: `tests/unit/test_analytics_middleware.py` (267 lines)
-- **Modified**: `app.py` (added 2 lines — import + middleware registration)
-- **Modified**: `docs-site/docs/user-guide/step-1-create-project.md` (expanded to 152 lines)
-- **Modified**: `docs-site/docs/user-guide/step-2-data-processing.md` (expanded to 154 lines)
-- **Modified**: `docs-site/docs/user-guide/step-3-data-control.md` (expanded to 154 lines)
-- **Modified**: `tests/regression/test_docs_content_quality.py` (fixed DOCS_SITE path)
-- **Modified**: `tests/regression/test_docs_homepage_bugs.py` (fixed DOCS_SITE path)
-- **Modified**: `tests/unit/test_simulation_seed.py` (added _load_config/_build_product_maps patches)
+| File | Action | Lines |
+|------|--------|-------|
+| `middleware/auth.py` | Modified | +52 lines (require_project_access, require_admin) |
+| `routes/project_members.py` | Created | 109 lines |
+| `routes/projects.py` | Modified | Rewrote with access checks |
+| `routes/admin.py` | Modified | +3 lines (router-level dependency) |
+| `routes/jobs.py` | Modified | +4 lines (trigger permission) |
+| `app.py` | Modified | +2 lines (register router) |
+| `tests/unit/test_route_protection.py` | Created | 31 tests |
+| `tests/unit/test_qa_sprint_1_core_routes.py` | Modified | 4 assertions updated |
+| `tests/integration/test_workflow.py` | Modified | 2 lines (owner_id support) |
+| `harness/contracts/sprint-2.md` | Updated | Sprint 2 contract |

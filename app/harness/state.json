@@ -5,30 +5,35 @@
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 1,
+  "current_sprint": 2,
   "planned_sprints": 5,
   "remaining_spec_items": [
-    "Sprint 2: API Layer + Route Protection \u2014 routes/project_members.py + middleware/auth.py require_project_access() + protect routes",
-    "Sprint 3: Frontend Permission Infrastructure \u2014 permissions.ts + usePermissions hook + api.ts types + Sidebar admin gate",
-    "Sprint 4: Frontend UI Integration \u2014 ProjectMembers.tsx sharing UI + 8 workflow pages gating + AccessDenied component",
-    "Sprint 5: Integration Testing + Deployment \u2014 e2e tests + installation test + audit trail verification + regression sweep"
+    "Sprint 3: Frontend Permission Infrastructure — permissions.ts + usePermissions hook + api.ts types + Sidebar admin gate",
+    "Sprint 4: Frontend UI Integration — ProjectMembers.tsx sharing UI + 8 workflow pages gating + AccessDenied component",
+    "Sprint 5: Integration Testing + Deployment — e2e tests + installation test + audit trail verification + regression sweep"
   ],
-  "sprints_completed": [],
+  "sprints_completed": [
+    {
+      "sprint": 1,
+      "score": 0.0,
+      "debt": true,
+      "trajectory": [],
+      "iterations": 0
+    }
+  ],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 0,
+  "feature_sprints_since_doc_sprint": 1,
   "last_doc_sprint": 0,
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 5,
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 1 iteration 5 (final). 86 tests passing (added sidebar integrity tests). Docs-site builds clean. All 4 eval bugs fixed. Ready for re-evaluation.",
-  "last_updated": "2026-04-05T10:15:00",
-  "score_trajectory": [
-    8.9
-  ]
+  "last_action": "Sprint 2 iteration 1: Built API layer + route protection. 31 new tests, 4206 total passing. Handoff written.",
+  "last_updated": "2026-04-05T11:30:00",
+  "score_trajectory": []
 }

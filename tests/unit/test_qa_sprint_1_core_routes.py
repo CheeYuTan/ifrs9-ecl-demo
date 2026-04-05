@@ -137,7 +137,8 @@ class TestCreateProject:
             })
         assert resp.status_code == 200
         mock_fn.assert_called_once_with(
-            "proj-001", "ECL Q4", "ifrs9", "Full", "2025-12-31"
+            "proj-001", "ECL Q4", "ifrs9", "Full", "2025-12-31",
+            owner_id="usr-004",
         )
 
     def test_create_project_defaults(self, client):
@@ -149,7 +150,7 @@ class TestCreateProject:
                 "project_name": "Test",
             })
         assert resp.status_code == 200
-        mock_fn.assert_called_once_with("p1", "Test", "ifrs9", "", "")
+        mock_fn.assert_called_once_with("p1", "Test", "ifrs9", "", "", owner_id="usr-004")
 
     def test_create_project_missing_required_field(self, client):
         resp = client.post("/api/projects", json={"project_name": "NoId"})
@@ -780,7 +781,7 @@ class TestProjectCreateEdgeCases:
                 "reporting_date": "",
             })
         assert resp.status_code == 200
-        mock_fn.assert_called_once_with("p1", "Test", "ifrs9", "", "")
+        mock_fn.assert_called_once_with("p1", "Test", "ifrs9", "", "", owner_id="usr-004")
 
     def test_create_project_with_different_type(self, client):
         """Non-default project_type."""
@@ -792,7 +793,7 @@ class TestProjectCreateEdgeCases:
                 "project_type": "cecl",
             })
         assert resp.status_code == 200
-        mock_fn.assert_called_once_with("p1", "CECL Proj", "cecl", "", "")
+        mock_fn.assert_called_once_with("p1", "CECL Proj", "cecl", "", "", owner_id="usr-004")
 
 
 class TestAdvanceStepEdgeCases:
