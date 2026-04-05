@@ -203,6 +203,38 @@ class TestDocsContentQuality:
 # Config consistency
 # ---------------------------------------------------------------------------
 
+class TestDocsSidebarIntegrity:
+    """Every sidebar entry must resolve to an existing markdown file."""
+
+    def test_sidebar_entries_resolve_to_files(self):
+        """Parse sidebar doc IDs from sidebars.ts and verify each has a .md file."""
+        sidebar_file = DOCS_SITE / "sidebars.ts"
+        if not sidebar_file.exists():
+            return
+        content = sidebar_file.read_text()
+        # Extract quoted doc IDs from items arrays — skip keywords like 'category', 'en'
+        keywords = {"category", "doc", "docSidebar", "en", "classic", "left", "right"}
+        doc_ids = [
+            m for m in re.findall(r"'([a-z][a-z0-9/-]+)'", content)
+            if "/" in m or m not in keywords
+        ]
+        missing = []
+        for doc_id in doc_ids:
+            md_path = DOCS_DIR / f"{doc_id}.md"
+            if not md_path.exists():
+                missing.append(f"  '{doc_id}' → expected {md_path.relative_to(DOCS_SITE)}")
+        assert not missing, (
+            f"Sidebar references {len(missing)} non-existent docs:\n"
+            + "\n".join(missing)
+        )
+
+    def test_sidebar_has_all_four_categories(self):
+        """Sidebar should have Getting Started, User Guide, Admin Guide, Developer Reference."""
+        content = (DOCS_SITE / "sidebars.ts").read_text()
+        for category in ("Getting Started", "User Guide", "Admin Guide", "Developer Reference"):
+            assert category in content, f"Sidebar missing category: {category}"
+
+
 class TestDocsConfig:
     """Docusaurus config should be production-ready."""
 

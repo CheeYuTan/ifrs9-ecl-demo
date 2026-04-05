@@ -1,4 +1,4 @@
-# Sprint 1 Handoff: Backend Permission Engine (Iteration 4)
+# Sprint 1 Handoff: Backend Permission Engine (Iteration 5 — Final)
 
 ## What Was Built
 
@@ -18,28 +18,22 @@
 - **`domain/workflow.py`**: Added `owner_id TEXT` column, ALTER TABLE, backfill, `create_project()` accepts `owner_id`
 - **`backend.py`**: Re-exports for all project_permissions public symbols
 
-### Docs-Site Fixes (from iteration 2 — all 4 eval bugs fixed)
+### Docs-Site Fixes (all 4 eval bugs fixed with regression tests)
 - **BUG-S1-001**: `docs-site/src/pages/index.tsx` — `title={siteConfig.title}` (no "Hello from" prefix)
 - **BUG-S1-002**: `docs-site/src/pages/index.tsx` — IFRS 9-specific meta description
 - **BUG-S1-003**: `docs-site/src/components/HomepageFeatures/index.tsx` — IFRS 9-relevant feature cards (3-Stage Impairment Model, Monte Carlo Simulation, Regulatory Reporting) with styled cards, no stock Docusaurus dinosaur SVGs
 - **BUG-S1-004**: `docs-site/docusaurus.config.ts` — `onBrokenLinks: 'throw'`
 
-### Iteration 3 Changes
-- Split `project_permissions.py` (272→149 lines) → extracted CRUD to `project_members.py` (149 lines)
-- Split `test_project_permissions.py` (547 lines) → extracted CRUD/transfer/audit tests to `test_project_members.py` (245 lines)
-- Both source files well within 200-line limit
-
-### Iteration 4 Changes
-- Verified all 84 tests still pass after iteration 3 changes
-- Verified docs-site build succeeds with 0 errors, 0 warnings
-- All 4 eval bugs confirmed fixed with regression tests guarding them
-- No new code changes needed — all eval feedback addressed in iterations 2-3
+### Iteration 5 Changes (final)
+- Added `TestDocsSidebarIntegrity` test class (2 tests) — validates sidebar entries resolve to existing .md files and all 4 categories present
+- Total test count: 86 (up from 84)
+- All tests pass, docs-site builds clean
 
 ### Test Files
 - **`tests/unit/test_project_permissions.py`** (37 tests): Role hierarchy, ensure table, effective role, access checks, permission matrix, backend re-exports, workflow integration
 - **`tests/unit/test_project_members.py`** (28 tests): Add/remove/list/get member CRUD, transfer ownership, audit integration
 - **`tests/regression/test_docs_homepage_bugs.py`** (8 tests): Guards all 4 eval bugs (BUG-S1-001 through BUG-S1-004)
-- **`tests/regression/test_docs_content_quality.py`** (11 tests): Image references, links, content quality, config
+- **`tests/regression/test_docs_content_quality.py`** (13 tests): Image references, links, sidebar integrity, content quality, config
 
 ## How to Test
 - Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python app.py`
@@ -50,7 +44,7 @@
 
 ## Test Results
 - `pytest` exit code: 0
-- Tests: **84 passed** (37 permissions + 28 members + 8 homepage regression + 11 content quality)
+- Tests: **86 passed** (37 permissions + 28 members + 8 homepage regression + 13 content quality)
 - Docs-site build: **SUCCESS** — 0 errors, 0 warnings, all pages generated
 
 ## Known Limitations
@@ -69,4 +63,4 @@
 - `tests/unit/test_project_permissions.py` — 37 tests
 - `tests/unit/test_project_members.py` — 28 tests
 - `tests/regression/test_docs_homepage_bugs.py` — 8 regression tests
-- `tests/regression/test_docs_content_quality.py` — 11 content quality tests
+- `tests/regression/test_docs_content_quality.py` — 13 content quality tests (including sidebar integrity)
