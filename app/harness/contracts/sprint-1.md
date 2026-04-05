@@ -1,24 +1,31 @@
-# Sprint 1 Contract: Usage Analytics Backend
+# Sprint 1 Contract: Backend Permission Engine
 
 ## Acceptance Criteria
-- [ ] New table `expected_credit_loss.app_usage_analytics` with columns: id SERIAL, timestamp TIMESTAMP DEFAULT NOW(), user_id TEXT, method TEXT, endpoint TEXT, status_code INT, duration_ms FLOAT, request_id TEXT, user_agent TEXT
-- [ ] `ensure_usage_table()` creates table idempotently (safe to call multiple times)
-- [ ] Table has `COMMENT ON TABLE` with `ifrs9ecl:` prefix tag
-- [ ] `record_request()` inserts a usage record with all fields
-- [ ] `get_usage_stats(days=7)` returns summary metrics (total requests, unique users, avg duration)
-- [ ] `get_recent_requests(limit=50)` returns recent N records ordered by timestamp desc
-- [ ] Module registered in `backend.py` re-exports
-- [ ] `ensure_usage_table()` wired into `domain/workflow.py` init chain (after `ensure_rbac_tables`)
-- [ ] All unit tests pass
-
-## API Contract
-- No new HTTP endpoints this sprint (backend domain layer only)
-- Functions: `ensure_usage_table()`, `record_request(...)`, `get_usage_stats(days)`, `get_recent_requests(limit)`
+- [ ] `governance/project_permissions.py` implements `check_project_access(user_id, project_id, required_role)` returning `{allowed, reason, effective_role}`
+- [ ] `get_effective_role(user_id, project_id)` resolves role from: admin override > owner_id match > project_members lookup > no access
+- [ ] Role hierarchy: viewer(0) < editor(1) < manager(2) < owner(3)
+- [ ] `ensure_project_members_table()` creates `{SCHEMA}.project_members` with correct schema
+- [ ] CRUD: `add_project_member()`, `remove_project_member()`, `list_project_members()`, `get_project_member()`
+- [ ] Anonymous/dev mode bypass: when no auth headers present, all access checks return True
+- [ ] Admin override: users with RBAC role "admin" bypass all project-level checks
+- [ ] Owner resolution: `ecl_workflow.owner_id` identifies project owner (role=owner without project_members entry)
+- [ ] `domain/workflow.py`: `ecl_workflow` CREATE includes `owner_id TEXT` column
+- [ ] `create_project()` accepts and stores `owner_id` parameter
+- [ ] `get_project()` returns `owner_id` in result dict
+- [ ] Existing projects backfilled with `owner_id = 'usr-004'` (admin) during `ensure_workflow_table()`
+- [ ] All permission changes (add/remove member, transfer ownership) produce audit trail entries via `append_audit_entry()`
+- [ ] `transfer_ownership(project_id, new_owner_id, performed_by)` updates `ecl_workflow.owner_id` and logs audit
 
 ## Test Plan
-- Unit tests (~10): table creation DDL, idempotency, record_request insertion, get_usage_stats with data, get_usage_stats empty table, get_recent_requests with data, get_recent_requests empty, SCHEMA/PREFIX usage, backend.py re-export accessibility
+- Permission matrix: all 4 RBAC roles x 4 project roles x access check = 16+ combinations
+- Admin override: admin user bypasses project-level checks regardless of membership
+- Anonymous bypass: no auth headers returns allowed=True
+- Owner resolution: project creator is owner, owner has full access
+- CRUD: add/remove/list members, duplicate prevention, role validation
+- Transfer ownership: changes owner_id, logs audit, old owner loses owner role
+- Audit trail: every permission change produces valid audit entry
+- Edge cases: non-existent user, non-existent project, invalid role name
 
 ## Production Readiness Items This Sprint
-- Table creation follows existing pattern (CREATE TABLE IF NOT EXISTS)
-- COMMENT ON TABLE for catalog discoverability
-- Logging consistent with existing domain modules
+- Error handling: all functions return structured results or raise ValueError with clear messages
+- Input validation: role must be in {viewer, editor, manager}, user_id and project_id must be non-empty

@@ -1,53 +1,32 @@
 {
   "status": "IN_PROGRESS",
-  "app_name": "IFRS 9 ECL Analytics Dashboard",
+  "app_name": "IFRS 9 ECL Permission Model",
   "workspace_dir": "/Users/steven.tan/Expected Credit Losses/app",
   "quality_target": 9.5,
   "current_phase": "BUILD_AGENT",
   "spec_complete": true,
-  "current_sprint": 3,
+  "current_sprint": 1,
   "planned_sprints": 5,
   "remaining_spec_items": [
-    "Sprint 4: Dashboard Provisioning + Admin Integration \u2014 provision_dashboard.py, Lakeview SDK, /api/admin/analytics/summary endpoint, AdminAnalytics.tsx tab, unit tests",
-    "Sprint 5: Integration Test + Installation Test + Documentation \u2014 E2E test, SQL query validation, full pytest, clean install, admin guide update, commit+push"
+    "Sprint 2: API Layer + Route Protection — routes/project_members.py + middleware/auth.py require_project_access() + protect routes",
+    "Sprint 3: Frontend Permission Infrastructure — permissions.ts + usePermissions hook + api.ts types + Sidebar admin gate",
+    "Sprint 4: Frontend UI Integration — ProjectMembers.tsx sharing UI + 8 workflow pages gating + AccessDenied component",
+    "Sprint 5: Integration Testing + Deployment — e2e tests + installation test + audit trail verification + regression sweep"
   ],
-  "sprints_completed": [
-    {
-      "sprint": 1,
-      "feature": "Usage Analytics Backend",
-      "score": null,
-      "iterations": 1,
-      "trajectory": [],
-      "tests": 45
-    },
-    {
-      "sprint": 1,
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0
-    },
-    {
-      "sprint": 2,
-      "score": 0.0,
-      "debt": true,
-      "trajectory": [],
-      "iterations": 0
-    }
-  ],
+  "sprints_completed": [],
   "dynamically_added_sprints": [],
-  "feature_sprints_since_doc_sprint": 2,
+  "feature_sprints_since_doc_sprint": 0,
   "last_doc_sprint": 0,
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 2,
+  "current_iteration": 1,
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
   "dev_server_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app && python app.py",
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
-  "last_action": "Sprint 3 iter 2: Fixed 13 pre-existing test failures (path resolution in symlinked tests dir). Full suite: 4086 passed, 61 skipped, 0 failed. Ready for Visual QA.",
-  "last_updated": "2026-04-04T15:30:00",
+  "last_action": "Sprint 1 Build complete. 65 new tests, all passing. Ready for evaluation.",
+  "last_updated": "2026-04-05T09:15:00",
   "score_trajectory": []
 }

@@ -45,10 +45,21 @@ def ensure_workflow_table():
             scenario_weights TEXT,
             signed_off_by   TEXT,
             signed_off_at   TIMESTAMP,
+            owner_id        TEXT,
             created_at      TIMESTAMP DEFAULT NOW(),
             updated_at      TIMESTAMP DEFAULT NOW()
         )
     """)
+    # Add owner_id column to existing tables (idempotent)
+    try:
+        execute(f"ALTER TABLE {WF_TABLE} ADD COLUMN IF NOT EXISTS owner_id TEXT")
+    except Exception:
+        pass
+    # Backfill existing projects with admin user as owner
+    try:
+        execute(f"UPDATE {WF_TABLE} SET owner_id = 'usr-004' WHERE owner_id IS NULL")
+    except Exception:
+        pass
     execute(f"COMMENT ON TABLE {WF_TABLE} IS 'ifrs9ecl: ECL project workflow state and step tracking'")
     log.info("Ensured %s table exists", WF_TABLE)
     try:
@@ -98,6 +109,11 @@ def ensure_workflow_table():
         _ensure_fns.append(("ensure_usage_table", ensure_usage_table))
     except ImportError:
         pass
+    try:
+        from governance.project_permissions import ensure_project_members_table
+        _ensure_fns.append(("ensure_project_members_table", ensure_project_members_table))
+    except ImportError:
+        pass
     for fn_name, fn in _ensure_fns:
         try:
             fn()
@@ -121,19 +137,20 @@ def list_projects() -> pd.DataFrame:
     return query_df(f"SELECT project_id, project_name, project_type, current_step, created_at, signed_off_by FROM {WF_TABLE} ORDER BY created_at DESC")
 
 
-def create_project(project_id: str, name: str, ptype: str, desc: str, rdate: str) -> dict:
+def create_project(project_id: str, name: str, ptype: str, desc: str, rdate: str,
+                    owner_id: str = "usr-004") -> dict:
     step_status = {s: "pending" for s in STEPS}
     step_status["create_project"] = "completed"
     audit = [{"ts": _dt.now(_tz.utc).isoformat(), "user": "Current User", "action": "Project Created", "detail": f"{name} initialized", "step": "create_project"}]
     execute(f"""
-        INSERT INTO {WF_TABLE} (project_id, project_name, project_type, description, reporting_date, current_step, step_status, audit_log)
-        VALUES (%s, %s, %s, %s, %s, 1, %s, %s)
+        INSERT INTO {WF_TABLE} (project_id, project_name, project_type, description, reporting_date, current_step, step_status, audit_log, owner_id)
+        VALUES (%s, %s, %s, %s, %s, 1, %s, %s, %s)
         ON CONFLICT (project_id) DO UPDATE SET
             project_name=EXCLUDED.project_name, project_type=EXCLUDED.project_type,
             description=EXCLUDED.description, reporting_date=EXCLUDED.reporting_date,
             current_step=EXCLUDED.current_step, step_status=EXCLUDED.step_status,
-            audit_log=EXCLUDED.audit_log, updated_at=NOW()
-    """, (project_id, name, ptype, desc, rdate, _json.dumps(step_status), _json.dumps(audit)))
+            audit_log=EXCLUDED.audit_log, owner_id=EXCLUDED.owner_id, updated_at=NOW()
+    """, (project_id, name, ptype, desc, rdate, _json.dumps(step_status), _json.dumps(audit), owner_id))
     _audit_event(project_id, "workflow", "project_created", "Current User",
                  {"name": name, "type": ptype, "reporting_date": rdate})
     return get_project(project_id)

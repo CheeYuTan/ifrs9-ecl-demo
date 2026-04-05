@@ -168,6 +168,17 @@ from governance.rbac import (  # noqa: F401
     approve_request, reject_request, get_approval_history,
 )
 
+# ── Project Permissions (Layer 2) ─────────────────────────────────────────
+from governance.project_permissions import (  # noqa: F401
+    PROJECT_MEMBERS_TABLE, VALID_PROJECT_ROLES, ROLE_HIERARCHY,
+    role_level,
+    ensure_project_members_table,
+    get_effective_role, check_project_access,
+    get_project_member, list_project_members,
+    add_project_member, remove_project_member,
+    transfer_ownership,
+)
+
 # ── Advanced Features ──────────────────────────────────────────────────────
 # ── Validation Rules ───────────────────────────────────────────────────────
 from domain.validation_rules import (  # noqa: F401
