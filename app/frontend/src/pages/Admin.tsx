@@ -100,7 +100,7 @@ export default function Admin() {
           <div className="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center mx-auto mb-3 animate-pulse">
             <Settings size={20} className="text-white" />
           </div>
-          <p className="text-sm text-slate-400">Loading configuration...</p>
+          <p className="text-sm text-slate-500 dark:text-slate-300">Loading configuration...</p>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export default function Admin() {
           </div>
           <div>
             <h2 className="text-xl font-extrabold text-slate-800 dark:text-white">Administration</h2>
-            <p className="text-sm text-slate-400 mt-0.5">Configure data sources, models, jobs, and settings</p>
+            <p className="text-sm text-slate-500 dark:text-slate-300 mt-0.5">Configure data sources, models, jobs, and settings</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -133,7 +133,7 @@ export default function Admin() {
             </button>
           )}
           <button onClick={handleSave} disabled={saving || !dirty}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold gradient-brand text-white rounded-xl hover:opacity-90 transition disabled:opacity-40 shadow-md">
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold gradient-brand text-white rounded-xl hover:opacity-80 transition disabled:opacity-40 shadow-md">
             <Save size={14} /> {saving ? 'Saving...' : 'Save Configuration'}
           </button>
         </div>

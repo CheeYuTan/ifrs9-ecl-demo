@@ -375,9 +375,9 @@ export default function SignOff({ project, onSignOff }: Props) {
               <thead>
                 <tr className="border-b-2 border-slate-200 dark:border-slate-600">
                   <th scope="col" className="text-left py-2.5 px-3 text-xs font-semibold text-slate-600 dark:text-slate-300">Movement Type</th>
-                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-emerald-700"><span className="inline-flex items-center gap-1">Stage 1 <HelpTooltip content={IFRS9_HELP.STAGE_1} size={11} position="bottom" /></span></th>
-                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-amber-700"><span className="inline-flex items-center gap-1">Stage 2 <HelpTooltip content={IFRS9_HELP.STAGE_2} size={11} position="bottom" /></span></th>
-                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-red-700"><span className="inline-flex items-center gap-1">Stage 3 <HelpTooltip content={IFRS9_HELP.STAGE_3} size={11} position="bottom" /></span></th>
+                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-emerald-700 dark:text-emerald-400"><span className="inline-flex items-center gap-1.5">Stage 1 <HelpTooltip content={IFRS9_HELP.STAGE_1} size={11} position="bottom" /></span></th>
+                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-amber-700 dark:text-amber-400"><span className="inline-flex items-center gap-1.5">Stage 2 <HelpTooltip content={IFRS9_HELP.STAGE_2} size={11} position="bottom" /></span></th>
+                  <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-red-700 dark:text-red-400"><span className="inline-flex items-center gap-1.5">Stage 3 <HelpTooltip content={IFRS9_HELP.STAGE_3} size={11} position="bottom" /></span></th>
                   <th scope="col" className="text-right py-2.5 px-3 text-xs font-semibold text-slate-700 dark:text-slate-200">Total</th>
                 </tr>
               </thead>
@@ -599,15 +599,15 @@ export default function SignOff({ project, onSignOff }: Props) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="signoff-prepared-by" className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Prepared By (CFO / Head of Finance)</label>
+                  <label htmlFor="signoff-prepared-by" className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Prepared By (CFO / Head of Finance)</label>
                   <input id="signoff-prepared-by" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Ana Reyes, CFO"
                     className="form-input py-3" />
                 </div>
                 <div>
-                  <label htmlFor="signoff-approved-by" className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Approved By (CRO)</label>
+                  <label htmlFor="signoff-approved-by" className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Approved By (CRO)</label>
                   <input id="signoff-approved-by" placeholder="e.g. David Kim, CRO" disabled
                     className="form-input py-3 bg-slate-50 dark:bg-slate-800/40 text-slate-500 cursor-not-allowed" />
-                  <p id="cro-help" className="text-[10px] text-slate-500 mt-1">CRO approval captured via separate workflow in production</p>
+                  <p id="cro-help" className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">CRO approval captured via separate workflow in production</p>
                 </div>
               </div>
 

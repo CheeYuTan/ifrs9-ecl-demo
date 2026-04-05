@@ -28,7 +28,7 @@ export default function ScenarioChecklist({ scenarios }: Props) {
           <div className="flex items-center gap-1.5 w-40 flex-shrink-0">
             <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: sr.color }} />
             <span className="font-medium text-slate-700 dark:text-slate-200 truncate">{sr.label}</span>
-            <span className="text-slate-400">({Math.round(sr.weightPct)}%)</span>
+            <span className="text-slate-500 dark:text-slate-300">({Math.round(sr.weightPct)}%)</span>
           </div>
           <div className="flex-1 text-right font-mono text-slate-600 dark:text-slate-300">
             {sr.status === 'done' && sr.ecl != null
@@ -38,7 +38,7 @@ export default function ScenarioChecklist({ scenarios }: Props) {
               : <span className="text-slate-300">Pending</span>
             }
           </div>
-          <div className="w-14 text-right font-mono text-slate-400 text-[10px]">
+          <div className="w-14 text-right font-mono text-slate-500 dark:text-slate-300 text-[11px]">
             {sr.status === 'done' && sr.durationMs != null
               ? `${(sr.durationMs / 1000).toFixed(1)}s`
               : '—'

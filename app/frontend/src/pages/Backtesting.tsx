@@ -50,11 +50,11 @@ function MetricCard({ metric }: { metric: BacktestMetric }) {
   return (
     <div className={`p-4 rounded-xl border ${cfg.border} ${cfg.bg} transition-all hover:shadow-md`}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{metric.metric_name}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300">{metric.metric_name}</span>
         <TrafficLightDot light={metric.pass_fail} />
       </div>
       <p className={`text-2xl font-extrabold ${cfg.text}`}>{fmtNumber(metric.metric_value, 4)}</p>
-      <p className="text-[10px] text-slate-400 mt-1">
+      <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1">
         {isLowerBetter ? '≤' : '≥'} {fmtNumber(metric.threshold_green, 2)} Green
         {' · '}
         {isLowerBetter ? '≤' : '≥'} {fmtNumber(metric.threshold_amber, 2)} Amber
@@ -97,7 +97,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-white">Backtest Detail</h3>
-            <p className="text-[10px] text-slate-400">{backtest.backtest_id} · {backtest.model_type}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300">{backtest.backtest_id} · {backtest.model_type}</p>
           </div>
         </div>
         <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={18} className="text-slate-400" /></button>
@@ -106,24 +106,24 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-3">
           <TrafficLightBadge light={backtest.overall_traffic_light} />
-          <span className="text-xs text-slate-400">{fmtDateTime(backtest.backtest_date)}</span>
-          <span className="text-xs text-slate-400">· {fmtNumber(backtest.total_loans)} loans</span>
+          <span className="text-xs text-slate-500 dark:text-slate-300">{fmtDateTime(backtest.backtest_date)}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-300">· {fmtNumber(backtest.total_loans)} loans</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Observation Window</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Observation Window</p>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{backtest.observation_window}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Outcome Window</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Outcome Window</p>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{backtest.outcome_window}</p>
           </div>
         </div>
 
         {metrics.length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Metrics — Traffic Light Assessment</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Metrics — Traffic Light Assessment</p>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {metrics.map(m => <MetricCard key={m.metric_id} metric={m} />)}
             </div>
@@ -132,7 +132,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
 
         {cohortBarData.length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Predicted vs Actual by Cohort</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Predicted vs Actual by Cohort</p>
             <div className="h-64 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={cohortBarData} barGap={2}>
@@ -154,7 +154,7 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
 
         {scatterData.length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Calibration Plot</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Calibration Plot</p>
             <div className="h-64 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart>
@@ -175,16 +175,16 @@ function DetailPanel({ backtest, onClose }: DetailPanelProps) {
 
         {cohorts.length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Cohort Analysis</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Cohort Analysis</p>
             <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">
-                    <th className="py-2 px-3 text-left text-[10px] font-bold uppercase">Cohort</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase">Predicted</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase">Actual</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase">Diff</th>
-                    <th className="py-2 px-3 text-right text-[10px] font-bold uppercase">Count</th>
+                  <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:bg-slate-700/50 dark:text-slate-200">
+                    <th className="py-2 px-3 text-left text-[11px] font-bold uppercase">Cohort</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase">Predicted</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase">Actual</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase">Diff</th>
+                    <th className="py-2 px-3 text-right text-[11px] font-bold uppercase">Count</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -297,7 +297,7 @@ export default function Backtesting() {
       format: (v: string) => <TrafficLightBadge light={v} />,
     },
     { key: 'model_type', label: 'Model', format: (v: string) => (
-      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
+      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
     )},
     {
       key: 'backtest_date', label: 'Date',
@@ -430,7 +430,7 @@ export default function Backtesting() {
               {(latest.metrics as BacktestMetric[]).map(m => <MetricCard key={m.metric_id || m.metric_name} metric={m} />)}
             </div>
           ) : (
-            <p className="text-xs text-slate-400 italic">Click "Full Detail" to load metrics</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300 italic">Click "Full Detail" to load metrics</p>
           )}
         </Card>
       )}

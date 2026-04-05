@@ -180,26 +180,26 @@ export default function Overlays({ project, onSubmit }: Props) {
       <Card title="Overlay Governance Framework" subtitle="IFRS 9.B5.5.17 — Overlays must be reasonable, supportable, and time-bound">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase">Overlay Cap</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase">Overlay Cap</p>
             <p className="text-lg font-bold text-slate-700 dark:text-slate-200">≤ {OVERLAY_CAP_PCT}% of Model ECL</p>
-            <p className={`text-[10px] font-semibold ${Math.abs(net) / Math.max(modelEcl, 1) * 100 > OVERLAY_CAP_PCT ? 'text-red-500' : 'text-emerald-500'}`}>
+            <p className={`text-[11px] font-semibold ${Math.abs(net) / Math.max(modelEcl, 1) * 100 > OVERLAY_CAP_PCT ? 'text-red-500' : 'text-emerald-500'}`}>
               Current: {fmtPct(Math.abs(net) / Math.max(modelEcl, 1) * 100, 1)}
             </p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase">Approval Required</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase">Approval Required</p>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Each overlay individually</p>
-            <p className="text-[10px] text-slate-400">Maker-checker: Risk Analyst → CRO</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300">Maker-checker: Risk Analyst → CRO</p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase">Expiry Policy</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase">Expiry Policy</p>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Temporary: max 2 quarters</p>
-            <p className="text-[10px] text-slate-400">Permanent overlays trigger model redevelopment review</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300">Permanent overlays trigger model redevelopment review</p>
           </div>
           <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase">Classification</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase">Classification</p>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{overlays.filter(o => (o as any).classification === 'temporary').length} Temporary / {overlays.filter(o => (o as any).classification !== 'temporary').length} Permanent</p>
-            <p className="text-[10px] text-slate-400">Permanent overlays reviewed quarterly by MRM</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300">Permanent overlays reviewed quarterly by MRM</p>
           </div>
         </div>
         {Math.abs(net) / Math.max(modelEcl, 1) * 100 > OVERLAY_CAP_PCT && (
@@ -243,38 +243,38 @@ export default function Overlays({ project, onSubmit }: Props) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Product</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Product</label>
                   <input value={o.product} onChange={e => updateField(o.id, 'product', e.target.value)}
                     placeholder="e.g. Emergency Microloan"
                     className="form-input" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Reason / Justification</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Reason / Justification</label>
                   <input value={o.reason} onChange={e => updateField(o.id, 'reason', e.target.value)}
                     placeholder="e.g. Gig Economy Platform Disruption"
                     className="form-input" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Amount</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Amount</label>
                   <input type="number" value={o.amount} onChange={e => updateAmount(o.id, Number(e.target.value))} step={10000}
                     className="form-input font-mono text-right" />
                 </div>
               </div>
               <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">IFRS 9 Reference</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">IFRS 9 Reference</label>
                   <input value={o.ifrs9} onChange={e => updateField(o.id, 'ifrs9', e.target.value)}
                     placeholder="e.g. B5.5.17(p)"
                     className="form-input text-xs font-mono py-1.5" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Approved By</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">Approved By</label>
                   <input value={(o as any).approved_by || ''} onChange={e => updateField(o.id, 'approved_by' as any, e.target.value)}
                     placeholder="e.g. Maria Santos, CRO"
                     className="form-input text-xs py-1.5" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1 flex items-center gap-1">
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1 flex items-center gap-1">
                     <Clock size={10} /> Expiry Date
                   </label>
                   <input type="date" value={(o as any).expiry || ''} onChange={e => updateField(o.id, 'expiry' as any, e.target.value)}
@@ -304,7 +304,7 @@ export default function Overlays({ project, onSubmit }: Props) {
             <div className="mb-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
               <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">Please fix before submitting:</p>
               {overlayValidationErrors.map((err, i) => (
-                <p key={i} className="text-[10px] text-amber-600 dark:text-amber-500">• {err}</p>
+                <p key={i} className="text-[11px] text-amber-600 dark:text-amber-500">• {err}</p>
               ))}
             </div>
           )}

@@ -159,13 +159,13 @@ export default function DataProcessing({ project, onComplete }: Props) {
               <div>
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</p>
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-0.5">{item.value}</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">{item.detail}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{item.detail}</p>
               </div>
             </div>
           ))}
         </div>
         <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3">
-          <div className="flex items-center gap-4 text-[10px] text-slate-500">
+          <div className="flex items-center gap-4 text-[11px] text-slate-500">
             <span>UC Catalog: <span className="font-mono font-semibold text-slate-500">{adminConfig?.data_sources?.catalog || 'lakemeter_catalog'}.{adminConfig?.data_sources?.schema || 'expected_credit_loss'}</span></span>
           </div>
           <NotebookLink notebooks={['01_generate_data', '02_run_data_processing']} compact />
@@ -301,7 +301,7 @@ export default function DataProcessing({ project, onComplete }: Props) {
               <p className="text-xs text-slate-500 mt-1">Review the portfolio data above. If correct, mark complete to proceed to Data Control.</p>
             </div>
             <button onClick={handleComplete} disabled={acting}
-              className="px-6 py-3 gradient-brand text-white text-sm font-bold rounded-2xl hover:opacity-90 disabled:opacity-50 transition shadow-lg glow-brand">
+              className="px-6 py-3 gradient-brand text-white text-sm font-bold rounded-2xl hover:opacity-80 disabled:opacity-50 transition shadow-lg glow-brand">
               {acting ? 'Processing...' : 'Mark Complete'}
             </button>
           </div>

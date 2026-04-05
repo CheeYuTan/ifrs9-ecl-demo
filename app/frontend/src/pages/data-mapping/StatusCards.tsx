@@ -41,14 +41,14 @@ export default function StatusCards({ status, loadingStatus, onStartWizard }: St
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-3 line-clamp-2">{s.description}</p>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-[10px] text-slate-600 dark:text-slate-500">
+            <div className="flex items-center gap-3 text-[11px] text-slate-600 dark:text-slate-500">
               <span>{s.mandatory_columns} mandatory</span>
               <span>{s.optional_columns} optional</span>
             </div>
             <ArrowRight size={14} className="text-slate-500" />
           </div>
           {s.source_uc_table && (
-            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-white/5 text-[10px] text-slate-600 dark:text-slate-500 truncate">
+            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-white/5 text-[11px] text-slate-600 dark:text-slate-500 truncate">
               Source: {s.source_uc_table}
             </div>
           )}

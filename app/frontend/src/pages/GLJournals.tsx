@@ -379,19 +379,19 @@ function JournalDetail({
     >
       <div className="grid grid-cols-4 gap-4 mb-5 text-xs">
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-          <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Type</p>
+          <p className="text-slate-500 dark:text-slate-300 font-semibold uppercase text-[11px] tracking-wider">Type</p>
           <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{TYPE_LABELS[journal.journal_type] || journal.journal_type}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-          <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Date</p>
+          <p className="text-slate-500 dark:text-slate-300 font-semibold uppercase text-[11px] tracking-wider">Date</p>
           <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{journal.journal_date}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-          <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Created By</p>
+          <p className="text-slate-500 dark:text-slate-300 font-semibold uppercase text-[11px] tracking-wider">Created By</p>
           <p className="font-bold text-slate-700 dark:text-slate-200 mt-1">{journal.created_by}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-          <p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Reference</p>
+          <p className="text-slate-500 dark:text-slate-300 font-semibold uppercase text-[11px] tracking-wider">Reference</p>
           <p className="font-bold text-slate-700 dark:text-slate-300 mt-1 font-mono">{journal.reference}</p>
         </div>
       </div>
@@ -407,7 +407,7 @@ function JournalDetail({
               <div key={l.line_id} className="flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-2.5">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{l.account_name || l.account_code}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                     {l.account_code} &middot; {l.product_type}{l.stage ? ` &middot; Stage ${l.stage}` : ''}
                   </p>
                 </div>
@@ -430,7 +430,7 @@ function JournalDetail({
               <div key={l.line_id} className="flex items-center justify-between bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-2.5">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{l.account_name || l.account_code}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                     {l.account_code} &middot; {l.product_type}{l.stage ? ` &middot; Stage ${l.stage}` : ''}
                   </p>
                 </div>
@@ -504,15 +504,15 @@ function TrialBalanceView({ data }: { data: GLTrialBalanceRow[] }) {
       {/* Totals Row */}
       <div className="mt-4 flex justify-end gap-8 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-6 py-3 text-sm border border-slate-200 dark:border-transparent">
         <div>
-          <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider mr-3">Total Debits</span>
+          <span className="text-slate-500 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider mr-3">Total Debits</span>
           <span className="font-mono font-extrabold">{fmt(totalDebit)}</span>
         </div>
         <div>
-          <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider mr-3">Total Credits</span>
+          <span className="text-slate-500 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider mr-3">Total Credits</span>
           <span className="font-mono font-extrabold">{fmt(totalCredit)}</span>
         </div>
         <div>
-          <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider mr-3">Difference</span>
+          <span className="text-slate-500 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider mr-3">Difference</span>
           <span className={`font-mono font-extrabold ${balanced ? 'text-emerald-400' : 'text-red-400'}`}>
             {fmt(Math.abs(totalDebit - totalCredit))}
           </span>

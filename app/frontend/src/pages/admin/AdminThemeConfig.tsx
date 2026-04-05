@@ -53,7 +53,7 @@ export default function AdminThemeConfig() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-bold text-slate-700 dark:text-slate-200 capitalize">{mode} Mode</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{mode === 'light' ? 'Clean, bright interface' : 'Easy on the eyes, sleek'}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">{mode === 'light' ? 'Clean, bright interface' : 'Easy on the eyes, sleek'}</p>
                 </div>
                 {isActive && (
                   <div className="absolute top-3 right-3 w-6 h-6 rounded-full gradient-brand flex items-center justify-center">
@@ -103,15 +103,15 @@ export default function AdminThemeConfig() {
             <div>
               <input value={customBrand} onChange={e => setCustomBrand(e.target.value)}
                 className="w-28 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm font-mono focus:ring-2 focus:ring-brand/30 outline-none" />
-              <p className="text-[10px] text-slate-400 mt-1">Hex color code</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1">Hex color code</p>
             </div>
           </div>
           <button onClick={handleCustomColor}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold gradient-brand text-white rounded-xl hover:opacity-90 transition shadow-md">
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold gradient-brand text-white rounded-xl hover:opacity-80 transition shadow-md">
             <Sparkles size={14} /> Apply Custom Color
           </button>
           <div className="ml-4 flex items-center gap-2">
-            <span className="text-xs text-slate-400">Preview:</span>
+            <span className="text-xs text-slate-500 dark:text-slate-300">Preview:</span>
             <div className="flex gap-1">
               <div className="w-10 h-6 rounded" style={{ background: customBrand }} />
               <div className="w-10 h-6 rounded" style={{ background: adjustBrightness(customBrand, -20) }} />

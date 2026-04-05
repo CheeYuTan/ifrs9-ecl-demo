@@ -138,7 +138,7 @@ export default function HelpPanel({ activeStep }: { activeStep: number }) {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{help.title}</h3>
-                    <p className="text-[10px] text-slate-400">Step {activeStep + 1} of 8</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300">Step {activeStep + 1} of 8</p>
                   </div>
                 </div>
                 <button
@@ -177,8 +177,8 @@ export default function HelpPanel({ activeStep }: { activeStep: number }) {
               </div>
 
               <div className="border-t border-slate-100 dark:border-slate-700 px-5 py-3">
-                <p className="text-[10px] text-slate-400 text-center">
-                  Press <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-mono">?</kbd> to toggle help
+                <p className="text-[11px] text-slate-500 dark:text-slate-300 text-center">
+                  Press <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-[11px] font-mono">?</kbd> to toggle help
                 </p>
               </div>
             </motion.div>

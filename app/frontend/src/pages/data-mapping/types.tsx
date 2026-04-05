@@ -46,7 +46,7 @@ export const TYPE_BADGES: Record<string, string> = {
 
 export function TypeBadge({ type }: { type: string }) {
   const cls = TYPE_BADGES[type?.toUpperCase()] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-  return <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${cls}`}>{type}</span>;
+  return <span className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase ${cls}`}>{type}</span>;
 }
 
 export function StatusIcon({ status }: { status: string }) {

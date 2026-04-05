@@ -30,7 +30,7 @@ export default function ValidationStep({
           </button>
           {validationResult?.valid && (
             <button onClick={onAdvanceToApply}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold hover:opacity-90 transition">
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold hover:opacity-80 transition">
               Apply <ArrowRight size={12} />
             </button>
           )}
@@ -38,7 +38,7 @@ export default function ValidationStep({
       </div>
 
       {validating && (
-        <div className="flex items-center gap-2 text-xs text-slate-400 py-8 justify-center">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-300 py-8 justify-center">
           <Loader2 size={16} className="animate-spin" /> Validating mapping...
         </div>
       )}
@@ -58,7 +58,7 @@ export default function ValidationStep({
               <span className="text-sm font-bold text-slate-800 dark:text-white">
                 {validationResult.valid ? 'Validation Passed' : 'Validation Failed'}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 ml-2">
+              <span className="text-[11px] text-slate-500 dark:text-slate-300 ml-2">
                 {validationResult.mandatory_mapped}/{validationResult.mandatory_count} mandatory columns mapped
               </span>
             </div>
@@ -84,7 +84,7 @@ export default function ValidationStep({
 
           {/* Column details */}
           <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
-            <div className="px-4 py-2 bg-slate-50 dark:bg-white/5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div className="px-4 py-2 bg-slate-50 dark:bg-white/5 text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
               Column Details
             </div>
             <div className="divide-y divide-slate-100 dark:divide-white/5 max-h-96 overflow-y-auto">

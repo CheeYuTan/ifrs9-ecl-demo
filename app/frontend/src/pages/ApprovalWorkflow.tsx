@@ -71,8 +71,8 @@ function RoleBadge({ role }: { role: string }) {
 function PriorityBadge({ priority }: { priority: string }) {
   const isUrgent = priority === 'urgent';
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-      isUrgent ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-600'
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
+      isUrgent ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
     }`}>
       <Flag size={9} /> {isUrgent ? 'Urgent' : 'Normal'}
     </span>
@@ -120,7 +120,7 @@ function CreateRequestModal({ users, onSubmit, onClose }: CreateRequestModalProp
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Request Type</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Request Type</label>
               <select value={form.request_type} onChange={e => setForm({ ...form, request_type: e.target.value })} className="form-input text-xs w-full">
                 <option value="model_approval">Model Approval</option>
                 <option value="overlay_approval">Overlay Approval</option>
@@ -129,7 +129,7 @@ function CreateRequestModal({ users, onSubmit, onClose }: CreateRequestModalProp
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Priority</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Priority</label>
               <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })} className="form-input text-xs w-full">
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgent</option>
@@ -137,24 +137,24 @@ function CreateRequestModal({ users, onSubmit, onClose }: CreateRequestModalProp
             </div>
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Entity ID</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Entity ID</label>
             <input value={form.entity_id} onChange={e => setForm({ ...form, entity_id: e.target.value })}
               placeholder="e.g. PD-Model-v3, OVL-2024-Q4" className="form-input text-xs w-full" required />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Entity Type</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Entity Type</label>
             <input value={form.entity_type} onChange={e => setForm({ ...form, entity_type: e.target.value })}
               placeholder="e.g. PD Model, Management Overlay" className="form-input text-xs w-full" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Requested By</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Requested By</label>
               <select value={form.requested_by} onChange={e => setForm({ ...form, requested_by: e.target.value })} className="form-input text-xs w-full">
                 {users.map(u => <option key={u.user_id} value={u.user_id}>{u.display_name} ({u.role})</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Assigned To</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Assigned To</label>
               <select value={form.assigned_to} onChange={e => setForm({ ...form, assigned_to: e.target.value })} className="form-input text-xs w-full">
                 <option value="">Auto-assign</option>
                 {users.filter(u => u.role === 'approver' || u.role === 'admin').map(u =>
@@ -164,11 +164,11 @@ function CreateRequestModal({ users, onSubmit, onClose }: CreateRequestModalProp
             </div>
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Due Date</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Due Date</label>
             <input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} className="form-input text-xs w-full" />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Comments</label>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Comments</label>
             <textarea value={form.comments} onChange={e => setForm({ ...form, comments: e.target.value })}
               placeholder="Describe the approval request..." className="form-input text-xs w-full h-20 resize-none" />
           </div>
@@ -216,68 +216,68 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div>
             <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Approval Request</h3>
-            <p className="text-[10px] text-slate-400 font-mono mt-0.5">{request.request_id}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{request.request_id}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={16} className="text-slate-400" /></button>
         </div>
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Type</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Type</p>
               <TypeBadge type={request.request_type} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Status</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Status</p>
               <StatusBadge status={request.status} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Entity</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Entity</p>
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.entity_id}</p>
-              {request.entity_type && <p className="text-[10px] text-slate-400">{request.entity_type}</p>}
+              {request.entity_type && <p className="text-[11px] text-slate-500 dark:text-slate-400">{request.entity_type}</p>}
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Priority</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Priority</p>
               <PriorityBadge priority={request.priority} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Requested By</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Requested By</p>
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.requested_by_name || request.requested_by}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Assigned To</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Assigned To</p>
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{request.assigned_to_name || request.assigned_to || '—'}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Created</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Created</p>
               <p className="text-xs text-slate-600 dark:text-slate-400">{fmtDateTime(request.created_at)}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Due Date</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Due Date</p>
               <p className="text-xs text-slate-600 dark:text-slate-400">{request.due_date || '—'}</p>
             </div>
           </div>
           {request.comments && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Comments</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1">Comments</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">{request.comments}</p>
             </div>
           )}
           {request.status === 'approved' && request.approved_by_name && (
             <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
               <p className="text-xs font-semibold text-emerald-700">Approved by {request.approved_by_name}</p>
-              <p className="text-[10px] text-emerald-600">{fmtDateTime(request.approved_at)}</p>
+              <p className="text-[11px] text-emerald-600">{fmtDateTime(request.approved_at)}</p>
             </div>
           )}
           {request.status === 'rejected' && (
             <div className="bg-red-50 rounded-xl p-3 border border-red-100">
               <p className="text-xs font-semibold text-red-700">Rejected by {request.approved_by_name}</p>
-              {request.rejection_reason && <p className="text-[10px] text-red-600 mt-1">{request.rejection_reason}</p>}
+              {request.rejection_reason && <p className="text-[11px] text-red-600 mt-1">{request.rejection_reason}</p>}
             </div>
           )}
           {request.status === 'pending' && (
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Action By</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Action By</label>
                 <select value={actionUser} onChange={e => setActionUser(e.target.value)} className="form-input text-xs w-full">
                   {users.filter(u => u.role === 'approver' || u.role === 'admin').map(u =>
                     <option key={u.user_id} value={u.user_id}>{u.display_name} ({u.role})</option>
@@ -285,7 +285,7 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Comment</label>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 mb-1.5">Comment</label>
                 <textarea value={comment} onChange={e => setComment(e.target.value)}
                   placeholder="Add a comment..." className="form-input text-xs w-full h-16 resize-none" />
               </div>
@@ -295,7 +295,7 @@ function RequestDetail({ request, users, onApprove, onReject, onClose }: Request
                   <XCircle size={13} /> Reject
                 </button>
                 <button onClick={() => handleAction('approve')} disabled={acting}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-90 transition disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-80 transition disabled:opacity-50">
                   <CheckCircle2 size={13} /> Approve
                 </button>
               </div>
@@ -384,7 +384,7 @@ export default function ApprovalWorkflow() {
       <div className="space-y-6">
         <PageHeader title="Approval Workflow" subtitle="Maker-Checker-Approver governance for IFRS 9 ECL">
           <button onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-90 transition">
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-80 transition">
             <Send size={13} /> New Request
           </button>
         </PageHeader>
@@ -410,7 +410,7 @@ export default function ApprovalWorkflow() {
     { key: 'entity_id', label: 'Entity', format: (v: string, row: any) => (
       <div>
         <p className="font-semibold text-slate-700 dark:text-slate-300">{v}</p>
-        {row.entity_type && <p className="text-[10px] text-slate-400">{row.entity_type}</p>}
+        {row.entity_type && <p className="text-[11px] text-slate-500 dark:text-slate-400">{row.entity_type}</p>}
       </div>
     )},
     { key: 'requested_by_name', label: 'Requested By', format: (v: string) => <span className="text-slate-600 dark:text-slate-400">{v || '—'}</span> },
@@ -449,15 +449,15 @@ export default function ApprovalWorkflow() {
         </div>
         <div>
           <p className="font-semibold text-slate-700 dark:text-slate-300">{v}</p>
-          <p className="text-[10px] text-slate-400">{row.email}</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{row.email}</p>
         </div>
       </div>
     )},
     { key: 'role', label: 'Role', format: (v: string) => <RoleBadge role={v} /> },
     { key: 'department', label: 'Department' },
     { key: 'is_active', label: 'Status', format: (v: boolean) => (
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-        v ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-600'
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
+        v ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'
       }`}>
         <div className={`w-1.5 h-1.5 rounded-full ${v ? 'bg-emerald-500' : 'bg-slate-300'}`} /> {v ? 'Active' : 'Inactive'}
       </span>
@@ -469,7 +469,7 @@ export default function ApprovalWorkflow() {
     <div className="space-y-6">
       <PageHeader title="Approval Workflow" subtitle="Maker-Checker-Approver governance for IFRS 9 ECL">
         <button onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-90 transition">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white gradient-brand shadow-md hover:opacity-80 transition">
           <Send size={13} /> New Request
         </button>
       </PageHeader>
@@ -506,7 +506,7 @@ export default function ApprovalWorkflow() {
               <div className="grid grid-cols-2 gap-6">
                 <Card title="Recent Pending" subtitle="Requests awaiting action" icon={<Clock size={16} />} accent="amber">
                   {pending.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400 text-sm">No pending approvals</div>
+                    <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">No pending approvals</div>
                   ) : (
                     <div className="space-y-2">
                       {pending.slice(0, 5).map(req => (
@@ -518,7 +518,7 @@ export default function ApprovalWorkflow() {
                               <PriorityBadge priority={req.priority} />
                             </div>
                             <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{req.entity_id}</p>
-                            <p className="text-[10px] text-slate-400">by {req.requested_by_name || req.requested_by}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">by {req.requested_by_name || req.requested_by}</p>
                           </div>
                           <ChevronRight size={14} className="text-slate-300 group-hover:text-brand transition" />
                         </button>
@@ -536,7 +536,7 @@ export default function ApprovalWorkflow() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{user.display_name}</p>
-                          <p className="text-[10px] text-slate-400">{user.department}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">{user.department}</p>
                         </div>
                         <RoleBadge role={user.role} />
                       </div>
@@ -557,7 +557,7 @@ export default function ApprovalWorkflow() {
                           <Icon size={12} /> {cfg.label}
                         </div>
                         <p className="text-2xl font-extrabold text-slate-800 dark:text-white">{items.length}</p>
-                        <p className="text-[10px] text-slate-400 mt-1">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                           {items.filter(a => a.priority === 'urgent').length} urgent
                         </p>
                       </div>
@@ -618,12 +618,12 @@ export default function ApprovalWorkflow() {
                 <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">
-                        <th className="py-2.5 px-4 text-left text-[10px] font-bold uppercase tracking-wider">Permission</th>
-                        <th className="py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-wider">Analyst</th>
-                        <th className="py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-wider">Reviewer</th>
-                        <th className="py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-wider">Approver</th>
-                        <th className="py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-wider">Admin</th>
+                      <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:bg-slate-700/50 dark:text-slate-200">
+                        <th className="py-2.5 px-4 text-left text-[11px] font-bold uppercase tracking-wider">Permission</th>
+                        <th className="py-2.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">Analyst</th>
+                        <th className="py-2.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">Reviewer</th>
+                        <th className="py-2.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">Approver</th>
+                        <th className="py-2.5 px-4 text-center text-[11px] font-bold uppercase tracking-wider">Admin</th>
                       </tr>
                     </thead>
                     <tbody>

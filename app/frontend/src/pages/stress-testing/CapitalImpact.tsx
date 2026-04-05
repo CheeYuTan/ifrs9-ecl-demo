@@ -54,12 +54,12 @@ export default function CapitalImpact({ baseEcl }: Props) {
                 <span className="font-mono font-bold">14.5%</span>
               </div>
             </div>
-            <p className="text-[10px] text-red-500 mt-3 italic">
+            <p className="text-[11px] text-red-500 mt-3 italic">
               This exceeds the worst historical recession (2020 COVID: -9.5% GDP). The bank maintains adequate capital buffers under all plausible scenarios.
             </p>
           </div>
           <div className="mt-3 bg-blue-50 rounded-lg p-3 border border-blue-200">
-            <p className="text-[10px] text-blue-700">
+            <p className="text-[11px] text-blue-700">
               <strong>Regulatory Requirement:</strong> Banks must maintain CET1 ratio above 10.0% including capital conservation buffer (2.5%) and countercyclical buffer (0-2.5%). Current buffer above minimum: <strong className="text-emerald-600">4.2 percentage points</strong>.
             </p>
           </div>

@@ -155,7 +155,7 @@ export default function AdminModelConfig({ config, onChange }: AdminModelConfigP
       <Card accent="brand" icon={<TrendingUp size={16} />} title="LGD Assumptions" subtitle="Loss Given Default per product type"
         action={
           <button onClick={handleDiscoverProducts} disabled={discovering}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold gradient-brand text-white rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-sm">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold gradient-brand text-white rounded-xl hover:opacity-80 transition disabled:opacity-50 shadow-sm">
             {discovering ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
             {discovering ? 'Discovering...' : 'Auto-Discover from Data'}
           </button>
@@ -176,10 +176,10 @@ export default function AdminModelConfig({ config, onChange }: AdminModelConfigP
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-700">
-                <th className="text-left py-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Product Type</th>
-                <th className="text-left py-2 px-3 text-[10px] font-bold text-slate-400 uppercase">LGD <Tooltip text="Loss Given Default (0-1)" /></th>
-                <th className="text-left py-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Cure Rate <Tooltip text="Probability of cure (0-1)" /></th>
+              <tr className="border-b border-slate-100 dark:border-slate-700 dark:bg-slate-700/50">
+                <th className="text-left py-2 px-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Product Type</th>
+                <th className="text-left py-2 px-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">LGD <Tooltip text="Loss Given Default (0-1)" /></th>
+                <th className="text-left py-2 px-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Cure Rate <Tooltip text="Probability of cure (0-1)" /></th>
                 <th className="w-10"></th>
               </tr>
             </thead>

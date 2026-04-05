@@ -25,7 +25,7 @@ export default function ConcentrationTab({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="text-left py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Product</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-slate-600 dark:text-slate-200">Product</th>
                 <th className="text-right py-2 px-3 text-xs font-semibold text-emerald-600">Stage 1</th>
                 <th className="text-right py-2 px-3 text-xs font-semibold text-amber-600">Stage 2</th>
                 <th className="text-right py-2 px-3 text-xs font-semibold text-red-600">Stage 3</th>
@@ -48,7 +48,7 @@ export default function ConcentrationTab({
                       return (
                         <td key={stage} className="py-2.5 px-3 text-right" style={{ backgroundColor: bg }}>
                           <div className="font-mono text-xs font-bold">{fmtCurrency(ecl)}</div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400">{cov.toFixed(2)}% cov</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-300">{cov.toFixed(2)}% cov</div>
                         </td>
                       );
                     })}

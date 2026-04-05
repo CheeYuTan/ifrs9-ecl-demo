@@ -14,7 +14,7 @@ export function Badge({ variant, children }: { variant: 'green' | 'yellow' | 're
     gray: 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700',
     brand: 'bg-brand/10 text-brand-dark border-brand/20',
   }[variant];
-  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${cls}`}>{children}</span>;
 }
 
 // ── Tooltip ────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ function Tooltip({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex ml-1 cursor-help">
       <HelpCircle size={11} className="text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition" />
-      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 text-[10px] leading-tight bg-slate-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none w-52 z-50 text-center">
+      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 text-[11px] leading-tight bg-slate-800 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none w-52 z-50 text-center">
         {text}
       </span>
     </span>
@@ -80,7 +80,7 @@ export default function ColumnMappingRow({
       <div className="col-span-1 pt-0.5">
         <Badge variant={isMandatory ? 'brand' : 'gray'}>{col.type}</Badge>
       </div>
-      <div className="col-span-3 text-[11px] text-slate-400 leading-tight pt-0.5">
+      <div className="col-span-3 text-[11px] text-slate-500 dark:text-slate-300 leading-tight pt-0.5">
         <span className="line-clamp-2" title={col.description}>{col.description}</span>
         {col.default && <span className="block text-[9px] text-slate-300 mt-0.5">Default: {col.default}</span>}
       </div>
@@ -111,12 +111,12 @@ export default function ColumnMappingRow({
       </div>
       <div className="col-span-2 flex items-center gap-1 pt-1">
         {actualCol ? (
-          <span className={`text-[10px] font-mono flex items-center gap-0.5 ${compatible ? 'text-emerald-600' : 'text-amber-600'}`}>
+          <span className={`text-[11px] font-mono flex items-center gap-0.5 ${compatible ? 'text-emerald-600' : 'text-amber-600'}`}>
             {compatible ? <CheckCircle2 size={10} /> : <AlertTriangle size={10} />}
             {actualCol.data_type}
           </span>
         ) : mapped && tableColumns.length > 0 ? (
-          <span className="text-[10px] text-red-400 font-mono">not found</span>
+          <span className="text-[11px] text-red-400 font-mono">not found</span>
         ) : (
           <span className="text-xs text-slate-300">&mdash;</span>
         )}

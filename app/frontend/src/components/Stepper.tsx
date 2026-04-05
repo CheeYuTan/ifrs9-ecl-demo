@@ -34,7 +34,7 @@ export default function Stepper({ project, activeStep, onStepClick }: Props) {
         const Icon = s.icon;
 
         let circleClass = 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-2 border-slate-200 dark:border-slate-600';
-        let labelClass = 'text-slate-400';
+        let labelClass = 'text-slate-500 dark:text-slate-300';
         if (isCompleted) {
           circleClass = 'gradient-brand text-white border-0 shadow-md glow-brand';
           labelClass = 'text-brand-dark font-bold';
@@ -64,7 +64,7 @@ export default function Stepper({ project, activeStep, onStepClick }: Props) {
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${circleClass}`}>
                 {isCompleted ? <Check size={16} strokeWidth={3} /> : isRejected ? <X size={16} strokeWidth={3} /> : <Icon size={16} />}
               </div>
-              <span className={`text-[10px] mt-2 text-center max-w-[72px] leading-tight transition-colors ${labelClass}`}>
+              <span className={`text-[11px] mt-2 text-center max-w-[72px] leading-tight transition-colors ${labelClass}`}>
                 {s.label}
               </span>
             </motion.button>

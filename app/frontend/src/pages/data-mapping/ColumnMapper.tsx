@@ -48,14 +48,14 @@ export default function ColumnMapper({
 
       {/* Search filter */}
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" />
         <input type="text" placeholder="Filter columns..." value={columnFilter} onChange={(e) => onSetColumnFilter(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-brand" />
+          className="w-full pl-10 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
 
       {/* Column mapping table */}
       <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
-        <div className="grid grid-cols-[auto_1fr_14px_1fr_auto] gap-0 items-center px-4 py-2 bg-slate-50 dark:bg-white/5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <div className="grid grid-cols-[auto_1fr_14px_1fr_auto] gap-0 items-center px-4 py-2 bg-slate-50 dark:bg-slate-700/50 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">
           <span className="w-6" />
           <span>ECL Column</span>
           <span />

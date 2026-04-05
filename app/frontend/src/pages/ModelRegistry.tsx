@@ -44,7 +44,7 @@ function ModelStatusBadge({ status }: { status: string }) {
 
 function ChampionBadge() {
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border border-amber-200">
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border border-amber-200">
       <Trophy size={10} /> Champion
     </span>
   );
@@ -96,7 +96,7 @@ function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
     const inputId = `model-reg-${key}`;
     return (
       <div>
-        <label htmlFor={inputId} className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{label}</label>
+        <label htmlFor={inputId} className="block text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1.5">{label}</label>
         <input id={inputId} type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: type === 'number' ? e.target.value : e.target.value }))}
           placeholder={placeholder} className="form-input text-xs" />
       </div>
@@ -108,7 +108,7 @@ function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {field('Model Name', 'model_name', 'text', 'e.g. PD Logistic v2.1')}
         <div>
-          <label htmlFor="model-reg-model_type" className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Model Type</label>
+          <label htmlFor="model-reg-model_type" className="block text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1.5">Model Type</label>
           <select id="model-reg-model_type" value={form.model_type} onChange={e => setForm(f => ({ ...f, model_type: e.target.value }))} className="form-input text-xs">
             {MODEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -119,12 +119,12 @@ function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
         {field('Created By', 'created_by', 'text', 'Your name')}
       </div>
       <div>
-        <label htmlFor="model-reg-description" className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Description</label>
+        <label htmlFor="model-reg-description" className="block text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1.5">Description</label>
         <textarea id="model-reg-description" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
           rows={2} placeholder="Model description..." className="form-input text-xs" />
       </div>
       <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Performance Metrics</p>
+        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Performance Metrics</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {field('AUC', 'auc', 'number', '0.85')}
           {field('Gini', 'gini', 'number', '0.70')}
@@ -135,7 +135,7 @@ function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
         </div>
       </div>
       <div>
-        <label htmlFor="model-reg-notes" className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notes</label>
+        <label htmlFor="model-reg-notes" className="block text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1.5">Notes</label>
         <textarea id="model-reg-notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
           rows={2} placeholder="Additional notes..." className="form-input text-xs" />
       </div>
@@ -200,7 +200,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-white">{model.model_name}</h3>
-            <p className="text-[10px] text-slate-400">v{model.version} &middot; {model.model_type} &middot; {model.algorithm}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300">v{model.version} &middot; {model.model_type} &middot; {model.algorithm}</p>
           </div>
         </div>
         <button onClick={onClose} aria-label="Close model details" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition focus-visible:ring-2 focus-visible:ring-brand"><X size={18} className="text-slate-400" /></button>
@@ -214,27 +214,27 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
 
         {model.description && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Description</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1">Description</p>
             <p className="text-sm text-slate-600 dark:text-slate-300">{model.description}</p>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Product</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Product</p>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.product_type || '—'}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Created By</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Created By</p>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.created_by}</p>
           </div>
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Created</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Created</p>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{fmtDateTime(model.created_at)}</p>
           </div>
           {model.approved_by && (
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Approved By</p>
+              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase">Approved By</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-0.5">{model.approved_by}</p>
             </div>
           )}
@@ -242,11 +242,11 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
 
         {metricEntries.length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Performance Metrics</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Performance Metrics</p>
             <div className="grid grid-cols-3 gap-2">
               {metricEntries.map(([key, val]) => (
                 <div key={key} className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/40 dark:to-slate-800/60 border border-blue-100/50 dark:border-blue-900/30 text-center">
-                  <p className="text-[10px] font-bold text-blue-400 uppercase">{key.replace(/_/g, ' ')}</p>
+                  <p className="text-[11px] font-bold text-blue-500 dark:text-blue-300 uppercase">{key.replace(/_/g, ' ')}</p>
                   <p className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">
                     {typeof val === 'number' ? (val < 1 && val > 0 ? fmtPct(val * 100, 1) : fmtNumber(val, 4)) : String(val)}
                   </p>
@@ -258,7 +258,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
 
         {Object.keys(model.parameters || {}).length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Parameters</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-2">Parameters</p>
             <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <pre className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{JSON.stringify(model.parameters, null, 2)}</pre>
             </div>
@@ -267,7 +267,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
 
         {Object.keys(model.training_data_info || {}).length > 0 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Training Data</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-2">Training Data</p>
             <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 border border-slate-100 dark:border-slate-700">
               <pre className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{JSON.stringify(model.training_data_info, null, 2)}</pre>
             </div>
@@ -276,7 +276,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
 
         {(actions.length > 0 || (model.status === 'approved' || model.status === 'active') && !model.is_champion) && (
           <div className="border-t border-slate-100 dark:border-slate-700 pt-5">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Actions</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Actions</p>
             <label htmlFor="model-action-comment" className="sr-only">Action comment</label>
             <textarea id="model-action-comment" value={comment} onChange={e => setComment(e.target.value)}
               placeholder="Add a comment (optional)..." rows={2}
@@ -293,7 +293,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
               })}
               {(model.status === 'approved' || model.status === 'active') && !model.is_champion && (
                 <button onClick={doPromote} disabled={acting}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:opacity-90 transition shadow-sm disabled:opacity-40">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:opacity-80 transition shadow-sm disabled:opacity-40">
                   <Trophy size={14} /> Set as Champion
                 </button>
               )}
@@ -302,7 +302,7 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
         )}
 
         <div className="border-t border-slate-100 dark:border-slate-700 pt-5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Audit Trail</p>
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Audit Trail</p>
           {audit.length === 0 ? (
             <p className="text-xs text-slate-400 italic">No audit entries yet</p>
           ) : (
@@ -319,11 +319,11 @@ function DetailPanel({ model, audit, onClose, onStatusChange, onPromote }: Detai
                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {a.action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                       {a.performed_by} &middot; {fmtDateTime(a.performed_at)}
                     </p>
                     {a.old_status && a.new_status && (
-                      <p className="text-[10px] text-slate-500 mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                         {a.old_status} &rarr; {a.new_status}
                       </p>
                     )}
@@ -371,14 +371,14 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
       action={<button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"><X size={16} className="text-slate-400" /></button>}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Metrics Comparison</p>
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Metrics Comparison</p>
           <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/60">
-                  <th className="px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase">Metric</th>
+                <tr className="bg-slate-50 dark:bg-slate-700/50">
+                  <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Metric</th>
                   {models.map((m, i) => (
-                    <th key={m.model_id} className="px-3 py-2 text-right text-[10px] font-bold uppercase" style={{ color: COLORS[i] }}>
+                    <th key={m.model_id} className="px-3 py-2 text-right text-[11px] font-bold uppercase" style={{ color: COLORS[i] }}>
                       {m.model_name} v{m.version}
                     </th>
                   ))}
@@ -411,7 +411,7 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
 
         {radarData.length >= 3 && (
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Radar Comparison</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-3">Radar Comparison</p>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
@@ -437,7 +437,7 @@ function ComparisonView({ models, onClose }: ComparisonViewProps) {
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
               <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{m.model_name} v{m.version}</span>
             </div>
-            <div className="space-y-1 text-[10px] text-slate-500">
+            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
               <p>Type: <span className="font-semibold text-slate-600 dark:text-slate-300">{m.model_type}</span></p>
               <p>Algorithm: <span className="font-semibold text-slate-600 dark:text-slate-300">{m.algorithm}</span></p>
               <p>Status: <ModelStatusBadge status={m.status} /></p>
@@ -589,7 +589,7 @@ export default function ModelRegistry() {
       </div>
     )},
     { key: 'model_type', label: 'Type', format: (v: string) => (
-      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
+      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{v}</span>
     )},
     { key: 'version', label: 'Version', align: 'center' as const, format: (v: number) => `v${v}` },
     { key: 'algorithm', label: 'Algorithm' },

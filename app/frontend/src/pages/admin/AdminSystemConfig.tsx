@@ -12,7 +12,7 @@ function Badge({ variant, children }: { variant: 'green' | 'red'; children: Reac
   const cls = variant === 'green'
     ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
     : 'bg-red-50 text-red-700 border-red-200';
-  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${cls}`}>{children}</span>;
 }
 
 export interface AdminSystemConfigProps {
@@ -76,7 +76,7 @@ export default function AdminSystemConfig({ config, onReload }: AdminSystemConfi
             {connStatus && !connStatus.connected && <Badge variant="red">Disconnected</Badge>}
           </div>
           {connStatus?.connected && (
-            <div className="ml-6 text-xs text-slate-400 space-y-0.5">
+            <div className="ml-6 text-xs text-slate-500 dark:text-slate-300 space-y-0.5">
               <p>Schema: <span className="font-mono text-slate-600 dark:text-slate-300">{connStatus.schema}</span></p>
               <p>Prefix: <span className="font-mono text-slate-600 dark:text-slate-300">{connStatus.prefix}</span></p>
             </div>

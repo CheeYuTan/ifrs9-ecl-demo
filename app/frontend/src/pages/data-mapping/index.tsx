@@ -413,7 +413,7 @@ export default function DataMapping() {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-xs font-semibold text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition">
                   Back
                 </button>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[11px] text-slate-500">
                   Step {stepIndex + 1} of {WIZARD_STEPS.length}
                 </div>
               </div>

@@ -73,7 +73,7 @@ export default function ErrorDisplay({
           animate={{ height: 'auto', opacity: 1 }}
           className="border-t border-red-200 bg-red-100/50 dark:bg-red-900/20 px-5 py-3"
         >
-          <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1">Technical Details</p>
+          <p className="text-[11px] font-bold text-red-500 dark:text-red-300 uppercase tracking-wider mb-1">Technical Details</p>
           <pre className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap font-mono bg-white/60 dark:bg-slate-800/60 rounded-lg p-3 max-h-40 overflow-y-auto">
             {technicalDetails}
           </pre>

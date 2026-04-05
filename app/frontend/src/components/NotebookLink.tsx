@@ -99,12 +99,12 @@ export default function NotebookLink({ notebooks, compact }: Props) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline"
             >
               {item.label} <ExternalLink size={9} />
             </a>
           ) : (
-            <span key={item.jobKey} className="text-[10px] font-semibold text-slate-500">{item.label} (not provisioned)</span>
+            <span key={item.jobKey} className="text-[11px] font-semibold text-slate-500 dark:text-slate-300">{item.label} (not provisioned)</span>
           );
         })}
       </div>
@@ -115,7 +115,7 @@ export default function NotebookLink({ notebooks, compact }: Props) {
     <div className="flex items-start gap-3 p-3 rounded-lg bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800">
       <Play size={16} className="text-indigo-500 mt-0.5 flex-shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-semibold text-slate-500 uppercase mb-1.5">Databricks Jobs</p>
+        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1.5">Databricks Jobs</p>
         <div className="space-y-1">
           {items.map((item) => {
             const url = item.jobId ? buildUrl(item.jobId) : null;
@@ -129,7 +129,7 @@ export default function NotebookLink({ notebooks, compact }: Props) {
               >
                 <div>
                   <span className="text-xs font-semibold text-indigo-700 group-hover:underline">{item.label}</span>
-                  <span className="text-[10px] text-slate-500 ml-2">{item.description}</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 ml-2">{item.description}</span>
                 </div>
                 <ExternalLink size={11} className="text-indigo-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition" />
               </a>
@@ -137,7 +137,7 @@ export default function NotebookLink({ notebooks, compact }: Props) {
               <div key={item.jobKey} className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-semibold text-slate-500">{item.label}</span>
-                  <span className="text-[10px] text-slate-500 ml-2">Not provisioned — go to Admin → Jobs to set up</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 ml-2">Not provisioned — go to Admin → Jobs to set up</span>
                 </div>
               </div>
             );

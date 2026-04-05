@@ -76,10 +76,10 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
       {(data.length > 5 || exportName) && (
         <div className="flex items-center justify-between mb-3 gap-3">
           <div className="relative flex-1 max-w-xs">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" />
             <label htmlFor={`table-search-${exportName || 'default'}`} className="sr-only">Search table</label>
             <input id={`table-search-${exportName || 'default'}`} value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search..."
-              className="form-input pl-9 text-xs" />
+              className="form-input pl-10 text-xs" />
           </div>
           <button onClick={exportCsv} aria-label={`Export ${exportName || 'data'} as CSV`}
             className="btn-secondary text-xs shadow-sm">
@@ -90,13 +90,13 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
       <div className="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-800 dark:to-slate-700 dark:text-white">
+            <tr className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 dark:from-slate-700/80 dark:to-slate-600/60 dark:text-slate-100">
               {columns.map(c => (
                 <th key={c.key} onClick={() => toggleSort(c.key)}
-                  className={`${py} px-4 text-[10px] font-bold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'}`}
+                  className={`${py} px-4 text-[11px] font-bold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap ${c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left'}`}
                   scope="col" aria-sort={sortKey === c.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined}
                   tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSort(c.key); } }}>
-                  <span className="inline-flex items-center gap-1 opacity-90 hover:opacity-100 transition">
+                  <span className="inline-flex items-center gap-1 hover:opacity-80 transition">
                     {c.label}
                     {sortKey === c.key && (sortDir === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
                   </span>

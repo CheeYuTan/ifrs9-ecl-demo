@@ -180,13 +180,13 @@ export default function AdminAppSettings({ config, onChange }: AdminAppSettingsP
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-700">
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase w-8">Color</th>
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase">Key</th>
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase">Name</th>
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase">Weight</th>
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase">PD Mult.</th>
-                <th className="text-left py-2 px-2 text-[10px] font-bold text-slate-400 uppercase">LGD Mult.</th>
+              <tr className="border-b border-slate-100 dark:border-slate-700 dark:bg-slate-700/50">
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase w-8">Color</th>
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Key</th>
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Name</th>
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">Weight</th>
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">PD Mult.</th>
+                <th className="text-left py-2 px-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase">LGD Mult.</th>
                 <th className="w-8"></th>
               </tr>
             </thead>

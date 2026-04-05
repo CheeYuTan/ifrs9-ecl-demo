@@ -63,7 +63,7 @@ export default function MonteCarloTab({
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
                         <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{d.scenario}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono">{(d.weight * 100).toFixed(0)}%</span>
+                        <span className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 font-mono">{(d.weight * 100).toFixed(0)}%</span>
                       </div>
                       <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{fmtCurrency(d.mean)}</span>
                     </div>
@@ -73,7 +73,7 @@ export default function MonteCarloTab({
                       <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
                         style={{ width: `${maxEcl > 0 ? d.mean / maxEcl * 100 : 0}%`, backgroundColor: color }} />
                     </div>
-                    <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                    <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                       <span>P50: {fmtCurrency(d.p50)}</span>
                       <span>P95: {fmtCurrency(d.p95)}</span>
                       <span>P99: {fmtCurrency(d.p99)}</span>
@@ -93,12 +93,12 @@ export default function MonteCarloTab({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="text-left py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Plausible Scenario</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed PD ×</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">PD σ</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed LGD ×</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">LGD σ</th>
-                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">MC Sims</th>
+                    <th className="text-left py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">Plausible Scenario</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">Stressed PD ×</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">PD σ</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">Stressed LGD ×</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">LGD σ</th>
+                    <th className="text-right py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-200">MC Sims</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -118,7 +118,7 @@ export default function MonteCarloTab({
                         {d.lgd_mult.toFixed(3)}
                       </td>
                       <td className="py-2 px-2 text-right text-xs font-mono text-slate-500 dark:text-slate-400">{(d.lgd_vol * 100).toFixed(1)}%</td>
-                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-400">{fmtNumber(d.n_sims)}</td>
+                      <td className="py-2 px-2 text-right text-xs font-mono text-slate-500 dark:text-slate-400">{fmtNumber(d.n_sims)}</td>
                     </tr>
                   ))}
                 </tbody>

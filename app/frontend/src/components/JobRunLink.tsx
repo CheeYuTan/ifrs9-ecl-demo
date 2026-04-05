@@ -77,12 +77,12 @@ export default function JobRunLink({ run, label = 'Databricks Job Run', compact 
       }`} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold text-slate-400 uppercase mb-1">{label}</p>
+          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase mb-1">{label}</p>
           <a
             href={run.run_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[10px] font-semibold text-brand hover:underline"
+            className="flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline"
           >
             Open in Databricks <ExternalLink size={9} />
           </a>
@@ -95,10 +95,10 @@ export default function JobRunLink({ run, label = 'Databricks Job Run', compact 
             </span>
           </span>
           {run.run_duration_ms ? (
-            <span className="text-slate-400">{formatDuration(run.run_duration_ms)}</span>
+            <span className="text-slate-500 dark:text-slate-300">{formatDuration(run.run_duration_ms)}</span>
           ) : null}
           {run.start_time ? (
-            <span className="text-slate-400">{new Date(run.start_time).toLocaleString()}</span>
+            <span className="text-slate-500 dark:text-slate-300">{new Date(run.start_time).toLocaleString()}</span>
           ) : null}
         </div>
         {run.tasks && run.tasks.length > 0 && (
@@ -115,7 +115,7 @@ export default function JobRunLink({ run, label = 'Databricks Job Run', compact 
                   <StatusIcon state={t.lifecycle_state} result={t.result_state} />
                   <span className="text-slate-600 dark:text-slate-300 group-hover:underline">{t.task_key}</span>
                 </span>
-                <span className="text-slate-400">
+                <span className="text-slate-500 dark:text-slate-300">
                   {t.execution_duration_ms > 0 ? formatDuration(t.execution_duration_ms) : '—'}
                 </span>
               </a>

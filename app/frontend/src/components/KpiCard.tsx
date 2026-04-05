@@ -34,7 +34,7 @@ export default function KpiCard({ title, value, subtitle, icon, color = 'blue' }
       <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-gradient-to-br from-current/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative flex items-start justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">{title}</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">{title}</p>
           <p className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{value}</p>
           {subtitle && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">{subtitle}</p>}
         </div>

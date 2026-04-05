@@ -17,11 +17,11 @@ export default function StepDescription({ description, ifrsRef, tips, icon }: Pr
       transition={{ duration: 0.25, delay: 0.1 }}
       className="rounded-xl bg-gradient-to-r from-brand/5 via-blue-50/50 dark:via-blue-900/20 to-transparent border border-brand/10 px-5 py-3.5 mb-5"
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center mt-0.5">
           {icon || <Info size={16} className="text-brand" />}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{description}</p>
           {tips && tips.length > 0 && (
             <ul className="mt-2 space-y-1">

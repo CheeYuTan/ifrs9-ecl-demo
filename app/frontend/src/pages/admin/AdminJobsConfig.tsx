@@ -61,7 +61,7 @@ export default function AdminJobsConfig({ config, onChange }: AdminJobsConfigPro
       <Card accent="blue" icon={<Globe size={16} />} title="Databricks Workspace" subtitle="Auto-detected from app environment"
         action={
           <button onClick={handleAutoDetect} disabled={detecting}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-blue to-indigo text-white rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-sm">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-blue to-indigo text-white rounded-xl hover:opacity-80 transition disabled:opacity-50 shadow-sm">
             {detecting ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />}
             {detecting ? 'Detecting...' : 'Auto-Detect'}
           </button>
@@ -78,7 +78,7 @@ export default function AdminJobsConfig({ config, onChange }: AdminJobsConfigPro
           </div>
         </div>
         {jobs.workspace_url && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+          <div className="mt-3 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-300">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>Connected to <span className="font-mono text-slate-600 dark:text-slate-300">{jobs.workspace_url.replace('https://', '')}</span></span>
           </div>
@@ -129,7 +129,7 @@ export default function AdminJobsConfig({ config, onChange }: AdminJobsConfigPro
         <Card icon={<Plug size={16} />} title="Connection Test">
           <div className="flex items-center gap-3">
             <button onClick={testConnection} disabled={testing}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold gradient-brand text-white rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-sm">
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold gradient-brand text-white rounded-xl hover:opacity-80 transition disabled:opacity-50 shadow-sm">
               <Plug size={14} /> {testing ? 'Testing...' : 'Test Connection'}
             </button>
             {connStatus && (

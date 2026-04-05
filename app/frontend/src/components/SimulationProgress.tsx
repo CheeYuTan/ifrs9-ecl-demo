@@ -77,7 +77,7 @@ export default function SimulationProgress({
             {runningEcl > 0 && (
               <p className="font-semibold">Running ECL: {fmtCurrency(runningEcl)} <span className="font-normal text-indigo-500">(weighted so far)</span></p>
             )}
-            <p className="text-[10px] text-indigo-500">
+            <p className="text-[11px] text-indigo-500">
               {loanCount > 0 ? `${loanCount.toLocaleString()} loans` : '—'} × {scenarioCount} scenarios × {nSimulations.toLocaleString()} paths
             </p>
           </div>

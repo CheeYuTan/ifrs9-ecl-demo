@@ -124,34 +124,34 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
           <div>
             <label htmlFor="create-project-id" className="form-label">Project ID</label>
             <div className="relative">
-              <FolderPlus size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" aria-hidden="true" />
+              <FolderPlus size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
               <input id="create-project-id" value={pid}
                 onChange={e => setPid(e.target.value)}
                 onBlur={() => markTouched('pid')}
                 placeholder="Q4-2025-IFRS9"
                 maxLength={50}
-                className={`form-input pl-10 ${touched.pid && fieldErrors.pid ? 'border-red-300 focus:ring-red-200' : ''}`} />
+                className={`form-input pl-11 ${touched.pid && fieldErrors.pid ? 'border-red-300 focus:ring-red-200' : ''}`} />
             </div>
             {touched.pid && fieldErrors.pid && (
               <p className="text-xs text-red-500 mt-1">{fieldErrors.pid}</p>
             )}
-            <p className="text-[10px] text-slate-400 mt-0.5">{pid.length}/50 characters</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{pid.length}/50 characters</p>
           </div>
           <div>
             <label htmlFor="create-project-name" className="form-label">Project Name</label>
             <div className="relative">
-              <Briefcase size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" aria-hidden="true" />
+              <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
               <input id="create-project-name" value={name}
                 onChange={e => setName(e.target.value)}
                 onBlur={() => markTouched('name')}
                 placeholder="Q4 2025 IFRS 9 ECL"
                 maxLength={200}
-                className={`form-input pl-10 ${touched.name && fieldErrors.name ? 'border-red-300 focus:ring-red-200' : ''}`} />
+                className={`form-input pl-11 ${touched.name && fieldErrors.name ? 'border-red-300 focus:ring-red-200' : ''}`} />
             </div>
             {touched.name && fieldErrors.name && (
               <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>
             )}
-            <p className="text-[10px] text-slate-400 mt-0.5">{name.length}/200 characters</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{name.length}/200 characters</p>
           </div>
           <div>
             <label htmlFor="create-project-framework" className="form-label">Accounting Framework</label>
@@ -164,11 +164,11 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
           <div>
             <label htmlFor="create-project-date" className="form-label">Reporting Date</label>
             <div className="relative">
-              <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" aria-hidden="true" />
+              <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
               <input id="create-project-date" type="date" value={rdate}
                 onChange={e => setRdate(e.target.value)}
                 onBlur={() => markTouched('rdate')}
-                className={`form-input pl-10 ${touched.rdate && fieldErrors.rdate ? 'border-red-300 focus:ring-red-200' : ''}`} />
+                className={`form-input pl-11 ${touched.rdate && fieldErrors.rdate ? 'border-red-300 focus:ring-red-200' : ''}`} />
             </div>
             {touched.rdate && fieldErrors.rdate && (
               <p className="text-xs text-red-500 mt-1">{fieldErrors.rdate}</p>
@@ -177,10 +177,10 @@ export default function CreateProject({ project, onCreate, onSelectProject }: Pr
           <div className="md:col-span-2">
             <label htmlFor="create-project-desc" className="form-label">Description</label>
             <div className="relative">
-              <FileText size={16} className="absolute left-3 top-3 text-slate-300" aria-hidden="true" />
+              <FileText size={16} className="absolute left-3.5 top-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
               <textarea id="create-project-desc" value={desc} onChange={e => setDesc(e.target.value)} rows={3}
                 placeholder="Describe the ECL run scope, portfolios, and scenarios..."
-                className="form-input pl-10 resize-none" />
+                className="form-input pl-11 resize-none" />
             </div>
           </div>
         </div>

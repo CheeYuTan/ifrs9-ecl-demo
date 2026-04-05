@@ -146,7 +146,7 @@ export function Sidebar({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-white/25"
+                  className="px-3 mb-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-300"
                 >
                   {group.title}
                 </motion.p>

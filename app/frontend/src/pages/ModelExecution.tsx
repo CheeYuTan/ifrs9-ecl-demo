@@ -261,11 +261,11 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     <div key={key} className="rounded-lg p-2.5 border" style={{ borderColor: cfg.color + '30', backgroundColor: cfg.color + '08' }}>
                       <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.color }} />
-                        <span className="text-[10px] font-bold" style={{ color: cfg.color }}>{cfg.label || key}</span>
+                        <span className="text-[11px] font-bold" style={{ color: cfg.color }}>{cfg.label || key}</span>
                       </div>
                       <div className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 mt-1">{((Number(s.weight) || 0) * 100).toFixed(0)}%</div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">ECL: {fmtCurrency(Number(s.total_ecl) || 0)}</div>
-                      <div className="text-[10px] text-slate-400">Weighted: {fmtCurrency(Number(s.weighted_contribution || s.weighted) || 0)}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">ECL: {fmtCurrency(Number(s.total_ecl) || 0)}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-300">Weighted: {fmtCurrency(Number(s.weighted_contribution || s.weighted) || 0)}</div>
                       {'gdp' in cfg && (
                         <div className="mt-1.5 pt-1.5 border-t" style={{ borderColor: cfg.color + '20' }}>
                           <div className="grid grid-cols-3 gap-x-1.5 text-[9px] text-slate-500">
@@ -280,7 +280,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   );
                 })}
               </div>
-              <p className="text-[10px] text-slate-400 italic mt-2">
+              <p className="text-[11px] text-slate-500 dark:text-slate-300 italic mt-2">
                 Scenario weights must sum to 100% and represent an unbiased probability-weighted estimate (IFRS 9.5.5.17).
                 Each scenario projects unemployment, GDP growth, inflation, policy rate, consumer confidence, and gig economy index over 12 quarters.
               </p>
@@ -302,7 +302,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   <div>PD<sub>stressed</sub> = sigmoid(logit) = 1 / (1 + e<sup>−logit</sup>)</div>
                   <div className="text-slate-400 mt-1">Multiplier = PD<sub>scenario</sub> / PD<sub>baseline</sub></div>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-2">
                   logit(p) = ln(p/(1−p)) maps probabilities to unbounded log-odds. sigmoid maps back to [0,1].
                   Coefficients β<sub>0</sub>–β<sub>3</sub> are product-specific, estimated via logistic regression on 20 quarters of observed default rates (v4.0).
                   LGD uses the same logistic structure with separate γ coefficients. Non-linearity means severe stress produces disproportionately higher losses.
@@ -427,7 +427,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
               </p>
               <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <Info size={12} className="text-amber-600 flex-shrink-0" />
-                <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                <p className="text-[11px] text-amber-700 dark:text-amber-400">
                   These metrics are illustrative placeholders derived from model parameters. For computed backtesting results with statistical tests, see the dedicated Backtesting page.
                 </p>
               </div>
@@ -440,7 +440,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                   { metric: 'Traffic Light', value: 'GREEN', status: 'green', threshold: 'Binomial test' },
                 ].map(m => (
                   <div key={m.metric} className="rounded-lg p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase">{m.metric}</p>
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase">{m.metric}</p>
                     <p className={`text-lg font-bold font-mono ${m.status === 'green' ? 'text-emerald-600' : m.status === 'amber' ? 'text-amber-600' : 'text-red-600'}`}>{m.value}</p>
                     <p className="text-[9px] text-slate-400">Threshold: {m.threshold}</p>
                   </div>
@@ -470,7 +470,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                           <td className="py-2 px-3 text-center font-mono">{predicted}%</td>
                           <td className="py-2 px-3 text-center font-mono">{actual}%</td>
                           <td className="py-2 px-3 text-center font-mono">{ratio.toFixed(2)}x</td>
-                          <td className="py-2 px-3 text-center"><span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${color}`}>{tl}</span></td>
+                          <td className="py-2 px-3 text-center"><span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${color}`}>{tl}</span></td>
                         </tr>
                       );
                     }) : (
@@ -574,7 +574,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     <div key={s.scenario} className="rounded-lg p-2.5 border" style={{ borderColor: color + '40', backgroundColor: color + '08' }}>
                       <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>{s.scenario.replace(/_/g, ' ')}</div>
                       <div className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">{fmtCurrency(Number(s.total_ecl) || 0)}</div>
-                      <div className="text-[10px] text-slate-400">× {((Number(s.weight) || 0) * 100).toFixed(0)}% = {fmtCurrency(Number(s.weighted) || 0)}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-300">× {((Number(s.weight) || 0) * 100).toFixed(0)}% = {fmtCurrency(Number(s.weighted) || 0)}</div>
                     </div>
                   );
                 })}
@@ -697,13 +697,13 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
           <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
               <p className="text-xs font-bold text-blue-700">Model Execution (Step 1)</p>
-              <p className="text-[10px] text-blue-600 mt-1">Confirm ECL engine has run successfully: all {scenario.length} scenarios computed, coverage ratios within expected range (1-8%), and Monte Carlo convergence achieved.</p>
-              <p className="text-[10px] text-blue-500 mt-1">Approver: <span className="font-semibold">ECL Engine / Model Developer</span></p>
+              <p className="text-[11px] text-blue-600 mt-1">Confirm ECL engine has run successfully: all {scenario.length} scenarios computed, coverage ratios within expected range (1-8%), and Monte Carlo convergence achieved.</p>
+              <p className="text-[11px] text-blue-500 mt-1">Approver: <span className="font-semibold">ECL Engine / Model Developer</span></p>
             </div>
             <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200">
               <p className="text-xs font-bold text-indigo-700">Model Control (Step 2)</p>
-              <p className="text-[10px] text-indigo-600 mt-1">Independent validation: backtesting passes (all products GREEN), SICR thresholds calibrated, satellite model coefficients reviewed, scenario weights approved by ESC.</p>
-              <p className="text-[10px] text-indigo-500 mt-1">Approver: <span className="font-semibold">Independent Model Validator</span></p>
+              <p className="text-[11px] text-indigo-600 mt-1">Independent validation: backtesting passes (all products GREEN), SICR thresholds calibrated, satellite model coefficients reviewed, scenario weights approved by ESC.</p>
+              <p className="text-[11px] text-indigo-500 mt-1">Approver: <span className="font-semibold">Independent Model Validator</span></p>
             </div>
           </div>
           <ApprovalForm

@@ -45,7 +45,7 @@ export default function EmptyState({
           {isActionButton(action) ? (
             <button
               onClick={action.onClick}
-              className="px-5 py-2.5 gradient-brand text-white text-sm font-bold rounded-xl hover:opacity-90 transition shadow-lg"
+              className="px-5 py-2.5 gradient-brand text-white text-sm font-bold rounded-xl hover:opacity-80 transition shadow-lg"
             >
               {action.label}
             </button>

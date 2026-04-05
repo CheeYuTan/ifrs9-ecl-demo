@@ -399,16 +399,16 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
           </div>
           <div className="text-left">
             <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Simulation Configuration</h3>
-            <p className="text-xs text-slate-400">Monte Carlo forward-looking credit loss engine</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300">Monte Carlo forward-looking credit loss engine</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {lastRun && (
-            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
               Last run: {lastRun.duration < 1000 ? `${lastRun.duration}ms` : `${(lastRun.duration / 1000).toFixed(1)}s`}
             </span>
           )}
-          {open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+          {open ? <ChevronUp size={16} className="text-slate-500 dark:text-slate-300" /> : <ChevronDown size={16} className="text-slate-500 dark:text-slate-300" />}
         </div>
       </button>
 
@@ -443,7 +443,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                           disabled={running}
                           className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50"
                         />
-                        <p className="text-[10px] text-slate-400 mt-1">100 – 5,000 paths</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1">100 – 5,000 paths</p>
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1.5">PD-LGD Correlation (ρ)</label>
@@ -468,7 +468,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                             disabled={running}
                             className="w-16 px-2 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-mono text-center focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-1">+{(agingFactor * 100).toFixed(0)}%/quarter for Stage 2/3</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1">+{(agingFactor * 100).toFixed(0)}%/quarter for Stage 2/3</p>
                       </div>
                     </div>
 
@@ -480,7 +480,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         { label: 'LGD Cap', value: lgdCap, set: setLgdCap, min: 0.5, max: 1, step: 0.01, fallback: 0.95 },
                       ].map(p => (
                         <div key={p.label}>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-1">{p.label}</label>
+                          <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-300 mb-1">{p.label}</label>
                           <input type="number" min={p.min} max={p.max} step={p.step} value={p.value}
                             onChange={e => p.set(Number(e.target.value) || p.fallback)} disabled={running}
                             className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-xs font-mono focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition disabled:opacity-50" />
@@ -498,11 +498,11 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                       </div>
                       <div className="flex items-center gap-2">
                         <button onClick={equalizeWeights} disabled={running}
-                          className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded-md hover:bg-indigo-50 transition disabled:opacity-50">
+                          className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded-md hover:bg-indigo-50 transition disabled:opacity-50">
                           Equalize
                         </button>
                         <button onClick={resetToDefault} disabled={running}
-                          className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-50">
+                          className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-50">
                           <RotateCcw size={10} /> Reset to Default
                         </button>
                       </div>
@@ -527,7 +527,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                       weightsValid ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                     }`}>
                       <span>Total: {totalWeight.toFixed(0)}%</span>
-                      {weightsValid ? <CheckCircle2 size={14} /> : <span className="text-[10px] font-normal">Must sum to 100%</span>}
+                      {weightsValid ? <CheckCircle2 size={14} /> : <span className="text-[11px] font-normal">Must sum to 100%</span>}
                     </div>
                   </div>
 
@@ -631,7 +631,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                         </button>
                       </div>
                       {lastRun && (
-                        <p className="text-center text-[10px] text-slate-400 mt-2">
+                        <p className="text-center text-[11px] text-slate-500 dark:text-slate-300 mt-2">
                           Completed at {lastRun.timestamp.toLocaleTimeString()} · {lastRun.duration < 1000 ? `${lastRun.duration}ms` : `${(lastRun.duration / 1000).toFixed(1)}s`}
                         </p>
                       )}
@@ -644,7 +644,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                       <div className="flex items-center gap-2 mb-3">
                         <History size={14} className="text-indigo-500" />
                         <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Run History</h4>
-                        <span className="text-[10px] text-slate-400 ml-auto">{runHistory.length} run{runHistory.length !== 1 ? 's' : ''} (last 10)</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-300 ml-auto">{runHistory.length} run{runHistory.length !== 1 ? 's' : ''} (last 10)</span>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-[11px]">
@@ -678,7 +678,7 @@ export default function SimulationPanel({ onSimulationComplete, defaultOpen = fa
                                 </td>
                                 <td className="py-1.5 px-2 text-center">
                                   <button onClick={() => onSimulationComplete(entry.results)}
-                                    className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded-md hover:bg-indigo-100 transition">
+                                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded-md hover:bg-indigo-100 transition">
                                     <Upload size={10} /> Load
                                   </button>
                                 </td>

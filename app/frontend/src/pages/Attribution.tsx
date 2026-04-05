@@ -257,7 +257,7 @@ function ReconciliationCard({ recon }: { recon: Reconciliation }) {
 function MetricCell({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">{label}</p>
       <p className="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5">{value}</p>
     </div>
   );
@@ -325,7 +325,7 @@ function WaterfallTooltip({ active, payload }: { active?: boolean; payload?: any
         {fmtCurrency(item.value)}
       </p>
       {item.category !== 'anchor' && (
-        <p className="text-[10px] text-slate-400 mt-0.5">Cumulative: {fmtCurrency(item.cumulative)}</p>
+        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Cumulative: {fmtCurrency(item.cumulative)}</p>
       )}
     </div>
   );
@@ -343,18 +343,18 @@ function BreakdownTable({ data }: { data: AttributionData }) {
       className="glass-card rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700/50">
         <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Stage-Level Breakdown</h3>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">All amounts by impairment stage</p>
+        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">All amounts by impairment stage</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/40">
-              <th className="text-left px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Component</th>
-              <th className="text-right px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Stage 1</th>
-              <th className="text-right px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Stage 2</th>
-              <th className="text-right px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Stage 3</th>
-              <th className="text-right px-5 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
-              <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Status</th>
+              <th className="text-left px-5 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Component</th>
+              <th className="text-right px-4 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Stage 1</th>
+              <th className="text-right px-4 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Stage 2</th>
+              <th className="text-right px-4 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Stage 3</th>
+              <th className="text-right px-5 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Total</th>
+              <th className="px-4 py-3 font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider text-center">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
@@ -396,7 +396,7 @@ function BreakdownTable({ data }: { data: AttributionData }) {
 function ComponentStatus({ comp }: { comp: StageData }) {
   if (comp.status === 'data_unavailable') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
         title={comp.reason || 'Data unavailable'}>
         <AlertTriangle size={10} /> Unavailable
       </span>
@@ -404,14 +404,14 @@ function ComponentStatus({ comp }: { comp: StageData }) {
   }
   if (comp.note) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
         title={comp.note}>
         <Info size={10} /> Estimated
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
       <CheckCircle2 size={10} /> Computed
     </span>
   );
@@ -433,7 +433,7 @@ function HistorySelector({
         className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:shadow-md transition">
         <Clock size={14} className="text-brand" />
         <span>{current ? fmtDateTime(current.computed_at) : 'Latest'}</span>
-        <span className="text-slate-400">({history.length} runs)</span>
+        <span className="text-slate-500 dark:text-slate-300">({history.length} runs)</span>
         <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
@@ -447,7 +447,7 @@ function HistorySelector({
                     idx === selectedIdx ? 'bg-brand/10 ring-1 ring-brand/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
                   }`}>
                   <p className="font-semibold text-slate-700 dark:text-slate-200">{fmtDateTime(h.computed_at)}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                     Total ECL: {fmtCurrency(h.closing_ecl?.total)} &middot;
                     {h.reconciliation?.within_materiality ? ' Reconciled' : ' Unreconciled'}
                   </p>

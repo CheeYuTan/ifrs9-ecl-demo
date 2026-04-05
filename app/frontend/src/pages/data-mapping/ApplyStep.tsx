@@ -69,7 +69,7 @@ export default function ApplyStep({
         </div>
 
         <button onClick={onRunApply} disabled={applying}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand text-white text-sm font-bold hover:opacity-90 transition disabled:opacity-50">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand text-white text-sm font-bold hover:opacity-80 transition disabled:opacity-50">
           {applying ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
           {applying ? 'Ingesting data...' : 'Apply Mapping'}
         </button>
@@ -95,15 +95,15 @@ export default function ApplyStep({
             <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
               <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 text-center">
                 <div className="text-lg font-bold text-emerald-400">{applyResult.rows_written.toLocaleString()}</div>
-                <div className="text-slate-400">Rows Written</div>
+                <div className="text-slate-500 dark:text-slate-300">Rows Written</div>
               </div>
               <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 text-center">
                 <div className="text-lg font-bold text-slate-800 dark:text-white">{applyResult.columns_mapped}</div>
-                <div className="text-slate-400">Columns</div>
+                <div className="text-slate-500 dark:text-slate-300">Columns</div>
               </div>
               <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 text-center">
                 <div className="text-lg font-bold text-slate-800 dark:text-white capitalize">{applyResult.mode}</div>
-                <div className="text-slate-400">Mode</div>
+                <div className="text-slate-500 dark:text-slate-300">Mode</div>
               </div>
             </div>
           )}

@@ -63,7 +63,7 @@ export default function SensitivityTab({
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{s.label}</span>
-                  <span className="text-xs text-slate-400 ml-2">{s.desc}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-300 ml-2">{s.desc}</span>
                 </div>
                 <span className={`text-lg font-bold font-mono ${s.value > 0 ? 'text-red-500' : s.value < 0 ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`}>
                   {s.value > 0 ? '+' : ''}{s.value}%
@@ -71,7 +71,7 @@ export default function SensitivityTab({
               </div>
               <input type="range" min={-50} max={100} value={s.value} onChange={e => s.set(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer brand-range" />
-              <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-300 mt-1">
                 <span>-50%</span><span>0%</span><span>+50%</span><span>+100%</span>
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function SensitivityTab({
             <Dice5 size={12} className="inline mr-1.5 -mt-0.5" />Full Simulation
           </button>
         </div>
-        <div className="flex items-start gap-1.5 text-xs text-slate-400">
+        <div className="flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-300">
           <Info size={14} className="flex-shrink-0 mt-0.5" />
           {sensMode === 'quick'
             ? <span><strong className="text-slate-600 dark:text-slate-300">Quick Estimate:</strong> Instant multiplicative approximation — ECL is scaled proportionally by the shock factors. Useful for rapid what-if exploration.</span>
@@ -172,9 +172,9 @@ export default function SensitivityTab({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <th className="text-left py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Parameter</th>
-                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Base Value</th>
-                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Stressed Value</th>
+                        <th className="text-left py-2 px-3 text-xs font-semibold text-slate-600 dark:text-slate-200">Parameter</th>
+                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-600 dark:text-slate-200">Base Value</th>
+                        <th className="text-right py-2 px-3 text-xs font-semibold text-slate-600 dark:text-slate-200">Stressed Value</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -204,7 +204,7 @@ export default function SensitivityTab({
                   className="flex items-center gap-2 px-5 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy/90 disabled:opacity-50 transition shadow-sm">
                   {fullSimLoading ? <><Loader2 size={16} className="animate-spin" /> Running Simulation...</> : <><Play size={16} /> Run Stressed Simulation</>}
                 </button>
-                {fullSimLoading && <span className="text-xs text-slate-400">This may take 1–2 minutes...</span>}
+                {fullSimLoading && <span className="text-xs text-slate-500 dark:text-slate-300">This may take 1–2 minutes...</span>}
               </div>
 
               {fullSimError && (
@@ -295,7 +295,7 @@ export default function SensitivityTab({
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center">
               <Dice5 size={32} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Configure shocks above and click "Run Stressed Simulation"</p>
-              <p className="text-xs text-slate-400 mt-1">The engine will re-run the full Monte Carlo with stressed PD/LGD bounds</p>
+              <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">The engine will re-run the full Monte Carlo with stressed PD/LGD bounds</p>
             </div>
           )}
         </>

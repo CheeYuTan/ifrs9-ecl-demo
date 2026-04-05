@@ -248,7 +248,7 @@ export default function AdminDataMappings({ config, onChange }: AdminDataMapping
         </div>
         {viewMode === 'table' && (
           <button onClick={handleValidateAll} disabled={validatingAll}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold gradient-navy text-white rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-sm">
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold gradient-navy text-white rounded-xl hover:opacity-80 transition disabled:opacity-50 shadow-sm">
             {validatingAll ? <Loader2 size={14} className="animate-spin" /> : <CheckCheck size={14} />}
             {validatingAll ? 'Validating...' : 'Validate All Tables'}
           </button>
@@ -351,11 +351,11 @@ function TableCard({ tableKey, tbl, expanded, setExpanded, validationResults, ta
               )}
 
               <div className="grid grid-cols-12 gap-3 items-center mb-2 px-0">
-                <div className="col-span-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Expected Column</div>
-                <div className="col-span-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Type</div>
-                <div className="col-span-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</div>
-                <div className="col-span-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mapped To</div>
-                <div className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actual Type</div>
+                <div className="col-span-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Expected Column</div>
+                <div className="col-span-1 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Type</div>
+                <div className="col-span-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Description</div>
+                <div className="col-span-3 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Mapped To</div>
+                <div className="col-span-2 text-[11px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider">Actual Type</div>
               </div>
 
               <div className="mb-2"><Badge variant="brand">Required</Badge></div>
@@ -378,12 +378,12 @@ function TableCard({ tableKey, tbl, expanded, setExpanded, validationResults, ta
 
               <div className="mt-4 flex items-center gap-3 flex-wrap">
                 {suggestions[tableKey]?.suggestions && (
-                  <button onClick={() => onAutoDetect(tableKey)} className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gradient-to-r from-purple to-indigo text-white rounded-xl hover:opacity-90 transition shadow-sm">
+                  <button onClick={() => onAutoDetect(tableKey)} className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gradient-to-r from-purple to-indigo text-white rounded-xl hover:opacity-80 transition shadow-sm">
                     <Wand2 size={14} /> Auto-Detect
                   </button>
                 )}
                 <button onClick={() => onValidate(tableKey)} disabled={validating === tableKey}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-blue text-white rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-sm">
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-blue text-white rounded-xl hover:opacity-80 transition disabled:opacity-50 shadow-sm">
                   {validating === tableKey ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
                   {validating === tableKey ? 'Validating...' : 'Validate'}
                 </button>

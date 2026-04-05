@@ -68,22 +68,22 @@ export default function SimulationResults({
         <div className="flex items-center gap-2">
           <CheckCircle2 size={18} className="text-emerald-600" />
           <h4 className="text-sm font-bold text-emerald-900">Simulation Complete</h4>
-          <span className="ml-auto text-[10px] text-emerald-600 font-mono">
+          <span className="ml-auto text-[11px] text-emerald-600 font-mono">
             {loanCount > 0 ? `${loanCount.toLocaleString()} loans` : ''} × {scenarioCount} scenarios × {nSimulations.toLocaleString()} paths
           </span>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Total ECL</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Total ECL</p>
             <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{fmtCurrency(totalEcl)}</p>
           </div>
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Coverage</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Coverage</p>
             <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{coverage.toFixed(2)}%</p>
           </div>
           <div className="bg-white dark:bg-slate-800/60 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Duration</p>
+            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Duration</p>
             <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{formatElapsed(durationSec)}</p>
           </div>
         </div>

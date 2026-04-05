@@ -74,8 +74,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
               >
                 {isComplete ? <CheckCircle2 size={18} /> : <StepIcon size={18} />}
               </motion.div>
-              <span className={`text-[10px] mt-1.5 font-semibold ${
-                isComplete ? 'text-brand' : isActive ? 'text-slate-800 dark:text-white' : 'text-slate-400 dark:text-white/25'
+              <span className={`text-[11px] mt-1.5 font-semibold ${
+                isComplete ? 'text-brand' : isActive ? 'text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-300 dark:text-white/25'
               }`}>
                 {WIZARD_STEPS[i].label}
               </span>
@@ -457,7 +457,7 @@ function WelcomeStep({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                     {p.label}
-                    {p.optional && <span className="text-[10px] text-amber-400/60 ml-2 font-medium">(optional)</span>}
+                    {p.optional && <span className="text-[11px] text-amber-400/60 ml-2 font-medium">(optional)</span>}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5">{p.hint}</p>
                 </div>
@@ -468,7 +468,7 @@ function WelcomeStep({
 
         {setupStatus && (
           <div className="mt-6 p-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.04]">
-            <p className="text-[10px] text-slate-400 dark:text-white/30 uppercase tracking-wider font-bold mb-2">Current Status</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-300 dark:text-white/30 uppercase tracking-wider font-bold mb-2">Current Status</p>
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(setupStatus.steps).map(([key, val]) => (
                 <div key={key} className="flex items-center gap-2">
@@ -488,7 +488,7 @@ function WelcomeStep({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onNext}
-          className="mt-8 w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg hover:opacity-90 transition"
+          className="mt-8 w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg hover:opacity-80 transition"
         >
           Get Started <ArrowRight size={16} />
         </motion.button>
@@ -670,7 +670,7 @@ function DataConnectionStep({
             whileTap={{ scale: 0.98 }}
             onClick={onNext}
             disabled={!isConnected}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition"
           >
             Continue <ChevronRight size={16} />
           </motion.button>
@@ -813,7 +813,7 @@ function OrganizationStep({
             whileTap={{ scale: 0.98 }}
             onClick={onSave}
             disabled={saving || !orgName.trim()}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : null}
             Save & Continue <ChevronRight size={16} />
@@ -865,7 +865,7 @@ function FirstProjectStep({
           period and tracks the full workflow from data processing through sign-off.
         </p>
         <div className="mt-4 p-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.04]">
-          <p className="text-[10px] text-slate-400 dark:text-white/30 uppercase tracking-wider font-bold mb-1">Workflow Steps</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-300 dark:text-white/30 uppercase tracking-wider font-bold mb-1">Workflow Steps</p>
           <div className="space-y-1">
             {['Data Processing', 'Data Control', 'Satellite Model', 'Monte Carlo', 'Stress Testing', 'Overlays', 'Sign Off'].map((s, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-slate-400 dark:text-white/30">
@@ -933,7 +933,7 @@ function FirstProjectStep({
               whileTap={{ scale: 0.98 }}
               onClick={onCreate}
               disabled={creating || !projectId.trim() || !projectName.trim()}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl gradient-brand text-white font-bold text-sm shadow-lg disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition"
             >
               {creating ? <Loader2 size={16} className="animate-spin" /> : <FolderPlus size={16} />}
               {creating ? 'Creating...' : 'Create Project'}
@@ -961,7 +961,7 @@ function FirstProjectStep({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onFinish}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl gradient-brand text-white font-bold text-sm shadow-xl hover:opacity-90 transition"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl gradient-brand text-white font-bold text-sm shadow-xl hover:opacity-80 transition"
             >
               <Sparkles size={18} /> Launch Workspace
             </motion.button>

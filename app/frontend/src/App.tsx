@@ -74,7 +74,7 @@ function ProjectSelector({
             <motion.div initial={{ opacity: 0, y: -4, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.97 }} transition={{ duration: 0.15 }}
               className="absolute top-full right-0 mt-2 w-80 glass-card rounded-2xl z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ECL Projects</p>
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">ECL Projects</p>
               </div>
               <div className="max-h-72 overflow-y-auto p-1.5">
                 {projects.map(p => {
@@ -88,7 +88,7 @@ function ProjectSelector({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{p.project_name || p.project_id}</p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300">
                           {p.reporting_date} &middot; Step {(p.current_step ?? 0) + 1}/8
                           {isSigned && <span className="text-emerald-700 ml-1 font-semibold">Signed</span>}
                         </p>
@@ -335,7 +335,7 @@ export default function App() {
               <Zap size={36} strokeWidth={2.5} className="text-white drop-shadow-lg" />
             </div>
           </div>
-          <p className="text-base font-semibold text-slate-400 dark:text-white/40 tracking-wide">Loading ECL Workspace...</p>
+          <p className="text-base font-semibold text-slate-500 dark:text-slate-300 dark:text-white/40 tracking-wide">Loading ECL Workspace...</p>
         </div>
       </div>
     );
@@ -455,7 +455,7 @@ export default function App() {
               <div className="lg:hidden w-8" />
               <div>
                 <h1 className="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight leading-tight">{config.appTitle}</h1>
-                <p className="text-xs text-slate-400 dark:text-white/35 font-medium tracking-wide">{config.appSubtitle}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-300 dark:text-white/35 font-medium tracking-wide">{config.appSubtitle}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -467,7 +467,7 @@ export default function App() {
                 className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-white/60 hover:bg-slate-200 dark:hover:bg-white/[0.12] hover:text-slate-800 dark:hover:text-white transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0B0F1A]">
                 {isDark ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-white/25">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-300 dark:text-white/25">
                 <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
                 <span className="hidden sm:inline">Powered by <span className="text-slate-500 dark:text-white/45 font-semibold">{config.poweredBy}</span></span>
               </div>
@@ -503,7 +503,7 @@ export default function App() {
                     </div>
                     <span className="font-bold text-slate-700 dark:text-slate-200">{project.project_name || project.project_id}</span>
                     <span className="h-3 w-px bg-slate-200" />
-                    <span className="text-slate-400 font-mono">{project.project_id}</span>
+                    <span className="text-slate-500 dark:text-slate-300 font-mono">{project.project_id}</span>
                     <span className="h-3 w-px bg-slate-200" />
                     <span className="text-slate-500 dark:text-slate-400 font-semibold">{project.reporting_date}</span>
                     <span className="h-3 w-px bg-slate-200" />
@@ -523,7 +523,7 @@ export default function App() {
                         } catch (e: any) {
                           toast(`Reset failed: ${e.message}`, 'error');
                         }
-                      }} aria-label="Reset all workflow steps" className="ml-auto flex items-center gap-1 text-slate-400 hover:text-red-500 transition focus-visible:ring-2 focus-visible:ring-brand rounded-lg">
+                      }} aria-label="Reset all workflow steps" className="ml-auto flex items-center gap-1 text-slate-500 dark:text-slate-300 hover:text-red-500 transition focus-visible:ring-2 focus-visible:ring-brand rounded-lg">
                         <RotateCcw size={11} /> Reset
                       </button>
                     )}
@@ -558,7 +558,7 @@ export default function App() {
                     ) : <div />}
                     {canGoNext ? (
                       <button onClick={() => setActiveTab(activeTab + 1)}
-                        className="group flex items-center gap-2 px-5 py-3 text-sm font-bold text-white gradient-brand rounded-2xl shadow-lg glow-brand hover:opacity-90 transition">
+                        className="group flex items-center gap-2 px-5 py-3 text-sm font-bold text-white gradient-brand rounded-2xl shadow-lg glow-brand hover:opacity-80 transition">
                         {STEPS[activeTab + 1]?.label}
                         <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                       </button>

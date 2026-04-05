@@ -35,7 +35,7 @@ export default function MigrationTab({
           <div className="flex items-center justify-between mb-2">
             <div>
               <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Stage 1 → Stage 2 Migration</span>
-              <span className="text-xs text-slate-400 ml-2">% of Stage 1 loans downgraded</span>
+              <span className="text-xs text-slate-500 dark:text-slate-300 ml-2">% of Stage 1 loans downgraded</span>
             </div>
             <span className={`text-lg font-bold font-mono ${migrationPct > 0 ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'}`}>
               {migrationPct}%
@@ -43,7 +43,7 @@ export default function MigrationTab({
           </div>
           <input type="range" min={0} max={30} value={migrationPct} onChange={e => setMigrationPct(Number(e.target.value))}
             className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer brand-range" />
-          <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+          <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-300 mt-1">
             <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span><span>30%</span>
           </div>
           <div className="mt-3 flex gap-2">

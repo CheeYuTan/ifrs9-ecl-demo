@@ -214,7 +214,7 @@ export default function ThreeLevelDrillDown({
               value={activeDimension}
               onChange={e => handleDimensionChange(e.target.value)}
               aria-label="Drill-down dimension"
-              className="text-[10px] px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium focus:ring-1 focus:ring-brand/30 outline-none"
+              className="text-[11px] px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium focus:ring-1 focus:ring-brand/30 outline-none"
             >
               {dimensions.map(d => (
                 <option key={d.key} value={d.key}>{d.label}</option>
@@ -230,7 +230,7 @@ export default function ThreeLevelDrillDown({
       </div>
 
       {hintText && (
-        <p className="text-[10px] text-slate-400 mb-3">{hintText}</p>
+        <p className="text-[11px] text-slate-500 dark:text-slate-300 mb-3">{hintText}</p>
       )}
 
       {isLoading && (

@@ -371,15 +371,15 @@ function SurvivalTab({ curves, modelType }: { curves: any[]; modelType?: string 
           return (
             <div key="stats" className="col-span-3 grid grid-cols-3 gap-4">
               <div className="bg-blue-50 rounded-xl p-3 text-center">
-                <p className="text-slate-400 font-semibold">12-Month PD</p>
+                <p className="text-slate-500 dark:text-slate-300 font-semibold">12-Month PD</p>
                 <p className="text-lg font-bold text-blue-700">{fmtPct((1 - s12) * 100, 2)}</p>
               </div>
               <div className="bg-amber-50 rounded-xl p-3 text-center">
-                <p className="text-slate-400 font-semibold">24-Month PD</p>
+                <p className="text-slate-500 dark:text-slate-300 font-semibold">24-Month PD</p>
                 <p className="text-lg font-bold text-amber-700">{fmtPct((1 - s24) * 100, 2)}</p>
               </div>
               <div className="bg-red-50 rounded-xl p-3 text-center">
-                <p className="text-slate-400 font-semibold">Lifetime PD (60m)</p>
+                <p className="text-slate-500 dark:text-slate-300 font-semibold">Lifetime PD (60m)</p>
                 <p className="text-lg font-bold text-red-700">{fmtPct((1 - s60) * 100, 2)}</p>
               </div>
             </div>
@@ -502,9 +502,9 @@ function PDTermTab({ termStructure, modelType }: { termStructure: any; modelType
             const periodPd = cpd - prevCpd;
             return (
               <div key={bucket.label} className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 text-center">
-                <p className="text-[10px] text-slate-400 font-semibold uppercase">{bucket.label}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold uppercase">{bucket.label}</p>
                 <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">{fmtPct(periodPd * 100, 2)}</p>
-                <p className="text-[10px] text-slate-400">Cum: {fmtPct(cpd * 100, 2)}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-300">Cum: {fmtPct(cpd * 100, 2)}</p>
               </div>
             );
           })}
@@ -577,7 +577,7 @@ function CoefficientTab({ coefficients, modelType }: { coefficients: any[]; mode
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2 text-center">
+          <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-2 text-center">
             *** p &lt; 0.001 &nbsp; ** p &lt; 0.01 &nbsp; * p &lt; 0.05
           </p>
         </Card>
@@ -659,7 +659,7 @@ function CompareTab({ compareData, compareIds, onCompare }: {
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex justify-between items-center py-1.5 border-b border-slate-100 dark:border-slate-700 last:border-0">
-      <span className="text-slate-400 text-xs font-medium">{label}</span>
+      <span className="text-slate-500 dark:text-slate-300 text-xs font-medium">{label}</span>
       <span className="text-slate-700 dark:text-slate-200 text-xs font-semibold font-mono">{value}</span>
     </div>
   );
