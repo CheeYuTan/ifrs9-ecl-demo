@@ -1,4 +1,12 @@
+import type { ProjectRole, RbacRole } from './permissions';
+
 const BASE = '/api';
+
+async function del<T>(path: string): Promise<T> {
+  const r = await fetch(`${BASE}${path}`, { method: 'DELETE' });
+  if (!r.ok) throw new Error(`API ${r.status}: ${await r.text()}`);
+  return r.json();
+}
 
 async function get<T>(path: string): Promise<T> {
   const r = await fetch(`${BASE}${path}`);
@@ -226,6 +234,36 @@ export interface ApprovalRequest {
   priority: 'normal' | 'urgent';
   due_date: string | null;
   created_at: string;
+}
+
+export interface ProjectMember {
+  project_id: string;
+  user_id: string;
+  role: ProjectRole;
+  granted_by: string;
+  granted_at: string;
+  display_name?: string;
+  email?: string;
+}
+
+export interface ProjectMembersResponse {
+  project_id: string;
+  owner: { user_id: string; display_name: string; email: string } | null;
+  members: ProjectMember[];
+}
+
+export interface MyProjectRoleResponse {
+  user_id: string;
+  project_role: ProjectRole;
+  rbac_role: RbacRole;
+}
+
+export interface AuthMeResponse {
+  user_id: string;
+  email: string;
+  display_name: string;
+  role: RbacRole;
+  permissions: string[];
 }
 
 export interface SetupStepStatus {
@@ -571,4 +609,17 @@ export const api = {
   adminConfig: () => get<any>('/admin/config'),
   adminSaveConfig: (data: any) => put<any>('/admin/config', data),
   adminTestConnection: () => post<any>('/admin/test-connection'),
+
+  // Auth & Permissions
+  authMe: () => get<AuthMeResponse>('/auth/me'),
+  getMyProjectRole: (projectId: string) =>
+    get<MyProjectRoleResponse>(`/auth/projects/${encodeURIComponent(projectId)}/my-role`),
+  getProjectMembers: (projectId: string) =>
+    get<ProjectMembersResponse>(`/projects/${encodeURIComponent(projectId)}/members`),
+  addProjectMember: (projectId: string, userId: string, role: string) =>
+    post<ProjectMember>(`/projects/${encodeURIComponent(projectId)}/members`, { user_id: userId, role }),
+  removeProjectMember: (projectId: string, userId: string) =>
+    del<{ removed: boolean; user_id: string; project_id: string }>(`/projects/${encodeURIComponent(projectId)}/members/${encodeURIComponent(userId)}`),
+  transferOwnership: (projectId: string, newOwnerId: string) =>
+    post<Project>(`/projects/${encodeURIComponent(projectId)}/transfer-ownership`, { new_owner_id: newOwnerId }),
 };

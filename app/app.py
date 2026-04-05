@@ -114,6 +114,7 @@ from routes.data_mapping import router as data_mapping_router
 from routes.period_close import router as period_close_router
 from routes.analytics import router as analytics_router
 from routes.project_members import router as project_members_router
+from routes.auth import router as auth_router
 
 app.include_router(projects_router)
 app.include_router(data_router)
@@ -136,6 +137,7 @@ app.include_router(data_mapping_router)
 app.include_router(period_close_router)
 app.include_router(analytics_router)
 app.include_router(project_members_router)
+app.include_router(auth_router)
 
 
 # ── Serve embedded documentation at /docs ─────────────────────────────────────

@@ -3,6 +3,17 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar, type ViewType } from './Sidebar';
 
+// Mock useCurrentUser — default to admin so existing tests pass
+const mockUseCurrentUser = vi.fn().mockReturnValue({
+  user: { user_id: 'usr-004', role: 'admin', email: '', display_name: '', permissions: [] },
+  isLoading: false,
+  error: null,
+  refetch: vi.fn(),
+});
+vi.mock('../hooks/useCurrentUser', () => ({
+  useCurrentUser: () => mockUseCurrentUser(),
+}));
+
 vi.mock('framer-motion', () => ({
   motion: new Proxy({}, {
     get: (_target: any, prop: string) => {
@@ -144,5 +155,64 @@ describe('Sidebar', () => {
       expect(activeButtons.length).toBeGreaterThan(0);
       unmount();
     }
+  });
+
+  describe('admin visibility', () => {
+    it('shows Admin link when user is admin', () => {
+      mockUseCurrentUser.mockReturnValue({
+        user: { user_id: 'usr-004', role: 'admin', email: '', display_name: '', permissions: [] },
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      });
+      render(<Sidebar activeView="workflow" onNavigate={onNavigate} />);
+      expect(screen.getAllByText('Admin').length).toBeGreaterThan(0);
+    });
+
+    it('hides Admin link when user is analyst', () => {
+      mockUseCurrentUser.mockReturnValue({
+        user: { user_id: 'usr-001', role: 'analyst', email: '', display_name: '', permissions: [] },
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      });
+      render(<Sidebar activeView="workflow" onNavigate={onNavigate} />);
+      expect(screen.queryByText('Admin')).toBeNull();
+    });
+
+    it('hides Admin link when user is reviewer', () => {
+      mockUseCurrentUser.mockReturnValue({
+        user: { user_id: 'usr-002', role: 'reviewer', email: '', display_name: '', permissions: [] },
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      });
+      render(<Sidebar activeView="workflow" onNavigate={onNavigate} />);
+      expect(screen.queryByText('Admin')).toBeNull();
+    });
+
+    it('hides Admin link when user is loading', () => {
+      mockUseCurrentUser.mockReturnValue({
+        user: null,
+        isLoading: true,
+        error: null,
+        refetch: vi.fn(),
+      });
+      render(<Sidebar activeView="workflow" onNavigate={onNavigate} />);
+      expect(screen.queryByText('Admin')).toBeNull();
+    });
+
+    it('shows non-admin nav items regardless of role', () => {
+      mockUseCurrentUser.mockReturnValue({
+        user: { user_id: 'usr-001', role: 'analyst', email: '', display_name: '', permissions: [] },
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      });
+      render(<Sidebar activeView="workflow" onNavigate={onNavigate} />);
+      expect(screen.getAllByText('ECL Workflow').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Reports').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Approvals').length).toBeGreaterThan(0);
+    });
   });
 });

@@ -5,6 +5,8 @@ import {
   BookOpen, ClipboardList, Shield, Sparkles, Settings,
   ChevronLeft, ChevronRight, Menu, X, Workflow, Upload,
 } from 'lucide-react';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { isAdmin } from '../lib/permissions';
 
 export type ViewType =
   | 'workflow'
@@ -72,6 +74,8 @@ export function Sidebar({
   activeView: ViewType;
   onNavigate: (view: ViewType) => void;
 }) {
+  const { user } = useCurrentUser();
+  const showAdmin = isAdmin(user?.role);
   const [expanded, setExpanded] = useState(() => window.innerWidth >= 1440);
   const [hoverExpanded, setHoverExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -167,15 +171,17 @@ export function Sidebar({
         ))}
       </nav>
 
-      {/* Settings at bottom */}
+      {/* Settings at bottom — Admin link only shown to admin RBAC role */}
       <div className="flex-shrink-0 border-t border-slate-200 dark:border-white/[0.06] p-2 space-y-1">
-        <NavButton
-          item={SETTINGS_ITEM}
-          isActive={activeView === 'admin'}
-          isWide={isWide || isMobile}
-          onClick={() => onNavigate('admin')}
-          layoutScope={layoutScope}
-        />
+        {showAdmin && (
+          <NavButton
+            item={SETTINGS_ITEM}
+            isActive={activeView === 'admin'}
+            isWide={isWide || isMobile}
+            onClick={() => onNavigate('admin')}
+            layoutScope={layoutScope}
+          />
+        )}
         {!isMobile && (
           <button
             onClick={() => setExpanded(!expanded)}

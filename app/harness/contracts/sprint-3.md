@@ -1,35 +1,30 @@
-# Sprint 3 Contract: Dashboard SQL Queries (7 Files)
+# Sprint 3 Contract: Frontend Permission Infrastructure
 
 ## Acceptance Criteria
-- [ ] `dashboards/` directory created with 7 SQL query files + `__init__.py`
-- [ ] `01_user_activity.sql`: DAU, actions/user, login frequency from `audit_trail` + `app_usage_analytics`
-- [ ] `02_project_analytics.sql`: Projects over time, status distribution, completion rates from `ecl_workflow`
-- [ ] `03_model_performance.sql`: AUC/Gini/KS trends, model registry status from `backtest_metrics` + `model_registry`
-- [ ] `04_job_execution.sql`: Pipeline run counts, success/failure rates, durations from `pipeline_runs`
-- [ ] `05_api_usage.sql`: Endpoint popularity, p50/p95 latency, error rates from `app_usage_analytics`
-- [ ] `06_cost_allocation.sql`: Storage by table via `pg_total_relation_size()`, compute estimates by job type
-- [ ] `07_system_health.sql`: Error rate trends, latency trends, requests per minute
-- [ ] All queries PostgreSQL-compatible, use `COALESCE`/`NULLIF` for empty tables, `DATE_TRUNC` for time-series
-- [ ] `dashboards/__init__.py` with `load_query()` and `list_queries()` utilities
-- [ ] Unit tests: SQL syntax validation, empty-table handling, date range parameterization
-- [ ] All existing ~4011 tests continue to pass
 
-## Table References (schema: `expected_credit_loss`)
-| Query File | Source Tables |
-|------------|-------------|
-| 01 | `audit_trail`, `app_usage_analytics` |
-| 02 | `ecl_workflow` |
-| 03 | `backtest_metrics`, `model_registry` |
-| 04 | `pipeline_runs` |
-| 05 | `app_usage_analytics` |
-| 06 | `pg_total_relation_size()` (system), `pipeline_runs` |
-| 07 | `app_usage_analytics` |
+- [ ] `frontend/src/lib/permissions.ts`: ProjectRole enum (`viewer`, `editor`, `manager`, `owner`), RbacRole type, `canPerformAction()` utility, role hierarchy constants, action-to-minimum-role mapping
+- [ ] `frontend/src/hooks/usePermissions.ts`: React hook that fetches effective project role from `GET /api/projects/{id}/my-role`, caches by project ID, provides `canEdit`, `canManage`, `canOwn`, `isLoading`, `error`
+- [ ] `frontend/src/lib/api.ts`: Add `ProjectMember` interface, `getProjectMembers()`, `addProjectMember()`, `removeProjectMember()`, `transferOwnership()`, `getMyProjectRole()` API functions
+- [ ] Backend: `GET /api/projects/{project_id}/my-role` endpoint returning `{ user_id, project_role, rbac_role }`
+- [ ] Sidebar: Admin link visible only when user has admin RBAC role
+- [ ] `frontend/src/hooks/useCurrentUser.ts`: Hook that fetches RBAC user info from `GET /api/auth/me`
+- [ ] Backend: `GET /api/auth/me` endpoint returning current user RBAC info
+- [ ] Loading/error states for permission resolution
+
+## API Contract
+
+### `GET /api/auth/me`
+Response: `{ user_id, email, display_name, role, permissions[] }`
+
+### `GET /api/projects/{project_id}/my-role`
+Response: `{ user_id, project_role, rbac_role }`
 
 ## Test Plan
-- Unit tests: SQL file loading via `dashboards` module, syntax validation, parameterization
-- Verify each SQL query handles empty tables (COALESCE/NULLIF present)
-- Regression: all existing tests pass
 
-## Production Readiness Items
-- SQL files use `{schema}` placeholder for schema name substitution
-- No hardcoded schema names in SQL files
+- Unit: `permissions.ts` — canPerformAction for all role x action combos, role hierarchy, edge cases
+- Unit: `usePermissions.ts` — loading state, successful fetch, error state
+- Unit: `useCurrentUser.ts` — fetch, anonymous fallback
+- Unit: Sidebar — admin sees Admin link, non-admin does not
+- Backend: `/api/auth/me` with and without auth headers
+- Backend: `/api/projects/{id}/my-role` for various role combinations
+- Regression: all existing 4206 tests pass

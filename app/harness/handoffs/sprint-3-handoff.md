@@ -1,59 +1,80 @@
-# Sprint 3 Handoff: Dashboard SQL Queries (7 Files)
+# Sprint 3 Handoff: Frontend Permission Infrastructure
 
 ## What Was Built
 
-### Iteration 1: Dashboard SQL Module
-Created the `dashboards/` module with 7 PostgreSQL-compatible SQL query files for Databricks Lakeview dashboard provisioning, plus a Python utility module for loading and parameterising the queries.
+### Backend — Auth Routes (`routes/auth.py`)
+- `GET /api/auth/me` — returns current user RBAC identity (user_id, email, display_name, role, permissions). Anonymous returns analyst fallback.
+- `GET /api/auth/projects/{project_id}/my-role` — returns effective project role for current user (user_id, project_role, rbac_role). Anonymous returns owner (dev mode bypass). Returns 403 if user has no access.
+- Registered in `app.py` as `auth_router`.
 
-### Iteration 2: Fix 13 Pre-existing Test Failures
-Fixed path resolution bugs in 3 test files that failed when pytest collected tests through the symlinked `tests/` directory. Root cause: `Path(__file__).parents[2]` resolved to the wrong directory because `app/tests` is a symlink to `../tests`, and pytest loaded modules from their real (non-symlink) path.
+### Frontend — Permission Library (`frontend/src/lib/permissions.ts`)
+- `ProjectRole` type: `viewer | editor | manager | owner`
+- `RbacRole` type: `analyst | reviewer | approver | admin`
+- `PROJECT_ROLE_LEVEL` — numeric hierarchy for comparison
+- `PROJECT_ROLE_LABELS` — display labels
+- `PROJECT_ROLES` — ordered array
+- `ProjectAction` type — 9 defined actions
+- `canPerformAction(role, action)` — checks role meets minimum for action
+- `hasMinRole(role, minRole)` — general hierarchy check
+- `isAdmin(rbacRole)` — admin check
 
-**Files fixed:**
-- `tests/regression/test_docs_content_quality.py` — Added `_find_app_root()` helper that walks up from `__file__` looking for `docs-site/`
-- `tests/regression/test_docs_homepage_bugs.py` — Same `_find_app_root()` fix
-- `tests/unit/test_analytics_middleware.py` — Added `_find_app_py()` static method that walks up looking for `app.py`
+### Frontend — useCurrentUser Hook (`frontend/src/hooks/useCurrentUser.ts`)
+- Fetches `GET /api/auth/me` once and caches globally
+- Returns `{ user, isLoading, error, refetch }`
+- Deduplicates concurrent fetches
 
-### SQL Query Files
-1. **`01_user_activity.sql`** — DAU, actions per user, audit trail activity by event type, login frequency (sources: `audit_trail`, `app_usage_analytics`)
-2. **`02_project_analytics.sql`** — Projects over time, status distribution, completion rate, project type distribution, avg time to completion (source: `ecl_workflow`)
-3. **`03_model_performance.sql`** — AUC/Gini/KS trends over time, latest metrics per model, registry status distribution, champion models (sources: `backtest_metrics`, `model_registry`)
-4. **`04_job_execution.sql`** — Pipeline runs over time, success/failure rates, avg duration by status, recent runs (source: `pipeline_runs`)
-5. **`05_api_usage.sql`** — Endpoint popularity, p50/p95/p99 latency percentiles, error rate by endpoint, hourly request volume (source: `app_usage_analytics`)
-6. **`06_cost_allocation.sql`** — Storage by table via `pg_total_relation_size()`, total schema storage, compute estimates by job type (sources: `pg_tables`, `pipeline_runs`)
-7. **`07_system_health.sql`** — Hourly error rate trend, latency trend (p50/p95), requests per minute, status code distribution (source: `app_usage_analytics`)
+### Frontend — usePermissions Hook (`frontend/src/hooks/usePermissions.ts`)
+- Fetches `GET /api/auth/projects/{id}/my-role` per project ID
+- Caches by project ID
+- Returns `{ data, projectRole, rbacRole, isLoading, error, canEdit, canManage, canOwn, isAdminUser, can(action), refetch }`
 
-### Python Module
-- **`dashboards/__init__.py`** — `load_query(filename, schema)`, `load_all_queries(schema)`, `list_queries()`. Handles `{schema}` placeholder substitution with SQL-injection-safe schema validation.
+### Frontend — API Extensions (`frontend/src/lib/api.ts`)
+- New interfaces: `ProjectMember`, `ProjectMembersResponse`, `MyProjectRoleResponse`, `AuthMeResponse`
+- New API functions: `authMe()`, `getMyProjectRole()`, `getProjectMembers()`, `addProjectMember()`, `removeProjectMember()`, `transferOwnership()`
+- Added `del<T>()` helper for DELETE requests
+
+### Frontend — Sidebar Admin Visibility (`frontend/src/components/Sidebar.tsx`)
+- Admin link now conditionally rendered based on `useCurrentUser` hook
+- Only users with `role === 'admin'` see the Admin nav item
+- Non-admin users see all other navigation items normally
 
 ## How to Test
-- Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python -m pytest -q`
-- All 4086 tests should pass (0 failures)
-- Dashboard-specific: `python -m pytest tests/unit/test_dashboard_queries.py -v`
-- Manual: `python -c "import dashboards; print(dashboards.load_query('01_user_activity.sql'))"`
+- Start: `cd /Users/steven.tan/Expected\ Credit\ Losses/app && python app.py`
+- Auth endpoint: `curl http://localhost:8000/api/auth/me`
+- Project role: `curl http://localhost:8000/api/auth/projects/Q4-2025-IFRS9/my-role`
+- Frontend: navigate to app — non-admin users should not see Admin link
 
 ## Test Results
-- `pytest`: **4086 passed**, 61 skipped, **0 failed**
-- Previous run had 13 pre-existing failures — all 13 now fixed
-- Dashboard query tests: 75 passed
-- Coverage: SQL loading, schema substitution, validation, syntax checks, empty-table patterns, table references
+- **Backend**: `pytest tests/` — **4214 passed**, 61 skipped, **0 failed** (baseline was 4206 — added 8 new tests)
+- **Frontend**: `npx vitest run` — **540 passed** across 56 test files (added 54 new tests)
+- **Frontend build**: `npm run build` — SUCCESS, no TypeScript errors
+
+### New Test Files
+- `tests/unit/test_auth_routes.py` — 8 tests (anonymous, auth headers, 403, admin, response fields)
+- `frontend/src/lib/permissions.test.ts` — 22 tests (role hierarchy, canPerformAction matrix, edge cases)
+- `frontend/src/hooks/useCurrentUser.test.ts` — 4 tests (loading, fetch, error, cache)
+- `frontend/src/hooks/usePermissions.test.ts` — 8 tests (null projectId, loading, roles, can(), error, cache)
+- `frontend/src/components/Sidebar.test.tsx` — 5 new tests (admin visible, analyst hidden, reviewer hidden, loading hidden, non-admin nav visible)
 
 ## Known Limitations
-- SQL queries are designed for PostgreSQL/Lakebase; `PERCENTILE_CONT` and `pg_total_relation_size()` are PostgreSQL-specific
-- Queries use multi-statement format (separated by comments) — the provisioning script in Sprint 4 will need to split on `-- ──` boundaries
+- `useCurrentUser` uses module-level cache; page refresh required to pick up role changes
+- No WebSocket/SSE push for real-time permission updates
+- Sprint 4 will integrate these hooks into the 8 workflow step pages (gating controls, read-only mode)
 
 ## Files Changed
-### Iteration 1 (new files)
-- `dashboards/__init__.py` (55 lines)
-- `dashboards/01_user_activity.sql` (46 lines)
-- `dashboards/02_project_analytics.sql` (54 lines)
-- `dashboards/03_model_performance.sql` (43 lines)
-- `dashboards/04_job_execution.sql` (49 lines)
-- `dashboards/05_api_usage.sql` (50 lines)
-- `dashboards/06_cost_allocation.sql` (48 lines)
-- `dashboards/07_system_health.sql` (53 lines)
-- `tests/unit/test_dashboard_queries.py` (75 tests)
 
-### Iteration 2 (bug fixes)
-- `tests/regression/test_docs_content_quality.py` — path resolution fix
-- `tests/regression/test_docs_homepage_bugs.py` — path resolution fix
-- `tests/unit/test_analytics_middleware.py` — path resolution fix
+### New Files
+- `routes/auth.py` (59 lines)
+- `frontend/src/lib/permissions.ts` (80 lines)
+- `frontend/src/hooks/useCurrentUser.ts` (76 lines)
+- `frontend/src/hooks/usePermissions.ts` (109 lines)
+- `frontend/src/lib/permissions.test.ts` (131 lines)
+- `frontend/src/hooks/useCurrentUser.test.ts` (70 lines)
+- `frontend/src/hooks/usePermissions.test.ts` (138 lines)
+- `tests/unit/test_auth_routes.py` (108 lines)
+
+### Modified Files
+- `app.py` — added auth_router import and registration
+- `frontend/src/lib/api.ts` — added ProjectMember types, auth API functions, del() helper
+- `frontend/src/components/Sidebar.tsx` — conditional Admin link with useCurrentUser
+- `frontend/src/components/Sidebar.test.tsx` — added useCurrentUser mock and admin visibility tests

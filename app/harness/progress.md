@@ -1,39 +1,27 @@
-# IFRS 9 ECL Documentation Transformation — Progress
+# IFRS 9 ECL Permission Model — Progress
 
 ## Quality Target: 9.5/10
 
 ## Project Summary
-Transform the docs-site from a monolithic technical reference into a persona-based documentation site with separate User Guide (business users), Admin Guide (system admins), and Developer Reference (engineers). Total: ~34 new pages across 3 personas.
+Two-layer permission model: existing RBAC (Layer 1) + per-project roles (Layer 2). Both layers must be satisfied. Admin overrides all. Anonymous dev mode bypasses all.
 
 ## Sprint Status
 
-| Sprint | Feature | Status | Score | Pages | Iterations | Decision |
+| Sprint | Feature | Status | Score | Tests | Iterations | Decision |
 |--------|---------|--------|-------|-------|------------|----------|
-| 1 | Foundation — Restructure & Getting Started | COMPLETE | 9.5 | 3 | 1 | ADVANCE |
-| 2 | User Guide — Workflow Steps 1-4 | COMPLETE | 9.4 | 4 | 1 | ADVANCE (debt) |
-| 3 | User Guide — Workflow Steps 5-8 | COMPLETE | 9.5 | 4 | 1 | ADVANCE |
-| 4 | User Guide — Feature Pages Part 1 | COMPLETE | 9.5 | 4 | 1 | ADVANCE |
-| 5 | User Guide — Feature Pages Part 2 + FAQ | COMPLETE | 9.68 | 5 | 1 | ADVANCE |
-| 6 | Admin Guide — Complete | COMPLETE | 9.55 | 9 | 1 | ADVANCE |
-| 7 | Developer Reference — Complete | IN PROGRESS | — | 5 | 1 | — |
-| 8 | Homepage, Navigation & Polish | PENDING | — | 0 | 0 | — |
+| 1 | Backend Permission Engine | PENDING | — | — | 0 | — |
+| 2 | API Layer + Route Protection | PENDING | — | — | 0 | — |
+| 3 | Frontend Permission Infrastructure | PENDING | — | — | 0 | — |
+| 4 | Frontend UI Integration | PENDING | — | — | 0 | — |
+| 5 | Integration Testing + Deployment | PENDING | — | — | 0 | — |
 
-## Page Count
+## Baseline
+- Tests at start: 4108 passing
 
-| Section | Pages | Status |
-|---------|-------|--------|
-| Getting Started | 3 (overview, quick-start, workflow-overview) | COMPLETE (Sprint 1) |
-| User Guide — Steps 1-4 | 4 | COMPLETE (Sprint 2) |
-| User Guide — Steps 5-8 | 4 | COMPLETE (Sprint 3) |
-| User Guide — Features Part 1 | 4 (model-registry, backtesting, regulatory-reports, gl-journals) | COMPLETE (Sprint 4) |
-| User Guide — Features Part 2 + FAQ | 5 (approval-workflow, attribution, markov-hazard, advanced-features, faq) | COMPLETE (Sprint 5) |
-| Admin Guide | 9 (setup-installation, data-mapping, model-configuration, app-settings, jobs-pipelines, theme-customization, system-administration, user-management, troubleshooting) | COMPLETE (Sprint 6) |
-| Developer Reference | 5 (architecture, api-reference, data-model, ecl-engine, testing) | IN PROGRESS (Sprint 7) |
-| **Total** | **34** | **34 in progress/complete, 0 pending** |
-
-## Build Status
-- Last build: Sprint 7 iteration 1
-- Errors: 0
-- Warnings: 0
-- Deployed to: docs_site/
-- pytest: 3957 passed, 61 skipped
+## Key Files
+- Spec: `harness/spec.md`
+- State: `harness/state.json`
+- Existing RBAC: `governance/rbac.py`
+- Existing auth: `middleware/auth.py`
+- Existing workflow: `domain/workflow.py`
+- Existing audit: `domain/audit_trail.py`
