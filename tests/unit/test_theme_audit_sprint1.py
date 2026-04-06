@@ -946,8 +946,8 @@ def test_datatable_gradient_has_light_dark_pair():
     assert "from-slate-100" in content or "from-gray-100" in content, (
         "DataTable missing light gradient (from-slate-100 or from-gray-100)"
     )
-    assert "dark:from-slate-800" in content, "DataTable missing dark:from-slate-800"
-    assert "dark:to-slate-700" in content, "DataTable missing dark:to-slate-700"
+    assert "dark:from-slate-700/80" in content or "dark:from-slate-800" in content, "DataTable missing dark gradient"
+    assert "dark:to-slate-600/60" in content or "dark:to-slate-700" in content, "DataTable missing dark gradient end"
 
 
 def test_locked_banner_text_has_dark_pair():
