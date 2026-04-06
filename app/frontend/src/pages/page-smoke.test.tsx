@@ -126,6 +126,8 @@ vi.mock('../lib/api', () => ({
     simulationValidate: vi.fn().mockResolvedValue({ errors: [], warnings: [] }),
     projectAuditTrail: vi.fn().mockResolvedValue([]),
     configChanges: vi.fn().mockResolvedValue([]),
+    getMyProjectRole: vi.fn().mockResolvedValue({ user_id: 'test-user', project_role: 'owner', rbac_role: 'admin' }),
+    authMe: vi.fn().mockResolvedValue({ user_id: 'test-user', email: 'test@test.com', display_name: 'Test', role: 'admin', permissions: [] }),
   },
 }));
 

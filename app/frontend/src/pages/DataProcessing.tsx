@@ -18,6 +18,7 @@ import { config } from '../lib/config';
 import { STAGE_COLORS_ARRAY } from '../lib/chartUtils';
 import StepDescription from '../components/StepDescription';
 import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface Props {
   project: Project | null;
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export default function DataProcessing({ project, onComplete }: Props) {
+  const { canEdit } = usePermissions(project?.project_id);
   const ct = useChartTheme();
   const [portfolio, setPortfolio] = useState<any[]>([]);
   const [stages, setStages] = useState<any[]>([]);
@@ -125,6 +127,12 @@ export default function DataProcessing({ project, onComplete }: Props) {
 
   return (
     <div className="space-y-5">
+      {!canEdit && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 019.364 9.636z" /></svg>
+          You have view-only access to this project.
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">Data Processing</h2>
@@ -300,8 +308,8 @@ export default function DataProcessing({ project, onComplete }: Props) {
               <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Ready to proceed?</h3>
               <p className="text-xs text-slate-500 mt-1">Review the portfolio data above. If correct, mark complete to proceed to Data Control.</p>
             </div>
-            <button onClick={handleComplete} disabled={acting}
-              className="px-6 py-3 gradient-brand text-white text-sm font-bold rounded-2xl hover:opacity-80 disabled:opacity-50 transition shadow-lg glow-brand">
+            <button onClick={handleComplete} disabled={acting || !canEdit}
+              className={`px-6 py-3 gradient-brand text-white text-sm font-bold rounded-2xl hover:opacity-80 disabled:opacity-50 transition shadow-lg glow-brand ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {acting ? 'Processing...' : 'Mark Complete'}
             </button>
           </div>

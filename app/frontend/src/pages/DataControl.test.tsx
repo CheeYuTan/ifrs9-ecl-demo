@@ -27,6 +27,7 @@ vi.mock('../lib/api', () => ({
     dqResults: vi.fn().mockResolvedValue([]),
     glReconciliation: vi.fn().mockResolvedValue([]),
     jobsConfig: vi.fn().mockResolvedValue({ job_ids: {} }),
+    getMyProjectRole: vi.fn().mockResolvedValue({ user_id: 'test-user', project_role: 'owner', rbac_role: 'admin' }),
   },
 }));
 

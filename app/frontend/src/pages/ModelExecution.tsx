@@ -21,6 +21,7 @@ import { config, type ScenarioConfig } from '../lib/config';
 import { chartAxisProps, buildScenarioColorMap, scenarioGridClass, pivotScenarioByProduct, buildDrillDownData } from '../lib/chartUtils';
 import StepDescription from '../components/StepDescription';
 import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface Props {
   project: Project | null;
@@ -29,6 +30,7 @@ interface Props {
 }
 
 export default function ModelExecution({ project, onApprove, onReject }: Props) {
+  const { canEdit } = usePermissions(project?.project_id);
   const ct = useChartTheme();
   const [eclProduct, setEclProduct] = useState<any[]>([]);
   const [scenario, setScenario] = useState<any[]>([]);
@@ -109,6 +111,12 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
 
   return (
     <div className="space-y-6">
+      {!canEdit && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 019.364 9.636z" /></svg>
+          You have view-only access to this project.
+        </div>
+      )}
       <PageHeader title="Model Execution & Control" subtitle="Forward-looking credit loss engine — PD, LGD, EAD across probability-weighted macroeconomic scenarios" status={combinedSt} />
 
       <StepDescription
@@ -712,6 +720,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
             title="Model Execution & Control Decision"
             approveLabel="✓ Approve Model Results"
             placeholder="Model validation review comments..."
+            disabled={!canEdit}
           />
         </Card>
       )}

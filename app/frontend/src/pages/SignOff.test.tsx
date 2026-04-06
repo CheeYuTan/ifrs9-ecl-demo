@@ -58,6 +58,7 @@ vi.mock('../lib/api', () => ({
     verifyHash: vi.fn().mockResolvedValue({ status: 'ok', match: true }),
     jobsConfig: vi.fn().mockResolvedValue({ job_ids: {} }),
     drillDownDimensions: vi.fn().mockResolvedValue([]),
+    getMyProjectRole: vi.fn().mockResolvedValue({ user_id: 'test-user', project_role: 'owner', rbac_role: 'admin' }),
   },
 }));
 

@@ -10,6 +10,7 @@ import { useToast } from '../components/Toast';
 import { api, type Project } from '../lib/api';
 import { formatProductName } from '../lib/format';
 import StepDescription from '../components/StepDescription';
+import { usePermissions } from '../hooks/usePermissions';
 
 const DEFAULT_MODEL_COLORS: Record<string, string> = {
   linear_regression: '#3B82F6',
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export default function SatelliteModel({ project, onApprove, onReject }: Props) {
+  const { canEdit } = usePermissions(project?.project_id);
   const ct = useChartTheme();
   const [comparison, setComparison] = useState<any[]>([]);
   const [selected, setSelected] = useState<any[]>([]);
@@ -246,6 +248,12 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
 
   return (
     <div className="space-y-5">
+      {!canEdit && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 019.364 9.636z" /></svg>
+          You have view-only access to this project.
+        </div>
+      )}
       <StepDescription
         description="Select and calibrate macroeconomic satellite models that link forward-looking economic scenarios to credit risk parameters (PD, LGD). Up to 8 model types are evaluated per product-cohort with automatic hyperparameter tuning, per IFRS 9.5.5.17(b) forward-looking information requirements."
         ifrsRef="Per IFRS 9.5.5.17 — measure ECL reflecting an unbiased, probability-weighted amount from a range of possible outcomes."
@@ -369,8 +377,8 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
         <div className="flex items-center gap-3 mt-4">
           <button
             onClick={triggerJob}
-            disabled={jobRunning || Object.values(enabledModels).filter(Boolean).length === 0}
-            className="flex items-center gap-2 px-5 py-2.5 bg-brand text-white text-xs font-bold rounded-lg hover:bg-brand-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={jobRunning || !canEdit || Object.values(enabledModels).filter(Boolean).length === 0}
+            className={`flex items-center gap-2 px-5 py-2.5 bg-brand text-white text-xs font-bold rounded-lg hover:bg-brand-dark transition disabled:opacity-50 disabled:cursor-not-allowed ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {jobRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
             {jobRunning ? 'Running...' : `Run ${Object.values(enabledModels).filter(Boolean).length} Models`}
@@ -643,15 +651,15 @@ export default function SatelliteModel({ project, onApprove, onReject }: Props) 
             <div className="flex flex-col gap-2 pt-6">
               <button
                 onClick={async () => { setActing(true); try { await onApprove(comment); } catch { /* handled by parent */ } finally { setActing(false); } }}
-                disabled={acting}
-                className="px-5 py-2.5 bg-brand text-white text-xs font-bold rounded-lg hover:bg-brand-dark transition disabled:opacity-50"
+                disabled={acting || !canEdit}
+                className={`px-5 py-2.5 bg-brand text-white text-xs font-bold rounded-lg hover:bg-brand-dark transition disabled:opacity-50 ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <Check size={14} className="inline mr-1" /> Approve
               </button>
               <button
                 onClick={async () => { setActing(true); try { await onReject(comment || 'Rejected'); } catch { /* handled by parent */ } finally { setActing(false); } }}
-                disabled={acting || !comment}
-                className="px-5 py-2.5 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+                disabled={acting || !canEdit || !comment}
+                className={`px-5 py-2.5 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition disabled:opacity-50 ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <X size={14} className="inline mr-1" /> Reject
               </button>

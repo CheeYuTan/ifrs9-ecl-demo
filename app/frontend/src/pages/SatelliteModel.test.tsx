@@ -58,6 +58,7 @@ vi.mock('../lib/api', () => ({
     triggerJob: vi.fn().mockResolvedValue({ run_id: 'JOB-001' }),
     jobRunStatus: vi.fn().mockResolvedValue({ status: 'completed' }),
     jobRuns: vi.fn().mockResolvedValue([]),
+    getMyProjectRole: vi.fn().mockResolvedValue({ user_id: 'test-user', project_role: 'owner', rbac_role: 'admin' }),
   },
 }));
 

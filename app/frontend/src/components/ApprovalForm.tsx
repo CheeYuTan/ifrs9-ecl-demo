@@ -9,6 +9,7 @@ interface Props {
   title?: string;
   description?: string;
   requireCommentForReject?: boolean;
+  disabled?: boolean;
 }
 
 export default function ApprovalForm({
@@ -20,6 +21,7 @@ export default function ApprovalForm({
   title,
   description,
   requireCommentForReject = true,
+  disabled = false,
 }: Props) {
   const [comment, setComment] = useState('');
   const [acting, setActing] = useState(false);
@@ -50,7 +52,7 @@ export default function ApprovalForm({
       <div className="flex gap-3">
         <button
           onClick={() => handleAction('approve')}
-          disabled={acting}
+          disabled={acting || disabled}
           className="btn-primary shadow-sm"
         >
           {acting ? 'Processing...' : approveLabel}
@@ -58,7 +60,7 @@ export default function ApprovalForm({
         {onReject && (
           <button
             onClick={() => handleAction('reject')}
-            disabled={acting || (requireCommentForReject && !comment)}
+            disabled={acting || disabled || (requireCommentForReject && !comment)}
             className="px-5 py-2.5 bg-white dark:bg-slate-800 text-red-500 text-sm font-semibold rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-40 transition"
           >
             {rejectLabel}

@@ -15,6 +15,7 @@ import { config } from '../lib/config';
 import { buildDrillDownData } from '../lib/chartUtils';
 import StepDescription from '../components/StepDescription';
 import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
+import { usePermissions } from '../hooks/usePermissions';
 
 const OVERLAY_CAP_PCT = 15;
 
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export default function Overlays({ project, onSubmit }: Props) {
+  const { canEdit } = usePermissions(project?.project_id);
   const ct = useChartTheme();
   const [overlays, setOverlays] = useState<Overlay[]>([]);
   const [modelEcl, setModelEcl] = useState(0);
@@ -110,6 +112,12 @@ export default function Overlays({ project, onSubmit }: Props) {
 
   return (
     <div className="space-y-6">
+      {!canEdit && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 019.364 9.636z" /></svg>
+          You have view-only access to this project.
+        </div>
+      )}
       <PageHeader title="Management Overlays" subtitle="Post-model adjustments per IFRS 9.B5.5.17" status={stepSt} />
 
       <StepDescription
@@ -236,7 +244,7 @@ export default function Overlays({ project, onSubmit }: Props) {
                   </select>
                 </div>
                 {stepSt !== 'completed' && (
-                  <button onClick={() => removeOverlay(o.id)} className="text-slate-400 hover:text-red-500 transition p-1 focus-visible:ring-2 focus-visible:ring-brand rounded" aria-label={`Remove overlay ${o.id}`} title="Remove overlay">
+                  <button onClick={() => removeOverlay(o.id)} disabled={!canEdit} className={`text-slate-400 hover:text-red-500 transition p-1 focus-visible:ring-2 focus-visible:ring-brand rounded ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`} aria-label={`Remove overlay ${o.id}`} title="Remove overlay">
                     <Trash2 size={14} />
                   </button>
                 )}
@@ -284,8 +292,8 @@ export default function Overlays({ project, onSubmit }: Props) {
             </div>
           ))}
           {stepSt !== 'completed' && (
-            <button onClick={addOverlay}
-              className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-500 hover:border-brand hover:text-brand transition flex items-center justify-center gap-2">
+            <button onClick={addOverlay} disabled={!canEdit}
+              className={`w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-500 hover:border-brand hover:text-brand transition flex items-center justify-center gap-2 ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <Plus size={16} /> Add Overlay
             </button>
           )}
@@ -308,9 +316,9 @@ export default function Overlays({ project, onSubmit }: Props) {
               ))}
             </div>
           )}
-          <button onClick={handleSubmit} disabled={acting || !overlaysValid}
-            className="btn-primary shadow-sm"
-            title={!overlaysValid ? 'Fix validation errors above' : ''}>
+          <button onClick={handleSubmit} disabled={acting || !canEdit || !overlaysValid}
+            className={`btn-primary shadow-sm ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title={!canEdit ? 'View-only access' : !overlaysValid ? 'Fix validation errors above' : ''}>
             {acting ? 'Submitting...' : '✓ Submit Overlays'}
           </button>
         </Card>

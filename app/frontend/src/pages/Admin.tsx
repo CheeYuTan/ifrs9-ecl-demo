@@ -5,6 +5,8 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { useToast } from '../components/Toast';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import AccessDenied from '../components/AccessDenied';
 import { fetchJson } from './admin/types';
 import type { AdminConfig } from './admin/types';
 import AdminDataMappings from './admin/AdminDataMappings';
@@ -32,6 +34,7 @@ type TabKey = typeof TABS[number]['key'];
 // ── Main Admin Page ─────────────────────────────────────────────────────────
 
 export default function Admin() {
+  const { user, isLoading: userLoading } = useCurrentUser();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<TabKey>('data');
   const [config, setConfig] = useState<AdminConfig | null>(null);
@@ -92,6 +95,19 @@ export default function Admin() {
     } catch (e: any) { toast(`Failed to save: ${e.message}`, 'error'); }
     finally { setSaving(false); }
   };
+
+  // Permission gate: block non-admin users (allow anonymous/dev mode through)
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (user?.role && user.role !== 'admin') {
+    return <AccessDenied message="Only administrators can access this page." />;
+  }
 
   if (loading || !config) {
     return (

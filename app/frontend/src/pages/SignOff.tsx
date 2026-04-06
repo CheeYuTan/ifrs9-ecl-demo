@@ -18,6 +18,7 @@ import { config } from '../lib/config';
 import { buildDrillDownData } from '../lib/chartUtils';
 import StepDescription from '../components/StepDescription';
 import HelpTooltip, { IFRS9_HELP } from '../components/HelpTooltip';
+import { usePermissions } from '../hooks/usePermissions';
 
 class ChartErrorBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export default function SignOff({ project, onSignOff }: Props) {
+  const { canEdit, canOwn } = usePermissions(project?.project_id);
   const ct = useChartTheme();
   const [eclProduct, setEclProduct] = useState<any[]>([]);
   const [eclCohortByProduct, setEclCohortByProduct] = useState<Record<string, any[]>>({});
@@ -201,6 +203,12 @@ export default function SignOff({ project, onSignOff }: Props) {
 
   return (
     <div className="space-y-6">
+      {!canEdit && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-300 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 019.364 9.636z" /></svg>
+          You have view-only access to this project.
+        </div>
+      )}
       {isSigned ? (
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
           className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
@@ -325,8 +333,8 @@ export default function SignOff({ project, onSignOff }: Props) {
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" /> Increase</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-400 inline-block" /> Decrease</span>
             </div>
-            <button onClick={handleRecomputeAttribution} disabled={attrLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand bg-brand/5 border border-brand/20 rounded-lg hover:bg-brand/10 transition disabled:opacity-50">
+            <button onClick={handleRecomputeAttribution} disabled={attrLoading || !canEdit}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand bg-brand/5 border border-brand/20 rounded-lg hover:bg-brand/10 transition disabled:opacity-50 ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <RefreshCw size={12} className={attrLoading ? 'animate-spin' : ''} /> {attrLoading ? 'Computing...' : 'Recompute'}
             </button>
           </div>
@@ -612,9 +620,9 @@ export default function SignOff({ project, onSignOff }: Props) {
               </div>
 
               <div className="flex justify-center">
-                <button onClick={handleSignOff} disabled={acting || !name || !allAttested}
-                  className="px-8 py-3 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 transition shadow-sm whitespace-nowrap"
-                  title={!allAttested ? 'Complete all attestation checkboxes first' : !name ? 'Enter your name first' : ''}>
+                <button onClick={handleSignOff} disabled={acting || !canOwn || !name || !allAttested}
+                  className={`px-8 py-3 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 transition shadow-sm whitespace-nowrap ${!canOwn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={!canOwn ? 'Owner role required for sign-off' : !allAttested ? 'Complete all attestation checkboxes first' : !name ? 'Enter your name first' : ''}>
                   {acting ? 'Signing...' : 'Sign Off & Lock Project'}
                 </button>
               </div>
