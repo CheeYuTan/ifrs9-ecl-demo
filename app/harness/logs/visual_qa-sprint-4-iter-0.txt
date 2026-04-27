@@ -1,31 +1,31 @@
 EXIT CODE: 0
-DURATION: 536s
+DURATION: 399s
 
 --- STDOUT ---
-Visual QA for Sprint 4 Iteration 2 is complete. Here's the summary:
+## Visual QA Complete — Sprint 4
 
-## Sprint 4 VQA Results
+**Recommendation: PROCEED**
 
-**Recommendation: PROCEED** (with caveats)
+All 4 User Guide feature pages pass Visual QA:
 
-### Bug Fix Verification
-- **BUG-S4-001** (Audit timestamp serialization): **FIXED** ✓ — timestamps now serialize as ISO strings
-- **BUG-S4-002** (Attribution reconciliation column): **NOT FIXED** ✗ — ALTER TABLE fails silently due to `InsufficientPrivilege` (DB user doesn't own the table)
-- **BUG-S4-003** (Historical defaults table): **PARTIALLY FIXED** ⚠ — error messaging improved, underlying data dependency remains
+- **Model Registry** (175 lines, 1,335 words) — 6-step guide with lifecycle states, model comparison, model cards
+- **Backtesting** (177 lines, 1,503 words) — EBA traffic light system, 7 metric types with thresholds, retrain decision matrix
+- **Regulatory Reports** (199 lines, 1,582 words) — All 8 IFRS 7 disclosure sections (35F-36), 5 report types, export/finalize workflow
+- **GL Journals** (225 lines, 1,678 words) — 9 chart of accounts, 3 journal types, double-entry explanation for non-accountants
 
-### New Bugs Found
-1. **MAJOR**: Report CSV export HTTP 500 — DictWriter fieldnames mismatch
-2. **CRITICAL**: Attribution compute still broken (BUG-S4-002 fix ineffective)
-3. **MAJOR**: Pipeline health endpoint HTTP 500 — NaN not JSON serializable
+**Key findings:**
+- 166 elements tested, 0 bugs, 0 skipped
+- All 14 internal links resolve correctly
+- All 6 images valid (1280x720 PNG placeholders)
+- Build: 0 errors, 0 warnings
+- Anti-pattern compliance: no code/API/test references in User Guide
+- IFRS 9 terminology correct throughout
+- No regressions on 11 Sprint 1-3 pages
+- 28 admonitions, 22 tables across 4 pages
 
-### Test Suite
-- 3,271 passed, 61 skipped, 0 failed (78.13s)
-- 225 new tests this sprint (214 iter 1 + 11 regression iter 2)
-
-### Reports Written
-- `harness/evaluations/sprint-4-manifest.md` — full interaction manifest
-- `harness/evaluations/sprint-4-visual-qa.md` — VQA report
-- `harness/visual-qa/sprint-4-report.md` — VQA report copy
+Reports written to:
+- `harness/evaluations/sprint-4-manifest.md`
+- `harness/evaluations/sprint-4-visual-qa.md`
 
 
 --- STDERR ---

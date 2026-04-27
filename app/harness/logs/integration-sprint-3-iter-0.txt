@@ -1,17 +1,24 @@
 EXIT CODE: 0
-DURATION: 568s
+DURATION: 443s
 
 --- STDOUT ---
-Integration test complete. **Verdict: PASS**
+Integration test complete. Here's the summary:
 
-Key findings:
-- **3,149 total tests** passing (3,046 pytest + 103 vitest), **0 failures**
-- **627 new QA sprint tests** added across Sprints 1-3 (299 + 150 + 178)
-- **88 API endpoints** tested across 9 route files
-- **Zero regressions** from pre-existing 2,480 test baseline
-- **Zero cross-sprint interference** verified via combined execution
-- Domain property assertions verified (Markov stochasticity, hazard monotonicity, model governance matrix, simulation boundaries)
-- Report written to `harness/evaluations/integration-test-2.md`
+**Verdict: PASS**
+
+Key findings across Sprints 1-3:
+- **36/36 acceptance criteria pass** — zero regressions
+- **34/34 pages** return HTTP 200 from live dev server
+- **15/15 image references** resolve to existing files
+- **Complete cross-reference chain**: overview → quick-start → workflow-overview → Steps 1→2→3→4→5→6→7→8 → feature pages (unbroken)
+- **Persona isolation**: 0 Python/JSON/API violations in User Guide
+- **IFRS 9 terminology**: 122+ ECL refs, B5.5.17, IFRS 7.35I all correct
+- **Build**: 0 errors, 0 warnings
+- **Template compliance**: All 8 step pages meet ≥150 lines with consistent structure
+
+7 known issues documented (all pre-existing, deferred to Sprint 8 homepage redesign) — none are regressions.
+
+Report written to `harness/evaluations/integration-test-2.md`.
 
 
 --- STDERR ---

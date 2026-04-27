@@ -17,8 +17,8 @@ the ``ecl`` sub-package (ecl/constants.py, ecl/config.py, ecl/data_loader.py,
 ecl/helpers.py, ecl/simulation.py, ecl/defaults.py).
 """
 
-import sys as _sys
 import logging as _logging
+import sys as _sys
 
 # Explicit imports that the old monolithic module exposed at module level.
 # These are needed so that ``patch("ecl_engine.backend.query_df")`` works.

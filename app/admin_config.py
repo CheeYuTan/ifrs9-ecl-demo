@@ -9,19 +9,21 @@ Sub-modules:
   admin_config_schema    -- schema discovery & column-mapping validation functions
   admin_config_setup     -- setup wizard functions
 """
+
 import json
 import logging
-from datetime import datetime, timezone
 from copy import deepcopy
+from datetime import UTC, datetime
 
 import backend
+from utils.cache import cached, get_cache
 
 # Re-export everything from sub-modules so callers can still do:
 #   from admin_config import DATA_SOURCE_CONFIG, validate_column_mapping, ...
-from admin_config_defaults import *          # noqa: F401, F403
+from admin_config_defaults import *  # noqa: F401, F403
 from admin_config_defaults import DEFAULT_CONFIG  # explicit import needed for this module
-from admin_config_schema import *            # noqa: F401, F403
-from admin_config_setup import *             # noqa: F401, F403
+from admin_config_schema import *  # noqa: F401, F403
+from admin_config_setup import *  # noqa: F401, F403
 
 log = logging.getLogger(__name__)
 
@@ -30,6 +32,7 @@ _initialized = False
 
 
 # ── Table Management ----------------------------------------------------------
+
 
 def ensure_config_table():
     backend.execute(f"""
@@ -40,7 +43,10 @@ def ensure_config_table():
             updated_by   TEXT DEFAULT 'system'
         )
     """)
-    backend.execute(f"COMMENT ON TABLE {CONFIG_TABLE} IS 'ifrs9ecl: Application configuration settings'")
+    try:
+        backend.execute(f"COMMENT ON TABLE {CONFIG_TABLE} IS 'ifrs9ecl: Application configuration settings'")
+    except Exception:
+        pass
     log.info("Ensured %s table exists", CONFIG_TABLE)
 
 
@@ -66,6 +72,11 @@ def init():
 
 # ── CRUD Functions ------------------------------------------------------------
 
+
+CONFIG_TTL = 300  # 5 minutes for admin config
+
+
+@cached(ttl=CONFIG_TTL, prefix="admin_config:full")
 def get_config() -> dict:
     init()
     df = backend.query_df(f"SELECT config_key, config_value FROM {CONFIG_TABLE}")
@@ -81,9 +92,15 @@ def get_config() -> dict:
     return result
 
 
+def _invalidate_config_cache() -> None:
+    cache = get_cache()
+    cache.invalidate_prefix("admin_config:")
+
+
 def save_config(config_data: dict, user: str = "admin") -> dict:
     init()
-    now = datetime.now(timezone.utc).isoformat()
+    _invalidate_config_cache()
+    now = datetime.now(UTC).isoformat()
     for section, value in config_data.items():
         old_value = get_config_section(section)
         backend.execute(
@@ -97,12 +114,14 @@ def save_config(config_data: dict, user: str = "admin") -> dict:
         )
         try:
             from domain.audit_trail import log_config_change
+
             log_config_change(section, None, old_value, value, user)
         except Exception as exc:
             log.warning("Failed to log config change: %s", exc)
     return get_config()
 
 
+@cached(ttl=CONFIG_TTL, prefix="admin_config:section")
 def get_config_section(section: str) -> dict:
     init()
     df = backend.query_df(
@@ -119,8 +138,9 @@ def get_config_section(section: str) -> dict:
 
 def save_config_section(section: str, value: dict, user: str = "admin") -> dict:
     init()
+    _invalidate_config_cache()
     old_value = get_config_section(section)
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     backend.execute(
         f"""INSERT INTO {CONFIG_TABLE} (config_key, config_value, updated_at, updated_by)
             VALUES (%s, %s, %s, %s)
@@ -132,6 +152,7 @@ def save_config_section(section: str, value: dict, user: str = "admin") -> dict:
     )
     try:
         from domain.audit_trail import log_config_change
+
         log_config_change(section, None, old_value, value, user)
     except Exception as exc:
         logging.getLogger(__name__).warning("Failed to log config change: %s", exc)
@@ -142,6 +163,7 @@ def seed_defaults() -> dict:
     """Reset all config to factory defaults."""
     global _initialized
     _initialized = False
+    _invalidate_config_cache()
     init()
     backend.execute(f"DELETE FROM {CONFIG_TABLE}")
     for section, value in DEFAULT_CONFIG.items():

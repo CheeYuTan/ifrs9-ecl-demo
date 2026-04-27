@@ -4,16 +4,22 @@ Auto-provisions and manages Databricks Jobs via the SDK.
 When running as a Databricks App, uses the app's service principal for auth.
 Jobs are created/updated automatically with correct notebook paths.
 """
-import os
+
 import logging
+import os
 from functools import lru_cache
 
 log = logging.getLogger(__name__)
 
 ALL_MODELS = [
-    "linear_regression", "logistic_regression", "polynomial_deg2",
-    "ridge_regression", "random_forest", "elastic_net",
-    "gradient_boosting", "xgboost",
+    "linear_regression",
+    "logistic_regression",
+    "polynomial_deg2",
+    "ridge_regression",
+    "random_forest",
+    "elastic_net",
+    "gradient_boosting",
+    "xgboost",
 ]
 
 RESOURCE_TAGS = {"app": "ifrs9ecl"}
@@ -32,6 +38,7 @@ NOTEBOOK_SCRIPTS = {
 @lru_cache(maxsize=1)
 def _get_workspace_client():
     from databricks.sdk import WorkspaceClient
+
     is_app = bool(os.environ.get("DATABRICKS_APP_NAME"))
     if is_app:
         return WorkspaceClient()
@@ -49,6 +56,7 @@ def _detect_scripts_base() -> str:
     """
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         explicit = cfg.get("jobs", {}).get("scripts_base_path", "")
         if explicit:
@@ -95,6 +103,7 @@ def _ws_host() -> str:
         pass
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         return cfg.get("jobs", {}).get("workspace_url", "")
     except Exception:
@@ -104,6 +113,7 @@ def _ws_host() -> str:
 def _ws_id() -> str:
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         return cfg.get("jobs", {}).get("workspace_id", "")
     except Exception:
@@ -115,6 +125,7 @@ def _config_params() -> dict:
     params = {}
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         ds = cfg.get("data_sources", {})
         app = cfg.get("app_settings", {})
@@ -136,6 +147,7 @@ def _get_job_ids() -> dict:
     """Get stored job IDs from admin config, or empty dict."""
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         return cfg.get("jobs", {}).get("job_ids", {})
     except Exception:
@@ -146,6 +158,7 @@ def _save_job_id(job_key: str, job_id: int):
     """Persist a job ID back to admin config."""
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         jobs_cfg = cfg.get("jobs", {})
         job_ids = jobs_cfg.get("job_ids", {})
@@ -320,6 +333,7 @@ def _rest_api(method: str, path: str, body: dict = None):
     headers = w.config.authenticate()
     headers["Content-Type"] = "application/json"
     import requests
+
     url = f"{host}{path}"
     if method == "GET":
         r = requests.get(url, headers=headers, timeout=30)
@@ -359,7 +373,9 @@ def _ensure_job(job_key: str, job_name: str, build_fn) -> int:
             existing_tasks = existing.get("settings", {}).get("tasks", [])
             needs_update = False
 
-            desired_paths = {t["task_key"]: t.get("notebook_task", {}).get("notebook_path", "") for t in job_def["tasks"]}
+            desired_paths = {
+                t["task_key"]: t.get("notebook_task", {}).get("notebook_path", "") for t in job_def["tasks"]
+            }
             for task in existing_tasks:
                 tk = task.get("task_key", "")
                 nb = task.get("notebook_task", {}).get("notebook_path", "")
@@ -378,7 +394,10 @@ def _ensure_job(job_key: str, job_name: str, build_fn) -> int:
                     needs_update = True
                 else:
                     for desired in desired_envs:
-                        match = next((e for e in existing_envs if e.get("environment_key") == desired.get("environment_key")), None)
+                        match = next(
+                            (e for e in existing_envs if e.get("environment_key") == desired.get("environment_key")),
+                            None,
+                        )
                         if not match or match.get("spec") != desired.get("spec"):
                             needs_update = True
                             break
@@ -390,10 +409,14 @@ def _ensure_job(job_key: str, job_name: str, build_fn) -> int:
 
             if needs_update:
                 log.info("Updating job %s (%s) — paths, tasks, environments, or tags changed", job_id, job_key)
-                _rest_api("POST", "/api/2.1/jobs/reset", {
-                    "job_id": int(job_id),
-                    "new_settings": new_settings,
-                })
+                _rest_api(
+                    "POST",
+                    "/api/2.1/jobs/reset",
+                    {
+                        "job_id": int(job_id),
+                        "new_settings": new_settings,
+                    },
+                )
                 _grant_app_permissions(int(job_id))
             else:
                 log.info("Job %s (%s) already up-to-date", job_id, job_key)
@@ -422,6 +445,7 @@ def _grant_app_permissions(job_id: int):
             return
 
         from databricks.sdk.service.iam import AccessControlRequest, PermissionLevel
+
         w.permissions.update(
             request_object_type="jobs",
             request_object_id=str(job_id),
@@ -541,6 +565,7 @@ def trigger_monte_carlo_job(
     scalability and resource isolation.
     """
     import json as _json
+
     job_id = _ensure_job(
         "monte_carlo",
         "IFRS9 ECL - Monte Carlo Simulation",
@@ -584,15 +609,17 @@ def get_run_status(run_id: int) -> dict:
         result = w.jobs.get_run(run_id=run_id)
         state = result.state
         tasks = []
-        for t in (result.tasks or []):
+        for t in result.tasks or []:
             ts = t.state
-            tasks.append({
-                "task_key": t.task_key,
-                "lifecycle_state": ts.life_cycle_state.value if ts and ts.life_cycle_state else None,
-                "result_state": ts.result_state.value if ts and ts.result_state else None,
-                "run_url": t.run_page_url,
-                "execution_duration_ms": t.execution_duration or 0,
-            })
+            tasks.append(
+                {
+                    "task_key": t.task_key,
+                    "lifecycle_state": ts.life_cycle_state.value if ts and ts.life_cycle_state else None,
+                    "result_state": ts.result_state.value if ts and ts.result_state else None,
+                    "run_url": t.run_page_url,
+                    "execution_duration_ms": t.execution_duration or 0,
+                }
+            )
         return {
             "run_id": result.run_id,
             "job_id": result.job_id,
@@ -621,17 +648,19 @@ def list_job_runs(job_key: str, limit: int = 10) -> list[dict]:
         runs = []
         for r in runs_iter:
             state = r.state
-            runs.append({
-                "run_id": r.run_id,
-                "job_id": r.job_id,
-                "lifecycle_state": state.life_cycle_state.value if state and state.life_cycle_state else None,
-                "result_state": state.result_state.value if state and state.result_state else None,
-                "state_message": state.state_message if state else "",
-                "run_url": r.run_page_url,
-                "start_time": r.start_time,
-                "end_time": r.end_time,
-                "run_duration_ms": r.run_duration or 0,
-            })
+            runs.append(
+                {
+                    "run_id": r.run_id,
+                    "job_id": r.job_id,
+                    "lifecycle_state": state.life_cycle_state.value if state and state.life_cycle_state else None,
+                    "result_state": state.result_state.value if state and state.result_state else None,
+                    "state_message": state.state_message if state else "",
+                    "run_url": r.run_page_url,
+                    "start_time": r.start_time,
+                    "end_time": r.end_time,
+                    "run_duration_ms": r.run_duration or 0,
+                }
+            )
             if len(runs) >= limit:
                 break
         return runs

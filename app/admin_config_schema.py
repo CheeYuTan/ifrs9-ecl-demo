@@ -4,6 +4,7 @@ These functions query Lakebase to validate data source configuration.
 They use local imports from admin_config to avoid circular imports and to
 share the same backend reference (important for test mocking).
 """
+
 import logging
 import re
 
@@ -15,12 +16,14 @@ log = logging.getLogger(__name__)
 def _backend():
     """Return the backend module via admin_config to share the same reference."""
     import admin_config
+
     return admin_config.backend
 
 
 def validate_column_mapping(table_key: str, mappings: dict) -> dict:
     """Validate that mapped columns exist in the actual Lakebase table."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     table_cfg = cfg.get("tables", {}).get(table_key)
@@ -75,6 +78,7 @@ def validate_column_mapping(table_key: str, mappings: dict) -> dict:
 def get_available_tables() -> list:
     """List tables in the configured Lakebase schema."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     schema = cfg.get("lakebase_schema", backend.SCHEMA)
@@ -95,6 +99,7 @@ def get_available_tables() -> list:
 def get_table_columns(table_name: str) -> list:
     """Get columns of a specific table."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     schema = cfg.get("lakebase_schema", backend.SCHEMA)
@@ -130,21 +135,43 @@ def get_available_schemas() -> list:
 def get_table_preview(table_name: str, schema=None, limit: int = 5) -> dict:
     """Preview rows from a Lakebase table."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     schema = schema or cfg.get("lakebase_schema", backend.SCHEMA)
     prefix = cfg.get("lakebase_prefix", backend.PREFIX)
 
     raw_name = table_name if table_name.startswith(prefix) else f"{prefix}{table_name}"
-    if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', raw_name):
-        return {"table": raw_name, "error": "Invalid table name", "row_count": 0, "total_rows": 0, "columns": [], "rows": []}
-    if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', schema):
-        return {"table": raw_name, "error": "Invalid schema name", "row_count": 0, "total_rows": 0, "columns": [], "rows": []}
+    if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", raw_name):
+        return {
+            "table": raw_name,
+            "error": "Invalid table name",
+            "row_count": 0,
+            "total_rows": 0,
+            "columns": [],
+            "rows": [],
+        }
+    if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", schema):
+        return {
+            "table": raw_name,
+            "error": "Invalid schema name",
+            "row_count": 0,
+            "total_rows": 0,
+            "columns": [],
+            "rows": [],
+        }
 
     available = get_available_tables()
     valid_names = {t["table_name"] for t in available}
     if raw_name not in valid_names:
-        return {"table": f"{schema}.{raw_name}", "error": f"Table '{raw_name}' not found in schema", "row_count": 0, "total_rows": 0, "columns": [], "rows": []}
+        return {
+            "table": f"{schema}.{raw_name}",
+            "error": f"Table '{raw_name}' not found in schema",
+            "row_count": 0,
+            "total_rows": 0,
+            "columns": [],
+            "rows": [],
+        }
 
     full_name = f"{schema}.{raw_name}"
     try:
@@ -154,11 +181,13 @@ def get_table_preview(table_name: str, schema=None, limit: int = 5) -> dict:
         df = backend.query_df(f"SELECT * FROM {full_name} LIMIT %s", (limit,))
         columns = []
         for col in df.columns:
-            columns.append({
-                "name": col,
-                "dtype": str(df[col].dtype),
-                "sample": str(df[col].iloc[0]) if len(df) > 0 else None,
-            })
+            columns.append(
+                {
+                    "name": col,
+                    "dtype": str(df[col].dtype),
+                    "sample": str(df[col].iloc[0]) if len(df) > 0 else None,
+                }
+            )
         return {
             "table": full_name,
             "row_count": len(df),
@@ -173,6 +202,7 @@ def get_table_preview(table_name: str, schema=None, limit: int = 5) -> dict:
 def validate_column_mapping_with_types(table_key: str, mappings: dict) -> dict:
     """Validate column mappings including data type compatibility."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     table_cfg = cfg.get("tables", {}).get(table_key)
@@ -209,9 +239,13 @@ def validate_column_mapping_with_types(table_key: str, mappings: dict) -> dict:
             type_ok = actual_type.lower() in compatible_types or not compatible_types
 
             entry = {
-                "expected": expected, "mapped": mapped, "status": "ok",
-                "expected_type": expected_type, "actual_type": actual_type,
-                "type_compatible": type_ok, "is_mandatory": is_mandatory,
+                "expected": expected,
+                "mapped": mapped,
+                "status": "ok",
+                "expected_type": expected_type,
+                "actual_type": actual_type,
+                "type_compatible": type_ok,
+                "is_mandatory": is_mandatory,
             }
             if not type_ok:
                 entry["status"] = "type_mismatch"
@@ -220,18 +254,30 @@ def validate_column_mapping_with_types(table_key: str, mappings: dict) -> dict:
         else:
             if is_mandatory:
                 errors.append(f"Mandatory column '{expected}' mapped to '{mapped}' -- not found in {full_table}")
-                valid_columns.append({
-                    "expected": expected, "mapped": mapped, "status": "missing",
-                    "expected_type": expected_type, "actual_type": None,
-                    "type_compatible": False, "is_mandatory": True,
-                })
+                valid_columns.append(
+                    {
+                        "expected": expected,
+                        "mapped": mapped,
+                        "status": "missing",
+                        "expected_type": expected_type,
+                        "actual_type": None,
+                        "type_compatible": False,
+                        "is_mandatory": True,
+                    }
+                )
             else:
                 warnings.append(f"Optional column '{expected}' mapped to '{mapped}' -- not found, will use default")
-                valid_columns.append({
-                    "expected": expected, "mapped": mapped, "status": "default",
-                    "expected_type": expected_type, "actual_type": None,
-                    "type_compatible": True, "is_mandatory": False,
-                })
+                valid_columns.append(
+                    {
+                        "expected": expected,
+                        "mapped": mapped,
+                        "status": "default",
+                        "expected_type": expected_type,
+                        "actual_type": None,
+                        "type_compatible": True,
+                        "is_mandatory": False,
+                    }
+                )
 
     return {
         "valid": len(errors) == 0,
@@ -246,6 +292,7 @@ def validate_column_mapping_with_types(table_key: str, mappings: dict) -> dict:
 def suggest_column_mappings(table_key: str) -> dict:
     """Suggest column mappings by matching expected column names to actual columns."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     table_cfg = cfg.get("tables", {}).get(table_key)
@@ -276,12 +323,18 @@ def suggest_column_mappings(table_key: str) -> dict:
             continue
         for actual in actual_names:
             if actual.lower() == expected.lower():
-                suggestions[expected] = {"mapped": actual, "confidence": "case_insensitive", "actual_type": actual_cols[actual]}
+                suggestions[expected] = {
+                    "mapped": actual,
+                    "confidence": "case_insensitive",
+                    "actual_type": actual_cols[actual],
+                }
                 break
         if expected in suggestions:
             continue
         for actual in actual_names:
-            if expected.replace("_", "") in actual.replace("_", "") or actual.replace("_", "") in expected.replace("_", ""):
+            if expected.replace("_", "") in actual.replace("_", "") or actual.replace("_", "") in expected.replace(
+                "_", ""
+            ):
                 suggestions[expected] = {"mapped": actual, "confidence": "partial", "actual_type": actual_cols[actual]}
                 break
 
@@ -311,11 +364,13 @@ def test_connection() -> dict:
 def auto_detect_workspace() -> dict:
     """Auto-detect workspace URL and ID from Databricks App environment."""
     import os
+
     workspace_url = os.environ.get("DATABRICKS_HOST", "")
     workspace_id = os.environ.get("DATABRICKS_WORKSPACE_ID", "")
     if not workspace_url:
         try:
             from databricks.sdk import WorkspaceClient
+
             w = WorkspaceClient()
             workspace_url = w.config.host or ""
         except Exception:
@@ -330,6 +385,7 @@ def auto_detect_workspace() -> dict:
 def discover_products() -> list:
     """Discover product types from the actual data in Lakebase."""
     import admin_config
+
     backend = _backend()
     cfg = admin_config.get_config_section("data_sources")
     schema = cfg.get("lakebase_schema", backend.SCHEMA)
@@ -346,12 +402,14 @@ def discover_products() -> list:
                 ORDER BY loan_count DESC"""
         )
         for _, row in df.iterrows():
-            products.append({
-                "product_type": row["product_type"],
-                "loan_count": int(row["loan_count"]),
-                "total_gca": float(row["total_gca"]),
-                "avg_pd": float(row["avg_pd"]),
-            })
+            products.append(
+                {
+                    "product_type": row["product_type"],
+                    "loan_count": int(row["loan_count"]),
+                    "total_gca": float(row["total_gca"]),
+                    "avg_pd": float(row["avg_pd"]),
+                }
+            )
     except Exception as e:
         log.warning("Failed to discover products: %s", e)
     return products

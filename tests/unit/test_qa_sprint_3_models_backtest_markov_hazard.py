@@ -625,24 +625,18 @@ class TestModelRegistryCompare:
         assert resp.status_code == 200
         assert len(resp.json()) == 2
 
-    @patch("backend.compare_models")
-    def test_compare_empty_ids(self, mock_compare, client):
-        mock_compare.return_value = []
+    def test_compare_empty_ids(self, client):
         resp = client.post("/api/models/compare", json={"model_ids": []})
-        assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.status_code == 422
 
-    @patch("backend.compare_models")
-    def test_compare_single_id(self, mock_compare, client):
-        mock_compare.return_value = [_model_dict()]
+    def test_compare_single_id(self, client):
         resp = client.post("/api/models/compare", json={"model_ids": ["mdl-001"]})
-        assert resp.status_code == 200
-        assert len(resp.json()) == 1
+        assert resp.status_code == 422
 
     @patch("backend.compare_models")
     def test_compare_500(self, mock_compare, client):
         mock_compare.side_effect = Exception("DB error")
-        resp = client.post("/api/models/compare", json={"model_ids": ["mdl-001"]})
+        resp = client.post("/api/models/compare", json={"model_ids": ["mdl-001", "mdl-002"]})
         assert resp.status_code == 500
 
     def test_compare_missing_model_ids(self, client):
@@ -1159,24 +1153,18 @@ class TestMarkovCompare:
         assert resp.status_code == 200
         assert len(resp.json()) == 2
 
-    @patch("backend.compare_matrices")
-    def test_compare_empty(self, mock_cmp, client):
-        mock_cmp.return_value = []
+    def test_compare_empty(self, client):
         resp = client.post("/api/markov/compare", json={"matrix_ids": []})
-        assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.status_code == 422
 
-    @patch("backend.compare_matrices")
-    def test_compare_single(self, mock_cmp, client):
-        mock_cmp.return_value = [_markov_matrix()]
+    def test_compare_single(self, client):
         resp = client.post("/api/markov/compare", json={"matrix_ids": ["tm-001"]})
-        assert resp.status_code == 200
-        assert len(resp.json()) == 1
+        assert resp.status_code == 422
 
     @patch("backend.compare_matrices")
     def test_compare_500(self, mock_cmp, client):
         mock_cmp.side_effect = Exception("DB error")
-        resp = client.post("/api/markov/compare", json={"matrix_ids": ["tm-001"]})
+        resp = client.post("/api/markov/compare", json={"matrix_ids": ["tm-001", "tm-002"]})
         assert resp.status_code == 500
 
     def test_compare_missing_matrix_ids(self, client):
@@ -1491,27 +1479,18 @@ class TestHazardCompare:
         assert "models" in data
         assert len(data["models"]) == 2
 
-    @patch("backend.compare_hazard_models")
-    def test_compare_empty(self, mock_cmp, client):
-        mock_cmp.return_value = {"models": [], "curves": []}
+    def test_compare_empty(self, client):
         resp = client.post("/api/hazard/compare", json={"model_ids": []})
-        assert resp.status_code == 200
-        assert resp.json()["models"] == []
+        assert resp.status_code == 422
 
-    @patch("backend.compare_hazard_models")
-    def test_compare_single(self, mock_cmp, client):
-        mock_cmp.return_value = {
-            "models": [{"model_id": "haz_1", "model_type": "cox_ph"}],
-            "curves": [],
-        }
+    def test_compare_single(self, client):
         resp = client.post("/api/hazard/compare", json={"model_ids": ["haz_1"]})
-        assert resp.status_code == 200
-        assert len(resp.json()["models"]) == 1
+        assert resp.status_code == 422
 
     @patch("backend.compare_hazard_models")
     def test_compare_500(self, mock_cmp, client):
         mock_cmp.side_effect = Exception("DB error")
-        resp = client.post("/api/hazard/compare", json={"model_ids": ["haz_1"]})
+        resp = client.post("/api/hazard/compare", json={"model_ids": ["haz_1", "haz_2"]})
         assert resp.status_code == 500
 
     def test_compare_missing_model_ids(self, client):
@@ -1527,7 +1506,7 @@ class TestHazardCompare:
                  "time_points": [1], "survival_probs": [0.99], "hazard_rates": [0.01]},
             ],
         }
-        resp = client.post("/api/hazard/compare", json={"model_ids": ["haz_1"]})
+        resp = client.post("/api/hazard/compare", json={"model_ids": ["haz_1", "haz_2"]})
         data = resp.json()
         assert "curves" in data
         assert len(data["curves"]) == 1

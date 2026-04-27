@@ -25,6 +25,43 @@ filterwarnings = [
     "ignore::DeprecationWarning",
 ]
 
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "E402",    # module-import-not-at-top (FastAPI app structure)
+    "E741",    # ambiguous variable name (l, O, I in math)
+    "B008",    # function call in default argument (FastAPI Depends)
+    "B904",    # raise-without-from-inside-except (too noisy to fix globally)
+    "B905",    # zip-without-explicit-strict
+    "SIM105",  # suppressible-exception (contextlib.suppress)
+    "SIM108",  # ternary operator
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "SIM"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+include = ["app"]
+exclude = ["app/static", "app/frontend", "app/docs-site", "app/docs_site", "tests", "app/tests"]
+typeCheckingMode = "basic"
+reportMissingImports = false
+reportMissingModuleSource = false
+reportOptionalMemberAccess = false
+reportGeneralTypeIssues = false
+reportAttributeAccessIssue = false
+reportOptionalSubscript = false
+reportCallIssue = false
+reportArgumentType = false
+reportReturnType = false
+reportOperatorIssue = false
+reportIndexIssue = false
+
 [tool.coverage.run]
 source = ["app", "scripts/models"]
 omit = ["tests/*", "app/static/*"]

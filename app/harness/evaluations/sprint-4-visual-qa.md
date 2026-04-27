@@ -1,127 +1,224 @@
-# Sprint 4 Iteration 2 — Visual QA Report
+# Sprint 4 Visual QA Report — User Guide Feature Pages Part 1
 
-**Sprint**: 4 (Iteration 2)
-**Date**: 2026-04-02
+**Sprint**: 4
+**Date**: 2026-04-04
 **Quality Target**: 9.5/10
-**Testing Method**: Direct HTTP API testing against live app on localhost:8000
+**Testing Method**: Live dev server (localhost:3000) + production build verification
 
 ---
 
-## Executive Summary
+## Pages Tested
 
-Sprint 4 iteration 2 fixed 3 bugs from iteration 1 and added 11 regression tests (total: 225 new tests, 3,271 suite). Live API testing confirms **BUG-S4-001 is FIXED** (audit timestamps now serialize correctly). However, **BUG-S4-002 is NOT FIXED** in production — the ALTER TABLE migration fails silently due to insufficient database privileges. Two new bugs were also found during this testing pass.
+| Page | URL | HTTP Status | Build Size | Source Lines | Word Count |
+|------|-----|-------------|------------|--------------|------------|
+| Model Registry | /docs/user-guide/model-registry | 200 | 39,982 B | 175 | 1,335 |
+| Backtesting | /docs/user-guide/backtesting | 200 | 41,127 B | 177 | 1,503 |
+| Regulatory Reports | /docs/user-guide/regulatory-reports | 200 | 43,590 B | 199 | 1,582 |
+| GL Journals | /docs/user-guide/gl-journals | 200 | 45,469 B | 225 | 1,678 |
 
----
-
-## Bug Fix Verification
-
-### BUG-S4-001: Audit Export Timestamp Serialization — **FIXED** ✓
-- `GET /api/audit/{project_id}/export` now returns 200 with valid JSON
-- `changed_at` fields are properly serialized as ISO strings (e.g., `"2026-04-02T04:32:41.129963"`)
-- `GET /api/audit/config/changes` also returns correct string timestamps
-- 6 regression tests verify the fix
-
-### BUG-S4-002: Attribution Reconciliation Column — **NOT FIXED** ✗
-- `POST /api/data/attribution/{project_id}/compute` still returns HTTP 500
-- Error: `column "reconciliation" of relation "ecl_attribution" does not exist`
-- **Root cause discovered**: The code fix (ALTER TABLE ADD COLUMN IF NOT EXISTS) is syntactically correct, but the database user does not own the `ecl_attribution` table. The ALTER TABLE silently fails with `InsufficientPrivilege: must be owner of table ecl_attribution` (error logged but not raised).
-- The `ensure_attribution_table()` function catches the error and returns success, so `compute_attribution()` proceeds to the INSERT which then fails on the missing column.
-- **Fix needed**: Either grant ALTER privileges to the app user, or drop and recreate the table with the new column, or use a different migration approach.
-
-### BUG-S4-003: IFRS 7.35J Historical Defaults — **PARTIALLY FIXED** ⚠
-- Error messaging improved — user-friendly guidance instead of raw SQL error
-- Underlying table still missing (expected — requires running data pipeline)
-- The fix is correct in scope: it's a data dependency, not a code bug
+All pages exceed the 150-line minimum requirement.
 
 ---
 
-## Test Results
+## Build Verification
 
-### Pytest Results
-- **Full suite**: 3,271 passed, 61 skipped, 0 failed (78.13s)
-- **Sprint 4 tests**: 214 (iter 1) + 11 regression (iter 2) = 225
-- **Zero regressions**
-
-### Frontend Verification
-- Main SPA: 200 ✓
-- JS Bundle: 200 ✓
-- CSS Bundle: 200 ✓
-- Logo SVG: 200 ✓
+- **`npm run build`**: SUCCESS — 0 errors, 0 warnings
+- **Client compilation**: 642ms
+- **Server compilation**: 467ms
+- **All 4 pages present in build output**: Verified
 
 ---
 
-## New Bugs Found (This Iteration)
+## Content Structure Audit
 
-### BUG-S4-VQA-001: Report CSV Export HTTP 500 (MAJOR)
-- **Endpoint**: `GET /api/reports/{report_id}/export`
-- **Error**: `Failed to export report: dict contains fields not in fieldnames: 'gross_carrying_amount', 'credit_grade', 'assessed_stage', 'loan_count', 'avg_pd', 'ecl_amount'`
-- **Root cause**: The CSV DictWriter is initialized with a fixed fieldnames list that doesn't include all fields present in the report data rows. When a report section includes additional data fields, the export fails.
-- **Impact**: Cannot export any report as CSV. PDF export works fine (200).
+### Template Compliance (all 4 pages)
 
-### BUG-S4-VQA-002: Attribution Compute Still Broken (CRITICAL)
-- Same as BUG-S4-002 above — the iteration 2 fix is ineffective due to DB privileges.
-- **Impact**: The entire attribution/waterfall feature is non-functional.
+| Section | Model Registry | Backtesting | Regulatory Reports | GL Journals |
+|---------|:-:|:-:|:-:|:-:|
+| Frontmatter (sidebar_position, title) | Yes | Yes | Yes | Yes |
+| Prerequisites | Yes | Yes | Yes | Yes |
+| What You'll Do | Yes | Yes | Yes | Yes |
+| Step-by-Step Instructions | 6 steps | 7 steps | 6 steps | 8 steps |
+| Understanding the Results | Yes | Yes* | Yes | Yes |
+| Tips & Best Practices | Yes | Yes | Yes | Yes |
+| What's Next | Yes | Yes | Yes | Yes |
 
-### BUG-S4-VQA-003: Pipeline Health NaN Serialization (MAJOR)
-- **Endpoint**: `GET /api/pipeline/health/{project_id}`
-- **Error**: `Out of range float values are not JSON compliant: nan`
-- **Root cause**: Health check computes metrics that produce NaN values (likely division by zero when no pipeline runs exist), and the JSON serializer cannot handle NaN.
-- **Impact**: Pipeline health monitoring is broken for projects without prior runs.
+*Backtesting has "When to Retrain a Model" instead of a generic "Understanding" section, which is more useful.
 
----
+### Rich Content Elements
 
-## Endpoint Coverage Summary
-
-| Module | Endpoints | Tested | Bugs | Skipped |
-|--------|-----------|--------|------|---------|
-| GL Journals | 7 | 4 | 0 | 3 |
-| Reports | 6 | 4 | 1 | 1 |
-| RBAC | 8 | 4 | 0 | 4 |
-| Audit | 5 | 5 | 0 | 0 |
-| Admin | 16 | 14 | 0 | 2 |
-| Data Mapping | 9 | 7 | 0 | 2 |
-| Advanced | 9 | 7 | 0 | 2 |
-| Period Close | 7 | 2 | 1 | 4 |
-| Attribution | 3 | 1 | 1 | 1 |
-| Frontend | 4 | 4 | 0 | 0 |
-| **Total** | **74** | **52** | **3** | **19** |
+| Element | Model Registry | Backtesting | Regulatory Reports | GL Journals | Total |
+|---------|:-:|:-:|:-:|:-:|:-:|
+| Tables | 4 | 7 | 5 | 6 | 22 |
+| Admonitions | 7 | 5 | 7 | 9 | 28 |
+| Images | 1 | 2 | 1 | 2 | 6 |
+| Internal links | 3 | 3 | 4 | 4 | 14 |
 
 ---
 
-## Domain Accuracy Spot Checks
+## Navigation & Sidebar
 
-1. **GL Chart of Accounts**: 9 accounts with correct IFRS 9 structure ✓
-2. **Cure Rates**: DPD-based cure rates decrease correctly (73.4% → 4.0%) ✓
-3. **CCF**: Revolving vs amortizing CCFs are domain-correct ✓
-4. **Collateral Haircuts**: Range from 3% (cash) to 43% (equipment) ✓
-5. **Pipeline Steps**: 6 steps in correct logical order ✓
-6. **RBAC Roles**: Maker-checker-approver hierarchy correct ✓
-7. **Audit Chain Verification**: Hash chain verification works correctly ✓
+### Sidebar Placement
+All 4 Sprint 4 pages appear in the correct sidebar position:
+```
+... Step 8: Sign-Off
+→ Model Registry      ← Sprint 4
+→ Backtesting         ← Sprint 4
+→ Regulatory Reports  ← Sprint 4
+→ GL Journals         ← Sprint 4
+  Approval Workflow
+  Attribution ...
+```
+
+### Previous/Next Navigation
+| Page | Previous | Next |
+|------|----------|------|
+| Model Registry | Step 8: Sign-Off | Backtesting |
+| Backtesting | Model Registry | Regulatory Reports |
+| Regulatory Reports | Backtesting | GL Journals |
+| GL Journals | Regulatory Reports | Approval Workflow |
+
+All navigation links are correctly sequenced.
 
 ---
 
-## Design Consistency
+## Image Verification
 
-- All API responses use consistent JSON format with `detail` for errors
-- HTTP status codes are correct (200/400/404/422/500)
-- Validation errors return proper 422 with field-level detail
-- Timestamps consistently use ISO 8601 format throughout (post BUG-S4-001 fix)
+| Image | Dimensions | Size | Format | Status |
+|-------|-----------|------|--------|--------|
+| model-registry-list.png | 1280x720 | 17,290 B | Valid PNG | Placeholder |
+| backtesting-traffic-light.png | 1280x720 | 18,548 B | Valid PNG | Placeholder |
+| backtesting-cohort.png | 1280x720 | 18,299 B | Valid PNG | Placeholder |
+| regulatory-reports-generate.png | 1280x720 | 17,640 B | Valid PNG | Placeholder |
+| gl-journals-list.png | 1280x720 | 15,303 B | Valid PNG | Placeholder |
+| gl-trial-balance.png | 1280x720 | 16,301 B | Valid PNG | Placeholder |
+
+All images are valid PNG files at the correct 1280x720 resolution. They are placeholder images (to be replaced with actual app screenshots).
 
 ---
 
-## Recommendation: **PROCEED** (with caveats)
+## Internal Link Verification
 
-### Rationale for PROCEED
-- Sprint 4 is a **testing sprint** — its deliverables are test files and bug fixes
-- All 3,271 tests pass with zero failures and zero regressions
-- 225 new tests added covering 67 endpoints across 8 modules
-- BUG-S4-001 fix verified working in production
-- BUG-S4-003 fix is appropriate (improved error messaging for a data dependency)
-- The test code quality is high — proper mocking, edge cases, domain validation
+All 14 internal links across the 4 pages resolve successfully:
 
-### Caveats (Bugs to Fix in Future Sprint)
-1. **CRITICAL**: BUG-S4-002 (attribution reconciliation) — fix requires DB privilege change or alternative migration approach
-2. **MAJOR**: Report CSV export fieldnames mismatch — DictWriter needs dynamic fieldnames
-3. **MAJOR**: Pipeline health NaN serialization — needs NaN handling before JSON serialization
+| From | To | Status |
+|------|----|--------|
+| model-registry | step-4-satellite-model | 200 OK |
+| model-registry | backtesting | 200 OK |
+| model-registry | regulatory-reports | 200 OK |
+| backtesting | model-registry | 200 OK |
+| backtesting | step-6-stress-testing | 200 OK |
+| backtesting | step-4-satellite-model | 200 OK |
+| regulatory-reports | step-8-sign-off | 200 OK |
+| regulatory-reports | backtesting | 200 OK |
+| regulatory-reports | gl-journals | 200 OK |
+| regulatory-reports | attribution | 200 OK |
+| gl-journals | step-8-sign-off | 200 OK |
+| gl-journals | step-7-overlays | 200 OK |
+| gl-journals | regulatory-reports | 200 OK |
+| gl-journals | attribution | 200 OK |
 
-These are pre-existing production bugs (not introduced by Sprint 4's test code). They should be tracked and fixed in a dedicated bug-fix sprint.
+---
+
+## Anti-Pattern Compliance
+
+| Check | Model Registry | Backtesting | Regulatory Reports | GL Journals |
+|-------|:-:|:-:|:-:|:-:|
+| No Python/JSON code blocks | PASS | PASS | PASS | PASS |
+| No API endpoint references | PASS | PASS | PASS | PASS |
+| No test file references | PASS | PASS | PASS | PASS |
+| No raw markdown artifacts | PASS | PASS | PASS | PASS |
+
+All pages comply with the spec's strict User Guide persona separation rules.
+
+---
+
+## IFRS 9 Terminology Audit
+
+| Term | Model Registry | Backtesting | Regulatory Reports | GL Journals |
+|------|:-:|:-:|:-:|:-:|
+| ECL | 8 | 3 | 37 | 46 |
+| PD | 8 | 4 | 6 | — |
+| LGD | 6 | 4 | 9 | — |
+| EAD | 4 | — | 4 | — |
+| SICR | — | — | — | — |
+| Stage 1/2/3 | — | — | 9 | 21 |
+| IFRS | 2 | — | 18 | 2 |
+
+No incorrect terminology found. "loss rate" appears twice in backtesting but in valid context (actual observed loss rates, not as a substitute for LGD).
+
+---
+
+## Dark Mode
+
+Docusaurus dark mode is configured via `[data-theme='dark']` CSS custom properties in `custom.css`. All Sprint 4 pages use standard Docusaurus components (tables, admonitions, images, headings) which inherit dark mode styling automatically. No custom CSS that could break dark mode.
+
+---
+
+## Regression Check (Sprint 1-3 Pages)
+
+All 11 previously built pages verified as still serving correctly:
+
+| Page | Status |
+|------|--------|
+| overview | 200 OK |
+| quick-start | 200 OK |
+| workflow-overview | 200 OK |
+| step-1-create-project | 200 OK |
+| step-2-data-processing | 200 OK |
+| step-3-data-control | 200 OK |
+| step-4-satellite-model | 200 OK |
+| step-5-model-execution | 200 OK |
+| step-6-stress-testing | 200 OK |
+| step-7-overlays | 200 OK |
+| step-8-sign-off | 200 OK |
+
+No regressions detected.
+
+---
+
+## Console Errors
+
+No JavaScript errors detected during build. Production build compiles cleanly with 0 warnings.
+
+---
+
+## Issues Found
+
+### Minor (non-blocking)
+1. **Placeholder screenshots**: All 6 images are valid PNGs but are placeholders (17-18KB each). Should be replaced with actual app screenshots when available. This is a known limitation documented in the handoff.
+
+### None Critical
+
+No critical issues found. No broken layouts, no broken links, no missing content sections, no anti-pattern violations.
+
+---
+
+## Interaction Manifest Summary
+
+See `sprint-4-manifest.md` for the full manifest.
+
+| Category | Total | TESTED | BUG | SKIPPED |
+|----------|-------|--------|-----|---------|
+| All elements | 166 | 166 | 0 | 0 |
+
+Zero PENDING elements. Zero bugs. Zero skipped.
+
+---
+
+## Recommendation: **PROCEED**
+
+All 4 User Guide feature pages meet the Sprint 4 acceptance criteria:
+
+1. All pages are 150+ lines (175, 177, 199, 225)
+2. All follow the established page template
+3. All use correct IFRS 9 terminology throughout
+4. All comply with User Guide anti-patterns (no code, no API, no tests)
+5. All internal links resolve
+6. All images are valid and load correctly
+7. Build succeeds with 0 errors/warnings
+8. Sidebar navigation is correct
+9. No regressions on Sprint 1-3 pages
+10. Rich use of admonitions (28 total), tables (22 total), and cross-references (14 links)
+
+The only minor issue is placeholder screenshots, which is expected and documented.

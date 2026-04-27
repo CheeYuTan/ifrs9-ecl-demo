@@ -19,5 +19,12 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_|^initial$|^animate$|^exit$|^transition$|^whileHover$|^whileTap$|^layout$|^variants$|^layoutId$',
+      }],
+    },
   },
 ])

@@ -1,0 +1,21 @@
+EXIT CODE: 0
+DURATION: 192s
+
+--- STDOUT ---
+Evaluation written to `harness/evaluations/sprint-1-eval.md`.
+
+**Verdict: REFINE** — Score **8.90/10** (target: 9.5)
+
+The core infrastructure is excellent — all 16 contract criteria pass, 34 pages build clean, sidebar/navbar/footer all work, and the 3 content pages are production-quality IFRS 9 documentation.
+
+The gap is the homepage:
+1. **BUG-S1-003** (Major): Stock Docusaurus feature cards with dinosaur SVGs — completely irrelevant to IFRS 9
+2. **BUG-S1-001**: "Hello from" title prefix
+3. **BUG-S1-002**: Placeholder meta description
+4. **BUG-S1-004**: `onBrokenLinks: 'warn'` should be `'throw'`
+
+All 4 fixes are quick (< 15 min total) and should bring the score above 9.5.
+
+
+--- STDERR ---
+

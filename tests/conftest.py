@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+os.environ.setdefault("RATE_LIMIT_DISABLED", "1")
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.join(PROJECT_ROOT, "app")
 SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
@@ -115,6 +117,8 @@ def mock_db():
     Returns a dict with the mock objects so tests can configure return values.
     """
     admin_config._initialized = False
+    from utils.cache import get_cache
+    get_cache().clear()
     with patch("backend._pool", new=MagicMock()), \
          patch("backend.init_pool"), \
          patch("backend.query_df") as mock_query, \
@@ -122,6 +126,7 @@ def mock_db():
         mock_query.return_value = pd.DataFrame()
         yield {"query_df": mock_query, "execute": mock_exec}
     admin_config._initialized = False
+    get_cache().clear()
 
 
 @pytest.fixture

@@ -1,63 +1,147 @@
-# Sprint 2 Interaction Manifest — Simulation & Satellite Model Endpoints
+# Sprint 2 Interaction Manifest — User Guide Workflow Steps 1-4 (Iteration 5)
 
-**Iteration**: 2 (updated from iteration 1)
-**Test count**: 150 tests (up from 128 in iteration 1)
+**Sprint**: 2 (Docs Transformation)
+**Iteration**: 5 (final)
+**Date**: 2026-04-04
+**Test Method**: HTTP verification (curl, port 3000) + static build verification + source markdown audit + sitemap check
+**Build**: `npm run build` — 0 errors, 0 warnings (verified fresh build)
+**Dev Server**: http://localhost:3000/docs/ (Docusaurus dev server, confirmed running on port 3000)
 
-## Test Method
-Chrome DevTools MCP not available. All endpoints tested via live HTTP requests against running dev server (localhost:8000). Frontend asset serving verified via HTTP status codes. Full automated test suite verified passing.
+## Pages Tested
 
-## Simulation Endpoints (routes/simulation.py)
+| Page | URL | HTTP | Lines | Target | Status |
+|------|-----|------|-------|--------|--------|
+| Step 1: Create Project | /docs/user-guide/step-1-create-project | 200 | 151 | ≥150 | TESTED |
+| Step 2: Data Processing | /docs/user-guide/step-2-data-processing | 200 | 153 | ≥150 | TESTED |
+| Step 3: Data Control | /docs/user-guide/step-3-data-control | 200 | 153 | ≥150 | TESTED |
+| Step 4: Satellite Models | /docs/user-guide/step-4-satellite-model | 200 | 176 | ≥150 | TESTED |
 
-| Endpoint | Method | Test Input | Expected | Actual | Status |
-|----------|--------|-----------|----------|--------|--------|
-| `/api/simulate` | POST | `{project_id:"PROJ001", n_simulations:100}` | 200 or 400 (validation) | 400 — pre-calc validation (project at step 2) | TESTED |
-| `/api/simulation-defaults` | GET | — | 200 + defaults object | 200 — n_simulations, pd_lgd_correlation, scenarios | TESTED |
-| `/api/simulate-validate` | POST | `{project_id:"PROJ001", n_simulations:1000}` | 200 + valid:true | 200 — `{valid: true, estimated_seconds: 25.0}` | TESTED |
-| `/api/simulate-validate` | POST | `{n_simulations:100000}` | 200 + valid:false | 200 — errors: ["Maximum 50,000 simulations"] | TESTED |
-| `/api/simulate-stream` | POST | `{project_id:"PROJ001", n_simulations:100}` | SSE stream | SSE keepalive events received | TESTED |
-| `/api/simulate-job` | POST | `{project_id:"PROJ001", n_simulations:100}` | 200 + job info | 200 — `{run_id, job_id, run_url}` | TESTED |
-| `/api/simulation/compare` | GET | `?run_a=run1&run_b=run2` | 404 (nonexistent) | 404 — "Run(s) not found" | TESTED |
-| `/api/simulation/compare` | GET | (no params) | 422 | 422 — missing run_a, run_b | TESTED |
+## Regression Check — Sprint 1 Pages
 
-## Satellite Model Endpoints (routes/satellite.py)
+| Page | URL | HTTP | Status |
+|------|-----|------|--------|
+| Overview | /docs/overview | 200 | TESTED |
+| Quick Start | /docs/quick-start | 200 | TESTED |
+| Workflow Overview | /docs/user-guide/workflow-overview | 200 | TESTED |
 
-| Endpoint | Method | Test Input | Expected | Actual | Status |
-|----------|--------|-----------|----------|--------|--------|
-| `/api/data/satellite-model-comparison` | GET | `?project_id=PROJ001` | 200 + model data | 200 — model comparison with r_squared, rmse, aic, bic | TESTED |
-| `/api/data/satellite-model-selected` | GET | `?project_id=PROJ001` | 200 + selected models | 200 — selected satellite models | TESTED |
-| `/api/model-runs` | GET | `?project_id=PROJ001` | 200 + run list | 200 — model run history | TESTED |
-| `/api/model-runs/{run_id}` | GET | `/run-001` | 404 (nonexistent) | 404 | TESTED |
-| `/api/model-runs` | POST | `{project_id, run_type, config}` | 422 (incomplete) | 422 — validation error | TESTED |
-| `/api/data/cohort-summary` | GET | `?project_id=PROJ001` | 200 + summary | 200 — cohort-level statistics | TESTED |
-| `/api/data/cohort-summary/{product}` | GET | `/mortgage?project_id=PROJ001` | 200 | 200 — product-specific cohort data | TESTED |
-| `/api/data/drill-down-dimensions` | GET | `?project_id=PROJ001` | 200 + dimensions | 200 — dimension list | TESTED |
-| `/api/data/ecl-by-cohort` | GET | `?project_id=PROJ001&product=mortgage` | 200 | 200 — ECL by cohort records | TESTED |
-| `/api/data/ecl-by-cohort` | GET | `?project_id=PROJ001` (no product) | 422 | 422 — missing product | TESTED |
-| `/api/data/stage-by-cohort` | GET | `?project_id=PROJ001&product=mortgage` | 200 | 200 — stage distribution | TESTED |
-| `/api/data/portfolio-by-cohort` | GET | `?project_id=PROJ001&product=mortgage` | 200 | 200 — portfolio metrics | TESTED |
-| `/api/data/ecl-by-product-drilldown` | GET | `?project_id=PROJ001` | 200 | 200 — drilldown data | TESTED |
+## Rendered HTML Element Counts (Source Audit)
 
-## Frontend Verification
+| Page | Admonitions | Tables | H2 | H3 | Images | Status |
+|------|-------------|--------|----|----|--------|--------|
+| Step 1 | 6 | 3 | 7 | 5 | 1 | TESTED |
+| Step 2 | 8 | 4 | 5 | 7 | 2 | TESTED |
+| Step 3 | 7 | 5 | 5 | 5 | 2 | TESTED |
+| Step 4 | 7 | 3 | 5 | 7 | 2 | TESTED |
 
-| Element | Test | Result | Status |
-|---------|------|--------|--------|
-| HTML shell | GET / | 200 — valid HTML with root div, script/link tags | TESTED |
-| JS bundle | GET /assets/index-BrTw3Fts.js | 200 — 285,909 bytes | TESTED |
-| CSS bundle | GET /assets/index-Bo9lnpEf.css | 200 — 129,906 bytes | TESTED |
-| API health | GET /api/health | 200 — `{status: "healthy", lakebase: "connected"}` | TESTED |
+## Required Sections Audit (per User Guide template)
 
-## Test Suite Verification
+| Section | Step 1 | Step 2 | Step 3 | Step 4 |
+|---------|--------|--------|--------|--------|
+| Frontmatter (title, description, sidebar_position) | TESTED | TESTED | TESTED | TESTED |
+| Prerequisites (:::info) | TESTED | TESTED | TESTED | TESTED |
+| What You'll Do | TESTED | TESTED | TESTED | TESTED |
+| Step-by-Step Instructions | TESTED | TESTED | TESTED | TESTED |
+| Understanding the Results | TESTED | TESTED | TESTED | TESTED |
+| Tips & Best Practices | TESTED | TESTED | TESTED | TESTED |
+| What's Next? | TESTED | TESTED | TESTED | TESTED |
 
-| Suite | Count | Result | Status |
-|-------|-------|--------|--------|
-| Sprint 2 tests | 150 | 150 passed, 0 failed (0.63s) | TESTED |
-| Full backend suite | 2868 | 2868 passed, 61 skipped, 0 failed (114s) | TESTED |
-| Regressions | 0 | Zero regressions from baseline | TESTED |
+## Navigation & Cross-References
+
+| Element | Action | Result | Status |
+|---------|--------|--------|--------|
+| Sidebar: Getting Started (2 items) | Render | overview, quick-start | TESTED |
+| Sidebar: User Guide (18 items) | Render | All workflow steps + feature pages | TESTED |
+| Sidebar: Admin Guide (collapsed) | Render | Present | TESTED |
+| Sidebar: Developer Reference (collapsed) | Render | Present | TESTED |
+| Navbar: Color Mode Toggle | Button | Present | TESTED |
+| Navbar: User Guide link | Link | href="/docs/overview" | TESTED |
+| Navbar: Admin Guide link | Link | href="/docs/admin-guide/setup-installation" | TESTED |
+| Navbar: Developer Reference link | Link | href="/docs/developer/architecture" | TESTED |
+| Step 1 → Step 2 (What's Next) | Link | step-2-data-processing (200) | TESTED |
+| Step 2 → Step 3 (What's Next) | Link | step-3-data-control (200) | TESTED |
+| Step 3 → Step 4 (What's Next) | Link | step-4-satellite-model (200) | TESTED |
+| Step 4 → Step 5 (What's Next) | Link | step-5-model-execution (200) | TESTED |
+| Step 1 ← Quick Start (Prereq) | Link | /docs/quick-start (200) | TESTED |
+| Step 2 ← Step 1 (Prereq) | Link | step-1-create-project (200) | TESTED |
+| Step 3 ← Step 2 (Prereq) | Link | step-2-data-processing (200) | TESTED |
+| Step 4 ← Step 3 (Prereq) | Link | step-3-data-control (200) | TESTED |
+| Step 4: Admin Guide cross-ref | Link | admin-guide/model-configuration (200) | TESTED |
+| Pagination: All 4 pages | Nav | prev+next present | TESTED |
+| Sitemap: All 4 step pages | XML | Present in sitemap.xml | TESTED |
+
+## Images
+
+| Image | Page | File Exists | Type | Status |
+|-------|------|-------------|------|--------|
+| step-1-create-project.png | Step 1 | YES | Placeholder | TESTED |
+| step-2-stage-distribution.png | Step 2 | YES | Placeholder | TESTED |
+| portfolio-dashboard.png | Step 2 | YES | Real screenshot (248KB) | TESTED |
+| step-3-data-control.png | Step 3 | YES | Placeholder | TESTED |
+| step-3-approval-form.png | Step 3 | YES | Placeholder | TESTED |
+| step-4-run-pipeline.png | Step 4 | YES | Placeholder | TESTED |
+| step-4-model-comparison.png | Step 4 | YES | Placeholder | TESTED |
+
+Note: 6 of 7 images are placeholder grey rectangles. Known limitation — real screenshots to be captured during documentation batch.
+
+## Persona Compliance (Zero Violations)
+
+| Check | Step 1 | Step 2 | Step 3 | Step 4 |
+|-------|--------|--------|--------|--------|
+| No Python/JSON code blocks | PASS | PASS | PASS | PASS |
+| No API endpoints | PASS | PASS | PASS | PASS |
+| No test file references | PASS | PASS | PASS | PASS |
+| Business-language only | PASS | PASS | PASS | PASS |
+
+## IFRS 9 Terminology Audit
+
+| Term | Step 1 | Step 2 | Step 3 | Step 4 |
+|------|--------|--------|--------|--------|
+| ECL | 13 | 9 | 5 | 4 |
+| PD | — | 11 | 5 | 3 |
+| LGD | — | — | 2 | 3 |
+| EAD | — | — | — | — |
+| SICR | — | 2 | — | — |
+| Stage 1/2/3 | — | 13 | 2 | — |
+| IFRS 9 | 3 | 3 | 1 | 1 |
+| Incorrect terms found | 0 | 0 | 0 | 0 |
+
+No instances of incorrect generic terms ("risk score", "loss amount", "loan balance", "risk category").
+
+## Iteration 2 Additions Verified (Carried Forward)
+
+| Addition | Page | Description | Status |
+|----------|------|-------------|--------|
+| Resuming an Existing Project | Step 1 | 5-step subsection for resuming in-progress projects | TESTED |
+| Common Project ID Patterns | Step 1 | Tip with 3 naming convention examples | TESTED |
+| State-transition narrative | Step 1 | Pending → Completed → Rejected → rework cycle | TESTED |
+| Reading the Charts | Step 2 | Step 6 explaining bar heights, colors, drill-down, anomaly patterns | TESTED |
+| Bookmark Key Observations | Step 2 | Tip admonition | TESTED |
+| Zero or Missing Values | Step 2 | Caution admonition on PD=0 and EIR=0 implications | TESTED |
+| 3-decision framework | Step 3 | Decision 1 (Critical?) → Decision 2 (DQ Score?) → Decision 3 (Explainable?) | TESTED |
+| Audit Expectations | Step 3 | Caution admonition on auditor expectations | TESTED |
+
+## Dark Mode
+
+| Check | Result | Status |
+|-------|--------|--------|
+| Dark mode config | `respectPrefersColorScheme: true` in docusaurus.config.ts | TESTED |
+| Color mode toggle | Present in navbar | TESTED |
+
+## Build Verification
+
+| Check | Result | Status |
+|-------|--------|--------|
+| `npm run build` | 0 errors, 0 warnings | TESTED |
+| All internal links resolve | Verified via build + HTTP 200 checks | TESTED |
+| Sidebar position ordering | Sequential (2, 3, 4, 5) for steps 1-4 | TESTED |
+| Static build output | Generated to docs_site/ | TESTED |
+| Sitemap includes all 4 pages | Verified in sitemap.xml | TESTED |
 
 ## Summary
 
-- **Total items tested**: 32 (26 endpoint checks + 4 frontend checks + 2 test suite runs)
-- **TESTED**: 32
-- **BUG**: 0
-- **SKIPPED**: 0
-- **PENDING**: 0
+| Status | Count |
+|--------|-------|
+| **TESTED** | **89** |
+| **BUG** | **0** |
+| **SKIPPED** | **0** |
+| **PENDING** | **0** |

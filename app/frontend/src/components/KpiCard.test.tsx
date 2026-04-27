@@ -40,4 +40,57 @@ describe('KpiCard', () => {
     const card = container.firstElementChild;
     expect(card?.className).toContain('from-blue-50');
   });
+
+  it('renders amber gradient', () => {
+    const { container } = render(<KpiCard title="Title" value="Value" color="amber" />);
+    const card = container.firstElementChild;
+    expect(card?.className).toContain('from-amber-50');
+  });
+
+  it('renders red gradient', () => {
+    const { container } = render(<KpiCard title="Title" value="Value" color="red" />);
+    const card = container.firstElementChild;
+    expect(card?.className).toContain('from-red-50');
+  });
+
+  it('renders purple gradient', () => {
+    const { container } = render(<KpiCard title="Title" value="Value" color="purple" />);
+    const card = container.firstElementChild;
+    expect(card?.className).toContain('from-purple-50');
+  });
+
+  it('falls back to blue for unknown color', () => {
+    const { container } = render(<KpiCard title="Title" value="Value" color="magenta" />);
+    const card = container.firstElementChild;
+    expect(card?.className).toContain('from-blue-50');
+  });
+
+  it('renders large numeric values', () => {
+    render(<KpiCard title="Total GCA" value="$1,234,567,890" />);
+    expect(screen.getByText('$1,234,567,890')).toBeInTheDocument();
+  });
+
+  it('renders zero value', () => {
+    render(<KpiCard title="ECL" value="$0" />);
+    expect(screen.getByText('$0')).toBeInTheDocument();
+  });
+
+  it('renders empty value string', () => {
+    render(<KpiCard title="N/A" value="" />);
+    expect(screen.getByText('N/A')).toBeInTheDocument();
+  });
+
+  it('renders ReactNode as title', () => {
+    render(<KpiCard title={<span data-testid="custom-title">Custom</span>} value="123" />);
+    expect(screen.getByTestId('custom-title')).toBeInTheDocument();
+  });
+
+  it('renders icon inside icon container', () => {
+    const { container } = render(
+      <KpiCard title="Title" value="Value" icon={<span>📊</span>} color="green" />
+    );
+    const iconContainer = container.querySelector('.rounded-xl');
+    expect(iconContainer).toBeTruthy();
+    expect(iconContainer?.className).toContain('bg-emerald-500/10');
+  });
 });

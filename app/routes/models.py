@@ -1,48 +1,54 @@
 """Model registry routes — /api/models/*"""
+
 import json
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional
+
 import backend
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
 from routes._utils import DecimalEncoder
 
 router = APIRouter(prefix="/api", tags=["models"])
 
 
 class RegisterModelRequest(BaseModel):
-    model_name: str
-    model_type: str
-    algorithm: str = "Unknown"
-    version: int = 1
-    description: str = ""
-    product_type: str = ""
-    cohort: str = ""
+    model_name: str = Field(min_length=1, max_length=256)
+    model_type: str = Field(min_length=1, max_length=64)
+    algorithm: str = Field(default="Unknown", max_length=128)
+    version: int = Field(default=1, ge=1, le=9999)
+    description: str = Field(default="", max_length=2000)
+    product_type: str = Field(default="", max_length=128)
+    cohort: str = Field(default="", max_length=128)
     parameters: dict = {}
     performance_metrics: dict = {}
     training_data_info: dict = {}
-    created_by: str = "system"
-    notes: str = ""
-    parent_model_id: Optional[str] = None
+    created_by: str = Field(default="system", max_length=256)
+    notes: str = Field(default="", max_length=4000)
+    parent_model_id: str | None = Field(default=None, max_length=128)
+
 
 class UpdateModelStatusRequest(BaseModel):
-    status: str
-    user: str
-    comment: str = ""
+    status: str = Field(min_length=1, max_length=32)
+    user: str = Field(min_length=1, max_length=256)
+    comment: str = Field(default="", max_length=2000)
+
 
 class CompareModelsRequest(BaseModel):
-    model_ids: list[str]
+    model_ids: list[str] = Field(min_length=2, max_length=10)
+
 
 class PromoteChampionRequest(BaseModel):
-    user: str
+    user: str = Field(min_length=1, max_length=256)
 
 
 @router.get("/models")
-def list_models(model_type: Optional[str] = None, status: Optional[str] = None):
+def list_models(model_type: str | None = None, status: str | None = None):
     try:
         models = backend.list_models(model_type, status)
         return json.loads(json.dumps(models, cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list models: {e}")
+
 
 @router.get("/models/{model_id}")
 def get_model(model_id: str):
@@ -56,6 +62,7 @@ def get_model(model_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to get model: {e}")
 
+
 @router.post("/models")
 def register_model(body: RegisterModelRequest):
     try:
@@ -63,6 +70,7 @@ def register_model(body: RegisterModelRequest):
         return json.loads(json.dumps(model, cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to register model: {e}")
+
 
 @router.put("/models/{model_id}/status")
 def update_model_status(model_id: str, body: UpdateModelStatusRequest):
@@ -74,6 +82,7 @@ def update_model_status(model_id: str, body: UpdateModelStatusRequest):
     except Exception as e:
         raise HTTPException(500, f"Failed to update model status: {e}")
 
+
 @router.post("/models/{model_id}/promote")
 def promote_champion(model_id: str, body: PromoteChampionRequest):
     try:
@@ -84,6 +93,7 @@ def promote_champion(model_id: str, body: PromoteChampionRequest):
     except Exception as e:
         raise HTTPException(500, f"Failed to promote champion: {e}")
 
+
 @router.post("/models/compare")
 def compare_models(body: CompareModelsRequest):
     try:
@@ -91,6 +101,7 @@ def compare_models(body: CompareModelsRequest):
         return json.loads(json.dumps(models, cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to compare models: {e}")
+
 
 @router.get("/models/{model_id}/audit")
 def get_model_audit(model_id: str):

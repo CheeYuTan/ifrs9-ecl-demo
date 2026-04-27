@@ -1,9 +1,12 @@
 """Advanced ECL feature routes — /api/advanced/*"""
-import json, logging
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional
+
+import json
+import logging
+
 import backend
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
 from routes._utils import DecimalEncoder
 
 log = logging.getLogger(__name__)
@@ -12,13 +15,15 @@ router = APIRouter(prefix="/api/advanced", tags=["advanced"])
 
 
 class ComputeCureRatesRequest(BaseModel):
-    product_type: Optional[str] = None
+    product_type: str | None = Field(default=None, max_length=128)
+
 
 class ComputeCCFRequest(BaseModel):
-    product_type: Optional[str] = None
+    product_type: str | None = Field(default=None, max_length=128)
+
 
 class ComputeCollateralRequest(BaseModel):
-    product_type: Optional[str] = None
+    product_type: str | None = Field(default=None, max_length=128)
 
 
 @router.post("/cure-rates/compute")
@@ -30,12 +35,14 @@ def compute_cure_rates(body: ComputeCureRatesRequest):
         log.exception("Failed to compute cure rates")
         raise HTTPException(500, f"Failed to compute cure rates: {e}")
 
+
 @router.get("/cure-rates")
 def list_cure_analyses():
     try:
         return json.loads(json.dumps(backend.list_cure_analyses(), cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list cure analyses: {e}")
+
 
 @router.get("/cure-rates/{analysis_id}")
 def get_cure_analysis(analysis_id: str):
@@ -49,6 +56,7 @@ def get_cure_analysis(analysis_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to get cure analysis: {e}")
 
+
 @router.post("/ccf/compute")
 def compute_ccf(body: ComputeCCFRequest):
     try:
@@ -58,12 +66,14 @@ def compute_ccf(body: ComputeCCFRequest):
         log.exception("Failed to compute CCF")
         raise HTTPException(500, f"Failed to compute CCF: {e}")
 
+
 @router.get("/ccf")
 def list_ccf_analyses():
     try:
         return json.loads(json.dumps(backend.list_ccf_analyses(), cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list CCF analyses: {e}")
+
 
 @router.get("/ccf/{analysis_id}")
 def get_ccf_analysis(analysis_id: str):
@@ -77,6 +87,7 @@ def get_ccf_analysis(analysis_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to get CCF analysis: {e}")
 
+
 @router.post("/collateral/compute")
 def compute_collateral(body: ComputeCollateralRequest):
     try:
@@ -86,12 +97,14 @@ def compute_collateral(body: ComputeCollateralRequest):
         log.exception("Failed to compute collateral haircuts")
         raise HTTPException(500, f"Failed to compute collateral haircuts: {e}")
 
+
 @router.get("/collateral")
 def list_collateral_analyses():
     try:
         return json.loads(json.dumps(backend.list_collateral_analyses(), cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list collateral analyses: {e}")
+
 
 @router.get("/collateral/{analysis_id}")
 def get_collateral_analysis(analysis_id: str):

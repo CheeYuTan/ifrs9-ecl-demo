@@ -11,12 +11,14 @@ Provides a multi-step pipeline that sequences:
 Each step reports status (pending -> running -> completed/failed).
 The pipeline health endpoint reports last successful run, duration, and data freshness.
 """
+
+import json
 import logging
 import time
-import json
-from datetime import datetime as _dt, timezone as _tz
+from datetime import UTC
+from datetime import datetime as _dt
 
-from db.pool import query_df, execute, _t, SCHEMA
+from db.pool import SCHEMA, _t, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -46,11 +48,14 @@ def ensure_pipeline_table():
             triggered_by TEXT DEFAULT 'system'
         )
     """)
-    execute(f"COMMENT ON TABLE {PIPELINE_TABLE} IS 'ifrs9ecl: Period-end close pipeline runs'")
+    try:
+        execute(f"COMMENT ON TABLE {PIPELINE_TABLE} IS 'ifrs9ecl: Period-end close pipeline runs'")
+    except Exception:
+        pass
 
 
 def _run_id(project_id):
-    ts = _dt.now(_tz.utc).strftime("%Y%m%d%H%M%S")
+    ts = _dt.now(UTC).strftime("%Y%m%d%H%M%S")
     return f"PIPE-{project_id}-{ts}"
 
 
@@ -62,16 +67,26 @@ def start_pipeline(project_id, triggered_by="system"):
     ensure_pipeline_table()
     run_id = _run_id(project_id)
     steps = [
-        {"key": s["key"], "label": s["label"], "order": s["order"],
-         "status": "pending", "started_at": None, "completed_at": None,
-         "duration_seconds": None, "error": None}
+        {
+            "key": s["key"],
+            "label": s["label"],
+            "order": s["order"],
+            "status": "pending",
+            "started_at": None,
+            "completed_at": None,
+            "duration_seconds": None,
+            "error": None,
+        }
         for s in PIPELINE_STEPS
     ]
-    now = _dt.now(_tz.utc).isoformat()
-    execute(f"""
+    now = _dt.now(UTC).isoformat()
+    execute(
+        f"""
         INSERT INTO {PIPELINE_TABLE} (run_id, project_id, status, started_at, steps, triggered_by)
         VALUES (%s, %s, 'running', %s, %s::jsonb, %s)
-    """, (run_id, project_id, now, json.dumps(steps), triggered_by))
+    """,
+        (run_id, project_id, now, json.dumps(steps), triggered_by),
+    )
     return {
         "run_id": run_id,
         "project_id": project_id,
@@ -122,6 +137,7 @@ def _check_data_freshness():
     """Check if loan data is fresh (within configurable threshold)."""
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         threshold_days = cfg.get("data_freshness_threshold_days", 7)
     except Exception:
@@ -130,7 +146,7 @@ def _check_data_freshness():
         df = query_df(f"""
             SELECT MAX(updated_at) as last_updated,
                    COUNT(*) as record_count
-            FROM {_t('model_ready_loans')}
+            FROM {_t("model_ready_loans")}
         """)
         if df.empty or df.iloc[0]["record_count"] == 0:
             raise ValueError("No loan data found in model_ready_loans")
@@ -156,17 +172,16 @@ def _check_data_quality():
                 SUM(CASE WHEN gross_carrying_amount <= 0 THEN 1 ELSE 0 END) as neg_gca,
                 SUM(CASE WHEN current_lifetime_pd < 0 OR current_lifetime_pd > 1 THEN 1 ELSE 0 END) as invalid_pd,
                 SUM(CASE WHEN assessed_stage NOT IN (1, 2, 3) THEN 1 ELSE 0 END) as invalid_stage
-            FROM {_t('model_ready_loans')}
+            FROM {_t("model_ready_loans")}
         """)
         if df.empty:
             raise ValueError("No data for quality checks")
         row = df.iloc[0]
-        checks.append({"check": "negative_gca", "count": int(row["neg_gca"]),
-                       "passed": int(row["neg_gca"]) == 0})
-        checks.append({"check": "invalid_pd", "count": int(row["invalid_pd"]),
-                       "passed": int(row["invalid_pd"]) == 0})
-        checks.append({"check": "invalid_stage", "count": int(row["invalid_stage"]),
-                       "passed": int(row["invalid_stage"]) == 0})
+        checks.append({"check": "negative_gca", "count": int(row["neg_gca"]), "passed": int(row["neg_gca"]) == 0})
+        checks.append({"check": "invalid_pd", "count": int(row["invalid_pd"]), "passed": int(row["invalid_pd"]) == 0})
+        checks.append(
+            {"check": "invalid_stage", "count": int(row["invalid_stage"]), "passed": int(row["invalid_stage"]) == 0}
+        )
         all_passed = all(c["passed"] for c in checks)
         if not all_passed:
             failing = [c["check"] for c in checks if not c["passed"]]
@@ -180,7 +195,7 @@ def _check_model_execution():
     """Check model execution results exist."""
     try:
         df = query_df(f"""
-            SELECT COUNT(*) as cnt FROM {_t('loan_level_ecl')}
+            SELECT COUNT(*) as cnt FROM {_t("loan_level_ecl")}
         """)
         cnt = int(df.iloc[0]["cnt"]) if not df.empty else 0
         if cnt == 0:
@@ -195,7 +210,7 @@ def _check_ecl_calculation():
     try:
         df = query_df(f"""
             SELECT COUNT(*) as cnt, ROUND(SUM(weighted_ecl)::numeric, 2) as total_ecl
-            FROM {_t('loan_ecl_weighted')}
+            FROM {_t("loan_ecl_weighted")}
         """)
         if df.empty or int(df.iloc[0]["cnt"]) == 0:
             raise ValueError("No ECL calculation results found")
@@ -210,7 +225,7 @@ def _check_ecl_calculation():
 
 def _mark_step(run_id, step_key, status, duration=None, error=None):
     """Update a step's status in the pipeline run."""
-    now = _dt.now(_tz.utc).isoformat()
+    now = _dt.now(UTC).isoformat()
     try:
         df = query_df(f"SELECT steps FROM {PIPELINE_TABLE} WHERE run_id = %s", (run_id,))
         if df.empty:
@@ -227,23 +242,29 @@ def _mark_step(run_id, step_key, status, duration=None, error=None):
                     step["completed_at"] = now
                     step["duration_seconds"] = duration
                     step["error"] = error
-        execute(f"""
+        execute(
+            f"""
             UPDATE {PIPELINE_TABLE} SET steps = %s::jsonb WHERE run_id = %s
-        """, (json.dumps(steps), run_id))
+        """,
+            (json.dumps(steps), run_id),
+        )
     except Exception as e:
         log.warning("Failed to mark step %s as %s: %s", step_key, status, e)
 
 
 def complete_pipeline(run_id, status="completed", error_message=None):
     """Mark the pipeline run as completed or failed."""
-    now = _dt.now(_tz.utc).isoformat()
+    now = _dt.now(UTC).isoformat()
     try:
-        execute(f"""
+        execute(
+            f"""
             UPDATE {PIPELINE_TABLE}
             SET status = %s, completed_at = %s, error_message = %s,
                 duration_seconds = EXTRACT(EPOCH FROM (%s::timestamp - started_at))
             WHERE run_id = %s
-        """, (status, now, error_message, now, run_id))
+        """,
+            (status, now, error_message, now, run_id),
+        )
     except Exception as e:
         log.warning("Failed to complete pipeline %s: %s", run_id, e)
 
@@ -265,13 +286,16 @@ def get_pipeline_run(run_id):
 def get_pipeline_health(project_id):
     """Get pipeline health summary for a project."""
     try:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT run_id, status, started_at, completed_at, duration_seconds, steps
             FROM {PIPELINE_TABLE}
             WHERE project_id = %s
             ORDER BY started_at DESC
             LIMIT 5
-        """, (project_id,))
+        """,
+            (project_id,),
+        )
         if df.empty:
             return {"last_run": None, "total_runs": 0, "status": "no_runs"}
         runs = []

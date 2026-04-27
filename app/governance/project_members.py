@@ -4,9 +4,11 @@ CRUD operations for project membership — add, remove, list, get, transfer.
 Part of the two-layer permission model. Core permission logic (role hierarchy,
 access checks) lives in governance/project_permissions.py.
 """
+
 import logging
 
 from db.pool import execute, query_df
+
 from governance.project_permissions import (
     PROJECT_MEMBERS_TABLE,
     VALID_PROJECT_ROLES,
@@ -36,9 +38,7 @@ def list_project_members(project_id: str) -> list[dict]:
     return df.to_dict("records")
 
 
-def add_project_member(
-    project_id: str, user_id: str, role: str, granted_by: str
-) -> dict:
+def add_project_member(project_id: str, user_id: str, role: str, granted_by: str) -> dict:
     """Add a user to a project with the given role.
 
     Raises ValueError if role is invalid or user is already a member.
@@ -46,9 +46,7 @@ def add_project_member(
     if not project_id or not user_id:
         raise ValueError("project_id and user_id are required")
     if role not in VALID_PROJECT_ROLES:
-        raise ValueError(
-            f"Invalid role '{role}'. Must be one of: {', '.join(VALID_PROJECT_ROLES)}"
-        )
+        raise ValueError(f"Invalid role '{role}'. Must be one of: {', '.join(VALID_PROJECT_ROLES)}")
 
     from domain.workflow import get_project
 
@@ -61,9 +59,7 @@ def add_project_member(
 
     existing = get_project_member(project_id, user_id)
     if existing:
-        raise ValueError(
-            f"User '{user_id}' is already a member with role '{existing['role']}'"
-        )
+        raise ValueError(f"User '{user_id}' is already a member with role '{existing['role']}'")
 
     execute(
         f"""
@@ -74,7 +70,9 @@ def add_project_member(
     )
 
     _audit_permission_change(
-        project_id, "member_added", granted_by,
+        project_id,
+        "member_added",
+        granted_by,
         {"user_id": user_id, "role": role},
     )
 
@@ -82,9 +80,7 @@ def add_project_member(
     return get_project_member(project_id, user_id)
 
 
-def remove_project_member(
-    project_id: str, user_id: str, removed_by: str
-) -> bool:
+def remove_project_member(project_id: str, user_id: str, removed_by: str) -> bool:
     """Remove a user from a project. Returns True if removed, False if not found."""
     if not project_id or not user_id:
         raise ValueError("project_id and user_id are required")
@@ -99,7 +95,9 @@ def remove_project_member(
     )
 
     _audit_permission_change(
-        project_id, "member_removed", removed_by,
+        project_id,
+        "member_removed",
+        removed_by,
         {"user_id": user_id, "previous_role": existing["role"]},
     )
 
@@ -107,9 +105,7 @@ def remove_project_member(
     return True
 
 
-def transfer_ownership(
-    project_id: str, new_owner_id: str, performed_by: str
-) -> dict:
+def transfer_ownership(project_id: str, new_owner_id: str, performed_by: str) -> dict:
     """Transfer project ownership to a new user.
 
     The old owner loses the owner role. The new owner is removed from
@@ -118,7 +114,7 @@ def transfer_ownership(
     if not project_id or not new_owner_id:
         raise ValueError("project_id and new_owner_id are required")
 
-    from domain.workflow import get_project, WF_TABLE
+    from domain.workflow import WF_TABLE, get_project
 
     project = get_project(project_id)
     if not project:
@@ -138,12 +134,16 @@ def transfer_ownership(
     )
 
     _audit_permission_change(
-        project_id, "ownership_transferred", performed_by,
+        project_id,
+        "ownership_transferred",
+        performed_by,
         {"old_owner_id": old_owner_id, "new_owner_id": new_owner_id},
     )
 
     log.info(
         "Transferred ownership of project %s from %s to %s",
-        project_id, old_owner_id, new_owner_id,
+        project_id,
+        old_owner_id,
+        new_owner_id,
     )
     return get_project(project_id)

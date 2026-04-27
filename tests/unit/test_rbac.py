@@ -184,3 +184,167 @@ class TestSeedUsers:
 
     def test_at_least_four_users(self):
         assert len(SEED_USERS) >= 4
+
+
+# ── Extended coverage for list_users, get_user, approval lifecycle ─────
+
+import pandas as pd
+
+_M = "governance.rbac"
+
+
+def _user_df(user_id="usr-001", role="analyst"):
+    return pd.DataFrame([{
+        "user_id": user_id, "email": f"{user_id}@bank.com",
+        "display_name": "Test User", "role": role,
+        "department": "Risk", "is_active": True,
+    }])
+
+
+def _approval_df(request_id="apr-1", status="pending"):
+    return pd.DataFrame([{
+        "request_id": request_id, "request_type": "model_approval",
+        "entity_id": "model-1", "entity_type": "model",
+        "status": status, "requested_by": "usr-001",
+        "assigned_to": "usr-003", "approved_by": None,
+        "approved_at": None, "rejection_reason": "",
+        "comments": "", "priority": "normal", "due_date": None,
+        "created_at": "2025-01-01T00:00:00",
+        "requested_by_name": "Ana Reyes",
+        "assigned_to_name": "Sarah Chen",
+        "approved_by_name": None,
+    }])
+
+
+class TestListUsers:
+    @patch(f"{_M}.query_df")
+    def test_list_all(self, mock_qdf):
+        mock_qdf.return_value = pd.DataFrame([
+            {"user_id": "usr-001", "display_name": "Ana", "role": "analyst"},
+            {"user_id": "usr-002", "display_name": "David", "role": "reviewer"},
+        ])
+        from governance.rbac import list_users
+        result = list_users()
+        assert len(result) == 2
+        call_sql = mock_qdf.call_args[0][0]
+        assert "is_active = TRUE" in call_sql
+
+    @patch(f"{_M}.query_df")
+    def test_filter_by_role(self, mock_qdf):
+        mock_qdf.return_value = _user_df()
+        from governance.rbac import list_users
+        list_users(role="analyst")
+        call_sql = mock_qdf.call_args[0][0]
+        assert "role = %s" in call_sql
+
+
+class TestGetUser:
+    @patch(f"{_M}.query_df", return_value=_user_df("usr-001", "analyst"))
+    def test_found_with_permissions(self, mock_qdf):
+        from governance.rbac import get_user
+        user = get_user("usr-001")
+        assert user is not None
+        assert user["user_id"] == "usr-001"
+        assert "permissions" in user
+        assert "view_portfolio" in user["permissions"]
+
+    @patch(f"{_M}.query_df", return_value=pd.DataFrame())
+    def test_not_found(self, mock_qdf):
+        from governance.rbac import get_user
+        assert get_user("nonexistent") is None
+
+
+class TestApproveRequest:
+    @patch(f"{_M}.query_df")
+    @patch(f"{_M}.execute")
+    def test_approve_success(self, mock_exec, mock_qdf):
+        mock_qdf.side_effect = [
+            _user_df("usr-003", "approver"),
+            _approval_df("apr-1", "pending"),
+            _approval_df("apr-1", "approved"),
+        ]
+        from governance.rbac import approve_request
+        result = approve_request("apr-1", "usr-003", "Looks good")
+        assert result is not None
+        call_sql = mock_exec.call_args[0][0]
+        assert "status = 'approved'" in call_sql
+
+    @patch(f"{_M}.query_df")
+    def test_approve_no_permission(self, mock_qdf):
+        mock_qdf.return_value = _user_df("usr-001", "analyst")
+        from governance.rbac import approve_request
+        with pytest.raises(ValueError, match="does not have permission"):
+            approve_request("apr-1", "usr-001")
+
+    @patch(f"{_M}.query_df")
+    def test_approve_already_approved(self, mock_qdf):
+        mock_qdf.side_effect = [
+            _user_df("usr-003", "approver"),
+            _approval_df("apr-1", "approved"),
+        ]
+        from governance.rbac import approve_request
+        with pytest.raises(ValueError, match="already approved"):
+            approve_request("apr-1", "usr-003")
+
+    @patch(f"{_M}.query_df")
+    def test_approve_not_found(self, mock_qdf):
+        mock_qdf.side_effect = [
+            _user_df("usr-003", "approver"),
+            pd.DataFrame(),
+        ]
+        from governance.rbac import approve_request
+        with pytest.raises(ValueError, match="not found"):
+            approve_request("apr-nonexist", "usr-003")
+
+
+class TestRejectRequest:
+    @patch(f"{_M}.query_df")
+    @patch(f"{_M}.execute")
+    def test_reject_success(self, mock_exec, mock_qdf):
+        mock_qdf.side_effect = [
+            _user_df("usr-003", "approver"),
+            _approval_df("apr-1", "pending"),
+            _approval_df("apr-1", "rejected"),
+        ]
+        from governance.rbac import reject_request
+        result = reject_request("apr-1", "usr-003", "Needs revision")
+        assert result is not None
+        call_sql = mock_exec.call_args[0][0]
+        assert "status = 'rejected'" in call_sql
+
+    @patch(f"{_M}.query_df")
+    def test_reject_no_permission(self, mock_qdf):
+        mock_qdf.return_value = _user_df("usr-001", "analyst")
+        from governance.rbac import reject_request
+        with pytest.raises(ValueError, match="does not have permission"):
+            reject_request("apr-1", "usr-001")
+
+
+class TestApprovalHistory:
+    @patch(f"{_M}.query_df")
+    def test_returns_history(self, mock_qdf):
+        mock_qdf.return_value = pd.DataFrame([
+            {"request_id": "apr-1", "entity_id": "model-1", "status": "approved",
+             "requested_by_name": "Ana", "approved_by_name": "Sarah"},
+            {"request_id": "apr-2", "entity_id": "model-1", "status": "rejected",
+             "requested_by_name": "Ana", "approved_by_name": "David"},
+        ])
+        from governance.rbac import get_approval_history
+        result = get_approval_history("model-1")
+        assert len(result) == 2
+
+    @patch(f"{_M}.query_df", return_value=pd.DataFrame())
+    def test_empty_history(self, mock_qdf):
+        from governance.rbac import get_approval_history
+        assert get_approval_history("no-entity") == []
+
+
+class TestRoleHierarchy:
+    def test_role_hierarchy_is_cumulative(self):
+        analyst = ROLE_PERMISSIONS["analyst"]
+        reviewer = ROLE_PERMISSIONS["reviewer"]
+        approver = ROLE_PERMISSIONS["approver"]
+        admin = ROLE_PERMISSIONS["admin"]
+        assert analyst.issubset(reviewer)
+        assert reviewer.issubset(approver)
+        assert approver.issubset(admin)

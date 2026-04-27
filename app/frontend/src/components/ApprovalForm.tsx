@@ -30,7 +30,7 @@ export default function ApprovalForm({
     if (type === 'reject' && requireCommentForReject && !comment) return;
     setActing(true);
     try {
-      type === 'approve' ? await onApprove(comment) : await onReject?.(comment);
+      if (type === 'approve') { await onApprove(comment); } else { await onReject?.(comment); }
     } finally {
       setActing(false);
     }

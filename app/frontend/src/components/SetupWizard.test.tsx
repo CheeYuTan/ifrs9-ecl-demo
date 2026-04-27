@@ -116,4 +116,40 @@ describe('SetupWizard', () => {
       expect(mockApi.setupStatus).toHaveBeenCalled();
     });
   });
+
+  it('renders multiple step indicators', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      const text = document.body.textContent || '';
+      expect(text).toContain('Welcome');
+      expect(text).toContain('Data Connection');
+      expect(text).toContain('Organization');
+      expect(text).toContain('First Project');
+    });
+  });
+
+  it('handles setupStatus error gracefully', async () => {
+    const { api: mockApi } = await import('../lib/api') as any;
+    mockApi.setupStatus.mockRejectedValueOnce(new Error('Network error'));
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      expect(document.body.textContent!.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('renders welcome description text', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      const text = document.body.textContent || '';
+      expect(text.length).toBeGreaterThan(50);
+    });
+  });
+
+  it('renders step navigation area', async () => {
+    render(<SetupWizard onComplete={onComplete} />);
+    await waitFor(() => {
+      const buttons = document.querySelectorAll('button');
+      expect(buttons.length).toBeGreaterThan(0);
+    });
+  });
 });

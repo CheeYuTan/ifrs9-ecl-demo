@@ -1,156 +1,116 @@
-# Sprint 7 Visual QA Report: Domain Logic Tests — Regression Verification (Iteration 5)
+# Sprint 7 Visual QA Report: Developer Reference Cross-References & Sprint 6 Regression Fixes
 
-**Sprint**: 7 (Iteration 5 — final verification)
-**Date**: 2026-04-02
+**Sprint**: 7
+**Date**: 2026-04-04
 **Quality Target**: 9.5/10
-**Sprint Type**: Testing-only (230 new domain logic tests across 4 iterations, 3 bug fixes)
-**Testing Focus**: Regression testing + bug fix verification — no UI changes in this sprint
-**Testing Method**: API endpoint verification + frontend asset checks + full test suite
+**Dev Server**: http://localhost:3000 (Docusaurus)
 
----
+## What Was Tested
 
-## 1. Screenshot Summary
+Sprint 7 delivered:
+1. "What's Next?" cross-reference sections on all 5 Developer Reference pages
+2. 3 regression fixes from Sprint 6 evaluation (admin guide persona compliance)
 
-13 pages screenshotted via Playwright (1440x900 viewport):
+## Page Load & HTTP Status
 
-| Page | Screenshot | Visual Status |
-|------|-----------|---------------|
-| Home (loading) | `home.png` | Shows branded loading screen with ECL Workspace logo — OK |
-| Home (loaded) | `home-loaded.png` | Full app loads with sidebar, header, workflow, project form | OK |
-| ECL Workflow | `nav-ecl-workflow.png` | Project creation form, workflow steps, audit trail — fully rendered | OK |
-| Data Mapping | `nav-data-mapping.png` | Setup prerequisites page | OK |
-| Attribution | `nav-attribution.png` | Setup prerequisites page | OK |
-| Models | `nav-models.png` | Loading spinner (requires project context) | OK |
-| Backtesting | `nav-backtesting.png` | Loading spinner (requires project context) | OK |
-| Markov Chains | `nav-markov-chains.png` | Loading spinner (requires project context) | OK |
-| Hazard Models | `nav-hazard-models.png` | Loading spinner (requires project context) | OK |
-| Reports | `nav-reports.png` | Loading state | OK |
-| Monte Carlo | `nav-monte-carlo.png` | Setup status check page | OK |
-| Admin | `nav-admin.png` | Full admin panel with DB info, table listing, service health | OK |
-| Dark Mode | `dark-mode.png` | Dark background (rgb 11,15,26), legible text, no white flash | OK |
+All 7 affected pages return HTTP 200:
 
-**No visual regressions detected.** All pages render identically to pre-Sprint 7 state.
+| Page | Status | Built HTML Size |
+|------|:---:|---:|
+| developer/architecture | 200 | 59,260 bytes |
+| developer/api-reference | 200 | 66,205 bytes |
+| developer/data-model | 200 | 67,471 bytes |
+| developer/ecl-engine | 200 | 74,581 bytes |
+| developer/testing | 200 | 91,762 bytes |
+| admin-guide/troubleshooting | 200 | — |
+| admin-guide/jobs-pipelines | 200 | — |
 
----
+## Cross-Reference Verification
 
-## 2. Accessibility Audit (Manual Lighthouse Equivalent)
+### What's Next? Sections
 
-| Metric | Score | Detail |
-|--------|-------|--------|
-| Document language | PASS | `<html lang="en">` |
-| Viewport | PASS | Meta viewport present |
-| Page title | PASS | "IFRS 9 ECL Workspace" |
-| Skip navigation | PASS | Skip link to `#main-content` |
-| Image alt text | PASS | 0 images without alt (0 total images) |
-| Form labels | PASS | 0/5 inputs missing labels |
-| Button names | PASS | 0/27 buttons without accessible name |
-| ARIA usage | PASS | 19 ARIA-attributed elements |
-| Heading hierarchy | PASS | H1 → H2 → H3 (no skipped levels) |
+Every developer page has a "What's Next?" section linking to the other 4 developer pages with **context-specific descriptions** — not generic "see also" links. Each description explains the relationship between the source and target page from the reader's perspective.
 
-**Estimated accessibility score**: ~95/100 (excellent)
+**Results**: 20/20 cross-reference links tested. All resolve. All have meaningful, contextual descriptions.
 
----
+Examples of quality cross-references:
+- From Data Model → ECL Engine: "How the simulation engine consumes `lb_model_ready_loans` and writes to `lb_model_run_results` and `lb_mc_ecl_distribution`"
+- From Testing → API Reference: "Endpoint documentation for writing integration tests with `TestClient`"
+- From ECL Engine → Data Model: "Schema definitions for `lb_model_ready_loans` (input), `lb_model_run_results` and `lb_mc_ecl_distribution` (output)"
 
-## 3. Console Errors
+### Link Integrity
 
-**0 console errors** detected across all 13 page navigations.
+All internal links validated against built HTML files:
+- 20 What's Next links across 5 developer pages: **20/20 resolve**
+- Sidebar navigation links for all 5 pages: **5/5 resolve**
+- Admin guide What's Next links on fixed pages: **8/8 resolve**
+- Docusaurus build with `onBrokenLinks: 'throw'`: **PASS**
 
----
+## Sprint 6 Regression Fixes
 
-## 4. Network Errors
+### BUG-S6-1: RBAC API Endpoints in Troubleshooting — FIXED
+- **Before**: `GET /api/rbac/users/{user_id}` and `GET /api/rbac/check-permission` in code blocks
+- **After**: "Navigate to **Admin > User Management** and look up the user's profile to check their assigned role" + reference to Permission Matrix
+- **Verification**: Zero `rbac` references in troubleshooting source
 
-**0 5xx network errors** during Playwright navigation testing.
+### BUG-S6-2: POST /api/jobs/provision in Jobs & Pipelines — FIXED
+- **Before**: Raw `POST /api/jobs/provision` in Best Practices
+- **After**: Reference to "Provision Jobs button"
+- **Verification**: Zero `POST /api/jobs` references in source
 
-**0 5xx errors** — BUG-VQA-7-002 (backtest detail 500) was fixed in iteration 4. `GET /api/backtest/BT-PD-20260329024822-110972` now returns 200 with full metric detail.
+### BUG-S6-3: Frontend Build Issues Section — FIXED
+- **Before**: Developer-focused section with `npm run dev`, TypeScript errors, `VITE_API_BASE_URL`
+- **After**: Admin-appropriate "Application Not Loading" section with user-facing symptoms and resolutions
+- **Verification**: Zero "Frontend Build" references, "Application Not Loading" confirmed at line 223
 
----
+## Content Quality Audit
 
-## 5. Design Consistency Audit
+### Frontmatter Compliance
+All 5 developer pages have complete frontmatter:
+- `sidebar_position`: Sequential 1-5
+- `title`: Descriptive page titles
+- `description`: One-line summaries for SEO/sidebar
 
-| Aspect | Status |
-|--------|--------|
-| Color palette | Consistent green accent (#10b981) throughout |
-| Typography | Inter font family, consistent weight/size usage |
-| Sidebar | Consistent nav structure, active state highlighting |
-| Spacing | Consistent padding/margins across pages |
-| Dark mode | Full dark theme support, proper contrast ratios |
-| Loading states | Consistent spinner/loading indicators |
-| Layout | Sidebar + main content layout stable across all pages |
+### Content Depth
+| Page | Lines | Headings | Assessment |
+|------|-------|----------|------------|
+| architecture.md | 279 | 12 | Comprehensive: tech stack, module structure, URL routing, connection pooling, request lifecycle, middleware, auth, deployment, JSON serialization |
+| api-reference.md | 375 | 22 | Exhaustive: 162+ endpoints across 16 domain groups, request/response examples, error codes |
+| data-model.md | 494 | 37 | Detailed: All tables with column specs, ER diagram, schema conventions |
+| ecl-engine.md | 353 | 30 | Technical depth: ECL formula, Monte Carlo 4-step, Cholesky, quarterly recursion, Markov chains, hazard models, validation rules |
+| testing.md | 390 | 35 | Practical: Framework, fixtures, running tests, writing tests, mocking patterns, common pitfalls |
 
-**No design regressions.** Sprint 7 made no UI changes, and the visual appearance is consistent with prior sprints.
+### Sidebar Navigation
+Developer Reference section shows all 5 pages in correct order with working navigation links. Next/Previous pagination present.
 
----
+## Observations (Non-Blocking)
 
-## 6. Interaction Manifest Summary
+**OBS-1**: The admin-guide/troubleshooting page retains 5 `GET /api/` references in diagnostic sections (health checks, schema validation, model review). These are contextually appropriate for admin troubleshooting — an admin diagnosing "missing tables" needs to know to check `GET /api/health/detailed`. These were not flagged in Sprint 6 evaluation and serve a different purpose than the persona-violating RBAC endpoints that were removed.
 
-See `sprint-7-manifest.md` for the full manifest.
+## Build Verification
 
-| Category | Tested | Passed | Bugs | Skipped |
-|----------|--------|--------|------|---------|
-| Sidebar Navigation | 15 | 13 | 0 | 2 (pre-existing) |
-| API Endpoints (Sprint 7 domain) | 8 | 8 | 0 | 0 |
-| API Endpoints (regression) | 11 | 11 | 0 | 0 |
-| Frontend Assets | 7 | 7 | 0 | 0 |
-| Form Elements | 6 | 6 | 0 | 0 |
-| Dark Mode | 5 | 5 | 0 | 0 |
-| Accessibility | 9 | 9 | 0 | 0 |
-| Console/Network | 2 | 2 | 0 | 0 |
-| Test Suite | 6 | 6 | 0 | 0 |
-| Data Integrity | 10 | 10 | 0 | 0 |
-| Bug Fix Verification | 3 | 3 | 0 | 0 |
-| **Total** | **82** | **80** | **0** | **2** |
+- `npm run build`: SUCCESS (0 errors, 0 warnings)
+- `onBrokenLinks: 'throw'`: All links resolve
+- Deployed to `docs_site/`: All 5 developer pages present with full content
+- `pytest`: 3957 passed, 61 skipped (per handoff)
 
-**Zero PENDING elements. Zero active bugs.**
+## Interaction Manifest Summary
 
----
+- **Total elements tested**: 64
+- **TESTED**: 64
+- **BUG**: 0
+- **SKIPPED**: 0
+- **PENDING**: 0
 
-## 7. Bug Report
+See `sprint-7-manifest.md` for full element-by-element breakdown.
 
-### All 3 Sprint 7 Bugs: RESOLVED
+## Recommendation: **PROCEED**
 
-| Bug ID | Description | Fixed In | Verified | Regression Tests |
-|--------|-------------|----------|----------|-----------------|
-| BUG-7-001 | Numpy types not JSON serializable in backtesting | Iter 1 | YES | 5 tests |
-| BUG-VQA-7-001 | Missing `detail` column in backtest_metrics table | Iter 3 | YES | 16 tests |
-| BUG-S7-1/BUG-S7-2 (= BUG-VQA-7-002) | `globals().get()` silently skipped ensure_backtesting_table | Iter 4 | YES | 10 tests |
+All Sprint 7 deliverables verified:
+- 5 Developer Reference pages have complete, context-specific "What's Next?" cross-references (20/20 links working)
+- All 3 Sprint 6 regression bugs confirmed fixed
+- All pages load correctly, sidebar navigation intact
+- Build clean, all links resolve
+- No critical or blocking issues found
 
-**BUG-VQA-7-002 verification**: `GET /api/backtest/BT-PD-20260329024822-110972` now returns **HTTP 200** with:
-- 5 metrics (AUC=0.9152, Brier=0.0109, Gini, KS, PSI) — all with `detail` field present
-- Full backtest metadata (model_type, traffic_light, observation_window, etc.)
-- The fix replaced `globals().get()` in `domain/workflow.py:58-67` with explicit lazy imports for all 7 ensure functions
-
----
-
-## 8. Test Suite Status
-
-| Metric | Value |
-|--------|-------|
-| Full pytest suite | **3,838 passed**, 61 skipped, 0 failed |
-| Sprint 7 tests (iter 1) | 120/120 passed |
-| Sprint 7 tests (iter 2) | 84/84 passed |
-| Sprint 7 tests (iter 3) | 16/16 passed |
-| Sprint 7 tests (iter 4) | 10/10 passed |
-| Sprint 7 total | **230/230 passed** |
-| Regressions | **0** |
-| Run time (iter 5 verification) | 270.31s |
-
----
-
-## 9. Recommendation
-
-### **PROCEED** — All clear
-
-Sprint 7 is a testing-only sprint with 230 new domain logic tests across 4 iterations and 3 bug fixes. All bugs have been resolved and regression-tested:
-
-1. **230/230 Sprint 7 tests pass** — covers model registry, backtesting, markov, hazard, advanced, period close, health, and workflow modules
-2. **3,838/3,838 full suite tests pass** — zero regressions, 61 expected skips
-3. **All 3 bugs fixed and verified**:
-   - BUG-7-001: Numpy JSON serialization (5 regression tests)
-   - BUG-VQA-7-001: Missing detail column (16 regression tests)
-   - BUG-S7-1/S7-2: ensure_workflow_table invocation (10 regression tests)
-4. **Zero console errors**, zero 5xx responses, zero visual regressions
-5. **All 21 API endpoints tested** respond correctly
-6. **Data integrity verified** — stage distribution, ECL summaries, model registry, backtest metrics all consistent
-7. **Frontend assets unchanged** — same compiled bundles, no visual changes expected or observed
-
-No blocking issues remain. Ready for evaluator.
+No visual regressions detected. Ready for Evaluator review.

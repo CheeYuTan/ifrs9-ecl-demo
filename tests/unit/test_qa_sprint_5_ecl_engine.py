@@ -528,11 +528,11 @@ class TestPrepareLoanColumns:
         result = prepare_loan_columns(df, {"credit_card": 0.60})
         assert len(result) == 2
 
-    def test_fills_null_eir_with_zero(self):
+    def test_fills_null_eir_with_floor(self):
         from ecl.monte_carlo import prepare_loan_columns
         df = self._make_loans_df(n=2, effective_interest_rate=[None, 0.10])
         result = prepare_loan_columns(df, {"credit_card": 0.60})
-        assert result["eir"].iloc[0] == 0.0
+        assert result["eir"].iloc[0] == pytest.approx(0.001)
         assert result["eir"].iloc[1] == pytest.approx(0.10)
 
     def test_fills_null_pd_with_zero(self):

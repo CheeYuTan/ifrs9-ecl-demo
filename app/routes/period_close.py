@@ -1,11 +1,17 @@
 """Period-End Close pipeline routes — /api/pipeline/*"""
+
 import logging
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+
 from domain.period_close import (
-    start_pipeline, execute_step, complete_pipeline,
-    get_pipeline_run, get_pipeline_health, PIPELINE_STEPS,
+    PIPELINE_STEPS,
+    complete_pipeline,
+    execute_step,
+    get_pipeline_health,
+    get_pipeline_run,
+    start_pipeline,
 )
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
 
@@ -13,11 +19,11 @@ router = APIRouter(prefix="/api/pipeline", tags=["pipeline"])
 
 
 class StartPipelineRequest(BaseModel):
-    triggered_by: str = "system"
+    triggered_by: str = Field(default="system", max_length=256)
 
 
 class ExecuteStepRequest(BaseModel):
-    step_key: str
+    step_key: str = Field(min_length=1, max_length=128)
 
 
 @router.post("/start/{project_id}")
@@ -100,7 +106,8 @@ def run_full_pipeline(project_id: str, body: StartPipelineRequest):
             results.append(result)
             if result.get("status") == "failed":
                 complete_pipeline(
-                    run_id, status="failed",
+                    run_id,
+                    status="failed",
                     error_message=f"Failed at step: {step['key']}",
                 )
                 final = get_pipeline_run(run_id)

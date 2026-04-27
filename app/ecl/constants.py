@@ -24,7 +24,12 @@ DEFAULT_LGD = 0.45
 BASE_LGD, SATELLITE_COEFFICIENTS = _FALLBACK_BASE_LGD, _FALLBACK_SATELLITE
 
 DEFAULT_SCENARIO_WEIGHTS = {
-    "baseline": 0.30, "mild_recovery": 0.15, "strong_growth": 0.05,
-    "mild_downturn": 0.15, "adverse": 0.15, "stagflation": 0.08,
-    "severely_adverse": 0.07, "tail_risk": 0.05,
+    "baseline": 0.30,
+    "mild_recovery": 0.15,
+    "strong_growth": 0.05,
+    "mild_downturn": 0.15,
+    "adverse": 0.15,
+    "stagflation": 0.08,
+    "severely_adverse": 0.07,
+    "tail_risk": 0.05,
 }

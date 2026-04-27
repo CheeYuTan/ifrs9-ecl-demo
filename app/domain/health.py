@@ -2,8 +2,10 @@
 
 Returns structured JSON with per-service status for IT admin monitoring.
 """
+
 import logging
-from db.pool import query_df, SCHEMA, _t
+
+from db.pool import _t, query_df
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ REQUIRED_TABLES = [
 def check_lakebase_connection() -> dict:
     """Verify Lakebase connectivity."""
     try:
-        df = query_df("SELECT 1 as ok")
+        query_df("SELECT 1 as ok")
         return {"status": "connected", "healthy": True}
     except Exception as e:
         return {"status": "error", "healthy": False, "error": str(e)}
@@ -49,6 +51,7 @@ def check_config_loaded() -> dict:
     """Verify admin config is loaded."""
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         sections = list(cfg.keys())
         return {
@@ -64,6 +67,7 @@ def check_scipy_available() -> dict:
     """Verify scipy is importable (required for backtesting)."""
     try:
         import scipy
+
         return {"available": True, "version": scipy.__version__}
     except ImportError as e:
         return {"available": False, "error": str(e)}
@@ -76,12 +80,7 @@ def run_health_check() -> dict:
     config = check_config_loaded()
     scipy_status = check_scipy_available()
 
-    all_healthy = (
-        lakebase["healthy"]
-        and tables["all_present"]
-        and config["loaded"]
-        and scipy_status["available"]
-    )
+    all_healthy = lakebase["healthy"] and tables["all_present"] and config["loaded"] and scipy_status["available"]
 
     return {
         "status": "healthy" if all_healthy else "degraded",

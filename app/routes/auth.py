@@ -3,8 +3,9 @@
 Provides endpoints for the frontend to discover the current user's identity
 and their effective role within a specific project.
 """
-from fastapi import APIRouter, HTTPException, Request, Depends
-from middleware.auth import get_current_user, ANONYMOUS_USER
+
+from fastapi import APIRouter, HTTPException, Request
+from middleware.auth import get_current_user
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -17,6 +18,7 @@ def auth_me(request: Request):
     """
     user = get_current_user(request)
     from governance.rbac import ROLE_PERMISSIONS
+
     role = user.get("role", "analyst")
     permissions = list(ROLE_PERMISSIONS.get(role, set()))
     return {
@@ -35,9 +37,7 @@ def my_project_role(project_id: str, request: Request):
     Anonymous (no auth header) returns owner (dev mode bypass).
     """
     has_auth = bool(
-        request.headers.get("X-Forwarded-User")
-        or request.headers.get("X-User-Id")
-        or request.headers.get("x-user-id")
+        request.headers.get("X-Forwarded-User") or request.headers.get("X-User-Id") or request.headers.get("x-user-id")
     )
     if not has_auth:
         return {
@@ -48,6 +48,7 @@ def my_project_role(project_id: str, request: Request):
 
     user = get_current_user(request)
     from governance.project_permissions import get_effective_role
+
     effective = get_effective_role(user["user_id"], project_id)
     if effective is None:
         raise HTTPException(

@@ -1,7 +1,9 @@
 """Request ID middleware — adds a unique request ID to every request for traceability."""
-import uuid
+
 import logging
 import time
+import uuid
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -25,7 +27,10 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
             duration_ms = round((time.monotonic() - start_time) * 1000, 1)
             log.error(
                 "request_id=%s method=%s path=%s status=500 duration_ms=%s",
-                request_id, request.method, request.url.path, duration_ms,
+                request_id,
+                request.method,
+                request.url.path,
+                duration_ms,
             )
             raise
 
@@ -37,7 +42,11 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
         if not path.startswith("/assets/") and not path.startswith("/docs/"):
             log.info(
                 "request_id=%s method=%s path=%s status=%s duration_ms=%s",
-                request_id, request.method, path, response.status_code, duration_ms,
+                request_id,
+                request.method,
+                path,
+                response.status_code,
+                duration_ms,
             )
 
         return response

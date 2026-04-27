@@ -58,7 +58,7 @@ interface RegisterFormProps {
 function RegisterForm({ onSubmit, onCancel }: RegisterFormProps) {
   const [form, setForm] = useState({
     model_name: '', model_type: 'PD', algorithm: '', version: 1,
-    description: '', product_type: '', created_by: 'Model Developer',
+    description: '', product_type: '', created_by: getCurrentUser(),
     auc: '', gini: '', ks: '', accuracy: '', rmse: '', r_squared: '',
     notes: '',
   });

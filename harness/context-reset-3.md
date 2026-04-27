@@ -1,53 +1,38 @@
-# Context Reset 3 — User Feedback: Deep Quality Push
+# Context Reset 3 — After Sprint 4 (Current Run)
 
-## User's Specific Feedback (MUST FIX ALL)
+## Current State
+- Sprints completed: Sprint 1 (9.8), Sprint 2 (9.8), Sprint 3 (9.8)
+- Current sprint: 4 — Security Hardening + Input Validation
+- Remaining spec items: Sprint 4, Sprint 5 (Performance), Sprint 6 (CI/CD + Polish)
+- Background agents pending: Install (Sprint 3), Integration (Sprint 3)
+- Active debt: None
 
-### i. Drill-down chart ordering is wrong
-Credit grade bars (BBB, A, BB, B, AA, CCC, AAA) are in random order. They MUST be in logical order:
-- Credit grades: AAA → AA → A → BBB → BB → B → CCC (best to worst)
-- Age groups: ascending order
-- DPD buckets: ascending order
-- Any categorical axis must have a logical sort order
+## Key Decisions Made
+- Tests at `/Users/steven.tan/Expected Credit Losses/tests/` via `app/pytest.ini` with `testpaths = ../tests`
+- Frontend tests at `app/frontend/src/components/*.test.tsx`, run via vitest
+- Backend reporting tests mock `reporting.report_helpers as _h` for DB access
+- ECL tests mock `backend` module for DB access
+- `_safe_identifier()` in data_mapper handles SQL injection prevention
+- Total test count: 5601 (4995 backend + 606 frontend)
 
-### ii. Portfolio by product missing drill-down
-The user expected ALL charts to have drill-down capability, but portfolio-by-product does not. Every chart that shows aggregated data should support clicking to drill into the next dimension.
+## Sprint 4 Acceptance Criteria
+1. Rate limiting middleware (100 req/min global, 5/min simulation, 10/min reports)
+2. Pydantic input validation on all request bodies with max-length constraints
+3. CORS configuration review
+4. Security test suite: SQL injection, XSS, RBAC bypass tests
+5. All tests pass
 
-### iii. Data generation vs data mapping
-The "Full Pipeline" job generates synthetic data. In reality, customers bring their OWN data. The app should use data mapping (Admin → Data Sources) to map customer tables/columns to the expected schema, NOT generate data. The data generation scripts are for DEMO purposes only — the app itself should work with any customer's loan tape via configurable column mapping.
-
-### iv. Model pipeline failed
-The satellite model + ECL pipeline failed (aggregate_models task failed). This was NOT caught because no proper evaluator testing was done. The harness REQUIRES exhaustive end-to-end testing — every button clicked, every workflow completed, every pipeline run verified.
-
-## What's Been Built (10 sprints so far)
-1. Modularize Backend (13 domain + 16 route modules)
-2. Real Backtesting Engine (calibration tests, LGD from data)
-3. RBAC Enforcement (auth middleware, permission deps)
-4. Attribution Waterfall (no hardcoded fallbacks)
-5. Model Registry (model cards, sensitivity, recalibration)
-6. Validation Rules (23-rule engine)
-7. Testing & Polish (233 tests)
-8. Installer (install.sh, deploy.sh, .env.example)
-9. Documentation (16 HTML pages, screenshots)
-10. Demo Slides (Google Slides deck)
-
-## Remaining Work (from user feedback)
-- [ ] Fix drill-down chart ordering (credit grade, age, DPD — all categorical axes)
-- [ ] Add drill-down to portfolio-by-product chart
-- [ ] Fix model pipeline failure (aggregate_models task)
-- [ ] Run FULL end-to-end evaluator testing with live app
-- [ ] Verify every single workflow step completes successfully
-- [ ] Ensure data mapping (not data generation) is the primary flow
+## Open Evaluator Feedback
+- None — all sprints passed at 9.8 on first iteration
 
 ## Architecture
-- backend.py is a re-export shim from 13 domain modules
+- backend.py is main FastAPI app with routes across domain modules
 - React frontend at app/frontend/, built to app/static/
-- FastAPI serves SPA + docs + API
-- Docs embedded at /docs route, Swagger at /api/swagger
+- FastAPI serves SPA + docs + API at port 8001
+- 21 feature modules, 140+ endpoints
 
-## Files to Read
-1. harness/state.json
-2. harness/progress.md  
-3. app/frontend/src/pages/ — chart components with drill-down
-4. app/frontend/src/components/ — reusable chart components
-5. scripts/03a_aggregate_models.py — the failing pipeline task
-6. app/admin_config.py — data mapping configuration
+## Files to Read on Resume
+- harness/spec.md (Sprint 4 section)
+- harness/state.json
+- app/backend.py (main FastAPI app with routes)
+- app/app.py (app entry point)

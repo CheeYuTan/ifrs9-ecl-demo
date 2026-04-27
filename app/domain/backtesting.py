@@ -12,29 +12,32 @@ Sub-modules:
   backtesting_traffic  — traffic light / zone classification
   backtesting_stats    — statistical tests and discrimination metrics
 """
-import json as _json
-import uuid
-import logging
-import pandas as pd
-import numpy as _np
-from datetime import datetime as _dt, timezone as _tz
 
-from db.pool import query_df, execute, _t, SCHEMA
+import json as _json
+import logging
+import uuid
+from datetime import UTC
+from datetime import datetime as _dt
+
+import numpy as _np
+import pandas as pd
+from db.pool import SCHEMA, _t, execute, query_df
+
+from domain.backtesting_stats import (  # noqa: F401
+    _binomial_test,
+    _compute_auc_gini_ks,
+    _compute_brier,
+    _compute_psi,
+    _hosmer_lemeshow_test,
+    _jeffreys_test,
+    _spiegelhalter_test,
+)
 
 # ── Sub-module imports (re-exported for backward compatibility) ───────────────
 from domain.backtesting_traffic import (  # noqa: F401
     METRIC_THRESHOLDS,
-    _traffic_light,
     _overall_traffic_light,
-)
-from domain.backtesting_stats import (  # noqa: F401
-    _compute_auc_gini_ks,
-    _compute_psi,
-    _compute_brier,
-    _binomial_test,
-    _jeffreys_test,
-    _hosmer_lemeshow_test,
-    _spiegelhalter_test,
+    _traffic_light,
 )
 
 log = logging.getLogger(__name__)
@@ -60,7 +63,7 @@ MIN_DEFAULTS_PER_GRADE = 5
 
 def ensure_backtesting_table():
     try:
-        test_df = query_df(f"SELECT model_type FROM {SCHEMA}.backtest_results LIMIT 1")
+        query_df(f"SELECT model_type FROM {SCHEMA}.backtest_results LIMIT 1")
     except Exception:
         try:
             execute(f"DROP TABLE IF EXISTS {SCHEMA}.backtest_cohort_results CASCADE")
@@ -109,9 +112,11 @@ def ensure_backtesting_table():
             abs_diff FLOAT
         )
     """)
-    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_results IS 'ifrs9ecl: Model backtesting results and metrics'")
-    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_metrics IS 'ifrs9ecl: Model backtesting results and metrics'")
-    execute(f"COMMENT ON TABLE {SCHEMA}.backtest_cohort_results IS 'ifrs9ecl: Model backtesting results and metrics'")
+    for _tbl in (f"{SCHEMA}.backtest_results", f"{SCHEMA}.backtest_metrics", f"{SCHEMA}.backtest_cohort_results"):
+        try:
+            execute(f"COMMENT ON TABLE {_tbl} IS 'ifrs9ecl: Model backtesting results and metrics'")
+        except Exception:
+            pass
     # Migrate existing tables: add columns that CREATE TABLE IF NOT EXISTS won't add
     try:
         execute(f"ALTER TABLE {SCHEMA}.backtest_metrics ADD COLUMN IF NOT EXISTS detail JSONB")
@@ -127,13 +132,14 @@ BACKTEST_COHORT_TABLE = f"{SCHEMA}.backtest_cohort_results"
 
 # ── LGD Backtesting (EBA/GL/2017/16 §150-160) ──────────────────────────────
 
+
 def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
     """
     Compute real LGD backtesting metrics from historical defaults.
     Compares predicted LGD assumptions against realised recovery outcomes.
     Returns 'insufficient_data' status if not enough defaults available.
     """
-    defaults_tbl = _t('historical_defaults')
+    defaults_tbl = _t("historical_defaults")
     try:
         defaults_df = query_df(f"""
             SELECT loan_id, product_type,
@@ -153,7 +159,7 @@ def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
         return {
             "status": "insufficient_data",
             "message": f"LGD backtesting requires at least {MIN_DEFAULTS_FOR_LGD} resolved defaults with recovery data. "
-                       f"Found: {len(defaults_df) if not defaults_df.empty else 0}.",
+            f"Found: {len(defaults_df) if not defaults_df.empty else 0}.",
             "minimum_required": MIN_DEFAULTS_FOR_LGD,
             "available": len(defaults_df) if not defaults_df.empty else 0,
             "metrics": {},
@@ -162,8 +168,9 @@ def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
     defaults_df["realised_lgd"] = defaults_df["realised_lgd"].astype(float).clip(0, 1)
 
     from db.pool import SCHEMA as _schema
+
     try:
-        product_lgd_df = query_df(f"""
+        query_df(f"""
             SELECT DISTINCT product_type,
                    COALESCE(
                        (SELECT value::float FROM {_schema}.app_config
@@ -173,18 +180,22 @@ def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
             FROM {defaults_tbl}
         """)
     except Exception:
-        product_lgd_df = pd.DataFrame()
+        pass
 
     predicted_lgd_map = {}
     _FALLBACK_LGD = {
-        "credit_card": 0.60, "residential_mortgage": 0.15,
-        "commercial_loan": 0.25, "personal_loan": 0.50, "auto_loan": 0.35,
+        "credit_card": 0.60,
+        "residential_mortgage": 0.15,
+        "commercial_loan": 0.25,
+        "personal_loan": 0.50,
+        "auto_loan": 0.35,
     }
     for product in defaults_df["product_type"].unique():
         predicted_lgd_map[product] = _FALLBACK_LGD.get(product, 0.45)
 
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         lgd_cfg = cfg.get("model", {}).get("lgd_assumptions", {})
         for product, vals in lgd_cfg.items():
@@ -205,18 +216,20 @@ def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
         overall_predicted.extend([pred_lgd] * len(group))
         overall_realised.extend(realised.tolist())
 
-        product_results.append({
-            "product_type": product,
-            "n_defaults": len(group),
-            "predicted_lgd": round(pred_lgd, 4),
-            "mean_realised_lgd": round(mean_realised, 4),
-            "std_realised_lgd": round(std_realised, 4),
-            "median_realised_lgd": round(float(_np.median(realised)), 4),
-            "p25_realised_lgd": round(float(_np.percentile(realised, 25)), 4),
-            "p75_realised_lgd": round(float(_np.percentile(realised, 75)), 4),
-            "bias": round(pred_lgd - mean_realised, 4),
-            "abs_bias": round(abs(pred_lgd - mean_realised), 4),
-        })
+        product_results.append(
+            {
+                "product_type": product,
+                "n_defaults": len(group),
+                "predicted_lgd": round(pred_lgd, 4),
+                "mean_realised_lgd": round(mean_realised, 4),
+                "std_realised_lgd": round(std_realised, 4),
+                "median_realised_lgd": round(float(_np.median(realised)), 4),
+                "p25_realised_lgd": round(float(_np.percentile(realised, 25)), 4),
+                "p75_realised_lgd": round(float(_np.percentile(realised, 75)), 4),
+                "bias": round(pred_lgd - mean_realised, 4),
+                "abs_bias": round(abs(pred_lgd - mean_realised), 4),
+            }
+        )
 
     pred_arr = _np.array(overall_predicted)
     real_arr = _np.array(overall_realised)
@@ -241,14 +254,15 @@ def _compute_lgd_backtest(loans_df: pd.DataFrame) -> dict:
 
 # ── Main Backtest Runner ─────────────────────────────────────────────────────
 
+
 def run_backtest(model_type: str, config: dict | None = None) -> dict:
     """Execute backtesting: compare predicted PD/LGD vs actual outcomes using portfolio data."""
     config = config or {}
-    backtest_id = f"BT-{model_type}-{_dt.now(_tz.utc).strftime('%Y%m%d%H%M%S')}-{str(uuid.uuid4())[:6]}"
+    backtest_id = f"BT-{model_type}-{_dt.now(UTC).strftime('%Y%m%d%H%M%S')}-{str(uuid.uuid4())[:6]}"
     observation_window = config.get("observation_window", "12M")
     outcome_window = config.get("outcome_window", "12M")
 
-    loans_tbl = _t('model_ready_loans')
+    loans_tbl = _t("model_ready_loans")
 
     loan_df = query_df(f"""
         SELECT loan_id, product_type, assessed_stage, current_lifetime_pd,
@@ -325,13 +339,15 @@ def run_backtest(model_type: str, config: dict | None = None) -> dict:
         metric_lights.append(light)
         t = METRIC_THRESHOLDS.get(name, {})
         detail_json = _json.dumps(metrics_detail.get(name), default=_json_default) if name in metrics_detail else None
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {BACKTEST_METRICS_TABLE}
                 (metric_id, backtest_id, metric_name, metric_value,
                  threshold_green, threshold_amber, pass_fail, detail)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (str(uuid.uuid4()), backtest_id, name, value,
-              t.get("green", 0), t.get("amber", 0), light, detail_json))
+        """,
+            (str(uuid.uuid4()), backtest_id, name, value, t.get("green", 0), t.get("amber", 0), light, detail_json),
+        )
 
     overall = _overall_traffic_light(metric_lights)
     pass_count = metric_lights.count("Green")
@@ -351,35 +367,61 @@ def run_backtest(model_type: str, config: dict | None = None) -> dict:
         act_rate = float(group["defaulted"].astype(int).mean())
         count = len(group)
         abs_diff = round(abs(pred_rate - act_rate), 6)
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {BACKTEST_COHORT_TABLE}
                 (cohort_id, backtest_id, cohort_name, predicted_rate, actual_rate, count, abs_diff)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (str(uuid.uuid4()), backtest_id, str(cohort_name),
-              round(pred_rate, 6), round(act_rate, 6), count, abs_diff))
+        """,
+            (
+                str(uuid.uuid4()),
+                backtest_id,
+                str(cohort_name),
+                round(pred_rate, 6),
+                round(act_rate, 6),
+                count,
+                abs_diff,
+            ),
+        )
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {BACKTEST_TABLE}
             (backtest_id, model_type, backtest_date, observation_window, outcome_window,
              overall_traffic_light, pass_count, amber_count, fail_count, total_loans, config, created_by)
         VALUES (%s, %s, NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (backtest_id, model_type.upper(), observation_window, outcome_window,
-          overall, pass_count, amber_count, fail_count, total_loans,
-          _json.dumps(config), config.get("created_by", "system")))
+    """,
+        (
+            backtest_id,
+            model_type.upper(),
+            observation_window,
+            outcome_window,
+            overall,
+            pass_count,
+            amber_count,
+            fail_count,
+            total_loans,
+            _json.dumps(config),
+            config.get("created_by", "system"),
+        ),
+    )
 
     return get_backtest(backtest_id)
 
 
 def list_backtests(model_type: str | None = None) -> list[dict]:
     if model_type:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT backtest_id, model_type, backtest_date, observation_window, outcome_window,
                    overall_traffic_light, pass_count, amber_count, fail_count, total_loans, created_by
             FROM {BACKTEST_TABLE}
             WHERE model_type = %s
             ORDER BY backtest_date DESC
             LIMIT 50
-        """, (model_type.upper(),))
+        """,
+            (model_type.upper(),),
+        )
     else:
         df = query_df(f"""
             SELECT backtest_id, model_type, backtest_date, observation_window, outcome_window,
@@ -406,12 +448,15 @@ def get_backtest(backtest_id: str) -> dict | None:
             except Exception:
                 pass
 
-    metrics_df = query_df(f"""
+    metrics_df = query_df(
+        f"""
         SELECT metric_id, metric_name, metric_value, threshold_green, threshold_amber, pass_fail, detail
         FROM {BACKTEST_METRICS_TABLE}
         WHERE backtest_id = %s
         ORDER BY metric_name
-    """, (backtest_id,))
+    """,
+        (backtest_id,),
+    )
     metrics_list = []
     if not metrics_df.empty:
         for _, row in metrics_df.iterrows():
@@ -424,12 +469,15 @@ def get_backtest(backtest_id: str) -> dict | None:
             metrics_list.append(m)
     result["metrics"] = metrics_list
 
-    cohort_df = query_df(f"""
+    cohort_df = query_df(
+        f"""
         SELECT cohort_id, cohort_name, predicted_rate, actual_rate, count, abs_diff
         FROM {BACKTEST_COHORT_TABLE}
         WHERE backtest_id = %s
         ORDER BY count DESC
-    """, (backtest_id,))
+    """,
+        (backtest_id,),
+    )
     result["cohort_results"] = cohort_df.to_dict("records") if not cohort_df.empty else []
 
     return result
@@ -437,14 +485,17 @@ def get_backtest(backtest_id: str) -> dict | None:
 
 def get_backtest_trend(model_type: str) -> list[dict]:
     """Historical trend of key metrics over time for a model type."""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT r.backtest_id, r.backtest_date, r.overall_traffic_light,
                m.metric_name, m.metric_value, m.pass_fail
         FROM {BACKTEST_TABLE} r
         JOIN {BACKTEST_METRICS_TABLE} m ON r.backtest_id = m.backtest_id
         WHERE r.model_type = %s
         ORDER BY r.backtest_date ASC, m.metric_name
-    """, (model_type.upper(),))
+    """,
+        (model_type.upper(),),
+    )
 
     if df.empty:
         return []

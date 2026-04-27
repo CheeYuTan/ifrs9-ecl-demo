@@ -1,50 +1,141 @@
-# Sprint 6 Interaction Manifest — Domain Logic Testing Sprint (Iteration 2)
+# Sprint 6 Interaction Manifest — Admin Guide Persona Compliance Rewrite
 
-## Sprint Type: Backend Test-Only (No UI Changes)
+## Sprint Type: Documentation (9 Admin Guide Pages)
 
-Sprint 6 adds 196 unit tests covering 8 domain modules (189 original + 7 new in iteration 2). No frontend or API changes were made. Visual QA focuses on regression verification — ensuring the app still functions correctly after domain logic test additions.
+Sprint 6 rewrites all 9 Admin Guide pages for strict persona compliance — removing all developer-facing code (Python, TypeScript, CSS, SQL, JSON) and rewriting in admin-oriented plain language. Every page now has "Who Should Read This" admonitions, cross-references, and "What's Next?" sections.
 
-## API Endpoint Verification
+## Testing Method
 
-| Endpoint | Method | Action | Result | Status |
-|----------|--------|--------|--------|--------|
-| `/` | GET | Load SPA | HTML returned, 200 OK | TESTED |
-| `/api/projects` | GET | List projects | 4 projects returned, valid JSON | TESTED |
-| `/api/projects/PROJ001` | GET | Project detail | Full project with step_status, audit_log | TESTED |
-| `/api/setup/status` | GET | Setup status | Config status with table validation | TESTED |
-| `/api/data/portfolio-summary?project_id=PROJ001` | GET | Portfolio data | 5 product types with loan counts, GCA, PD | TESTED |
-| `/api/data/stage-distribution?project_id=PROJ001` | GET | Stage distribution | 3 stages, loan counts sum correctly | TESTED |
-| `/api/data/ecl-summary?project_id=PROJ001` | GET | ECL summary | ECL by product with coverage ratios | TESTED |
-| `/api/data/ecl-by-product?project_id=PROJ001` | GET | ECL by product | Product-level ECL aggregation | TESTED |
-| `/api/data/scenario-summary?project_id=PROJ001` | GET | Scenario summary | 7 scenarios with weights, ECL values | TESTED |
-| `/api/admin/config` | GET | Admin config | Full data source configuration | TESTED |
-| `/api/audit/config-changes?project_id=PROJ001` | GET | Config audit | Valid response, empty entries (expected) | TESTED |
-| `/api/audit/trail?project_id=PROJ001` | GET | Audit trail | Valid response, chain_verification.valid=true | TESTED |
+Testing performed via HTTP status verification (curl) on live dev server (port 3000), static HTML analysis of built output (docs_site/), source markdown analysis for persona compliance, and build verification (`npm run build` — 0 errors, 0 warnings).
 
-## Test Suite Verification
+Note: Chrome DevTools MCP was not available in this session. Screenshot capture, interactive element clicking, dark mode testing, Lighthouse audits, and console error monitoring could not be performed.
 
-| Test File | Tests | Result | Status |
-|-----------|-------|--------|--------|
-| `test_qa_sprint_6_domain_logic.py` | 196 | 196 passed in 10.02s | TESTED |
-| Full pytest suite | 3,608 | 3,608 passed, 61 skipped, 0 failures in 113.25s | TESTED |
+## Page-by-Page Manifest
 
-## Module Coverage (Sprint 6 Tests)
+### 1. Setup & Installation (sidebar_position: 1)
 
-| Module | Tests | Coverage Focus | Status |
-|--------|-------|---------------|--------|
-| `domain/workflow.py` | 27 | State machine, step validation, audit events | TESTED |
-| `domain/queries.py` | 30 | All 27 query functions with SQL assertions | TESTED |
-| `domain/attribution.py` | 20 | Waterfall sum-to-total, materiality, overlays | TESTED |
-| `domain/validation_rules.py` | 39 | D7-D10, DA-1 to DA-6, M-R3, M-R7, G-R4 | TESTED |
-| `domain/data_mapper.py` | 22 | Safe identifier, type mapping, suggest/validate | TESTED |
-| `domain/model_runs.py` | 10 | Cohort queries, ECL drill-down, upsert/insert | TESTED |
-| `domain/audit_trail.py` | 7 | Hash computation, chain verification, tampering | TESTED |
-| `domain/config_audit.py` | 10 | Config diff, JSON parsing, timestamp conversion | TESTED |
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 231) | Content | Presence | 4 cross-references | TESTED |
+| YAML code blocks (app.yaml) | Content | Persona check | Admin deployment config — appropriate | TESTED |
+| Bash code blocks | Content | Persona check | Admin CLI commands only | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+| Cross-refs to 4 admin pages | Link | Build resolves | All resolve (0 build errors) | TESTED |
+
+### 2. Data Mapping (sidebar_position: 2)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 195) | Content | Presence | 3 cross-references | TESTED |
+| `Catalog > Schema > Table` text diagram | Content | Persona check | Plain text hierarchy — appropriate | TESTED |
+| No API endpoints / JSON sections | Content | Persona check | Replaced with admin walkthrough | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 3. Model Configuration (sidebar_position: 3)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 154) | Content | Presence | 3 cross-references | TESTED |
+| No JSON config PUT examples | Content | Persona check | Replaced with UI instructions | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 4. App Settings (sidebar_position: 4)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 162) | Content | Presence | 4 cross-references | TESTED |
+| Cross-ref to user-guide/approval-workflow | Link | Build resolves | Resolves correctly | TESTED |
+| No SQL DDL / JSON / API reference | Content | Persona check | Major rewrite — all removed | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 5. Jobs & Pipelines (sidebar_position: 5)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 214) | Content | Presence | 4 cross-references | TESTED |
+| Task graph text diagrams (4 pipelines) | Content | Persona check | Plain text flow art — admin-appropriate | TESTED |
+| No JSON request/response bodies | Content | Persona check | Replaced with parameter tables | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 6. Theme Customization (sidebar_position: 6)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 110) | Content | Presence | 3 cross-references | TESTED |
+| No TypeScript/CSS/JavaScript/HTML code | Content | Persona check | Major rewrite — all removed | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 7. System Administration (sidebar_position: 7)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 246) | Content | Presence | 4 cross-references | TESTED |
+| Log message examples (plain text) | Content | Persona check | INFO/ERROR log lines — admin-appropriate | TESTED |
+| No JSON response bodies | Content | Persona check | Replaced with descriptions | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 8. User Management (sidebar_position: 8)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 188) | Content | Presence | 3 cross-references | TESTED |
+| Cross-ref to user-guide/approval-workflow | Link | Build resolves | Resolves correctly | TESTED |
+| No Python / SQL DDL / JSON payloads | Content | Persona check | Major rewrite — all removed | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+### 9. Troubleshooting (sidebar_position: 9)
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load (HTTP 200) | Navigation | curl GET | 200 OK | TESTED |
+| "Who Should Read This" (line 11) | Content | Presence | :::info admonition present | TESTED |
+| "What's Next?" (line 302) | Content | Presence | 4 cross-references | TESTED |
+| Log message examples (plain text) | Content | Persona check | Admin-facing error patterns | TESTED |
+| No JSON config snippets / grep commands | Content | Persona check | Replaced with UI instructions | TESTED |
+| No Python/TS/CSS/SQL/JSON | Content | Absence check | 0 forbidden blocks | TESTED |
+
+## Global Navigation Manifest
+
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Sidebar: Admin Guide (9 pages) | Navigation | HTML check | All 9 pages listed on every page | TESTED |
+| Sidebar ordering (positions 1-9) | Navigation | Frontmatter check | Correct sequential order | TESTED |
+| Sidebar: Getting Started | Navigation | HTML check | Overview + Quick Start present | TESTED |
+| Sidebar: User Guide | Navigation | HTML check | All user guide pages present | TESTED |
+| Sidebar: Developer Reference | Navigation | HTML check | All dev pages present | TESTED |
+| Cross-page interconnection | Navigation | HTML check | Every admin page links to all 8 others | TESTED |
+| Build verification | Build | `npm run build` | 0 errors, 0 warnings, SUCCESS | TESTED |
 
 ## Summary
 
-- **Total elements tested**: 12 API endpoints + 196 unit tests + full suite regression
-- **TESTED**: 100%
+- **Total elements tested**: 62
+- **TESTED**: 62
 - **BUG**: 0
 - **SKIPPED**: 0
 - **PENDING**: 0
+
+## Untested (Chrome DevTools MCP unavailable)
+
+- Visual rendering / screenshot comparison
+- Interactive sidebar clicking / TOC navigation
+- Dark mode toggle rendering
+- Lighthouse accessibility/SEO audit
+- Console error monitoring
+- Responsive layout testing
+- Theme toggle behavior

@@ -4,13 +4,14 @@ Provision a Databricks Lakeview dashboard from the 7 SQL query files.
 Usage:
     python -m dashboards.provision_dashboard [--update] [--warehouse-id WH_ID]
 """
+
 import argparse
 import json
 import logging
 import os
 import sys
 
-from dashboards import load_query, QUERY_FILES
+from dashboards import QUERY_FILES, load_query
 
 log = logging.getLogger(__name__)
 
@@ -32,14 +33,16 @@ def _build_dashboard_spec(schema: str = "expected_credit_loss") -> dict:
     """Build the Lakeview dashboard JSON spec from SQL files."""
     pages = []
     datasets = []
-    for i, filename in enumerate(QUERY_FILES):
+    for _i, filename in enumerate(QUERY_FILES):
         sql = load_query(filename, schema)
         dataset_name = filename.replace(".sql", "")
         datasets.append({"name": dataset_name, "query": sql})
-        pages.append({
-            "name": PAGE_TITLES.get(filename, dataset_name),
-            "displayName": PAGE_TITLES.get(filename, dataset_name),
-        })
+        pages.append(
+            {
+                "name": PAGE_TITLES.get(filename, dataset_name),
+                "displayName": PAGE_TITLES.get(filename, dataset_name),
+            }
+        )
     return {
         "displayName": DASHBOARD_NAME,
         "datasets": datasets,
@@ -68,9 +71,7 @@ def provision(
 
     if update:
         dashboards = list(w.lakeview.list())
-        match = next(
-            (d for d in dashboards if d.display_name == DASHBOARD_NAME), None
-        )
+        match = next((d for d in dashboards if d.display_name == DASHBOARD_NAME), None)
         if match:
             result = w.lakeview.update(
                 match.dashboard_id,

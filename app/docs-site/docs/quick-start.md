@@ -100,4 +100,5 @@ Now that you have completed your first project, explore these areas:
 - [**Regulatory Reports**](user-guide/regulatory-reports) — Generate IFRS 7 disclosures
 - [**GL Journals**](user-guide/gl-journals) — Create provisioning journal entries
 - [**Backtesting**](user-guide/backtesting) — Validate model performance over time
+- [**Approval Workflow**](user-guide/approval-workflow) — How the maker-checker governance process works
 - [**FAQ**](user-guide/faq) — Answers to common questions

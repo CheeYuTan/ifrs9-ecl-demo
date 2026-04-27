@@ -1,11 +1,12 @@
 import json as _json
-import uuid
-import math as _math
 import logging
-import pandas as pd
-from datetime import datetime as _dt, timezone as _tz
+import math as _math
+import uuid
+from datetime import UTC
+from datetime import datetime as _dt
 
-from db.pool import query_df, execute, _t, SCHEMA
+import pandas as pd
+from db.pool import SCHEMA, _t, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -54,14 +55,16 @@ def compute_cure_rates(product_type: str | None = None) -> dict:
     """Analyze Stage 2/3 → Stage 1 transitions (cure rates) from portfolio data."""
     ensure_advanced_tables()
     import random as _rnd
+
     _rnd.seed(42)
 
     loans_table = _t("model_ready_loans")
-    where = f"WHERE product_type = %s" if product_type else ""
+    where = "WHERE product_type = %s" if product_type else ""
     params = (product_type,) if product_type else None
 
     try:
-        portfolio = query_df(f"""
+        portfolio = query_df(
+            f"""
             SELECT product_type, assessed_stage,
                    COUNT(*) as cnt,
                    ROUND(SUM(gross_carrying_amount)::numeric, 2) as gca,
@@ -72,17 +75,20 @@ def compute_cure_rates(product_type: str | None = None) -> dict:
             FROM {loans_table}
             {where}
             GROUP BY product_type, assessed_stage
-        """, params)
+        """,
+            params,
+        )
     except Exception:
         portfolio = pd.DataFrame()
 
-    products = list(portfolio["product_type"].unique()) if len(portfolio) > 0 else [
-        "term_loan", "mortgage", "credit_card", "overdraft", "personal_loan"
-    ]
+    products = (
+        list(portfolio["product_type"].unique())
+        if len(portfolio) > 0
+        else ["term_loan", "mortgage", "credit_card", "overdraft", "personal_loan"]
+    )
     dpd_buckets = ["1-30 DPD", "31-60 DPD", "61-90 DPD", "90+ DPD"]
     segments = ["retail", "sme", "corporate"]
 
-    total_loans = int(portfolio["cnt"].sum()) if len(portfolio) > 0 else 5000
     dpd_counts = {}
     if len(portfolio) > 0:
         dpd_counts = {
@@ -101,8 +107,9 @@ def compute_cure_rates(product_type: str | None = None) -> dict:
 
     cure_by_product = []
     for prod in products:
-        base = {"term_loan": 0.38, "mortgage": 0.52, "credit_card": 0.30,
-                "overdraft": 0.25, "personal_loan": 0.35}.get(prod, 0.35)
+        base = {"term_loan": 0.38, "mortgage": 0.52, "credit_card": 0.30, "overdraft": 0.25, "personal_loan": 0.35}.get(
+            prod, 0.35
+        )
         rate = round(base + _rnd.uniform(-0.04, 0.04), 4)
         cure_by_product.append({"product_type": prod, "cure_rate": rate, "sample_size": _rnd.randint(500, 5000)})
 
@@ -114,14 +121,16 @@ def compute_cure_rates(product_type: str | None = None) -> dict:
 
     cure_trend = []
     for m in range(12):
-        month_label = f"2025-{m+1:02d}"
+        month_label = f"2025-{m + 1:02d}"
         base_rate = 0.35 + 0.02 * _math.sin(m / 12 * 2 * _math.pi)
-        cure_trend.append({
-            "month": month_label,
-            "cure_rate": round(base_rate + _rnd.uniform(-0.02, 0.02), 4),
-            "count_cured": _rnd.randint(100, 800),
-            "count_stage2_3": _rnd.randint(1000, 5000),
-        })
+        cure_trend.append(
+            {
+                "month": month_label,
+                "cure_rate": round(base_rate + _rnd.uniform(-0.02, 0.02), 4),
+                "count_cured": _rnd.randint(100, 800),
+                "count_stage2_3": _rnd.randint(1000, 5000),
+            }
+        )
 
     time_to_cure = []
     for months in range(1, 13):
@@ -139,15 +148,28 @@ def compute_cure_rates(product_type: str | None = None) -> dict:
         "total_observations": sum(r["sample_size"] for r in cure_by_product),
     }
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {CURE_RATE_TABLE} (analysis_id, product_type, segment, observation_period, cure_rates, methodology)
         VALUES (%s, %s, %s, %s, %s, %s)
-    """, (analysis_id, product_type or "all", "all", "12 months",
-          _json.dumps(cure_data), "Transition matrix analysis of Stage 2/3 → Stage 1 movements"))
+    """,
+        (
+            analysis_id,
+            product_type or "all",
+            "all",
+            "12 months",
+            _json.dumps(cure_data),
+            "Transition matrix analysis of Stage 2/3 → Stage 1 movements",
+        ),
+    )
 
-    return {"analysis_id": analysis_id, **cure_data,
-            "methodology": "Transition matrix analysis of Stage 2/3 → Stage 1 movements",
-            "product_type": product_type or "all", "created_at": _dt.now(_tz.utc).isoformat()}
+    return {
+        "analysis_id": analysis_id,
+        **cure_data,
+        "methodology": "Transition matrix analysis of Stage 2/3 → Stage 1 movements",
+        "product_type": product_type or "all",
+        "created_at": _dt.now(UTC).isoformat(),
+    }
 
 
 def get_cure_analysis(analysis_id: str) -> dict | None:
@@ -159,9 +181,15 @@ def get_cure_analysis(analysis_id: str) -> dict | None:
     data = row.get("cure_rates") or {}
     if isinstance(data, str):
         data = _json.loads(data)
-    return {"analysis_id": row["analysis_id"], "product_type": row["product_type"],
-            "segment": row["segment"], "observation_period": row["observation_period"],
-            "methodology": row["methodology"], "created_at": str(row["created_at"]), **data}
+    return {
+        "analysis_id": row["analysis_id"],
+        "product_type": row["product_type"],
+        "segment": row["segment"],
+        "observation_period": row["observation_period"],
+        "methodology": row["methodology"],
+        "created_at": str(row["created_at"]),
+        **data,
+    }
 
 
 def list_cure_analyses() -> list[dict]:
@@ -191,14 +219,16 @@ def compute_ccf(product_type: str | None = None) -> dict:
     """Calculate Credit Conversion Factors for revolving facilities."""
     ensure_advanced_tables()
     import random as _rnd
+
     _rnd.seed(43)
 
     loans_table = _t("model_ready_loans")
-    where = f"WHERE product_type = %s" if product_type else ""
+    where = "WHERE product_type = %s" if product_type else ""
     params = (product_type,) if product_type else None
 
     try:
-        portfolio = query_df(f"""
+        portfolio = query_df(
+            f"""
             SELECT product_type, assessed_stage,
                    COUNT(*) as cnt,
                    ROUND(SUM(gross_carrying_amount)::numeric, 2) as total_gca,
@@ -206,13 +236,17 @@ def compute_ccf(product_type: str | None = None) -> dict:
             FROM {loans_table}
             {where}
             GROUP BY product_type, assessed_stage
-        """, params)
+        """,
+            params,
+        )
     except Exception:
         portfolio = pd.DataFrame()
 
-    products = list(portfolio["product_type"].unique()) if len(portfolio) > 0 else [
-        "credit_card", "overdraft", "revolving_credit", "term_loan", "mortgage"
-    ]
+    products = (
+        list(portfolio["product_type"].unique())
+        if len(portfolio) > 0
+        else ["credit_card", "overdraft", "revolving_credit", "term_loan", "mortgage"]
+    )
 
     revolving_types = {"credit_card", "overdraft", "revolving_credit"}
 
@@ -232,22 +266,31 @@ def compute_ccf(product_type: str | None = None) -> dict:
                 if len(matched) > 0:
                     gca_val = float(matched["total_gca"].iloc[0])
             ead = round(gca_val * ccf, 2) if gca_val else round(_rnd.uniform(5e6, 50e6) * ccf, 2)
-            ccf_by_stage.append({
-                "product_type": prod, "stage": stage, "ccf": ccf,
-                "is_revolving": is_revolving, "total_gca": gca_val or round(_rnd.uniform(5e6, 50e6), 2),
-                "ead": ead, "sample_size": _rnd.randint(200, 5000),
-            })
+            ccf_by_stage.append(
+                {
+                    "product_type": prod,
+                    "stage": stage,
+                    "ccf": ccf,
+                    "is_revolving": is_revolving,
+                    "total_gca": gca_val or round(_rnd.uniform(5e6, 50e6), 2),
+                    "ead": ead,
+                    "sample_size": _rnd.randint(200, 5000),
+                }
+            )
 
     utilization_bands = ["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"]
     ccf_by_utilization = []
     for band in utilization_bands:
         base_map = {"0-20%": 0.85, "20-40%": 0.75, "40-60%": 0.68, "60-80%": 0.60, "80-100%": 0.55}
         ccf = round(base_map[band] + _rnd.uniform(-0.03, 0.03), 4)
-        ccf_by_utilization.append({
-            "utilization_band": band, "ccf": ccf,
-            "avg_drawn_pct": round(float(band.split("-")[0].replace("%", "")) / 100 + 0.1, 2),
-            "sample_size": _rnd.randint(500, 3000),
-        })
+        ccf_by_utilization.append(
+            {
+                "utilization_band": band,
+                "ccf": ccf,
+                "avg_drawn_pct": round(float(band.split("-")[0].replace("%", "")) / 100 + 0.1, 2),
+                "sample_size": _rnd.randint(500, 3000),
+            }
+        )
 
     ccf_by_product_summary = []
     for prod in products:
@@ -255,11 +298,15 @@ def compute_ccf(product_type: str | None = None) -> dict:
         avg_ccf = sum(r["ccf"] for r in stage_rows) / max(len(stage_rows), 1)
         total_gca = sum(r["total_gca"] for r in stage_rows)
         total_ead = sum(r["ead"] for r in stage_rows)
-        ccf_by_product_summary.append({
-            "product_type": prod, "avg_ccf": round(avg_ccf, 4),
-            "total_gca": round(total_gca, 2), "total_ead": round(total_ead, 2),
-            "is_revolving": prod in revolving_types,
-        })
+        ccf_by_product_summary.append(
+            {
+                "product_type": prod,
+                "avg_ccf": round(avg_ccf, 4),
+                "total_gca": round(total_gca, 2),
+                "total_ead": round(total_ead, 2),
+                "is_revolving": prod in revolving_types,
+            }
+        )
 
     analysis_id = f"ccf-{uuid.uuid4().hex[:8]}"
     ccf_data = {
@@ -270,16 +317,27 @@ def compute_ccf(product_type: str | None = None) -> dict:
         "total_ead": round(sum(r["ead"] for r in ccf_by_stage), 2),
     }
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {CCF_TABLE} (analysis_id, product_type, ccf_by_stage, ccf_by_utilization, methodology)
         VALUES (%s, %s, %s, %s, %s)
-    """, (analysis_id, product_type or "all",
-          _json.dumps(ccf_data["ccf_by_stage"]), _json.dumps(ccf_data["ccf_by_utilization"]),
-          "CCF = (EAD at default - Current drawn) / (Limit - Current drawn)"))
+    """,
+        (
+            analysis_id,
+            product_type or "all",
+            _json.dumps(ccf_data["ccf_by_stage"]),
+            _json.dumps(ccf_data["ccf_by_utilization"]),
+            "CCF = (EAD at default - Current drawn) / (Limit - Current drawn)",
+        ),
+    )
 
-    return {"analysis_id": analysis_id, **ccf_data,
-            "methodology": "CCF = (EAD at default - Current drawn) / (Limit - Current drawn)",
-            "product_type": product_type or "all", "created_at": _dt.now(_tz.utc).isoformat()}
+    return {
+        "analysis_id": analysis_id,
+        **ccf_data,
+        "methodology": "CCF = (EAD at default - Current drawn) / (Limit - Current drawn)",
+        "product_type": product_type or "all",
+        "created_at": _dt.now(UTC).isoformat(),
+    }
 
 
 def get_ccf_analysis(analysis_id: str) -> dict | None:
@@ -295,9 +353,12 @@ def get_ccf_analysis(analysis_id: str) -> dict | None:
     if isinstance(util_data, str):
         util_data = _json.loads(util_data)
     return {
-        "analysis_id": row["analysis_id"], "product_type": row["product_type"],
-        "methodology": row["methodology"], "created_at": str(row["created_at"]),
-        "ccf_by_stage": stage_data, "ccf_by_utilization": util_data,
+        "analysis_id": row["analysis_id"],
+        "product_type": row["product_type"],
+        "methodology": row["methodology"],
+        "created_at": str(row["created_at"]),
+        "ccf_by_stage": stage_data,
+        "ccf_by_utilization": util_data,
     }
 
 
@@ -318,23 +379,29 @@ def compute_collateral_haircuts(product_type: str | None = None) -> dict:
     """Analyze collateral haircuts, recovery rates, and LGD impact."""
     ensure_advanced_tables()
     import random as _rnd
+
     _rnd.seed(44)
 
     collateral_types = [
-        {"type": "residential_property", "label": "Residential Property",
-         "base_haircut": 0.20, "base_recovery": 0.72, "base_time": 18},
-        {"type": "commercial_property", "label": "Commercial Property",
-         "base_haircut": 0.30, "base_recovery": 0.58, "base_time": 24},
-        {"type": "vehicle", "label": "Vehicle",
-         "base_haircut": 0.35, "base_recovery": 0.52, "base_time": 6},
-        {"type": "cash_deposit", "label": "Cash Deposit",
-         "base_haircut": 0.02, "base_recovery": 0.98, "base_time": 1},
-        {"type": "securities", "label": "Securities",
-         "base_haircut": 0.15, "base_recovery": 0.80, "base_time": 3},
-        {"type": "equipment", "label": "Equipment",
-         "base_haircut": 0.40, "base_recovery": 0.45, "base_time": 12},
-        {"type": "unsecured", "label": "Unsecured",
-         "base_haircut": 1.00, "base_recovery": 0.15, "base_time": 36},
+        {
+            "type": "residential_property",
+            "label": "Residential Property",
+            "base_haircut": 0.20,
+            "base_recovery": 0.72,
+            "base_time": 18,
+        },
+        {
+            "type": "commercial_property",
+            "label": "Commercial Property",
+            "base_haircut": 0.30,
+            "base_recovery": 0.58,
+            "base_time": 24,
+        },
+        {"type": "vehicle", "label": "Vehicle", "base_haircut": 0.35, "base_recovery": 0.52, "base_time": 6},
+        {"type": "cash_deposit", "label": "Cash Deposit", "base_haircut": 0.02, "base_recovery": 0.98, "base_time": 1},
+        {"type": "securities", "label": "Securities", "base_haircut": 0.15, "base_recovery": 0.80, "base_time": 3},
+        {"type": "equipment", "label": "Equipment", "base_haircut": 0.40, "base_recovery": 0.45, "base_time": 12},
+        {"type": "unsecured", "label": "Unsecured", "base_haircut": 1.00, "base_recovery": 0.15, "base_time": 36},
     ]
 
     haircut_results = []
@@ -360,34 +427,62 @@ def compute_collateral_haircuts(product_type: str | None = None) -> dict:
         haircut_results.append(result)
 
         analysis_id = f"col-{uuid.uuid4().hex[:8]}"
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {COLLATERAL_TABLE}
                 (analysis_id, collateral_type, haircut_pct, recovery_rate, time_to_recovery_months, methodology)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (analysis_id, ct["type"], haircut, recovery, max(time_months, 0.5),
-              "Forced sale valuation with market discount"))
+        """,
+            (
+                analysis_id,
+                ct["type"],
+                haircut,
+                recovery,
+                max(time_months, 0.5),
+                "Forced sale valuation with market discount",
+            ),
+        )
 
     lgd_waterfall = []
     try:
-        gca_df = query_df(f"SELECT ROUND(SUM(gross_carrying_amount)::numeric, 2) as tgca FROM {_t('model_ready_loans')}")
-        total_gca = float(gca_df.iloc[0]["tgca"]) if not gca_df.empty and gca_df.iloc[0]["tgca"] else _rnd.uniform(800e6, 1200e6)
+        gca_df = query_df(
+            f"SELECT ROUND(SUM(gross_carrying_amount)::numeric, 2) as tgca FROM {_t('model_ready_loans')}"
+        )
+        total_gca = (
+            float(gca_df.iloc[0]["tgca"])
+            if not gca_df.empty and gca_df.iloc[0]["tgca"]
+            else _rnd.uniform(800e6, 1200e6)
+        )
     except Exception:
         total_gca = _rnd.uniform(800e6, 1200e6)
     secured_pct = 0.65
     secured_gca = total_gca * secured_pct
     unsecured_gca = total_gca * (1 - secured_pct)
-    avg_haircut = sum(r["haircut_pct"] for r in haircut_results if r["collateral_type"] != "unsecured") / max(len([r for r in haircut_results if r["collateral_type"] != "unsecured"]), 1)
-    avg_recovery = sum(r["recovery_rate"] for r in haircut_results if r["collateral_type"] != "unsecured") / max(len([r for r in haircut_results if r["collateral_type"] != "unsecured"]), 1)
+    avg_haircut = sum(r["haircut_pct"] for r in haircut_results if r["collateral_type"] != "unsecured") / max(
+        len([r for r in haircut_results if r["collateral_type"] != "unsecured"]), 1
+    )
+    avg_recovery = sum(r["recovery_rate"] for r in haircut_results if r["collateral_type"] != "unsecured") / max(
+        len([r for r in haircut_results if r["collateral_type"] != "unsecured"]), 1
+    )
 
     lgd_waterfall = [
         {"step": "Gross Exposure", "value": round(total_gca, 2), "cumulative": round(total_gca, 2)},
         {"step": "Secured Portion", "value": round(-secured_gca, 2), "cumulative": round(unsecured_gca, 2)},
-        {"step": "Collateral Recovery", "value": round(-secured_gca * avg_recovery, 2),
-         "cumulative": round(unsecured_gca + secured_gca * (1 - avg_recovery), 2)},
-        {"step": "Haircut Applied", "value": round(secured_gca * avg_haircut * 0.3, 2),
-         "cumulative": round(unsecured_gca + secured_gca * (1 - avg_recovery) + secured_gca * avg_haircut * 0.3, 2)},
-        {"step": "Unsecured LGD", "value": round(unsecured_gca * 0.45, 2),
-         "cumulative": round(unsecured_gca * 0.45 + secured_gca * (1 - avg_recovery + avg_haircut * 0.3), 2)},
+        {
+            "step": "Collateral Recovery",
+            "value": round(-secured_gca * avg_recovery, 2),
+            "cumulative": round(unsecured_gca + secured_gca * (1 - avg_recovery), 2),
+        },
+        {
+            "step": "Haircut Applied",
+            "value": round(secured_gca * avg_haircut * 0.3, 2),
+            "cumulative": round(unsecured_gca + secured_gca * (1 - avg_recovery) + secured_gca * avg_haircut * 0.3, 2),
+        },
+        {
+            "step": "Unsecured LGD",
+            "value": round(unsecured_gca * 0.45, 2),
+            "cumulative": round(unsecured_gca * 0.45 + secured_gca * (1 - avg_recovery + avg_haircut * 0.3), 2),
+        },
     ]
     net_lgd = round((lgd_waterfall[-1]["cumulative"] / total_gca) * 100, 2)
 
@@ -397,14 +492,16 @@ def compute_collateral_haircuts(product_type: str | None = None) -> dict:
         "summary": {
             "avg_haircut": round(avg_haircut, 4),
             "avg_recovery_rate": round(avg_recovery, 4),
-            "avg_time_to_recovery": round(sum(r["time_to_recovery_months"] for r in haircut_results) / len(haircut_results), 1),
+            "avg_time_to_recovery": round(
+                sum(r["time_to_recovery_months"] for r in haircut_results) / len(haircut_results), 1
+            ),
             "net_lgd_pct": net_lgd,
             "total_collateral_types": len(haircut_results),
             "secured_pct": round(secured_pct * 100, 1),
         },
         "product_type": product_type or "all",
         "methodology": "Forced sale valuation with market discount",
-        "created_at": _dt.now(_tz.utc).isoformat(),
+        "created_at": _dt.now(UTC).isoformat(),
     }
 
 

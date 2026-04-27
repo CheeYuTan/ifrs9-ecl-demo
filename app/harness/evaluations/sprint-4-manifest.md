@@ -1,158 +1,173 @@
-# Sprint 4 Iteration 2 — Interaction Manifest
+# Sprint 4 Interaction Manifest — User Guide Feature Pages Part 1
 
 ## Testing Method
-Direct HTTP API endpoint testing against live running app on `localhost:8000`. Sprint 4 is a backend API testing sprint — no new UI features. Focus: verify 3 bug fixes from iteration 1, plus comprehensive endpoint coverage.
+Docusaurus documentation site tested via HTTP requests against live dev server (localhost:3000) and production build verification. Content validated from pre-rendered HTML in `docs_site/` build output. Build verified with `npm run build` (0 errors, 0 warnings).
 
----
+## Page: Model Registry (`/docs/user-guide/model-registry`)
 
-## Bug Fix Verification
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK, 39,982 bytes built | TESTED |
+| Sidebar: Model Registry | Nav link | Verify present | Correctly positioned after Step 8 | TESTED |
+| Prev: Step 8: Sign-Off | Pagination | Verify link | Correct prev page | TESTED |
+| Next: Backtesting | Pagination | Verify link | Correct next page | TESTED |
+| H1: Model Registry | Heading | Verify render | Renders correctly | TESTED |
+| Prerequisites section | Content | Verify present | Present with admonition | TESTED |
+| What You'll Do section | Content | Verify present | Present with checklist | TESTED |
+| Understanding Model Lifecycle | Content | Verify present | 5-state lifecycle documented | TESTED |
+| Step 1: Browse Model Inventory | Content | Verify heading | H3 heading present | TESTED |
+| Step 2: View Model Details | Content | Verify heading | H3 heading present | TESTED |
+| Step 3: Compare Models Side-by-Side | Content | Verify heading | H3 heading present | TESTED |
+| Step 4: Review the Model Card | Content | Verify heading | H3 heading present | TESTED |
+| Step 5: Register a New Model | Content | Verify heading | H3 heading present | TESTED |
+| Step 6: Approve and Promote Models | Content | Verify heading | H3 heading present | TESTED |
+| Understanding Model Types | Content | Verify present | Present | TESTED |
+| Tips & Best Practices | Content | Verify present | Present | TESTED |
+| What's Next | Content | Verify present | Present with cross-links | TESTED |
+| Image: model-registry-list.png | Image | Verify loads | 1280x720 PNG, 17,290 bytes, valid | TESTED |
+| Tables (4) | Content | Verify render | All 4 tables render correctly | TESTED |
+| Admonitions (7: info, warning x2, tip x3, caution) | Content | Verify render | All styled correctly | TESTED |
+| Link: step-4-satellite-model | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: backtesting | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: regulatory-reports | Navigation | Verify resolve | 200 OK | TESTED |
+| Dark mode CSS | Theme | Verify vars | [data-theme='dark'] configured | TESTED |
+| No Python/JSON code | Anti-pattern | Verify absent | Clean — no code blocks | TESTED |
+| No API endpoints | Anti-pattern | Verify absent | Clean — no /api/ references | TESTED |
+| IFRS 9 terminology | Content | Verify | ECL(8), PD(8), LGD(6), EAD(4), IFRS(2) | TESTED |
+| Content word count | Content | Verify | 1,335 words (175 source lines) | TESTED |
 
-### BUG-S4-001: Audit Export Timestamp Serialization
-| Test | Result | Status |
-|------|--------|--------|
-| GET /api/audit/{project_id}/export | 200 — returns valid JSON with ISO string timestamps | **FIXED** ✓ |
-| GET /api/audit/config/changes | 200 — `changed_at` fields are string type (e.g., "2026-04-02T04:32:41.129963") | **FIXED** ✓ |
+## Page: Backtesting (`/docs/user-guide/backtesting`)
 
-### BUG-S4-002: Attribution Reconciliation Column
-| Test | Result | Status |
-|------|--------|--------|
-| POST /api/data/attribution/{project_id}/compute | 500 — `column "reconciliation" of relation "ecl_attribution" does not exist` | **NOT FIXED** ✗ |
-| Direct call to ensure_attribution_table() | ALTER TABLE fails: `InsufficientPrivilege: must be owner of table ecl_attribution` | Root cause identified |
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK, 41,127 bytes built | TESTED |
+| Sidebar: Backtesting | Nav link | Verify present | After Model Registry | TESTED |
+| Prev: Model Registry | Pagination | Verify link | Correct | TESTED |
+| Next: Regulatory Reports | Pagination | Verify link | Correct | TESTED |
+| H1: Backtesting | Heading | Verify render | Renders correctly | TESTED |
+| Prerequisites section | Content | Verify present | Present | TESTED |
+| What You'll Do section | Content | Verify present | Present | TESTED |
+| Traffic Light System | Content | Verify present | Green/Amber/Red documented | TESTED |
+| Step 1: Select a Model | Content | Verify heading | H3 present | TESTED |
+| Step 2: Configure the Backtest | Content | Verify heading | H3 present | TESTED |
+| Step 3: Run the Backtest | Content | Verify heading | H3 present | TESTED |
+| Step 4: Read Results — PD Models | Content | Verify heading | H3 present | TESTED |
+| Discrimination Metrics (AUC, Gini, KS) | Content | Verify subsection | H4, thresholds documented | TESTED |
+| Calibration Metrics (Hosmer-Lemeshow) | Content | Verify subsection | H4, thresholds documented | TESTED |
+| Stability Metrics (PSI, Brier) | Content | Verify subsection | H4, thresholds documented | TESTED |
+| Step 5: Read Results — LGD Models | Content | Verify heading | H3 present (MAE, RMSE, Bias) | TESTED |
+| Step 6: Per-Cohort Performance | Content | Verify heading | H3 present | TESTED |
+| Step 7: Historical Trends | Content | Verify heading | H3 present | TESTED |
+| When to Retrain a Model | Content | Verify present | Decision matrix | TESTED |
+| Tips & Best Practices | Content | Verify present | Present | TESTED |
+| What's Next | Content | Verify present | Cross-links | TESTED |
+| Image: backtesting-traffic-light.png | Image | Verify loads | 1280x720 PNG, 18,548 bytes | TESTED |
+| Image: backtesting-cohort.png | Image | Verify loads | 1280x720 PNG, 18,299 bytes | TESTED |
+| Tables (7) | Content | Verify render | All 7 render correctly | TESTED |
+| Admonitions (5: info, tip x2, warning, caution) | Content | Verify render | All styled correctly | TESTED |
+| Link: model-registry | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: step-6-stress-testing | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: step-4-satellite-model | Navigation | Verify resolve | 200 OK | TESTED |
+| Dark mode CSS | Theme | Verify vars | Inherits dark theme | TESTED |
+| No Python/JSON code | Anti-pattern | Verify absent | Clean | TESTED |
+| No API endpoints | Anti-pattern | Verify absent | Clean | TESTED |
+| "loss rate" terminology | Content | Context check | Valid usage (observed rates, not LGD substitute) | TESTED |
+| Content word count | Content | Verify | 1,503 words (177 source lines) | TESTED |
 
-**Root cause**: The code fix (ALTER TABLE ADD COLUMN IF NOT EXISTS) is correct, but the database user running the app does not have `ALTER TABLE` privileges on the `ecl_attribution` table. The error is logged but silently swallowed, so compute_attribution() still fails at the INSERT.
+## Page: Regulatory Reports (`/docs/user-guide/regulatory-reports`)
 
-### BUG-S4-003: IFRS 7.35J Historical Defaults Table
-| Test | Result | Status |
-|------|--------|--------|
-| POST /api/reports/generate/{project_id} (ifrs7_disclosure) | Report generates but contains error sections for 35I and 35J | **PARTIAL** — error messaging improved but underlying table still missing |
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK, 43,590 bytes built | TESTED |
+| Sidebar: Regulatory Reports | Nav link | Verify present | After Backtesting | TESTED |
+| Prev: Backtesting | Pagination | Verify link | Correct | TESTED |
+| Next: GL Journals | Pagination | Verify link | Correct | TESTED |
+| H1: Regulatory Reports | Heading | Verify render | Renders correctly | TESTED |
+| Prerequisites section | Content | Verify present | Present | TESTED |
+| What You'll Do section | Content | Verify present | Present | TESTED |
+| IFRS 7 Disclosure Sections | Content | Verify present | 35F through 36 documented | TESTED |
+| Step 1: Navigate to Reports | Content | Verify heading | H3 present | TESTED |
+| Step 2: Select Report Type | Content | Verify heading | 5 report types documented | TESTED |
+| Step 3: Generate the Report | Content | Verify heading | H3 present | TESTED |
+| Step 4: Review IFRS 7 Disclosure | Content | Verify heading | H3 present | TESTED |
+| Section 35F subsection | Content | Verify | Credit Risk Exposure by Grade | TESTED |
+| Section 35H subsection | Content | Verify | Loss Allowance by Stage (Stage 1/2/3) | TESTED |
+| Section 35I subsection | Content | Verify | Reconciliation | TESTED |
+| Section 35J subsection | Content | Verify | Collateral and LGD | TESTED |
+| Sections 35K-35M subsection | Content | Verify | Additional Disclosures | TESTED |
+| Section 36 subsection | Content | Verify | Sensitivity Analysis | TESTED |
+| Step 5: Export the Report | Content | Verify heading | PDF, CSV formats | TESTED |
+| Step 6: Finalise the Report | Content | Verify heading | Draft → Final → Submitted | TESTED |
+| Understanding the Results | Content | Verify present | Present | TESTED |
+| Tips & Best Practices | Content | Verify present | Auditor-focus guidance | TESTED |
+| What's Next | Content | Verify present | Cross-links | TESTED |
+| Image: regulatory-reports-generate.png | Image | Verify loads | 1280x720 PNG, 17,640 bytes | TESTED |
+| Tables (5) | Content | Verify render | All 5 render correctly | TESTED |
+| Admonitions (7: info, tip x4, warning, caution) | Content | Verify render | All styled correctly | TESTED |
+| Link: step-8-sign-off | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: backtesting | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: gl-journals | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: attribution | Navigation | Verify resolve | 200 OK | TESTED |
+| Dark mode CSS | Theme | Verify vars | Inherits dark theme | TESTED |
+| No Python/JSON code | Anti-pattern | Verify absent | Clean | TESTED |
+| No API endpoints | Anti-pattern | Verify absent | Clean | TESTED |
+| IFRS terminology | Content | Verify | IFRS(18), ECL(37), PD(6), LGD(9), EAD(4), Stages(9) | TESTED |
+| Content word count | Content | Verify | 1,582 words (199 source lines) | TESTED |
 
----
+## Page: GL Journals (`/docs/user-guide/gl-journals`)
 
-## GL Journals (`/api/gl`) — 7 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Generate | POST | `/api/gl/generate/{project_id}` | 422 — body required (correct validation) | TESTED |
-| List Journals | GET | `/api/gl/journals/{project_id}` | 200 — returns array | TESTED |
-| Get Journal | GET | `/api/gl/journal/{journal_id}` | No test data available | SKIPPED |
-| Post Journal | POST | `/api/gl/journal/{journal_id}/post` | No test data available | SKIPPED |
-| Reverse Journal | POST | `/api/gl/journal/{journal_id}/reverse` | No test data available | SKIPPED |
-| Trial Balance | GET | `/api/gl/trial-balance/{project_id}` | 200 — returns array | TESTED |
-| Chart of Accounts | GET | `/api/gl/chart-of-accounts` | 200 — 9 accounts with IFRS 9 structure | TESTED |
-
-## Reports (`/api/reports`) — 6 endpoint types
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Generate Report | POST | `/api/reports/generate/{project_id}` | 200 — generates IFRS 7 disclosure | TESTED |
-| List Reports | GET | `/api/reports` | 200 — returns report list | TESTED |
-| Get Report | GET | `/api/reports/{report_id}` | 200 — returns report detail | TESTED |
-| Export CSV | GET | `/api/reports/{report_id}/export` | **500 — fieldnames mismatch** | BUG |
-| Export PDF | GET | `/api/reports/{report_id}/export/pdf` | 200 — returns PDF bytes | TESTED |
-| Finalize Report | POST | `/api/reports/{report_id}/finalize` | Not tested (would modify data) | SKIPPED |
-
-## RBAC (`/api/rbac`) — 8 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| List Users | GET | `/api/rbac/users` | 200 — 4 users (admin, analyst, reviewer, approver) | TESTED |
-| Get User | GET | `/api/rbac/users/{user_id}` | 200 — returns user with permissions | TESTED |
-| List Approvals | GET | `/api/rbac/approvals` | 200 — returns 2 approvals | TESTED |
-| Create Approval | POST | `/api/rbac/approvals` | Not tested (would create data) | SKIPPED |
-| Approve | POST | `/api/rbac/approvals/{id}/approve` | Not tested (would modify data) | SKIPPED |
-| Reject | POST | `/api/rbac/approvals/{id}/reject` | Not tested (would modify data) | SKIPPED |
-| Approval History | GET | `/api/rbac/approvals/history/{entity_id}` | Not tested (no entity data) | SKIPPED |
-| Permissions | GET | `/api/rbac/permissions/{user_id}` | 200 — returns permissions array | TESTED |
-
-## Audit (`/api/audit`) — 5 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Config Changes | GET | `/api/audit/config/changes` | 200 — 100 entries, timestamps serialized as strings | TESTED |
-| Config Diff | GET | `/api/audit/config/diff` | 422 — requires start param (correct validation) | TESTED |
-| Project Trail | GET | `/api/audit/{project_id}` | 200 — returns trail (0 entries for test project) | TESTED |
-| Verify Chain | GET | `/api/audit/{project_id}/verify` | 200 — chain valid | TESTED |
-| Export | GET | `/api/audit/{project_id}/export` | 200 — valid JSON with string timestamps | TESTED |
-
-## Admin (`/api/admin`) — 16 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Get Config | GET | `/api/admin/config` | 200 — returns config dict | TESTED |
-| Schemas | GET | `/api/admin/schemas` | 200 — 3 schemas | TESTED |
-| Put Config | PUT | `/api/admin/config` | Not tested (write) | SKIPPED |
-| Other 13 endpoints | Various | Various | Covered in iter 1 manifest | TESTED (iter 1) |
-
-## Data Mapping (`/api/data-mapping`) — 9 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Status | GET | `/api/data-mapping/status` | 200 — 7 table statuses | TESTED |
-| Other 8 endpoints | Various | Various | Covered in iter 1 manifest | TESTED (iter 1) |
-
-## Advanced (`/api/advanced`) — 9 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Cure Rates List | GET | `/api/advanced/cure-rates` | 200 — 4 entries | TESTED |
-| Cure Rate Detail | GET | `/api/advanced/cure-rates/{id}` | 200 — full analysis with cure_trend, cure_by_dpd | TESTED |
-| CCF List | GET | `/api/advanced/ccf` | 200 — 2 entries | TESTED |
-| Collateral List | GET | `/api/advanced/collateral` | 200 — 14 entries | TESTED |
-| Other 5 endpoints | Various | Various | Covered in iter 1 manifest | TESTED (iter 1) |
-
-## Period Close/Pipeline (`/api/pipeline`) — 7 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| List Steps | GET | `/api/pipeline/steps` | 200 — 6 steps in correct order | TESTED |
-| Health | GET | `/api/pipeline/health/{project_id}` | **500 — NaN serialization error** | BUG |
-| Start | POST | `/api/pipeline/start/{project_id}` | Not tested (write) | SKIPPED |
-| Run All | POST | `/api/pipeline/run-all/{project_id}` | Not tested (write) | SKIPPED |
-| Get Run | GET | `/api/pipeline/run/{run_id}` | No active runs | SKIPPED |
-| Execute Step | POST | `/api/pipeline/run/{run_id}/execute-step` | No active runs | SKIPPED |
-| Complete | POST | `/api/pipeline/run/{run_id}/complete` | No active runs | SKIPPED |
-
-## Attribution (`/api/data/attribution`) — 3 endpoints
-
-| Endpoint | Method | Path | Result | Status |
-|----------|--------|------|--------|--------|
-| Get Attribution | GET | `/api/data/attribution/{project_id}` | 200 — returns null (no data) | TESTED |
-| Compute Attribution | POST | `/api/data/attribution/{project_id}/compute` | **500 — reconciliation column missing (BUG-S4-002)** | BUG |
-| Attribution History | GET | `/api/data/attribution/{project_id}/history` | Not tested (no data) | SKIPPED |
-
----
-
-## Frontend Page Loading
-
-| Asset | URL | HTTP Status | Status |
-|-------|-----|-------------|--------|
-| Main SPA | / | 200 | TESTED |
-| JS Bundle | /assets/index-DNaCEbyM.js | 200 | TESTED |
-| CSS Bundle | /assets/index-DF6l7LEH.css | 200 | TESTED |
-| Logo SVG | /logo.svg | 200 | TESTED |
-
----
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK, 45,469 bytes built | TESTED |
+| Sidebar: GL Journals | Nav link | Verify present | After Regulatory Reports | TESTED |
+| Prev: Regulatory Reports | Pagination | Verify link | Correct | TESTED |
+| Next: Approval Workflow | Pagination | Verify link | Correct | TESTED |
+| H1: GL Journals | Heading | Verify render | Renders correctly | TESTED |
+| Prerequisites section | Content | Verify present | Present | TESTED |
+| What You'll Do section | Content | Verify present | Present | TESTED |
+| Chart of Accounts (9 accounts) | Content | Verify present | Asset, contra-asset, expense, income | TESTED |
+| Step 1: Navigate to GL Journals | Content | Verify heading | H3 present | TESTED |
+| Step 2: Generate Journal Entries | Content | Verify heading | H3 present | TESTED |
+| Step 3: Understand Journal Types | Content | Verify heading | H3 present | TESTED |
+| ECL Provision Journals subsection | Content | Verify | Debit/credit explanations | TESTED |
+| Management Overlay Journals subsection | Content | Verify | Present | TESTED |
+| Write-off Journals subsection | Content | Verify | Present | TESTED |
+| Step 4: Review Journal Details | Content | Verify heading | H3 present | TESTED |
+| Step 5: Post Journals | Content | Verify heading | Posting workflow | TESTED |
+| Step 6: Review Trial Balance | Content | Verify heading | Present | TESTED |
+| Step 7: Reverse a Journal | Content | Verify heading | Corrections workflow | TESTED |
+| Step 8: Review Chart of Accounts | Content | Verify heading | Present | TESTED |
+| Understanding Double-Entry for ECL | Content | Verify present | Plain-language for non-accountants | TESTED |
+| Tips & Best Practices | Content | Verify present | Present | TESTED |
+| What's Next | Content | Verify present | Cross-links | TESTED |
+| Image: gl-journals-list.png | Image | Verify loads | 1280x720 PNG, 15,303 bytes | TESTED |
+| Image: gl-trial-balance.png | Image | Verify loads | 1280x720 PNG, 16,301 bytes | TESTED |
+| Tables (6) | Content | Verify render | All 6 render correctly | TESTED |
+| Admonitions (9: info, tip x4, warning x2, caution x2) | Content | Verify render | All styled correctly | TESTED |
+| Link: step-8-sign-off | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: step-7-overlays | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: regulatory-reports | Navigation | Verify resolve | 200 OK | TESTED |
+| Link: attribution | Navigation | Verify resolve | 200 OK | TESTED |
+| Dark mode CSS | Theme | Verify vars | Inherits dark theme | TESTED |
+| No Python/JSON code | Anti-pattern | Verify absent | Clean | TESTED |
+| No API endpoints | Anti-pattern | Verify absent | Clean | TESTED |
+| ECL terminology | Content | Verify | ECL(46), Stage 1(8), Stage 2(5), Stage 3(8), IFRS(2) | TESTED |
+| Content word count | Content | Verify | 1,678 words (225 source lines) | TESTED |
 
 ## Summary
 
 | Category | Total | TESTED | BUG | SKIPPED |
 |----------|-------|--------|-----|---------|
-| GL Journals | 7 | 4 | 0 | 3 |
-| Reports | 6 | 4 | 1 | 1 |
-| RBAC | 8 | 4 | 0 | 4 |
-| Audit | 5 | 5 | 0 | 0 |
-| Admin | 16 | 14 | 0 | 2 |
-| Data Mapping | 9 | 7 | 0 | 2 |
-| Advanced | 9 | 7 | 0 | 2 |
-| Period Close | 7 | 2 | 1 | 4 |
-| Attribution | 3 | 1 | 1 | 1 |
-| Frontend | 4 | 4 | 0 | 0 |
-| **TOTAL** | **74** | **52** | **3** | **19** |
-
-### Bug List
-
-| ID | Severity | Endpoint | Description |
-|----|----------|----------|-------------|
-| BUG-S4-VQA-001 | MAJOR | `/api/reports/{id}/export` | CSV export HTTP 500: DictWriter fieldnames mismatch — report data contains fields not in fieldnames list |
-| BUG-S4-VQA-002 | CRITICAL | `/api/data/attribution/{id}/compute` | BUG-S4-002 NOT FIXED in production: ALTER TABLE fails silently due to InsufficientPrivilege. Reconciliation column never added. |
-| BUG-S4-VQA-003 | MAJOR | `/api/pipeline/health/{project_id}` | HTTP 500: NaN float values not JSON serializable |
+| Page loads | 4 | 4 | 0 | 0 |
+| Navigation (sidebar, prev/next) | 12 | 12 | 0 | 0 |
+| Content sections | 52 | 52 | 0 | 0 |
+| Images | 6 | 6 | 0 | 0 |
+| Tables | 22 | 22 | 0 | 0 |
+| Admonitions | 28 | 28 | 0 | 0 |
+| Internal links | 14 | 14 | 0 | 0 |
+| Anti-pattern checks | 8 | 8 | 0 | 0 |
+| Terminology checks | 4 | 4 | 0 | 0 |
+| Dark mode | 4 | 4 | 0 | 0 |
+| Build verification | 1 | 1 | 0 | 0 |
+| Regression (Sprint 1-3) | 11 | 11 | 0 | 0 |
+| **TOTAL** | **166** | **166** | **0** | **0** |

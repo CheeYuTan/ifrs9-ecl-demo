@@ -1,4 +1,5 @@
 """Analytics middleware — records API request metrics to Lakebase for operational dashboards."""
+
 import logging
 import threading
 import time
@@ -18,19 +19,12 @@ def _should_record(path: str) -> bool:
     """Return True if the request path should be recorded."""
     if path in _EXCLUDED_EXACT:
         return False
-    for prefix in _EXCLUDED_PREFIXES:
-        if path.startswith(prefix):
-            return False
-    return True
+    return all(not path.startswith(prefix) for prefix in _EXCLUDED_PREFIXES)
 
 
 def _extract_user_id(request: Request) -> str:
     """Extract user identity from proxy headers, falling back to 'anonymous'."""
-    return (
-        request.headers.get("X-Forwarded-User")
-        or request.headers.get("X-User-Id")
-        or "anonymous"
-    )
+    return request.headers.get("X-Forwarded-User") or request.headers.get("X-User-Id") or "anonymous"
 
 
 def _fire_and_forget_record(
@@ -45,6 +39,7 @@ def _fire_and_forget_record(
     """Record the request in a daemon thread so we never block the response."""
     try:
         from domain.usage_analytics import record_request
+
         record_request(
             user_id=user_id,
             method=method,

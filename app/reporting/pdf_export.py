@@ -3,10 +3,12 @@
 Uses fpdf2 to generate formatted PDF documents with tables, headers,
 page numbers, and organization branding. Supports all 5 report types.
 """
+
 import io
 import json
 import logging
-from datetime import datetime as _dt, timezone as _tz
+from datetime import UTC
+from datetime import datetime as _dt
 
 from fpdf import FPDF
 
@@ -18,13 +20,21 @@ def _sanitize(text):
     if not isinstance(text, str):
         return str(text)
     replacements = {
-        '\u2014': '-', '\u2013': '-', '\u2018': "'", '\u2019': "'",
-        '\u201c': '"', '\u201d': '"', '\u2026': '...', '\u00a0': ' ',
-        '\u2022': '*', '\u2003': ' ', '\u2002': ' ',
+        "\u2014": "-",
+        "\u2013": "-",
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u2026": "...",
+        "\u00a0": " ",
+        "\u2022": "*",
+        "\u2003": " ",
+        "\u2002": " ",
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
-    return text.encode('latin-1', errors='replace').decode('latin-1')
+    return text.encode("latin-1", errors="replace").decode("latin-1")
 
 
 def _is_numeric(val):
@@ -73,7 +83,7 @@ class ECLReportPDF(FPDF):
         self.set_font("Helvetica", "I", 8)
         self.set_text_color(128, 128, 128)
         self.cell(0, 5, f"Page {self.page_no()}/{{nb}}", align="C", new_x="LMARGIN", new_y="NEXT")
-        ts = _dt.now(_tz.utc).strftime("%Y-%m-%d %H:%M UTC")
+        ts = _dt.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
         self.cell(0, 5, f"Generated: {ts} | Confidential", align="C")
 
     def section_title(self, title):

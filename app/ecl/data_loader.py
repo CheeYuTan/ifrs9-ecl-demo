@@ -1,8 +1,10 @@
 """
 ECL Engine -- data loading from Lakebase.
 """
-import pandas as pd
+
 import backend
+import pandas as pd
+
 from ecl.config import _t
 
 
@@ -11,13 +13,13 @@ def _load_loans() -> pd.DataFrame:
         SELECT loan_id, product_type, assessed_stage,
                gross_carrying_amount, effective_interest_rate,
                current_lifetime_pd, remaining_months
-        FROM {_t('model_ready_loans')}
+        FROM {_t("model_ready_loans")}
     """)
 
 
 def _load_scenarios() -> pd.DataFrame:
     df = backend.query_df(f"""
-        SELECT * FROM {_t('mc_ecl_distribution')}
+        SELECT * FROM {_t("mc_ecl_distribution")}
     """)
     defaults = {
         "avg_pd_multiplier": 1.0,

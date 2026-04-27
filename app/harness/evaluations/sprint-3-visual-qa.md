@@ -1,125 +1,110 @@
 # Sprint 3 Visual QA Report
 
-**Sprint**: 3 — Backend API: Model Registry, Backtesting, Markov, Hazard
-**Type**: Backend API testing sprint (178 new tests, no UI changes)
+**Sprint**: 3 — User Guide: Workflow Steps 5-8 (Model Execution, Stress Testing, Overlays, Sign-Off)
+**Type**: Documentation sprint (4 new/rewritten User Guide pages)
 **Quality Target**: 9.5/10
-**Date**: 2026-04-02
+**Date**: 2026-04-04
 
-## Sprint Context
+## Page Load Summary
 
-Sprint 3 is a **testing-only sprint** — it added 178 new pytest tests covering 23 API endpoints across 4 route files (models, backtesting, markov, hazard). No application code, UI components, or styling was modified. Visual QA focuses on verifying zero regressions and validating the live API endpoints match their test expectations.
+All 4 Sprint 3 pages load successfully on the live dev server (localhost:3000):
 
-## Screenshot Summary
+| Page | URL | HTTP Status | Lines |
+|------|-----|-------------|-------|
+| Step 5: Model Execution | `/docs/user-guide/step-5-model-execution` | 200 | 157 |
+| Step 6: Stress Testing | `/docs/user-guide/step-6-stress-testing` | 200 | 179 |
+| Step 7: Overlays | `/docs/user-guide/step-7-overlays` | 200 | 168 |
+| Step 8: Sign-Off | `/docs/user-guide/step-8-sign-off` | 200 | 177 |
 
-Screenshots captured for all 11 primary pages in both light and dark mode (22 screenshots total in `harness/screenshots/sprint-3/`).
+All pages meet the 150-line minimum. Total: 681 lines.
 
-### Pages Rendering Correctly
-| Page | Notes |
-|------|-------|
-| **Home** (`/`) | Project creation form, workflow stepper, sidebar nav — all functional |
-| **Model Registry** (`/models`) | KPI cards (8 total, 1 active, 0 retired), data table with 8 models, status badges |
-| **GL Journals** (`/gl-journals`) | 12 journal entries, debit/credit columns, balanced status, tabs (Entries/Trial Balance/Chart of Accounts) |
-| **Reports** (`/reports`) | 5 report types (IFRS 7, ECL Movement, Stage Migration, Sensitivity, Concentration), 9 generated reports |
-| **Admin** (`/admin`) | Data mapping, model config tabs, data source connection to `expected_credit_loss` schema |
-| **Advanced** (`/advanced`) | 3 feature tabs visible (Cure Rates, CCF Analysis, Collateral Haircuts) |
+## Build Verification
 
-### Pages in Loading/Empty State (Pre-existing)
-| Page | Notes |
-|------|-------|
-| **Backtesting** (`/backtesting`) | Loading spinner — correlates with DB schema error on `/api/backtest/run` |
-| **Markov Chains** (`/markov`) | Loading state with green icon, no data content |
-| **Hazard Models** (`/hazard`) | Loading spinner — data-dependent, no pre-existing data |
-| **Attribution** (`/attribution`) | Blank page — requires project data to populate |
-| **Approvals** (`/approval`) | Loading spinner — requires approval workflow data |
+- `npm run build`: **SUCCESS** — 0 errors, 0 warnings, 0 broken links
+- Static output deployed to `docs_site/`
 
-**Note**: These loading states are all PRE-EXISTING conditions — Sprint 3 only added test files and did not modify any application code.
+## Cross-Reference Audit
 
-## API Endpoint Testing Results
+All internal links resolve:
 
-### Model Registry (7 endpoints) — All Working
-- `GET /api/models`: Returns list of 8 models with correct structure
-- `POST /api/models`: Creates model successfully
-- `GET /api/models/{id}`: Returns 404 for non-existent model (correct)
-- `PUT /api/models/{id}/status`: Returns 422 for invalid transitions (correct)
-- `POST /api/models/compare`: Validates string ID requirement (correct)
-- `GET /api/models/{id}/audit`: Returns empty list (correct for no audit events)
+| Source Page | Target | Status |
+|------------|--------|--------|
+| Step 5 | Step 4 (predecessor) | 200 |
+| Step 5 | Step 6 (successor) | 200 |
+| Step 6 | Step 5 (predecessor) | 200 |
+| Step 6 | Step 7 (successor) | 200 |
+| Step 7 | Step 6 (predecessor) | 200 |
+| Step 7 | Step 8 (successor) | 200 |
+| Step 8 | Step 7 (predecessor) | 200 |
+| Step 8 | regulatory-reports | 200 |
+| Step 8 | gl-journals | 200 |
+| Step 8 | step-1-create-project | 200 |
+| Step 8 | attribution | 200 |
 
-### Backtesting (4 endpoints) — 1 Bug Found
-- `POST /api/backtest/run`: **BUG-3-001** — Returns 500 with DB schema error (`column "detail" of relation "backtest_metrics" does not exist`)
-- `GET /api/backtest/results`: Returns list of 1 result (working)
-- `GET /api/backtest/trend/{type}`: Returns trend data (working)
+## Sidebar Navigation
 
-### Markov Chain (6 endpoints) — All Working
-- `POST /api/markov/estimate`: Returns full matrix with `matrix_id`, `model_name`, `matrix_data`, `matrix_type`
-- `GET /api/markov/matrices`: Returns list (working)
-- `GET /api/markov/matrix/{id}`: Returns 404 for non-existent (correct)
-- `POST /api/markov/forecast`: Validates required `initial_distribution` field (correct)
-- `GET /api/markov/lifetime-pd/{id}`: Returns 404 when no data (correct)
-- `POST /api/markov/compare`: Validates string ID requirement (correct)
+All 4 pages correctly registered in `sidebars.ts` under User Guide category with correct ordering (positions 6-9). Sidebar includes all 18 User Guide pages.
 
-### Hazard Model (6 endpoints) — All Working
-- `POST /api/hazard/estimate`: Returns model with coefficients and baseline hazard
-- `GET /api/hazard/models`: Returns list (working)
-- `POST /api/hazard/estimate` (invalid type): Returns 400 (correct)
-- `POST /api/hazard/survival-curve`: Validates string ID requirement (correct)
-- `GET /api/hazard/term-structure/{id}`: Returns term structure (working)
-- `POST /api/hazard/compare`: Validates string ID requirement (correct)
+## Screenshot References
 
-## Test Suite Verification
+3 screenshot images referenced, all return 200:
+- `/img/screenshots/step-5-results.png` (placeholder)
+- `/img/screenshots/step-7-waterfall.png` (placeholder)
+- `/img/screenshots/step-8-summary.png` (placeholder)
 
-| Metric | Value |
-|--------|-------|
-| Sprint 3 tests added | 178 |
-| Sprint 3 tests passing | 178/178 (100%) |
-| Full backend suite | 3,046 passed, 61 skipped, 0 failed |
-| Execution time | 78.4s |
-| Regressions from prior tests | **0** (zero) |
-| Baseline test count | 2,868 (all still passing) |
-
-## Dark Mode Audit
-
-Dark mode was verified across all 10 captured page pairs:
-- **No white flashes** detected on any page
-- **Theme consistency**: Dark background, proper text contrast on all pages
-- **Best pages**: GL Journals and Reports show excellent dark mode with proper data table styling
-- **Loading states**: Same loading spinners in both themes (consistent)
+**Note**: Screenshots are placeholder images (copies of step-1 screenshot). This is acceptable for a documentation sprint — actual screenshots will be captured when the live app features are built.
 
 ## Design Consistency Audit
 
-| Aspect | Assessment |
-|--------|-----------|
-| Color palette | Consistent green primary (#10B981), dark sidebar, white/dark backgrounds |
-| Typography | Consistent font sizing across pages, readable table data |
-| KPI cards | Consistent design on Home, Models, GL Journals, Reports |
-| Sidebar navigation | Consistent across all pages, active state highlighting works |
-| Data tables | Consistent column alignment, status badges, action buttons |
-| Loading states | Consistent spinner design across Backtesting, Hazard, Approval |
-| Dark mode | No visual artifacts, proper contrast maintained |
+### Structural Consistency
+All 4 pages follow identical structure pattern matching Sprint 2 pages:
+1. Frontmatter (sidebar_position, title, description)
+2. H1 title with introductory paragraph
+3. :::info Prerequisites block with link to predecessor step
+4. "What You'll Do" section
+5. "Step-by-Step Instructions" with numbered H3 subsections
+6. "Understanding the Results" explanatory section
+7. "Tips & Best Practices" with admonitions
+8. "What's Next?" with link to successor step
+
+### Content Quality
+- **Tables**: Heavy use (21-36 rows per page) — well-structured with consistent column headers
+- **Admonitions**: 5-8 per page using :::tip, :::warning, :::caution, :::info appropriately
+- **Terminology**: Correct IFRS 9 terms throughout (ECL, PD, LGD, EAD, SICR, Stage 1/2/3, B5.5.17)
+- **Tone**: Business-user friendly, no technical jargon leaking from developer/admin personas
+
+### Persona Isolation (STRICT)
+| Check | Step 5 | Step 6 | Step 7 | Step 8 |
+|-------|--------|--------|--------|--------|
+| Code blocks | 0 | 0 | 0 | 0 |
+| API endpoint refs | 0 | 0 | 0 | 0 |
+| Python/JSON code | 0 | 0 | 0 | 0 |
+| Test file refs | 0 | 0 | 0 | 0 |
+
+Zero persona violations across all 4 pages.
+
+## Regression Test
+
+Full regression across all 33 sidebar pages: **33/33 return HTTP 200**. No regressions from Sprint 3 changes.
 
 ## Console Errors
 
-No server-side errors observed during endpoint testing. The backtest run endpoint returns a structured error response (not an unhandled crash).
+N/A — Docusaurus SPA with server-side rendering. Build completes with 0 errors. No JavaScript errors detectable in build output.
+
+## Interaction Manifest Summary
+
+- **Total elements tested**: 62
+- **TESTED**: 62
+- **BUG**: 0
+- **SKIPPED**: 0
+- **PENDING**: 0
 
 ## Bugs Found
 
-### BUG-3-001: Backtest Run DB Schema Error (MAJOR, Pre-existing)
-- **Endpoint**: `POST /api/backtest/run`
-- **Error**: `column "detail" of relation "backtest_metrics" does not exist`
-- **Impact**: Backtesting page cannot load, backtest run functionality broken
-- **Sprint 3 regression?**: **NO** — Sprint 3 only added test files. This is a pre-existing DB schema mismatch.
-- **Severity**: MAJOR (blocks a feature) but not a Sprint 3 issue
+None.
 
-## Recommendation: PROCEED
+## Recommendation: **PROCEED**
 
-**Rationale**: Sprint 3 is a testing-only sprint that added 178 backend API tests. The Visual QA confirms:
+All 4 Sprint 3 pages are well-structured, content-rich, correctly cross-referenced, and follow the established design pattern. Persona isolation is clean. Build succeeds with 0 errors. No regressions detected. The documentation quality is high and appropriate for the IFRS 9 domain.
 
-1. **Zero regressions** — all 2,868 prior tests still pass
-2. **178/178 new tests pass** — all Sprint 3 tests are green
-3. **Frontend unaffected** — all 11 routes serve HTTP 200, no visual changes
-4. **API endpoints functional** — 22/23 endpoints respond correctly (1 pre-existing bug)
-5. **Dark mode intact** — consistent theming across all pages
-6. **No Sprint 3-introduced bugs** — the only bug found (BUG-3-001) is pre-existing
-
-The pre-existing backtest DB schema issue (BUG-3-001) should be tracked for a future sprint but does not block Sprint 3 evaluation since Sprint 3 did not introduce or worsen it.
-
-**PROCEED to Evaluator.**
+**Minor observation** (not blocking): Screenshot images are placeholders. This is expected for a documentation-only sprint and noted for future replacement.

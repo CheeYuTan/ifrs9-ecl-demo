@@ -1,8 +1,8 @@
 EXIT CODE: 0
-DURATION: 868s
+DURATION: 1043s
 
 --- STDOUT ---
-The background task completed successfully — its output was already incorporated into the integration test findings above. The report at `harness/evaluations/integration-test-2.md` is complete.
+Already captured — 545 sprint-specific tests passed. All results are in the integration report at `harness/evaluations/integration-test-2.md`.
 
 
 --- STDERR ---

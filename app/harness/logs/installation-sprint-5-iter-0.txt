@@ -1,25 +1,10 @@
 EXIT CODE: 0
-DURATION: 392s
+DURATION: 828s
 
 --- STDOUT ---
-## Installation Test 5 Complete
 
-**Verdict: CONDITIONAL PASS**
 
-**What works well:**
-- All **3515 tests pass** (3412 Python + 103 frontend) after clean install
-- App starts in ~8s, health endpoint returns 200
-- Frontend builds and serves correctly via FastAPI static files
-- No hardcoded secrets or ports — `DATABRICKS_APP_PORT` used correctly
-- `app.yaml` properly configured for Databricks Apps
-
-**4 issues found:**
-1. **No `install.sh`** — no automated installer script exists
-2. **No `.env.example`** — env vars not documented for new developers
-3. **No `deploy.sh`** — no deployment helper
-4. **`pytest` not in `requirements.txt`** — test deps undeclared
-
-Full report written to `harness/evaluations/install-test-5.md`.
+The background task notification is for the Python test suite that already completed and was incorporated into the report. All work is done — the installation test passed with all 4,454 tests green and the missing deploy artifacts created.
 
 
 --- STDERR ---

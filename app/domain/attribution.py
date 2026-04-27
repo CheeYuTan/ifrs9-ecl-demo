@@ -17,12 +17,15 @@ All components computed from actual loan-level data. No hardcoded percentage
 fallbacks. If data is unavailable, the component is reported as
 "data_unavailable" rather than estimated with synthetic ratios.
 """
+
 import json as _json
 import logging
-import pandas as pd
-from datetime import datetime as _dt, timezone as _tz
+from datetime import UTC
+from datetime import datetime as _dt
 
-from db.pool import query_df, execute, _t, SCHEMA, PREFIX
+import pandas as pd
+from db.pool import SCHEMA, _t, execute, query_df
+
 from domain.workflow import get_project
 
 log = logging.getLogger(__name__)
@@ -71,14 +74,12 @@ def _stage_val(d: dict | None, stage: int) -> float:
 
 
 def _stage_dict(s1: float = 0, s2: float = 0, s3: float = 0) -> dict:
-    return {"stage1": round(s1, 2), "stage2": round(s2, 2), "stage3": round(s3, 2),
-            "total": round(s1 + s2 + s3, 2)}
+    return {"stage1": round(s1, 2), "stage2": round(s2, 2), "stage3": round(s3, 2), "total": round(s1 + s2 + s3, 2)}
 
 
 def _unavailable(reason: str) -> dict:
     """Return a data_unavailable component with explanation."""
-    return {"stage1": 0.0, "stage2": 0.0, "stage3": 0.0, "total": 0.0,
-            "status": "data_unavailable", "reason": reason}
+    return {"stage1": 0.0, "stage2": 0.0, "stage3": 0.0, "total": 0.0, "status": "data_unavailable", "reason": reason}
 
 
 def _safe_query(sql: str, fallback_reason: str) -> tuple[pd.DataFrame | None, str | None]:
@@ -104,13 +105,16 @@ def compute_attribution(project_id: str) -> dict:
     data_gaps = []
 
     # ── 1. Closing ECL by stage ──────────────────────────────────────────────
-    ecl_df, err = _safe_query(f"""
+    ecl_df, err = _safe_query(
+        f"""
         SELECT assessed_stage,
                ROUND(SUM(total_ecl)::numeric, 2) as total_ecl
-        FROM {_t('portfolio_ecl_summary')}
+        FROM {_t("portfolio_ecl_summary")}
         GROUP BY assessed_stage
         ORDER BY assessed_stage
-    """, "portfolio_ecl_summary")
+    """,
+        "portfolio_ecl_summary",
+    )
 
     closing = {1: 0.0, 2: 0.0, 3: 0.0}
     if ecl_df is not None:
@@ -127,19 +131,24 @@ def compute_attribution(project_id: str) -> dict:
     else:
         opening_ecl = _estimate_opening_ecl(closing)
 
-    opening = {1: float(opening_ecl.get("stage1", 0)),
-               2: float(opening_ecl.get("stage2", 0)),
-               3: float(opening_ecl.get("stage3", 0))}
+    opening = {
+        1: float(opening_ecl.get("stage1", 0)),
+        2: float(opening_ecl.get("stage2", 0)),
+        3: float(opening_ecl.get("stage3", 0)),
+    }
 
     # ── 3. New originations — loans originated in reporting period ───────────
-    orig_df, err = _safe_query(f"""
+    orig_df, err = _safe_query(
+        f"""
         SELECT l.assessed_stage,
                ROUND(SUM(e.weighted_ecl)::numeric, 2) as ecl
-        FROM {_t('model_ready_loans')} l
-        JOIN {_t('loan_ecl_weighted')} e ON l.loan_id = e.loan_id
+        FROM {_t("model_ready_loans")} l
+        JOIN {_t("loan_ecl_weighted")} e ON l.loan_id = e.loan_id
         WHERE l.origination_date >= (CURRENT_DATE - INTERVAL '90 days')
         GROUP BY l.assessed_stage
-    """, "new originations query")
+    """,
+        "new originations query",
+    )
 
     if orig_df is not None:
         orig_ecl = {1: 0.0, 2: 0.0, 3: 0.0}
@@ -154,15 +163,18 @@ def compute_attribution(project_id: str) -> dict:
         orig_ecl = {1: 0.0, 2: 0.0, 3: 0.0}
 
     # ── 4. Derecognitions — matured/prepaid loans ────────────────────────────
-    derec_df, err = _safe_query(f"""
+    derec_df, err = _safe_query(
+        f"""
         SELECT l.assessed_stage,
                ROUND(SUM(e.weighted_ecl)::numeric, 2) as ecl
-        FROM {_t('model_ready_loans')} l
-        JOIN {_t('loan_ecl_weighted')} e ON l.loan_id = e.loan_id
+        FROM {_t("model_ready_loans")} l
+        JOIN {_t("loan_ecl_weighted")} e ON l.loan_id = e.loan_id
         WHERE l.remaining_months <= 0
            OR l.maturity_date <= CURRENT_DATE
         GROUP BY l.assessed_stage
-    """, "derecognitions query")
+    """,
+        "derecognitions query",
+    )
 
     if derec_df is not None:
         derec_ecl = {1: 0.0, 2: 0.0, 3: 0.0}
@@ -180,23 +192,29 @@ def compute_attribution(project_id: str) -> dict:
     transfers = {1: 0.0, 2: 0.0, 3: 0.0}
     transfer_detail = {}
 
-    mig_df, err = _safe_query(f"""
+    mig_df, err = _safe_query(
+        f"""
         SELECT original_stage, assessed_stage,
                SUM(loan_count) as loan_count,
                ROUND(SUM(total_gca)::numeric, 2) as total_gca
-        FROM {_t('ifrs7_stage_migration')}
+        FROM {_t("ifrs7_stage_migration")}
         GROUP BY original_stage, assessed_stage
         ORDER BY original_stage, assessed_stage
-    """, "stage migration query")
+    """,
+        "stage migration query",
+    )
 
     if mig_df is not None:
         avg_ecl_by_stage = {}
-        avg_df, _ = _safe_query(f"""
+        avg_df, _ = _safe_query(
+            f"""
             SELECT assessed_stage,
                    ROUND(AVG(weighted_ecl)::numeric, 2) as avg_ecl
-            FROM {_t('loan_ecl_weighted')}
+            FROM {_t("loan_ecl_weighted")}
             GROUP BY assessed_stage
-        """, "average ECL by stage")
+        """,
+            "average ECL by stage",
+        )
         if avg_df is not None:
             for _, row in avg_df.iterrows():
                 avg_ecl_by_stage[int(row["assessed_stage"])] = float(row["avg_ecl"])
@@ -216,8 +234,7 @@ def compute_attribution(project_id: str) -> dict:
                 transfers[orig_s] -= impact
             if dest_s in transfers:
                 transfers[dest_s] += impact
-        stage_transfers = {**_stage_dict(transfers[1], transfers[2], transfers[3]),
-                           **transfer_detail}
+        stage_transfers = {**_stage_dict(transfers[1], transfers[2], transfers[3]), **transfer_detail}
     else:
         data_gaps.append("stage_transfers")
         stage_transfers = _unavailable("No stage migration data available")
@@ -248,26 +265,32 @@ def compute_attribution(project_id: str) -> dict:
 
     # ── 7. Write-offs — actual write-off events from historical defaults ─────
     wo = {1: 0.0, 2: 0.0, 3: 0.0}
-    wo_df, err = _safe_query(f"""
+    wo_df, err = _safe_query(
+        f"""
         SELECT COALESCE(SUM(gross_carrying_amount_at_default), 0) as total_writeoff
-        FROM {_t('historical_defaults')}
+        FROM {_t("historical_defaults")}
         WHERE default_date >= (CURRENT_DATE - INTERVAL '90 days')
           AND total_recovery_amount = 0
-    """, "write-offs from historical_defaults")
+    """,
+        "write-offs from historical_defaults",
+    )
 
     if wo_df is not None:
         total_wo = float(wo_df.iloc[0]["total_writeoff"])
         wo[3] = -abs(total_wo)
         write_offs = _stage_dict(wo[1], wo[2], wo[3])
     else:
-        wo_alt_df, _ = _safe_query(f"""
+        wo_alt_df, _ = _safe_query(
+            f"""
             SELECT l.assessed_stage,
                    ROUND(SUM(e.weighted_ecl)::numeric, 2) as ecl
-            FROM {_t('model_ready_loans')} l
-            JOIN {_t('loan_ecl_weighted')} e ON l.loan_id = e.loan_id
+            FROM {_t("model_ready_loans")} l
+            JOIN {_t("loan_ecl_weighted")} e ON l.loan_id = e.loan_id
             WHERE l.days_past_due >= 180 AND l.assessed_stage = 3
             GROUP BY l.assessed_stage
-        """, "write-off proxy from DPD>=180")
+        """,
+            "write-off proxy from DPD>=180",
+        )
         if wo_alt_df is not None:
             for _, row in wo_alt_df.iterrows():
                 stage = int(row["assessed_stage"])
@@ -280,10 +303,13 @@ def compute_attribution(project_id: str) -> dict:
             write_offs = _unavailable("No write-off data available")
 
     # ── 8. Unwind of discount — time value effect ────────────────────────────
-    eir_df, _ = _safe_query(f"""
+    eir_df, _ = _safe_query(
+        f"""
         SELECT ROUND(AVG(effective_interest_rate)::numeric, 6) as avg_eir
-        FROM {_t('model_ready_loans')}
-    """, "average EIR")
+        FROM {_t("model_ready_loans")}
+    """,
+        "average EIR",
+    )
     avg_eir = float(eir_df.iloc[0]["avg_eir"]) if eir_df is not None else 0.05
     quarterly_eir = avg_eir / 4.0
     unwind = {s: opening[s] * quarterly_eir for s in (1, 2, 3)}
@@ -319,9 +345,15 @@ def compute_attribution(project_id: str) -> dict:
     # ── 11. Model parameter changes — residual after all known components ────
     known = {}
     for s in (1, 2, 3):
-        known[s] = (orig_ecl.get(s, 0) + derec_ecl.get(s, 0) + transfers.get(s, 0) +
-                    overlay_ecl.get(s, 0) + wo.get(s, 0) + unwind.get(s, 0) +
-                    macro_ecl.get(s, 0))
+        known[s] = (
+            orig_ecl.get(s, 0)
+            + derec_ecl.get(s, 0)
+            + transfers.get(s, 0)
+            + overlay_ecl.get(s, 0)
+            + wo.get(s, 0)
+            + unwind.get(s, 0)
+            + macro_ecl.get(s, 0)
+        )
     total_change = {s: closing[s] - opening[s] for s in (1, 2, 3)}
     model_chg = {s: total_change[s] - known[s] for s in (1, 2, 3)}
     model_changes = _stage_dict(model_chg[1], model_chg[2], model_chg[3])
@@ -329,9 +361,17 @@ def compute_attribution(project_id: str) -> dict:
     # ── 12. Reconciliation check ─────────────────────────────────────────────
     residual_val = {s: 0.0 for s in (1, 2, 3)}
     for s in (1, 2, 3):
-        computed_closing = (opening[s] + orig_ecl.get(s, 0) + derec_ecl.get(s, 0) +
-                           transfers.get(s, 0) + model_chg[s] + macro_ecl[s] +
-                           overlay_ecl[s] + wo[s] + unwind[s])
+        computed_closing = (
+            opening[s]
+            + orig_ecl.get(s, 0)
+            + derec_ecl.get(s, 0)
+            + transfers.get(s, 0)
+            + model_chg[s]
+            + macro_ecl[s]
+            + overlay_ecl[s]
+            + wo[s]
+            + unwind[s]
+        )
         residual_val[s] = closing[s] - computed_closing
     residual = _stage_dict(residual_val[1], residual_val[2], residual_val[3])
 
@@ -350,14 +390,24 @@ def compute_attribution(project_id: str) -> dict:
 
     # ── 13. Build waterfall chart data ───────────────────────────────────────
     waterfall_data = _build_waterfall(
-        opening_ecl, new_originations, derecognitions, stage_transfers,
-        model_changes, macro_changes, management_overlays, write_offs,
-        unwind_discount, fx_changes, residual, closing_ecl,
+        opening_ecl,
+        new_originations,
+        derecognitions,
+        stage_transfers,
+        model_changes,
+        macro_changes,
+        management_overlays,
+        write_offs,
+        unwind_discount,
+        fx_changes,
+        residual,
+        closing_ecl,
     )
 
     # ── 14. Store in database ────────────────────────────────────────────────
-    attribution_id = f"{project_id}_{_dt.now(_tz.utc).strftime('%Y%m%d%H%M%S')}"
-    execute(f"""
+    attribution_id = f"{project_id}_{_dt.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    execute(
+        f"""
         INSERT INTO {ATTRIBUTION_TABLE}
             (attribution_id, project_id, reporting_date, opening_ecl, closing_ecl,
              new_originations, derecognitions, stage_transfers, model_changes,
@@ -373,14 +423,27 @@ def compute_attribution(project_id: str) -> dict:
             fx_changes=EXCLUDED.fx_changes, residual=EXCLUDED.residual,
             waterfall_data=EXCLUDED.waterfall_data, reconciliation=EXCLUDED.reconciliation,
             computed_at=NOW()
-    """, (attribution_id, project_id, reporting_date,
-          _json.dumps(opening_ecl), _json.dumps(closing_ecl),
-          _json.dumps(new_originations), _json.dumps(derecognitions),
-          _json.dumps(stage_transfers), _json.dumps(model_changes),
-          _json.dumps(macro_changes), _json.dumps(management_overlays),
-          _json.dumps(write_offs), _json.dumps(unwind_discount),
-          _json.dumps(fx_changes), _json.dumps(residual),
-          _json.dumps(waterfall_data), _json.dumps(reconciliation)))
+    """,
+        (
+            attribution_id,
+            project_id,
+            reporting_date,
+            _json.dumps(opening_ecl),
+            _json.dumps(closing_ecl),
+            _json.dumps(new_originations),
+            _json.dumps(derecognitions),
+            _json.dumps(stage_transfers),
+            _json.dumps(model_changes),
+            _json.dumps(macro_changes),
+            _json.dumps(management_overlays),
+            _json.dumps(write_offs),
+            _json.dumps(unwind_discount),
+            _json.dumps(fx_changes),
+            _json.dumps(residual),
+            _json.dumps(waterfall_data),
+            _json.dumps(reconciliation),
+        ),
+    )
 
     return {
         "attribution_id": attribution_id,
@@ -418,19 +481,34 @@ def _estimate_opening_ecl(closing: dict) -> dict:
 def _get_prior_attribution(project_id: str) -> dict | None:
     """Get the most recent prior attribution for a project."""
     try:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT * FROM {ATTRIBUTION_TABLE}
             WHERE project_id = %s
             ORDER BY computed_at DESC
             LIMIT 1 OFFSET 1
-        """, (project_id,))
+        """,
+            (project_id,),
+        )
         if df.empty:
             return None
         row = df.iloc[0].to_dict()
-        for col in ("opening_ecl", "closing_ecl", "new_originations", "derecognitions",
-                     "stage_transfers", "model_changes", "macro_changes",
-                     "management_overlays", "write_offs", "unwind_discount",
-                     "fx_changes", "residual", "waterfall_data", "reconciliation"):
+        for col in (
+            "opening_ecl",
+            "closing_ecl",
+            "new_originations",
+            "derecognitions",
+            "stage_transfers",
+            "model_changes",
+            "macro_changes",
+            "management_overlays",
+            "write_offs",
+            "unwind_discount",
+            "fx_changes",
+            "residual",
+            "waterfall_data",
+            "reconciliation",
+        ):
             v = row.get(col)
             if isinstance(v, str):
                 try:
@@ -442,9 +520,20 @@ def _get_prior_attribution(project_id: str) -> dict | None:
         return None
 
 
-def _build_waterfall(opening_ecl, new_originations, derecognitions, stage_transfers,
-                     model_changes, macro_changes, management_overlays, write_offs,
-                     unwind_discount, fx_changes, residual, closing_ecl) -> list:
+def _build_waterfall(
+    opening_ecl,
+    new_originations,
+    derecognitions,
+    stage_transfers,
+    model_changes,
+    macro_changes,
+    management_overlays,
+    write_offs,
+    unwind_discount,
+    fx_changes,
+    residual,
+    closing_ecl,
+) -> list:
     """Build waterfall chart data array with cumulative running totals."""
     items = [
         ("Opening ECL", opening_ecl.get("total", 0), "anchor"),
@@ -466,38 +555,63 @@ def _build_waterfall(opening_ecl, new_originations, derecognitions, stage_transf
         value = round(float(value), 2)
         if category == "anchor":
             cumulative = value
-            waterfall.append({
-                "name": name, "value": value, "cumulative": round(cumulative, 2),
-                "category": category, "base": 0,
-            })
+            waterfall.append(
+                {
+                    "name": name,
+                    "value": value,
+                    "cumulative": round(cumulative, 2),
+                    "category": category,
+                    "base": 0,
+                }
+            )
         else:
             base = cumulative
             cumulative += value
-            waterfall.append({
-                "name": name, "value": value, "cumulative": round(cumulative, 2),
-                "category": category, "base": round(base, 2),
-            })
+            waterfall.append(
+                {
+                    "name": name,
+                    "value": value,
+                    "cumulative": round(cumulative, 2),
+                    "category": category,
+                    "base": round(base, 2),
+                }
+            )
     return waterfall
 
 
 def get_attribution(project_id: str) -> dict | None:
     """Retrieve the latest attribution for a project."""
     try:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT * FROM {ATTRIBUTION_TABLE}
             WHERE project_id = %s
             ORDER BY computed_at DESC
             LIMIT 1
-        """, (project_id,))
+        """,
+            (project_id,),
+        )
     except Exception:
         return None
     if df.empty:
         return None
     row = df.iloc[0].to_dict()
-    for col in ("opening_ecl", "closing_ecl", "new_originations", "derecognitions",
-                 "stage_transfers", "model_changes", "macro_changes",
-                 "management_overlays", "write_offs", "unwind_discount",
-                 "fx_changes", "residual", "waterfall_data", "reconciliation"):
+    for col in (
+        "opening_ecl",
+        "closing_ecl",
+        "new_originations",
+        "derecognitions",
+        "stage_transfers",
+        "model_changes",
+        "macro_changes",
+        "management_overlays",
+        "write_offs",
+        "unwind_discount",
+        "fx_changes",
+        "residual",
+        "waterfall_data",
+        "reconciliation",
+    ):
         v = row.get(col)
         if isinstance(v, str):
             try:
@@ -510,11 +624,14 @@ def get_attribution(project_id: str) -> dict | None:
 def get_attribution_history(project_id: str) -> list[dict]:
     """Return all historical attributions for a project, newest first."""
     try:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT * FROM {ATTRIBUTION_TABLE}
             WHERE project_id = %s
             ORDER BY computed_at DESC
-        """, (project_id,))
+        """,
+            (project_id,),
+        )
     except Exception:
         return []
     if df.empty:
@@ -522,10 +639,22 @@ def get_attribution_history(project_id: str) -> list[dict]:
     results = []
     for _, row in df.iterrows():
         d = row.to_dict()
-        for col in ("opening_ecl", "closing_ecl", "new_originations", "derecognitions",
-                     "stage_transfers", "model_changes", "macro_changes",
-                     "management_overlays", "write_offs", "unwind_discount",
-                     "fx_changes", "residual", "waterfall_data", "reconciliation"):
+        for col in (
+            "opening_ecl",
+            "closing_ecl",
+            "new_originations",
+            "derecognitions",
+            "stage_transfers",
+            "model_changes",
+            "macro_changes",
+            "management_overlays",
+            "write_offs",
+            "unwind_discount",
+            "fx_changes",
+            "residual",
+            "waterfall_data",
+            "reconciliation",
+        ):
             v = d.get(col)
             if isinstance(v, str):
                 try:

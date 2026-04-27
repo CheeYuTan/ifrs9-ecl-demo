@@ -785,9 +785,13 @@ class TestMarkovRoutes:
             resp = client.post("/api/markov/compare", json={"matrix_ids": ["mx-001", "mx-002"]})
         assert resp.status_code == 200
 
+    def test_markov_compare_single_id_returns_422(self, client):
+        resp = client.post("/api/markov/compare", json={"matrix_ids": ["mx-001"]})
+        assert resp.status_code == 422
+
     def test_markov_compare_error_returns_500(self, client):
         with patch("backend.compare_matrices", side_effect=Exception("comparison failed")):
-            resp = client.post("/api/markov/compare", json={"matrix_ids": ["mx-001"]})
+            resp = client.post("/api/markov/compare", json={"matrix_ids": ["mx-001", "mx-002"]})
         assert resp.status_code == 500
 
 

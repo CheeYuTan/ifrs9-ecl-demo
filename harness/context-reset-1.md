@@ -1,51 +1,29 @@
-# Context Reset 1 — After Sprint 3
+# Context Reset 1 — After Sprint 2
 
 ## Current State
-- **Phase**: BUILD_AGENT
-- **Sprint**: Starting Sprint 4 of 7
-- **Quality Target**: 9.0/10
-- **Score Trajectory**: Sprints 1-3 passed (no evaluator scoring yet — need to add)
+- Sprints completed: Sprint 1 (9.8), Sprint 2 (9.8)
+- Current sprint: 3 — Test Coverage Expansion
+- Remaining spec items: Sprint 4 (Security), Sprint 5 (Performance), Sprint 6 (CI/CD)
+- Background agents pending: none yet (integration batch triggers at sprint 3 completion)
+- Active debt: none
 
-## Architecture Decisions Made
-1. **Compatibility shim approach**: `backend.py` re-exports all symbols from new modules so existing `import backend` and `patch("backend.func")` in tests continue to work
-2. **sys.path-based imports**: All modules use bare imports (`from db.pool import ...`) since `app/` is on sys.path
-3. **No test modifications**: All 33 new modules created without changing any existing test file
-4. **scipy dependency**: Added for calibration tests (binomial, Hosmer-Lemeshow, Jeffreys, Spiegelhalter)
+## Key Decisions Made
+- Pyright configured with basic mode + suppression flags for pandas/numpy stubs
+- Ruff rule set: E, F, W, I, UP, B, SIM
+- ESLint at 17 errors (down from 559)
+- 1 pre-existing flaky test (test_35j_section_included_in_ifrs7) — test ordering issue, not a code bug
+- Server startup: COMMENT ON TABLE wrapped in try/except due to shared Lakebase permissions
+- Dev server running on port 8001
 
-## Domain Context (SME Active)
-- IFRS 9 Expected Credit Loss platform for banking
-- Key regulatory references: IFRS 9.5.5.1-5.5.20, IFRS 7.35H-35N, BCBS d350, EBA/GL/2017/16
-- Core ECL methodology is sound; improvements focus on governance, validation, auditability
-- See `harness/sme/domain-brief.md` for full analysis
-
-## Completed Sprints
-1. **Modularize Backend** — Split 4,807-line backend.py into 13 domain + 16 route modules
-2. **Real Backtesting Engine** — Replaced hardcoded LGD metrics, added calibration tests
-3. **RBAC Enforcement** — Auth middleware, permission dependencies, ECL hash verification
-
-## Remaining Sprints
-4. **Attribution Waterfall from Actual Data** — Fix IFRS 7.35I compliance, eliminate hardcoded percentage fallbacks
-5. **Model Registry & Validation Framework** — Model lifecycle, challenger comparison, out-of-sample testing
-6. **Domain Validation Rules & Data Quality** — 23 domain rules enforced programmatically
-7. **Comprehensive Testing & Polish** — Full coverage, terminology cleanup, docs updates
-
-## Exact Next Step
-- Write `harness/contracts/sprint-4.md`
-- Read `app/domain/attribution.py` (446 lines) to understand current waterfall implementation
-- Replace hardcoded percentage fallbacks with loan-level attribution computation
-- Write unit tests for attribution engine
-- Run evaluator
-
-## Files to Read on Resume
-1. `harness/state.json` — current state
-2. `harness/progress.md` — sprint status table
-3. `harness/spec.md` — full improvement plan
-4. `harness/sme/domain-brief.md` — Section 7 (Attribution Requirements)
-5. `app/domain/attribution.py` — current implementation to improve
-6. `app/backend.py` — re-export shim (verify it's up to date)
+## Open Evaluator Feedback
+- No bugs found in Sprint 1 or Sprint 2 evaluations
+- No deferred items
 
 ## Test Baseline
-```
-153 passed, 2 pre-existing failures (job config)
-New test files: test_backtesting.py (45), test_rbac.py (25)
-```
+- Frontend: 540/540 pass (56 test files)
+- Backend: 4274 passed, 61 skipped
+
+## Files to Re-Read on Resume
+- harness/spec.md (Sprint 3 acceptance criteria at line 53)
+- harness/state.json
+- harness/evaluations/sprint-2-eval.md

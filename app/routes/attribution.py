@@ -1,7 +1,11 @@
 """Attribution / waterfall routes — /api/data/attribution/*"""
-import json, logging
-from fastapi import APIRouter, HTTPException
+
+import json
+import logging
+
 import backend
+from fastapi import APIRouter, HTTPException
+
 from routes._utils import DecimalEncoder
 
 log = logging.getLogger(__name__)
@@ -20,6 +24,7 @@ def get_attribution(project_id: str):
         log.exception("Failed to get attribution")
         raise HTTPException(500, f"Failed to get attribution: {e}")
 
+
 @router.post("/attribution/{project_id}/compute")
 def compute_attribution(project_id: str):
     try:
@@ -28,6 +33,7 @@ def compute_attribution(project_id: str):
     except Exception as e:
         log.exception("Failed to compute attribution")
         raise HTTPException(500, f"Failed to compute attribution: {e}")
+
 
 @router.get("/attribution/{project_id}/history")
 def attribution_history(project_id: str):

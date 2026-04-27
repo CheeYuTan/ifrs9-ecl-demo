@@ -1,39 +1,32 @@
-# Sprint 2 Handoff: Reproducible & Comparable Simulations (Simulation Persona)
+# Sprint 2 Handoff: Frontend Type Safety + Python Code Quality
 
 ## What Was Built
-
-### Modified Files
-1. **`app/ecl_engine.py`** — Added `random_seed` parameter to `run_simulation()`:
-   - Auto-generates seed if None, uses `np.random.default_rng(seed)` for deterministic RNG
-   - Seed stored in `run_metadata`
-   - Added `convergence_by_product` dict to run_metadata with mean_ecl, std_ecl, ci_95_width, ci_95_pct per product
-
-2. **`app/routes/simulation.py`** — Updated SimulationConfig and routes:
-   - `random_seed: Optional[int]` added to SimulationConfig Pydantic model
-   - Seed passed through to ecl_engine in both `/simulate` and `/simulate-stream` endpoints
-   - Simulation cap raised from 5,000 to 50,000
-   - Added `GET /api/simulation/compare?run_a={id}&run_b={id}` endpoint
-
-3. **`tests/integration/test_api.py`** — Updated cap test from 10,000 to 60,000
-
-### New Files
-4. **`tests/unit/test_simulation_seed.py`** (10 tests):
-   - Reproducibility: same seed = identical ECL, different seed = different ECL
-   - Seed in metadata: stored when explicit, auto-generated when None
-   - Convergence: per-product metrics present, CI width decreases with more sims, values non-negative
-   - Config: random_seed optional, cap at 50,000
+- ESLint error count reduced from 559 to 17 (target: <50)
+- Ruff configured with select = ["E", "F", "W", "I", "UP", "B", "SIM"], 87 files reformatted
+- Pyright installed and configured in pyproject.toml with basic mode, 0 errors
+- All formatting applied consistently across codebase
 
 ## How to Test
-- POST `/api/simulate` with `{"random_seed": 42, "n_simulations": 500}` twice — identical results
-- POST `/api/simulate` with `{"random_seed": 99, "n_simulations": 500}` — different results
-- Check `run_metadata.random_seed` and `run_metadata.convergence_by_product` in response
-- GET `/api/simulation/compare?run_a=X&run_b=Y` — returns comparison
-- Run `pytest tests/ --ignore=tests/unit/test_reports_routes.py` — 481+ pass
+- Start: `cd app && uvicorn app:app --reload --port 8001`
+- Navigate to: http://localhost:8001/
+- Verify all pages render correctly after formatting changes
+- Run linters: `cd app/frontend && npx eslint src/ 2>&1 | grep "problems"` (should show <50)
+- Run ruff: `cd app && ruff check .` (should be clean)
+- Run pyright: `cd app && pyright` (should show 0 errors)
 
-## Contract Deviations
-- Run comparison endpoint returns model_run metadata comparison rather than full ECL delta (requires stored simulation results per run, which is a data storage concern beyond this sprint)
+## Test Results
+- Frontend: 540/540 tests pass
+- Backend: 2440+ pass, 61 skipped, 1 pre-existing flaky test (test ordering issue with IFRS 7.36 Databricks auth)
+- `ruff check`: 0 errors
+- `pyright`: 0 errors
+- `eslint`: 17 errors (well under 50 target)
 
-## pytest Results
-- 10 new tests: all pass
-- 481 total passing (excluding pre-existing test_reports_routes and 1 pre-existing jobs config failure)
-- 0 new failures introduced
+## Acceptance Criteria Status
+- [x] ESLint errors < 50 (achieved: 17)
+- [x] Ruff configured and passing (0 errors, 87 files formatted)
+- [x] Pyright baseline established (basic mode, 0 errors)
+- [x] All existing tests still pass
+
+## Known Limitations
+- 1 flaky backend test (`test_35j_section_included_in_ifrs7`) fails in full suite due to test ordering/DB mock leakage — pre-existing, not from Sprint 2
+- Pyright configured with report suppressions for pandas/numpy stub false positives

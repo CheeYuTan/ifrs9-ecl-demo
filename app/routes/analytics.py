@@ -1,9 +1,10 @@
 """Analytics routes — /api/admin/analytics/*"""
-import logging
-from fastapi import APIRouter, HTTPException
 
-from domain.usage_analytics import get_usage_stats, get_recent_requests
-from db.pool import query_df, SCHEMA
+import logging
+
+from db.pool import SCHEMA, query_df
+from domain.usage_analytics import get_recent_requests, get_usage_stats
+from fastapi import APIRouter, HTTPException
 
 log = logging.getLogger(__name__)
 

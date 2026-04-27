@@ -6,15 +6,15 @@ Green = acceptable, Amber = borderline, Red = failing.
 """
 
 METRIC_THRESHOLDS = {
-    "AUC":   {"green": 0.70, "amber": 0.60, "direction": "higher_better"},
-    "Gini":  {"green": 0.40, "amber": 0.20, "direction": "higher_better"},
-    "KS":    {"green": 0.30, "amber": 0.15, "direction": "higher_better"},
-    "PSI":   {"green": 0.10, "amber": 0.25, "direction": "lower_better"},
+    "AUC": {"green": 0.70, "amber": 0.60, "direction": "higher_better"},
+    "Gini": {"green": 0.40, "amber": 0.20, "direction": "higher_better"},
+    "KS": {"green": 0.30, "amber": 0.15, "direction": "higher_better"},
+    "PSI": {"green": 0.10, "amber": 0.25, "direction": "lower_better"},
     "Brier": {"green": 0.15, "amber": 0.25, "direction": "lower_better"},
     "Hosmer_Lemeshow_pvalue": {"green": 0.05, "amber": 0.01, "direction": "higher_better"},
     "Binomial_pass_rate": {"green": 0.80, "amber": 0.60, "direction": "higher_better"},
-    "MAE":   {"green": 0.10, "amber": 0.20, "direction": "lower_better"},
-    "RMSE":  {"green": 0.15, "amber": 0.25, "direction": "lower_better"},
+    "MAE": {"green": 0.10, "amber": 0.20, "direction": "lower_better"},
+    "RMSE": {"green": 0.15, "amber": 0.25, "direction": "lower_better"},
     "Mean_Bias": {"green": 0.05, "amber": 0.10, "direction": "lower_better"},
     "Median_Bias": {"green": 0.05, "amber": 0.10, "direction": "lower_better"},
 }

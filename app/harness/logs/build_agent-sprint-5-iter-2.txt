@@ -1,20 +1,19 @@
 EXIT CODE: 0
-DURATION: 712s
+DURATION: 331s
 
 --- STDOUT ---
-Sprint 5 iteration 2 build is complete. Summary:
+Sprint 5 iteration 2 build complete. Summary:
 
-**All 6 evaluator bugs fixed:**
-- **BUG-S5-001**: 9 `text-slate-600` → added `dark:text-slate-300` pairs
-- **BUG-S5-002**: 4 `text-slate-700` → added `dark:text-slate-200` pairs
-- **BUG-S5-003**: ~35 `text-slate-500` → added `dark:text-slate-400` pairs
-- **BUG-S5-004**: 1 `border-slate-100` → added `dark:border-slate-700` pair
-- **BUG-S5-005**: 4 new scanner functions + 52 new parameterized tests
-- **BUG-S5-006**: Skipped (pre-existing, not sprint 5 scope)
+**What was fixed:**
+- **admin-guide/model-configuration.md** — `<=` and `>=` operators in table cells broke MDX JSX parsing. Replaced with Unicode `≤` and `≥`.
+- **admin-guide/theme-customization.md** — Bare `<html>` in prose text parsed as JSX tags. Replaced with backtick-escaped or descriptive alternatives.
+- **developer/ecl-engine.md** — `>=` in table cells broke MDX. Replaced with `≥`.
 
-**Test results**: 260 sprint 5 tests pass (up from 208), 2035 total tests pass, 0 failures.
+**Build status:** `npm run build` → 0 errors, 0 warnings. Deployed to `docs_site/`.
 
-**12 .tsx files fixed**, **2 .py test files updated**, committed as `ba0642b`.
+**Sprint 5 pages (unchanged, all passing):** approval-workflow (183 lines), attribution (166), markov-hazard (200), advanced-features (217), faq (196). Zero persona violations, correct IFRS 9 terminology, all links valid.
+
+Handoff written to `harness/handoffs/sprint-5-handoff.md`. Ready for Visual QA → Evaluator.
 
 
 --- STDERR ---

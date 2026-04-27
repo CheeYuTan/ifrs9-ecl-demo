@@ -1,10 +1,12 @@
 """
 ECL Engine -- get_defaults() for simulation parameter discovery.
 """
+
 import backend
-from ecl.constants import DEFAULT_SAT, DEFAULT_SCENARIO_WEIGHTS
+
 import ecl.config as _cfg
 import ecl.data_loader as _dl
+from ecl.constants import DEFAULT_SAT, DEFAULT_SCENARIO_WEIGHTS
 from ecl.helpers import _df_to_records
 
 
@@ -19,29 +21,33 @@ def get_defaults() -> dict:
 
     scenario_info = []
     for _, row in scenarios_df.iterrows():
-        scenario_info.append({
-            "scenario": row["scenario"],
-            "weight": float(row["weight"]),
-            "ecl_mean": float(row["ecl_mean"]),
-            "ecl_p50": float(row["ecl_p50"]),
-            "ecl_p75": float(row["ecl_p75"]),
-            "ecl_p95": float(row["ecl_p95"]),
-            "ecl_p99": float(row["ecl_p99"]),
-            "avg_pd_multiplier": float(row["avg_pd_multiplier"]),
-            "avg_lgd_multiplier": float(row["avg_lgd_multiplier"]),
-            "pd_vol": float(row["pd_vol"]),
-            "lgd_vol": float(row["lgd_vol"]),
-        })
+        scenario_info.append(
+            {
+                "scenario": row["scenario"],
+                "weight": float(row["weight"]),
+                "ecl_mean": float(row["ecl_mean"]),
+                "ecl_p50": float(row["ecl_p50"]),
+                "ecl_p75": float(row["ecl_p75"]),
+                "ecl_p95": float(row["ecl_p95"]),
+                "ecl_p99": float(row["ecl_p99"]),
+                "avg_pd_multiplier": float(row["avg_pd_multiplier"]),
+                "avg_lgd_multiplier": float(row["avg_lgd_multiplier"]),
+                "pd_vol": float(row["pd_vol"]),
+                "lgd_vol": float(row["lgd_vol"]),
+            }
+        )
 
     product_info = []
     for product, lgd in base_lgd.items():
         sat = dyn_sat.get(product, DEFAULT_SAT)
-        product_info.append({
-            "product_type": product,
-            "base_lgd": lgd,
-            "pd_lgd_correlation": sat["pd_lgd_corr"],
-            "annual_prepay_rate": sat["annual_prepay_rate"],
-        })
+        product_info.append(
+            {
+                "product_type": product,
+                "base_lgd": lgd,
+                "pd_lgd_correlation": sat["pd_lgd_corr"],
+                "annual_prepay_rate": sat["annual_prepay_rate"],
+            }
+        )
 
     default_params = {
         "n_sims": 1000,

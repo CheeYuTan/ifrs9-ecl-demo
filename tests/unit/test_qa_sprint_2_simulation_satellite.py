@@ -522,9 +522,7 @@ class TestSimulateValidate:
 
     def test_n_simulations_above_max(self, client):
         resp = client.post("/api/simulate-validate", json={"n_simulations": 999999})
-        data = resp.json()
-        assert data["valid"] is False
-        assert any("Maximum" in e or "maximum" in e.lower() for e in data["errors"])
+        assert resp.status_code == 422
 
     def test_scenario_weights_not_summing_to_1(self, client):
         resp = client.post("/api/simulate-validate", json={

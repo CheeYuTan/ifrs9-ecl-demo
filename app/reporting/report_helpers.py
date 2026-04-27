@@ -4,13 +4,15 @@ Sub-modules should ``import reporting.report_helpers as _h`` and reference
 dependencies as ``_h.query_df``, ``_h.get_project``, etc.  This keeps a
 single patchable location for tests that mock DB / domain calls.
 """
+
 import json as _json
 import logging
-from datetime import datetime as _dt, timezone as _tz
+from datetime import UTC
+from datetime import datetime as _dt
 
-from db.pool import query_df, execute, _t, SCHEMA
-from domain.workflow import get_project
-from domain.attribution import get_attribution, compute_attribution
+from db.pool import SCHEMA, _t, execute, query_df  # noqa: F401 — re-exported for sub-modules
+from domain.attribution import compute_attribution, get_attribution  # noqa: F401
+from domain.workflow import get_project  # noqa: F401
 
 log = logging.getLogger(__name__)
 
@@ -34,15 +36,19 @@ def ensure_report_tables():
 
 
 def _report_id(report_type: str, project_id: str) -> str:
-    ts = _dt.now(_tz.utc).strftime("%Y%m%d%H%M%S")
+    ts = _dt.now(UTC).strftime("%Y%m%d%H%M%S")
     return f"RPT-{report_type[:4].upper()}-{project_id}-{ts}"
 
 
-def save_report(report_id: str, project_id: str, report_type: str,
-                report_date: str, user: str, report_data: dict) -> None:
+def save_report(
+    report_id: str, project_id: str, report_type: str, report_date: str, user: str, report_data: dict
+) -> None:
     """Persist a report row into the regulatory_reports table."""
     ensure_report_tables()
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {REPORT_TABLE} (report_id, project_id, report_type, report_date, status, generated_by, report_data)
         VALUES (%s, %s, %s, %s, 'draft', %s, %s::jsonb)
-    """, (report_id, project_id, report_type, report_date, user, _json.dumps(report_data, default=str)))
+    """,
+        (report_id, project_id, report_type, report_date, user, _json.dumps(report_data, default=str)),
+    )

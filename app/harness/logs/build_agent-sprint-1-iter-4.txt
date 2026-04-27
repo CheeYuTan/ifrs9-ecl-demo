@@ -1,15 +1,20 @@
 EXIT CODE: 0
-DURATION: 537s
+DURATION: 119s
 
 --- STDOUT ---
-Sprint 1, iteration 4 complete.
+Sprint 1 iteration 4 is complete. Summary:
 
-**Summary:**
-- Added **36 new tests** in `test_qa_sprint_1_iter4_error_paths.py` covering error paths, boundary values, and edge cases
-- Sprint 1 total: **272 tests** across 3 files
-- Full suite: **2,691 passed**, 61 skipped, **0 failures**
-- Key coverage added: backend exception propagation (create, overlays, weights), partial failure paths, RBAC permission rejection, verify-hash edge cases (empty string hash, None signed_off_at), data boundary values (stage=0/-1, empty scenario, URL-encoded types), setup edge cases (empty body, None return)
-- Committed as `1614509`
+- **All 84 tests pass** (37 permissions + 28 members + 8 homepage regression + 11 content quality)
+- **Docs-site builds clean** — 0 errors, 0 warnings
+- **All 4 eval bugs confirmed fixed** with regression tests guarding against recurrence:
+  - BUG-S1-001: No "Hello from" title prefix
+  - BUG-S1-002: Real IFRS 9 meta description
+  - BUG-S1-003: IFRS 9 feature cards (not stock Docusaurus)
+  - BUG-S1-004: `onBrokenLinks: 'throw'`
+- **Modular code**: Both `project_permissions.py` and `project_members.py` at 149 lines each
+- Handoff updated at `harness/handoffs/sprint-1-handoff.md`
+
+Ready for re-evaluation. The evaluator noted that fixing the 4 bugs should bring UI/UX from 8.0→9.0+ and Code Quality from 9.0→9.5, pushing the weighted total above the 9.5 target.
 
 
 --- STDERR ---

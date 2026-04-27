@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { ChevronUp, ChevronDown, Download, Search } from 'lucide-react';
 
 interface Column {
@@ -23,7 +23,7 @@ interface Props {
   exportName?: string;
 }
 
-export default function DataTable({ columns, data, pageSize = 15, onRowClick, selectedRow, compact, exportName }: Props) {
+function DataTable({ columns, data, pageSize = 15, onRowClick, selectedRow, compact, exportName }: Props) {
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -32,20 +32,20 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
   // Reset page when data changes
   useEffect(() => { setPage(0); }, [data]);
 
-  const filtered = search
+  const filtered = useMemo(() => search
     ? data.filter(row => columns.some(c => { const v = row[c.key]; return v != null && String(v).toLowerCase().includes(search.toLowerCase()); }))
-    : data;
+    : data, [data, columns, search]);
 
-  const sorted = sortKey
+  const sorted = useMemo(() => sortKey
     ? [...filtered].sort((a, b) => {
         const av = a[sortKey], bv = b[sortKey];
         const cmp = typeof av === 'number' ? av - bv : String(av).localeCompare(String(bv));
         return sortDir === 'asc' ? cmp : -cmp;
       })
-    : filtered;
+    : filtered, [filtered, sortKey, sortDir]);
 
   const totalPages = Math.ceil(sorted.length / pageSize);
-  const paged = sorted.slice(page * pageSize, (page + 1) * pageSize);
+  const paged = useMemo(() => sorted.slice(page * pageSize, (page + 1) * pageSize), [sorted, page, pageSize]);
 
   const toggleSort = (key: string) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -140,3 +140,5 @@ export default function DataTable({ columns, data, pageSize = 15, onRowClick, se
     </div>
   );
 }
+
+export default memo(DataTable);

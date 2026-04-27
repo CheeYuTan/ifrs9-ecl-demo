@@ -68,6 +68,18 @@ class TestConvergenceCheckFromPaths:
         result = ecl_engine._convergence_check_from_paths(paths, 100)
         assert result["coefficient_of_variation"] == pytest.approx(0.0, abs=1e-6)
 
+    def test_single_path_no_division_error(self):
+        import ecl_engine
+        paths = np.array([5000.0])
+        result = ecl_engine._convergence_check_from_paths(paths, 1)
+        assert np.isfinite(result["coefficient_of_variation"])
+
+    def test_nan_in_paths_handled(self):
+        import ecl_engine
+        paths = np.array([1000.0, np.nan, 2000.0, 3000.0])
+        result = ecl_engine._convergence_check_from_paths(paths, 4)
+        assert np.isfinite(result["coefficient_of_variation"])
+
 
 class TestRunSimulation:
     """Test run_simulation with mocked data loaders."""
@@ -184,6 +196,135 @@ class TestRunSimulationEdgeCases:
              patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
             with pytest.raises(ValueError, match="No loans found"):
                 ecl_engine.run_simulation(n_sims=10)
+
+    def test_zero_eir_loans_produce_valid_ecl(self, sample_scenarios_df):
+        """Loans with zero EIR should not produce NaN/Inf via division."""
+        import ecl_engine
+        rng = np.random.default_rng(42)
+        loans = pd.DataFrame({
+            "loan_id": [f"LN-{i}" for i in range(5)],
+            "product_type": ["personal_loan"] * 5,
+            "assessed_stage": [1, 1, 2, 2, 3],
+            "gross_carrying_amount": [10000.0] * 5,
+            "effective_interest_rate": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "current_lifetime_pd": [0.05, 0.10, 0.20, 0.30, 0.80],
+            "remaining_months": [12, 24, 36, 48, 12],
+        })
+        with patch("ecl_engine._load_loans", return_value=loans), \
+             patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
+            result = ecl_engine.run_simulation(n_sims=50, random_seed=42)
+
+        for s in result["scenario_results"]:
+            assert np.isfinite(s["total_ecl"]), f"NaN/Inf ECL for scenario {s['scenario']}"
+        for r in result["portfolio_summary"]:
+            assert np.isfinite(r["total_ecl"]), "NaN/Inf in portfolio summary"
+
+    def test_single_simulation_run(self, sample_loans_df, sample_scenarios_df):
+        """n_sims=1 should produce valid results without division-by-zero in std."""
+        import ecl_engine
+        with patch("ecl_engine._load_loans", return_value=sample_loans_df), \
+             patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
+            result = ecl_engine.run_simulation(n_sims=1, random_seed=42)
+
+        meta = result["run_metadata"]
+        assert meta["n_sims"] == 1
+        for prod_conv in meta["convergence_by_product"].values():
+            assert np.isfinite(prod_conv["std_ecl"])
+            assert np.isfinite(prod_conv["ci_95_width"])
+
+    def test_empty_scenario_weights_falls_back_to_defaults(self, sample_loans_df, sample_scenarios_df):
+        """Empty scenario weights dict falls back to DEFAULT_SCENARIO_WEIGHTS."""
+        import ecl_engine
+        with patch("ecl_engine._load_loans", return_value=sample_loans_df), \
+             patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
+            result = ecl_engine.run_simulation(n_sims=10, scenario_weights={})
+        assert len(result["scenario_results"]) == len(ecl_engine.DEFAULT_SCENARIO_WEIGHTS)
+
+    def test_extreme_pd_values_clipped(self, sample_scenarios_df):
+        """PD values > 1.0 or < 0 should be clipped in prepare_loan_columns."""
+        from ecl.monte_carlo import prepare_loan_columns
+        loans = pd.DataFrame({
+            "loan_id": ["L1", "L2", "L3"],
+            "product_type": ["personal_loan"] * 3,
+            "assessed_stage": [1, 2, 3],
+            "gross_carrying_amount": [10000.0, 20000.0, 5000.0],
+            "effective_interest_rate": [0.10, 0.15, 0.20],
+            "current_lifetime_pd": [-0.05, 1.5, 0.50],
+            "remaining_months": [12, 24, 36],
+        })
+        prepared = prepare_loan_columns(loans, {"personal_loan": 0.50})
+        assert (prepared["base_pd"] >= 0.0).all()
+        assert (prepared["base_pd"] <= 1.0).all()
+        assert (prepared["eir"] >= 0.001).all()
+
+
+class TestSprint1EdgeCaseFixes:
+    """Regression tests for Sprint 1 Monte Carlo edge case fixes."""
+
+    def test_n_sims_zero_raises(self, sample_loans_df, sample_scenarios_df):
+        import ecl_engine
+        with patch("ecl_engine._load_loans", return_value=sample_loans_df), \
+             patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
+            with pytest.raises(ValueError, match="n_sims must be >= 1"):
+                ecl_engine.run_simulation(n_sims=0)
+
+    def test_n_sims_negative_raises(self, sample_loans_df, sample_scenarios_df):
+        import ecl_engine
+        with patch("ecl_engine._load_loans", return_value=sample_loans_df), \
+             patch("ecl_engine._load_scenarios", return_value=sample_scenarios_df):
+            with pytest.raises(ValueError, match="n_sims must be >= 1"):
+                ecl_engine.run_simulation(n_sims=-5)
+
+    def test_convergence_check_single_sim(self):
+        from ecl.helpers import _convergence_check
+        ecl_sims = np.array([[100.0], [200.0], [50.0]])
+        result = _convergence_check(ecl_sims, 1)
+        assert result["coefficient_of_variation"] == 0.0
+        assert result["ecl_at_100pct_sims"] == 350.0
+
+    def test_convergence_check_from_paths_single_sim(self):
+        from ecl.helpers import _convergence_check_from_paths
+        paths = np.array([5000.0])
+        result = _convergence_check_from_paths(paths, 1)
+        assert result["coefficient_of_variation"] == 0.0
+        assert result["ecl_at_100pct_sims"] == 5000.0
+
+    def test_eir_floor_assertion(self):
+        from ecl.monte_carlo import prepare_loan_columns
+        loans = pd.DataFrame({
+            "loan_id": ["L1"], "product_type": ["personal_loan"],
+            "assessed_stage": [1], "gross_carrying_amount": [10000.0],
+            "effective_interest_rate": [0.0], "current_lifetime_pd": [0.05],
+            "remaining_months": [12],
+        })
+        prepared = prepare_loan_columns(loans, {"personal_loan": 0.50})
+        assert (prepared["eir"] >= 0.001).all()
+
+    def test_nan_in_ecl_batch_cleaned(self):
+        from ecl.monte_carlo import run_scenario_sims
+        rng = np.random.default_rng(42)
+        n_loans, n_sims = 3, 10
+        result = run_scenario_sims(
+            rng=rng, n_loans=n_loans, n_sims=n_sims, batch_size=10,
+            rho_1d=np.full(n_loans, 0.3), base_pd=np.array([0.05, 0.10, 0.20]),
+            base_lgd_arr=np.array([0.45, 0.50, 0.55]),
+            pd_mult=1.0, lgd_mult=1.0, pd_vol=0.05, lgd_vol=0.03,
+            pd_floor=0.001, pd_cap=0.95, lgd_floor=0.01, lgd_cap=0.95,
+            aging_factor=0.08, is_stage_23_1d=np.array([False, True, True]),
+            max_horizon=np.array([4, 8, 8]), global_max_q=8,
+            quarterly_prepay=np.array([0.01, 0.01, 0.01]),
+            rem_months_f=np.array([12.0, 24.0, 36.0]),
+            is_bullet=np.array([False, False, False]),
+            gca=np.array([10000.0, 20000.0, 5000.0]),
+            eir=np.array([0.10, 0.15, 0.20]),
+            products=np.array(["a", "a", "b"]),
+            unique_products=np.array(["a", "b"]),
+            product_sim_ecls={"a": np.zeros(n_sims), "b": np.zeros(n_sims)},
+            w=0.5,
+        )
+        loan_ecl, path_ecls = result
+        assert np.all(np.isfinite(loan_ecl))
+        assert np.all(np.isfinite(path_ecls))
 
 
 class TestGetDefaults:

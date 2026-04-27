@@ -3,8 +3,9 @@ Setup wizard functions for IFRS 9 ECL Application.
 These functions check table presence, connection health, and project state
 to drive the first-run setup wizard in the UI.
 """
+
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from admin_config_defaults import REQUIRED_INPUT_TABLES, REQUIRED_PROCESSED_TABLES
 
@@ -14,6 +15,7 @@ log = logging.getLogger(__name__)
 def _backend():
     """Return the backend module via admin_config to share the same reference."""
     import admin_config
+
     return admin_config.backend
 
 
@@ -111,11 +113,7 @@ def get_setup_status() -> dict:
     org_configured = bool(org_name and org_name != "Horizon Bank")
     organization = {
         "complete": org_configured,
-        "detail": (
-            f"{org_name} configured"
-            if org_configured
-            else "Default organization -- not yet customized"
-        ),
+        "detail": (f"{org_name} configured" if org_configured else "Default organization -- not yet customized"),
     }
 
     # Step 4: First project
@@ -158,16 +156,22 @@ def get_setup_status() -> dict:
 def mark_setup_complete(user: str = "admin") -> dict:
     """Mark the setup wizard as complete."""
     import admin_config
-    admin_config.save_config_section("setup", {
-        "completed": True,
-        "completed_at": datetime.now(timezone.utc).isoformat(),
-        "completed_by": user,
-    }, user)
+
+    admin_config.save_config_section(
+        "setup",
+        {
+            "completed": True,
+            "completed_at": datetime.now(UTC).isoformat(),
+            "completed_by": user,
+        },
+        user,
+    )
     return get_setup_status()
 
 
 def mark_setup_incomplete() -> dict:
     """Reset setup status so the wizard shows again."""
     import admin_config
+
     admin_config.save_config_section("setup", {"completed": False})
     return get_setup_status()

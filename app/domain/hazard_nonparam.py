@@ -1,8 +1,9 @@
 """Discrete-time logistic and Kaplan-Meier hazard model estimators."""
 
+import logging
 import math as _math
 import random as _random
-import logging
+
 import pandas as pd
 
 log = logging.getLogger(__name__)
@@ -30,12 +31,24 @@ def _estimate_discrete_time(df: pd.DataFrame, n_obs: int, n_events: int) -> dict
         "dpd_coefficient": dpd_coeff,
         "vintage_rates": vintage_rates,
         "covariates": [
-            {"name": "intercept", "coefficient": intercept, "std_error": round(abs(intercept) * 0.1, 4),
-             "p_value": 0.001},
-            {"name": "time_period", "coefficient": time_coeff, "std_error": round(abs(time_coeff) * 0.15, 5),
-             "p_value": round(max(0.001, 0.02), 4)},
-            {"name": "days_past_due", "coefficient": dpd_coeff, "std_error": round(abs(dpd_coeff) * 0.12, 5),
-             "p_value": round(max(0.001, 0.01), 4)},
+            {
+                "name": "intercept",
+                "coefficient": intercept,
+                "std_error": round(abs(intercept) * 0.1, 4),
+                "p_value": 0.001,
+            },
+            {
+                "name": "time_period",
+                "coefficient": time_coeff,
+                "std_error": round(abs(time_coeff) * 0.15, 5),
+                "p_value": round(max(0.001, 0.02), 4),
+            },
+            {
+                "name": "days_past_due",
+                "coefficient": dpd_coeff,
+                "std_error": round(abs(dpd_coeff) * 0.12, 5),
+                "p_value": round(max(0.001, 0.01), 4),
+            },
         ],
     }
 
@@ -51,21 +64,26 @@ def _estimate_discrete_time(df: pd.DataFrame, n_obs: int, n_events: int) -> dict
         h_t = round(min(max(h_t, 0.0001), 0.5), 6)
         baseline_hazard[str(t)] = h_t
         hazard_rates.append(h_t)
-        cum_survival *= (1 - h_t)
+        cum_survival *= 1 - h_t
         survival_probs.append(round(max(cum_survival, 0.001), 6))
 
-    ll = round(-n_events * _math.log(max(default_rate, 0.001)) - (n_obs - n_events) * _math.log(max(1 - default_rate, 0.001)), 2)
+    ll = round(
+        -n_events * _math.log(max(default_rate, 0.001)) - (n_obs - n_events) * _math.log(max(1 - default_rate, 0.001)),
+        2,
+    )
     k = 3
     aic_val = round(2 * k - 2 * (-ll), 2)
     bic_val = round(k * _math.log(n_obs) - 2 * (-ll), 2)
     concordance = round(min(0.92, 0.60 + 0.12 * (1 - default_rate) + 0.05 * _random.random()), 4)
 
-    curves = [{
-        "segment": "all",
-        "time_points": time_points,
-        "survival_probs": survival_probs,
-        "hazard_rates": hazard_rates,
-    }]
+    curves = [
+        {
+            "segment": "all",
+            "time_points": time_points,
+            "survival_probs": survival_probs,
+            "hazard_rates": hazard_rates,
+        }
+    ]
 
     segments = df["segment"].dropna().unique() if "segment" in df.columns else []
     for seg in segments[:5]:
@@ -79,14 +97,16 @@ def _estimate_discrete_time(df: pd.DataFrame, n_obs: int, n_events: int) -> dict
             seg_h = 1.0 / (1.0 + _math.exp(-seg_logit))
             seg_h = round(min(max(seg_h, 0.0001), 0.5), 6)
             seg_hazards.append(seg_h)
-            seg_cum *= (1 - seg_h)
+            seg_cum *= 1 - seg_h
             seg_survivals.append(round(max(seg_cum, 0.001), 6))
-        curves.append({
-            "segment": str(seg),
-            "time_points": time_points,
-            "survival_probs": seg_survivals,
-            "hazard_rates": seg_hazards,
-        })
+        curves.append(
+            {
+                "segment": str(seg),
+                "time_points": time_points,
+                "survival_probs": seg_survivals,
+                "hazard_rates": seg_hazards,
+            }
+        )
 
     return {
         "coefficients": coefficients,
@@ -120,19 +140,21 @@ def _estimate_kaplan_meier(df: pd.DataFrame, n_obs: int, n_events: int) -> dict:
             continue
         h_t = round(d_t / at_risk, 6)
         hazard_rates.append(h_t)
-        cum_survival *= (1 - h_t)
+        cum_survival *= 1 - h_t
         survival_probs.append(round(max(cum_survival, 0.001), 6))
         at_risk -= d_t
 
     ll = round(-n_events * _math.log(max(default_rate, 0.001)), 2)
     concordance = round(min(0.88, 0.55 + 0.10 * (1 - default_rate) + 0.05 * _random.random()), 4)
 
-    curves = [{
-        "segment": "all",
-        "time_points": time_points,
-        "survival_probs": survival_probs,
-        "hazard_rates": hazard_rates,
-    }]
+    curves = [
+        {
+            "segment": "all",
+            "time_points": time_points,
+            "survival_probs": survival_probs,
+            "hazard_rates": hazard_rates,
+        }
+    ]
 
     products = df["product_type"].dropna().unique() if "product_type" in df.columns else []
     for prod in products[:6]:
@@ -153,15 +175,17 @@ def _estimate_kaplan_meier(df: pd.DataFrame, n_obs: int, n_events: int) -> dict:
                 continue
             h = round(d / prod_at_risk, 6)
             prod_hazards.append(h)
-            prod_cum *= (1 - h)
+            prod_cum *= 1 - h
             prod_survivals.append(round(max(prod_cum, 0.001), 6))
             prod_at_risk -= d
-        curves.append({
-            "segment": str(prod),
-            "time_points": time_points,
-            "survival_probs": prod_survivals,
-            "hazard_rates": prod_hazards,
-        })
+        curves.append(
+            {
+                "segment": str(prod),
+                "time_points": time_points,
+                "survival_probs": prod_survivals,
+                "hazard_rates": prod_hazards,
+            }
+        )
 
     return {
         "coefficients": {"method": "kaplan_meier", "non_parametric": True},

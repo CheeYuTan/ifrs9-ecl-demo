@@ -1,8 +1,16 @@
-EXIT CODE: 1
-DURATION: 720s
+EXIT CODE: 0
+DURATION: 261s
 
 --- STDOUT ---
-API Error: Unable to connect to API (ConnectionRefused)
+Sprint 5 iteration 3 complete. Summary of fixes:
+
+1. **BUG-S1-001 + BUG-S1-002**: Fixed homepage `<title>` (removed "Hello from" prefix) and `<meta description>` (replaced stock placeholder with IFRS 9 ECL description)
+2. **BUG-S1-003**: Replaced stock Docusaurus feature cards (dinosaur SVGs) with IFRS 9-relevant cards: "3-Stage Impairment Model", "Monte Carlo Simulation", "Regulatory Reporting"
+3. **BUG-S1-004**: Changed `onBrokenLinks: 'warn'` → `'throw'` so broken links fail the build
+4. **FIND-S3-001**: Added confidence intervals paragraph to Step 5 explaining P50/P75/P95/P99 percentiles with cross-reference to Step 6
+5. **FIND-S3-002**: Updated Step 6 frontmatter description to include "Monte Carlo distribution"
+
+Build: **0 errors, 0 warnings** (now with `onBrokenLinks: 'throw'`). Deployed to `docs_site/`. Committed as `31831d7`. Handoff written to `harness/handoffs/sprint-5-handoff.md`.
 
 
 --- STDERR ---

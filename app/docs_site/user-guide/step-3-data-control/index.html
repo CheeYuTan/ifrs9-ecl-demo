@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Step 3: Data Control | IFRS 9 ECL Platform</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://ecl-platform.databricks.com/docs/user-guide/step-3-data-control"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Step 3: Data Control | IFRS 9 ECL Platform"><meta data-rh="true" name="description" content="Running quality checks and approving data through maker-checker review."><meta data-rh="true" property="og:description" content="Running quality checks and approving data through maker-checker review."><link data-rh="true" rel="icon" href="/docs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://ecl-platform.databricks.com/docs/user-guide/step-3-data-control"><link data-rh="true" rel="alternate" href="https://ecl-platform.databricks.com/docs/user-guide/step-3-data-control" hreflang="en"><link data-rh="true" rel="alternate" href="https://ecl-platform.databricks.com/docs/user-guide/step-3-data-control" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Step 3: Data Control","item":"https://ecl-platform.databricks.com/docs/user-guide/step-3-data-control"}]}</script><link rel="stylesheet" href="/docs/assets/css/styles.a21350c5.css">
-<script src="/docs/assets/js/runtime~main.dfd3e96f.js" defer="defer"></script>
-<script src="/docs/assets/js/main.004664a7.js" defer="defer"></script>
+<script src="/docs/assets/js/runtime~main.0ff5ecd5.js" defer="defer"></script>
+<script src="/docs/assets/js/main.c4ce91ec.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -24,7 +24,7 @@
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-check-the-summary-kpis">1. Check the Summary KPIs<a href="#1-check-the-summary-kpis" class="hash-link" aria-label="Direct link to 1. Check the Summary KPIs" title="Direct link to 1. Check the Summary KPIs" translate="no">​</a></h3>
 <p>Four KPI cards at the top give you an immediate assessment:</p>
 <table><thead><tr><th>KPI</th><th>What It Shows</th><th>When to Investigate</th></tr></thead><tbody><tr><td><strong>DQ Score</strong></td><td>The percentage of data quality checks that passed (e.g., 96%)</td><td>Red if below the configured threshold (default: 90%)</td></tr><tr><td><strong>GL Reconciliation</strong></td><td>How many product-level GL reconciliations passed</td><td>Amber if any product fails reconciliation</td></tr><tr><td><strong>Critical Failures</strong></td><td>Count of quality checks with &quot;Critical&quot; severity that failed</td><td>Red if any critical failure — these must be resolved before proceeding</td></tr><tr><td><strong>Step Status</strong></td><td>Current approval state of this step</td><td>Green when approved, Amber when pending</td></tr></tbody></table>
-<p><img decoding="async" loading="lazy" alt="Data Control summary" src="/docs/assets/images/step-3-data-control-0afb6a8e6742cc94e3ff083ca4cf58b0.png" width="800" height="400" class="img_ev3q">
+<p><img decoding="async" loading="lazy" alt="Data Control summary" src="/docs/assets/images/step-3-data-control-0afb6a8e6742cc94e3ff083ca4cf58b0.png" width="1600" height="900" class="img_ev3q">
 <em>The Data Control page showing DQ Score, GL Reconciliation status, and quality check results.</em></p>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-review-the-gl-reconciliation">2. Review the GL Reconciliation<a href="#2-review-the-gl-reconciliation" class="hash-link" aria-label="Direct link to 2. Review the GL Reconciliation" title="Direct link to 2. Review the GL Reconciliation" translate="no">​</a></h3>
 <p>The <strong>GL Reconciliation</strong> table (per IFRS 7.35I) compares the loan tape balance against the General Ledger for each product type:</p>
@@ -55,7 +55,7 @@
 <li class="">Click <strong>Reject</strong></li>
 </ol>
 <p>Rejection sends the workflow back for rework. The rejection reason and your comment are recorded in the audit trail. The data team can then correct the issue and re-run data processing.</p>
-<p><img decoding="async" loading="lazy" alt="Approval form" src="/docs/assets/images/step-3-approval-form-0afb6a8e6742cc94e3ff083ca4cf58b0.png" width="800" height="400" class="img_ev3q">
+<p><img decoding="async" loading="lazy" alt="Approval form" src="/docs/assets/images/step-3-approval-form-0afb6a8e6742cc94e3ff083ca4cf58b0.png" width="1600" height="900" class="img_ev3q">
 <em>The approval/rejection panel. Comments are required for rejection and recommended for approval.</em></p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="understanding-the-results">Understanding the Results<a href="#understanding-the-results" class="hash-link" aria-label="Direct link to Understanding the Results" title="Direct link to Understanding the Results" translate="no">​</a></h2>
 <p>The DQ score and reconciliation results tell you whether the data is fit for purpose. Use the following decision framework:</p>

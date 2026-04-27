@@ -19,9 +19,10 @@ Complies with:
 CRUD operations (add/remove/list/get member, transfer ownership) live in
 governance/project_members.py.
 """
+
 import logging
 
-from db.pool import execute, SCHEMA
+from db.pool import SCHEMA, execute
 
 log = logging.getLogger(__name__)
 
@@ -54,10 +55,13 @@ def ensure_project_members_table():
             UNIQUE (project_id, user_id)
         )
     """)
-    execute(
-        f"COMMENT ON TABLE {PROJECT_MEMBERS_TABLE} IS "
-        f"'ifrs9ecl: Per-project role assignments for two-layer permission model'"
-    )
+    try:
+        execute(
+            f"COMMENT ON TABLE {PROJECT_MEMBERS_TABLE} IS "
+            f"'ifrs9ecl: Per-project role assignments for two-layer permission model'"
+        )
+    except Exception:
+        pass
     log.info("Ensured %s table exists", PROJECT_MEMBERS_TABLE)
 
 
@@ -70,9 +74,9 @@ def get_effective_role(user_id: str, project_id: str) -> str | None:
       3. project_members entry -> stored role
       4. None (no access)
     """
-    from governance.rbac import get_user
     from domain.workflow import get_project
-    from governance.project_members import get_project_member
+
+    from governance.rbac import get_user
 
     user = get_user(user_id)
     if user and user.get("role") == "admin":
@@ -92,9 +96,7 @@ def get_effective_role(user_id: str, project_id: str) -> str | None:
     return None
 
 
-def check_project_access(
-    user_id: str, project_id: str, required_role: str = "viewer"
-) -> dict:
+def check_project_access(user_id: str, project_id: str, required_role: str = "viewer") -> dict:
     """Check if a user has the required project role.
 
     Returns dict with keys: allowed, reason, effective_role.
@@ -115,9 +117,7 @@ def check_project_access(
         }
 
     allowed = role_level(effective) >= role_level(required_role)
-    reason = "" if allowed else (
-        f"Role '{effective}' insufficient; requires '{required_role}'"
-    )
+    reason = "" if allowed else (f"Role '{effective}' insufficient; requires '{required_role}'")
     return {
         "allowed": allowed,
         "reason": reason,
@@ -125,15 +125,19 @@ def check_project_access(
     }
 
 
-def _audit_permission_change(
-    project_id: str, action: str, performed_by: str, detail: dict
-):
+def _audit_permission_change(project_id: str, action: str, performed_by: str, detail: dict):
     """Log a permission change to the immutable audit trail."""
     try:
         from domain.audit_trail import append_audit_entry
+
         append_audit_entry(
-            project_id, "project_permission", "project_members",
-            project_id, action, performed_by, detail,
+            project_id,
+            "project_permission",
+            "project_members",
+            project_id,
+            action,
+            performed_by,
+            detail,
         )
     except Exception as exc:
         log.warning("Audit trail write failed for permission change: %s", exc)
@@ -141,9 +145,9 @@ def _audit_permission_change(
 
 # Re-export CRUD operations for backward compatibility
 from governance.project_members import (  # noqa: F401, E402
+    add_project_member,
     get_project_member,
     list_project_members,
-    add_project_member,
     remove_project_member,
     transfer_ownership,
 )

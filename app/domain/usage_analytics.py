@@ -5,10 +5,10 @@ Records API request metrics (user, endpoint, timing, status) to support
 operational dashboards, audit compliance (SOX 302, BCBS 239), and
 performance monitoring.
 """
-import logging
-from datetime import datetime, timezone
 
-from db.pool import query_df, execute, SCHEMA
+import logging
+
+from db.pool import SCHEMA, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -30,10 +30,10 @@ def ensure_usage_table():
             user_agent  TEXT
         )
     """)
-    execute(
-        f"COMMENT ON TABLE {USAGE_TABLE} IS "
-        f"'ifrs9ecl: API request usage analytics for operational dashboards'"
-    )
+    try:
+        execute(f"COMMENT ON TABLE {USAGE_TABLE} IS 'ifrs9ecl: API request usage analytics for operational dashboards'")
+    except Exception:
+        pass
     log.info("Ensured %s table exists", USAGE_TABLE)
 
 
@@ -47,13 +47,15 @@ def record_request(
     user_agent: str | None = None,
 ) -> None:
     """Insert a single usage analytics record."""
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {USAGE_TABLE}
             (user_id, method, endpoint, status_code, duration_ms,
              request_id, user_agent)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (user_id, method, endpoint, status_code, duration_ms,
-          request_id, user_agent))
+    """,
+        (user_id, method, endpoint, status_code, duration_ms, request_id, user_agent),
+    )
 
 
 def get_usage_stats(days: int = 7) -> dict:
@@ -62,7 +64,8 @@ def get_usage_stats(days: int = 7) -> dict:
     Returns dict with: total_requests, unique_users, avg_duration_ms,
     error_count (status >= 400), requests_today.
     """
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT
             COUNT(*)::INT                          AS total_requests,
             COUNT(DISTINCT user_id)::INT           AS unique_users,
@@ -71,7 +74,9 @@ def get_usage_stats(days: int = 7) -> dict:
             COUNT(*) FILTER (WHERE timestamp >= CURRENT_DATE)::INT AS requests_today
         FROM {USAGE_TABLE}
         WHERE timestamp >= NOW() - INTERVAL '%s days'
-    """, (days,))
+    """,
+        (days,),
+    )
     if df.empty:
         return {
             "total_requests": 0,
@@ -86,13 +91,16 @@ def get_usage_stats(days: int = 7) -> dict:
 
 def get_recent_requests(limit: int = 50) -> list[dict]:
     """Return the most recent usage records."""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT id, timestamp, user_id, method, endpoint,
                status_code, duration_ms, request_id, user_agent
         FROM {USAGE_TABLE}
         ORDER BY timestamp DESC
         LIMIT %s
-    """, (limit,))
+    """,
+        (limit,),
+    )
     if df.empty:
         return []
     records = df.to_dict("records")

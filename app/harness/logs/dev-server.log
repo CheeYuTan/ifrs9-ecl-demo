@@ -7015,3 +7015,763 @@ INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
 INFO:     Finished server process [96168]
 INFO:     Stopping reloader process [96164]
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 5.57s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 202.17ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 242.81ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 230.76ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 228.85ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 177.70ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 200.82ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.59s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 258.27ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 233.22ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 249.37ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 217.07ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 235.06ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 206.54ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.41s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 481.08ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 272.85ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 233.73ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.47s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 267.23ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 277.62ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.50s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 274.93ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 246.97ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.48s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 253.64ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 272.01ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.71s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 391.54ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 249.78ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 420.86ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 169.43ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 882.00ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 739.72ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 273.37ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 174.69ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 50.27ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 77.74ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 103.40ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 110.51ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 399.25ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 211.73ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.79s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 409.10ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 244.09ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 517.99ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 141.75ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 2.04s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 129.49ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 138.99ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 77.39ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 138.06ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 147.38ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 528.62ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 363.41ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 80.71ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 64.78ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 103.72ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 153.53ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 162.01ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/Users/steven.tan/Expected Credit Losses/app/docs-site/node_modules/@docusaurus/mdx-loader/lib/index.js??ruleSet[1].rules[8].use[0]!/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md': No serializer registered for VFileMessage
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> Error -> VFileMessage
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 192.84ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 62.74ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 158.24ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 138.62ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 66.47ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/Users/steven.tan/Expected Credit Losses/app/docs-site/node_modules/@docusaurus/mdx-loader/lib/index.js??ruleSet[1].rules[8].use[0]!/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md': No serializer registered for VFileMessage
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> Error -> VFileMessage
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 203.31ms
+Error: MDX compilation failed for file "/Users/steven.tan/Expected Credit Losses/app/docs-site/docs/admin-guide/model-configuration.md"
+Cause: Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`
+Details:
+{
+  "column": 37,
+  "file": "",
+  "message": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "line": 113,
+  "name": "113:37",
+  "place": {
+    "_bufferIndex": 5,
+    "_index": 0,
+    "line": 113,
+    "column": 37,
+    "offset": 5481
+  },
+  "reason": "Unexpected character `=` (U+003D) before name, expected a character that can start a name, such as a letter, `$`, or `_`",
+  "ruleId": "unexpected-character",
+  "source": "micromark-extension-mdx-jsx",
+  "url": "https://github.com/micromark/micromark-extension-mdx-jsx#unexpected-character-at-expected-expect"
+}
+client (webpack 5.105.4) compiled with 1 error
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 2.34s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.10s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 407.19ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 6.53s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 958.01ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 177.89ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 2.16s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 902.77ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 285.61ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 821.53ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 215.61ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 816.47ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 217.18ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.49s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.42s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 159.74ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 126.08ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 101.39ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 93.17ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 817.51ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 208.44ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 782.99ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 199.90ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 2.12s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 913.95ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 268.55ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.02s
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.97s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 824.17ms
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 299.17ms
+client (webpack 5.105.4) compiled successfully
+
+> docs-site@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/docs/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.45s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.32s
+client (webpack 5.105.4) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 234.11ms
+client (webpack 5.105.4) compiled successfully
+INFO:     Started server process [86029]
+INFO:     Waiting for application startup.
+2026-04-04T16:20:57 INFO __main__ Initializing Lakebase pool...
+2026-04-04T16:20:57 INFO db.pool PGHOST not set, falling back to CLI-based connection
+2026-04-04T16:20:57 INFO databricks.sdk loading lakemeter profile from ~/.databrickscfg: host, auth_type
+2026-04-04T16:20:57 INFO databricks.sdk Using Databricks CLI authentication
+2026-04-04T16:21:04 INFO db.pool Lakebase connected: PostgreSQL 16.12 (6d3029c) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit
+2026-04-04T16:21:06 ERROR db.pool execute failed: COMMENT ON TABLE expected_credit_loss.ecl_workflow IS 'ifrs9ecl: ECL project workflow state and step tracking'
+Traceback (most recent call last):
+  File "/Users/steven.tan/Expected Credit Losses/app/db/pool.py", line 235, in execute
+    cur.execute(sql, params)
+psycopg2.errors.InsufficientPrivilege: must be owner of table ecl_workflow
+
+ERROR:    Traceback (most recent call last):
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/site-packages/fastapi/routing.py", line 201, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/steven.tan/.pyenv/versions/3.12.5/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/steven.tan/Expected Credit Losses/app/app.py", line 54, in lifespan
+    backend.init_pool()
+  File "/Users/steven.tan/Expected Credit Losses/app/db/pool.py", line 97, in init_pool
+    ensure_workflow_table()
+  File "/Users/steven.tan/Expected Credit Losses/app/domain/workflow.py", line 52, in ensure_workflow_table
+    execute(f"COMMENT ON TABLE {WF_TABLE} IS 'ifrs9ecl: ECL project workflow state and step tracking'")
+  File "/Users/steven.tan/Expected Credit Losses/app/db/pool.py", line 235, in execute
+    cur.execute(sql, params)
+psycopg2.errors.InsufficientPrivilege: must be owner of table ecl_workflow
+
+
+ERROR:    Application startup failed. Exiting.

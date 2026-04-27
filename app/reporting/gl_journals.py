@@ -1,10 +1,10 @@
 import json as _json
-import uuid
 import logging
-import pandas as pd
-from datetime import datetime as _dt, timezone as _tz
+import uuid
+from datetime import UTC
+from datetime import datetime as _dt
 
-from db.pool import query_df, execute, _t, SCHEMA
+from db.pool import SCHEMA, _t, execute, query_df
 from domain.workflow import get_project
 
 log = logging.getLogger(__name__)
@@ -97,11 +97,14 @@ def _seed_gl_chart():
     if not df.empty and int(df.iloc[0]["cnt"]) > 0:
         return
     for code, name, atype, parent in _GL_SEED_ACCOUNTS:
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {GL_CHART_TABLE} (account_code, account_name, account_type, parent_account, is_ecl_related)
             VALUES (%s, %s, %s, %s, TRUE)
             ON CONFLICT (account_code) DO NOTHING
-        """, (code, name, atype, parent))
+        """,
+            (code, name, atype, parent),
+        )
     log.info("Seeded GL chart of accounts with %d IFRS 9 accounts", len(_GL_SEED_ACCOUNTS))
 
 
@@ -116,16 +119,24 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
     if not proj:
         raise ValueError(f"Project {project_id} not found")
 
-    journal_id = f"JE-{project_id}-{_dt.now(_tz.utc).strftime('%Y%m%d%H%M%S')}"
-    journal_date = proj.get("reporting_date") or _dt.now(_tz.utc).strftime("%Y-%m-%d")
+    journal_id = f"JE-{project_id}-{_dt.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    journal_date = proj.get("reporting_date") or _dt.now(UTC).strftime("%Y-%m-%d")
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {GL_JOURNAL_TABLE}
             (journal_id, project_id, journal_date, journal_type, status, created_by, description, reference)
         VALUES (%s, %s, %s, 'ecl_provision', 'draft', %s, %s, %s)
-    """, (journal_id, project_id, journal_date, user,
-          f"ECL provision journals for project {project_id}",
-          f"AUTO-{project_id}"))
+    """,
+        (
+            journal_id,
+            project_id,
+            journal_date,
+            user,
+            f"ECL provision journals for project {project_id}",
+            f"AUTO-{project_id}",
+        ),
+    )
 
     lines = []
     total_debit = 0.0
@@ -136,7 +147,7 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
         ecl_df = query_df(f"""
             SELECT product_type, assessed_stage,
                    ROUND(SUM(total_ecl)::numeric, 2) as total_ecl
-            FROM {_t('portfolio_ecl_summary')}
+            FROM {_t("portfolio_ecl_summary")}
             GROUP BY product_type, assessed_stage
             ORDER BY product_type, assessed_stage
         """)
@@ -150,10 +161,30 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
 
             line_id_dr = str(uuid.uuid4())
             line_id_cr = str(uuid.uuid4())
-            lines.append((line_id_dr, journal_id, _ECL_EXPENSE_ACCOUNT, ecl_amt, 0,
-                          product, str(stage), f"ECL charge - {product} Stage {stage}"))
-            lines.append((line_id_cr, journal_id, provision_acct, 0, ecl_amt,
-                          product, str(stage), f"ECL provision - {product} Stage {stage}"))
+            lines.append(
+                (
+                    line_id_dr,
+                    journal_id,
+                    _ECL_EXPENSE_ACCOUNT,
+                    ecl_amt,
+                    0,
+                    product,
+                    str(stage),
+                    f"ECL charge - {product} Stage {stage}",
+                )
+            )
+            lines.append(
+                (
+                    line_id_cr,
+                    journal_id,
+                    provision_acct,
+                    0,
+                    ecl_amt,
+                    product,
+                    str(stage),
+                    f"ECL provision - {product} Stage {stage}",
+                )
+            )
             total_debit += ecl_amt
             total_credit += ecl_amt
     except Exception as e:
@@ -174,10 +205,30 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
         product = o.get("product", "All")
         line_id_dr = str(uuid.uuid4())
         line_id_cr = str(uuid.uuid4())
-        lines.append((line_id_dr, journal_id, _OVERLAY_EXPENSE_ACCOUNT, amt, 0,
-                      product, "", f"Overlay: {o.get('reason', 'Management overlay')}"))
-        lines.append((line_id_cr, journal_id, _OVERLAY_PROVISION_ACCOUNT, 0, amt,
-                      product, "", f"Overlay provision: {o.get('reason', 'Management overlay')}"))
+        lines.append(
+            (
+                line_id_dr,
+                journal_id,
+                _OVERLAY_EXPENSE_ACCOUNT,
+                amt,
+                0,
+                product,
+                "",
+                f"Overlay: {o.get('reason', 'Management overlay')}",
+            )
+        )
+        lines.append(
+            (
+                line_id_cr,
+                journal_id,
+                _OVERLAY_PROVISION_ACCOUNT,
+                0,
+                amt,
+                product,
+                "",
+                f"Overlay provision: {o.get('reason', 'Management overlay')}",
+            )
+        )
         total_debit += amt
         total_credit += amt
 
@@ -186,8 +237,8 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
         wo_df = query_df(f"""
             SELECT l.product_type,
                    ROUND(SUM(e.weighted_ecl)::numeric, 2) as wo_ecl
-            FROM {_t('model_ready_loans')} l
-            JOIN {_t('loan_ecl_weighted')} e ON l.loan_id = e.loan_id
+            FROM {_t("model_ready_loans")} l
+            JOIN {_t("loan_ecl_weighted")} e ON l.loan_id = e.loan_id
             WHERE l.days_past_due >= 180 AND l.assessed_stage = 3
             GROUP BY l.product_type
         """)
@@ -196,42 +247,61 @@ def generate_ecl_journals(project_id: str, user: str = "system") -> dict:
             if wo_amt <= 0:
                 continue
             product = str(row["product_type"])
-            wo_journal_id = f"JE-WO-{project_id}-{_dt.now(_tz.utc).strftime('%Y%m%d%H%M%S')}"
+            wo_journal_id = f"JE-WO-{project_id}-{_dt.now(UTC).strftime('%Y%m%d%H%M%S')}"
 
-            execute(f"""
+            execute(
+                f"""
                 INSERT INTO {GL_JOURNAL_TABLE}
                     (journal_id, project_id, journal_date, journal_type, status, created_by, description, reference)
                 VALUES (%s, %s, %s, 'write_off', 'draft', %s, %s, %s)
                 ON CONFLICT (journal_id) DO NOTHING
-            """, (wo_journal_id, project_id, journal_date, user,
-                  f"Write-off entries for {product}", f"WO-{project_id}"))
+            """,
+                (wo_journal_id, project_id, journal_date, user, f"Write-off entries for {product}", f"WO-{project_id}"),
+            )
 
             line_id_dr = str(uuid.uuid4())
             line_id_cr = str(uuid.uuid4())
-            execute(f"""
+            execute(
+                f"""
                 INSERT INTO {GL_LINE_TABLE} (line_id, journal_id, account_code, debit, credit, product_type, stage, description)
                 VALUES (%s, %s, %s, %s, 0, %s, '3', %s)
-            """, (line_id_dr, wo_journal_id, _WRITEOFF_EXPENSE_ACCOUNT, wo_amt, product, f"Write-off - {product}"))
-            execute(f"""
+            """,
+                (line_id_dr, wo_journal_id, _WRITEOFF_EXPENSE_ACCOUNT, wo_amt, product, f"Write-off - {product}"),
+            )
+            execute(
+                f"""
                 INSERT INTO {GL_LINE_TABLE} (line_id, journal_id, account_code, debit, credit, product_type, stage, description)
                 VALUES (%s, %s, %s, 0, %s, %s, '3', %s)
-            """, (line_id_cr, wo_journal_id, _STAGE_PROVISION_ACCOUNT[3], wo_amt, product, f"Write-off release - {product}"))
+            """,
+                (
+                    line_id_cr,
+                    wo_journal_id,
+                    _STAGE_PROVISION_ACCOUNT[3],
+                    wo_amt,
+                    product,
+                    f"Write-off release - {product}",
+                ),
+            )
     except Exception as e:
         log.warning("Could not generate write-off lines: %s", e)
 
     # Insert all main journal lines
     for line in lines:
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {GL_LINE_TABLE}
                 (line_id, journal_id, account_code, debit, credit, product_type, stage, description)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, line)
+        """,
+            line,
+        )
 
     return get_journal(journal_id)
 
 
 def list_journals(project_id: str) -> list[dict]:
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT j.journal_id, j.project_id, j.journal_date, j.journal_type,
                j.status, j.created_by, j.posted_by, j.posted_at,
                j.description, j.reference, j.created_at,
@@ -245,7 +315,9 @@ def list_journals(project_id: str) -> list[dict]:
                  j.status, j.created_by, j.posted_by, j.posted_at,
                  j.description, j.reference, j.created_at
         ORDER BY j.created_at DESC
-    """, (project_id,))
+    """,
+        (project_id,),
+    )
     if df.empty:
         return []
     records = df.to_dict("records")
@@ -260,13 +332,16 @@ def get_journal(journal_id: str) -> dict | None:
         return None
     journal = df.iloc[0].to_dict()
 
-    lines_df = query_df(f"""
+    lines_df = query_df(
+        f"""
         SELECT l.*, c.account_name, c.account_type
         FROM {GL_LINE_TABLE} l
         LEFT JOIN {GL_CHART_TABLE} c ON l.account_code = c.account_code
         WHERE l.journal_id = %s
         ORDER BY l.debit DESC, l.account_code
-    """, (journal_id,))
+    """,
+        (journal_id,),
+    )
     journal["lines"] = lines_df.to_dict("records") if not lines_df.empty else []
 
     total_dr = sum(float(l.get("debit", 0)) for l in journal["lines"])
@@ -286,11 +361,14 @@ def post_journal(journal_id: str, user: str) -> dict:
     if not journal["balanced"]:
         raise ValueError("Journal does not balance — cannot post")
 
-    execute(f"""
+    execute(
+        f"""
         UPDATE {GL_JOURNAL_TABLE}
         SET status = 'posted', posted_by = %s, posted_at = NOW()
         WHERE journal_id = %s
-    """, (user, journal_id))
+    """,
+        (user, journal_id),
+    )
     return get_journal(journal_id)
 
 
@@ -301,33 +379,55 @@ def reverse_journal(journal_id: str, user: str, reason: str = "") -> dict:
     if journal["status"] != "posted":
         raise ValueError(f"Only posted journals can be reversed (current: {journal['status']})")
 
-    execute(f"""
+    execute(
+        f"""
         UPDATE {GL_JOURNAL_TABLE} SET status = 'reversed' WHERE journal_id = %s
-    """, (journal_id,))
+    """,
+        (journal_id,),
+    )
 
     rev_id = f"REV-{journal_id}"
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {GL_JOURNAL_TABLE}
             (journal_id, project_id, journal_date, journal_type, status, created_by, description, reference)
         VALUES (%s, %s, CURRENT_DATE, %s, 'posted', %s, %s, %s)
-    """, (rev_id, journal["project_id"], journal["journal_type"], user,
-          f"Reversal of {journal_id}: {reason}", f"REV-{journal_id}"))
+    """,
+        (
+            rev_id,
+            journal["project_id"],
+            journal["journal_type"],
+            user,
+            f"Reversal of {journal_id}: {reason}",
+            f"REV-{journal_id}",
+        ),
+    )
 
     for line in journal.get("lines", []):
-        execute(f"""
+        execute(
+            f"""
             INSERT INTO {GL_LINE_TABLE}
                 (line_id, journal_id, account_code, debit, credit, product_type, stage, description)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (str(uuid.uuid4()), rev_id, line["account_code"],
-              float(line.get("credit", 0)), float(line.get("debit", 0)),
-              line.get("product_type"), line.get("stage"),
-              f"Reversal: {line.get('description', '')}"))
+        """,
+            (
+                str(uuid.uuid4()),
+                rev_id,
+                line["account_code"],
+                float(line.get("credit", 0)),
+                float(line.get("debit", 0)),
+                line.get("product_type"),
+                line.get("stage"),
+                f"Reversal: {line.get('description', '')}",
+            ),
+        )
 
     return get_journal(rev_id)
 
 
 def get_gl_trial_balance(project_id: str) -> list[dict]:
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT l.account_code, c.account_name, c.account_type,
                ROUND(SUM(l.debit)::numeric, 2) as total_debit,
                ROUND(SUM(l.credit)::numeric, 2) as total_credit,
@@ -339,5 +439,7 @@ def get_gl_trial_balance(project_id: str) -> list[dict]:
         GROUP BY l.account_code, c.account_name, c.account_type
         HAVING SUM(l.debit) != 0 OR SUM(l.credit) != 0
         ORDER BY l.account_code
-    """, (project_id,))
+    """,
+        (project_id,),
+    )
     return df.to_dict("records") if not df.empty else []

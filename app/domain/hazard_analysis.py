@@ -1,7 +1,7 @@
 """Survival curve computation, PD term structures, and model comparison."""
 
-import math as _math
 import logging
+import math as _math
 
 from domain.hazard_retrieval import get_hazard_model
 
@@ -16,7 +16,7 @@ def compute_survival_curve(model_id: str, covariate_values: dict | None = None) 
 
     baseline = model.get("baseline_hazard", {})
     coefficients = model.get("coefficients", {})
-    max_t = max(int(k) for k in baseline.keys()) if baseline else 60
+    max_t = max(int(k) for k in baseline) if baseline else 60
 
     risk_mult = 1.0
     if covariate_values and coefficients.get("covariates"):
@@ -71,7 +71,7 @@ def compute_term_structure_pd(model_id: str, max_months: int = 60) -> dict:
         h = baseline.get(str(t), 0)
         marg = cum_survival * h
         marginal_pd.append(round(marg, 6))
-        cum_survival *= (1 - h)
+        cum_survival *= 1 - h
         cumulative_pd.append(round(1 - cum_survival, 6))
 
     for i in range(len(time_points)):
@@ -108,27 +108,31 @@ def compare_hazard_models(model_ids: list) -> dict:
     for mid in model_ids:
         m = get_hazard_model(mid)
         if m:
-            models.append({
-                "model_id": m["model_id"],
-                "model_type": m["model_type"],
-                "concordance_index": m.get("concordance_index"),
-                "log_likelihood": m.get("log_likelihood"),
-                "aic": m.get("aic"),
-                "bic": m.get("bic"),
-                "n_observations": m.get("n_observations"),
-                "n_events": m.get("n_events"),
-                "product_type": m.get("product_type"),
-                "segment": m.get("segment"),
-                "estimation_date": m.get("estimation_date"),
-            })
+            models.append(
+                {
+                    "model_id": m["model_id"],
+                    "model_type": m["model_type"],
+                    "concordance_index": m.get("concordance_index"),
+                    "log_likelihood": m.get("log_likelihood"),
+                    "aic": m.get("aic"),
+                    "bic": m.get("bic"),
+                    "n_observations": m.get("n_observations"),
+                    "n_events": m.get("n_events"),
+                    "product_type": m.get("product_type"),
+                    "segment": m.get("segment"),
+                    "estimation_date": m.get("estimation_date"),
+                }
+            )
             for curve in m.get("curves", []):
                 if curve.get("segment") == "all":
-                    all_curves.append({
-                        "model_id": m["model_id"],
-                        "model_type": m["model_type"],
-                        "time_points": curve["time_points"],
-                        "survival_probs": curve["survival_probs"],
-                        "hazard_rates": curve["hazard_rates"],
-                    })
+                    all_curves.append(
+                        {
+                            "model_id": m["model_id"],
+                            "model_type": m["model_type"],
+                            "time_points": curve["time_points"],
+                            "survival_probs": curve["survival_probs"],
+                            "hazard_rates": curve["hazard_rates"],
+                        }
+                    )
 
     return {"models": models, "curves": all_curves}

@@ -1,8 +1,9 @@
 """Cox Proportional Hazards model estimator and segment curve builder."""
 
+import logging
 import math as _math
 import random as _random
-import logging
+
 import pandas as pd
 
 log = logging.getLogger(__name__)
@@ -11,9 +12,7 @@ log = logging.getLogger(__name__)
 def _estimate_cox_ph(df: pd.DataFrame, n_obs: int, n_events: int) -> dict:
     """Cox Proportional Hazards using simplified partial likelihood on portfolio stats."""
     avg_dpd = float(df["days_past_due"].mean()) or 1.0
-    std_dpd = float(df["days_past_due"].std()) or 1.0
     avg_pd = float(df["current_lifetime_pd"].mean()) or 0.05
-    avg_gca = float(df["gross_carrying_amount"].mean()) or 100000
     avg_term = float(df["remaining_term"].mean()) or 36
 
     default_mask = df["assessed_stage"] >= 3
@@ -91,7 +90,10 @@ def _estimate_cox_ph(df: pd.DataFrame, n_obs: int, n_events: int) -> dict:
         cum_hazard += h
         survival_probs.append(round(_math.exp(-cum_hazard), 6))
 
-    ll = round(-n_events * _math.log(max(default_rate, 0.001)) - (n_obs - n_events) * _math.log(max(1 - default_rate, 0.001)), 2)
+    ll = round(
+        -n_events * _math.log(max(default_rate, 0.001)) - (n_obs - n_events) * _math.log(max(1 - default_rate, 0.001)),
+        2,
+    )
     k = 4
     aic_val = round(2 * k - 2 * (-ll), 2)
     bic_val = round(k * _math.log(n_obs) - 2 * (-ll), 2)
@@ -121,12 +123,14 @@ def _build_segment_curves(df: pd.DataFrame, baseline_hazard: dict, coefficients:
         cum_h += h
         overall_survivals.append(round(_math.exp(-cum_h), 6))
 
-    curves = [{
-        "segment": "all",
-        "time_points": time_points,
-        "survival_probs": overall_survivals,
-        "hazard_rates": [round(h, 6) for h in overall_hazards],
-    }]
+    curves = [
+        {
+            "segment": "all",
+            "time_points": time_points,
+            "survival_probs": overall_survivals,
+            "hazard_rates": [round(h, 6) for h in overall_hazards],
+        }
+    ]
 
     segments = df["segment"].dropna().unique() if "segment" in df.columns else []
     for seg in segments[:5]:
@@ -150,11 +154,13 @@ def _build_segment_curves(df: pd.DataFrame, baseline_hazard: dict, coefficients:
             cum_h += h
             seg_survivals.append(round(_math.exp(-cum_h), 6))
 
-        curves.append({
-            "segment": str(seg),
-            "time_points": time_points,
-            "survival_probs": seg_survivals,
-            "hazard_rates": seg_hazards,
-        })
+        curves.append(
+            {
+                "segment": str(seg),
+                "time_points": time_points,
+                "survival_probs": seg_survivals,
+                "hazard_rates": seg_hazards,
+            }
+        )
 
     return curves

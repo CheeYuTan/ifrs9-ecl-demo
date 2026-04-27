@@ -63,4 +63,73 @@ describe('ErrorBoundary', () => {
     );
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
   });
+
+  it('shows Try Again button in default fallback', () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent error={new Error('Crash')} />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('Try Again')).toBeInTheDocument();
+  });
+
+  it('renders error message text', () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent error={new Error('Detailed error: fetch failed')} />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('Detailed error: fetch failed')).toBeInTheDocument();
+  });
+
+  it('catches deeply nested errors', () => {
+    function Wrapper() {
+      return (
+        <div>
+          <div>
+            <ThrowingComponent error={new Error('Deep crash')} />
+          </div>
+        </div>
+      );
+    }
+    render(
+      <ErrorBoundary>
+        <Wrapper />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('Deep crash')).toBeInTheDocument();
+  });
+
+  it('does not show fallback content when child renders normally', () => {
+    render(
+      <ErrorBoundary fallback={<div>Fallback</div>}>
+        <div>Normal content</div>
+      </ErrorBoundary>
+    );
+    expect(screen.queryByText('Fallback')).toBeNull();
+    expect(screen.getByText('Normal content')).toBeInTheDocument();
+  });
+
+  it('renders multiple children when no error', () => {
+    render(
+      <ErrorBoundary>
+        <div>Child 1</div>
+        <div>Child 2</div>
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('Child 1')).toBeInTheDocument();
+    expect(screen.getByText('Child 2')).toBeInTheDocument();
+  });
+
+  it('catches TypeError', () => {
+    function TypeErrorComponent(): React.ReactNode {
+      throw new TypeError('Cannot read properties of undefined');
+    }
+    render(
+      <ErrorBoundary>
+        <TypeErrorComponent />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText('Cannot read properties of undefined')).toBeInTheDocument();
+  });
 });

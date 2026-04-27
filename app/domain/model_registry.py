@@ -1,9 +1,9 @@
 import json as _json
-import uuid
 import logging
-import pandas as pd
+import uuid
+from datetime import UTC
 
-from db.pool import query_df, execute, SCHEMA
+from db.pool import SCHEMA, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +36,10 @@ def ensure_model_registry_table():
             parent_model_id TEXT
         )
     """)
-    execute(f"COMMENT ON TABLE {SCHEMA}.model_registry IS 'ifrs9ecl: Model governance and lifecycle tracking'")
+    try:
+        execute(f"COMMENT ON TABLE {SCHEMA}.model_registry IS 'ifrs9ecl: Model governance and lifecycle tracking'")
+    except Exception:
+        pass
     _migrate_model_registry_columns()
     execute(f"""
         CREATE TABLE IF NOT EXISTS {SCHEMA}.model_registry_audit (
@@ -50,7 +53,10 @@ def ensure_model_registry_table():
             comment TEXT
         )
     """)
-    execute(f"COMMENT ON TABLE {SCHEMA}.model_registry_audit IS 'ifrs9ecl: Model status change log'")
+    try:
+        execute(f"COMMENT ON TABLE {SCHEMA}.model_registry_audit IS 'ifrs9ecl: Model status change log'")
+    except Exception:
+        pass
     log.info("Ensured model_registry tables exist")
 
 
@@ -100,13 +106,13 @@ def _migrate_model_registry_columns():
 MODEL_REGISTRY_TABLE = f"{SCHEMA}.model_registry"
 MODEL_REGISTRY_AUDIT_TABLE = f"{SCHEMA}.model_registry_audit"
 
-VALID_MODEL_STATUSES = ('draft', 'pending_review', 'approved', 'active', 'retired')
+VALID_MODEL_STATUSES = ("draft", "pending_review", "approved", "active", "retired")
 VALID_STATUS_TRANSITIONS = {
-    'draft': ['pending_review'],
-    'pending_review': ['approved', 'draft'],
-    'approved': ['active'],
-    'active': ['retired'],
-    'retired': [],
+    "draft": ["pending_review"],
+    "pending_review": ["approved", "draft"],
+    "approved": ["active"],
+    "active": ["retired"],
+    "retired": [],
 }
 
 
@@ -131,17 +137,34 @@ def register_model(data: dict) -> dict:
     training_data_info = data.get("training_data_info", {})
     created_by = data.get("created_by", "system")
     notes = data.get("notes", "")
-    parent_model_id = data.get("parent_model_id", None)
+    parent_model_id = data.get("parent_model_id")
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {MODEL_REGISTRY_TABLE}
             (model_id, model_name, model_type, algorithm, version, description, status,
              product_type, cohort, parameters, performance_metrics, training_data_info,
              is_champion, created_by, notes, parent_model_id)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, FALSE, %s, %s, %s)
-    """, (model_id, model_name, model_type, algorithm, version, description, status,
-          product_type, cohort, _json.dumps(parameters), _json.dumps(performance_metrics),
-          _json.dumps(training_data_info), created_by, notes, parent_model_id))
+    """,
+        (
+            model_id,
+            model_name,
+            model_type,
+            algorithm,
+            version,
+            description,
+            status,
+            product_type,
+            cohort,
+            _json.dumps(parameters),
+            _json.dumps(performance_metrics),
+            _json.dumps(training_data_info),
+            created_by,
+            notes,
+            parent_model_id,
+        ),
+    )
 
     _log_model_audit(model_id, "registered", None, "draft", created_by, "Model registered")
     return get_model(model_id)
@@ -159,7 +182,8 @@ def list_models(model_type: str = None, status: str = None) -> list[dict]:
         params.append(status)
 
     where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT model_id, model_name, model_type, algorithm, version, description,
                status, product_type, cohort, parameters, performance_metrics,
                training_data_info, is_champion, created_by, created_at, approved_by, approved_at,
@@ -167,7 +191,9 @@ def list_models(model_type: str = None, status: str = None) -> list[dict]:
         FROM {MODEL_REGISTRY_TABLE}
         {where}
         ORDER BY created_at DESC
-    """, tuple(params) if params else None)
+    """,
+        tuple(params) if params else None,
+    )
 
     if df.empty:
         return []
@@ -176,7 +202,8 @@ def list_models(model_type: str = None, status: str = None) -> list[dict]:
 
 def get_model(model_id: str) -> dict | None:
     """Get a single model with full details."""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT model_id, model_name, model_type, algorithm, version, description,
                status, product_type, cohort, parameters, performance_metrics,
                training_data_info, is_champion, created_by, created_at,
@@ -184,7 +211,9 @@ def get_model(model_id: str) -> dict | None:
                retired_by, retired_at, notes, parent_model_id
         FROM {MODEL_REGISTRY_TABLE}
         WHERE model_id = %s
-    """, (model_id,))
+    """,
+        (model_id,),
+    )
 
     if df.empty:
         return None
@@ -217,18 +246,21 @@ def update_model_status(model_id: str, new_status: str, user: str, comment: str 
         update_params.extend([user])
 
     update_params.append(model_id)
-    execute(f"""
+    execute(
+        f"""
         UPDATE {MODEL_REGISTRY_TABLE}
-        SET {', '.join(update_fields)}
+        SET {", ".join(update_fields)}
         WHERE model_id = %s
-    """, tuple(update_params))
+    """,
+        tuple(update_params),
+    )
 
     action_map = {
-        'pending_review': 'submitted_for_review',
-        'approved': 'approved',
-        'draft': 'rejected',
-        'active': 'promoted_to_active',
-        'retired': 'retired',
+        "pending_review": "submitted_for_review",
+        "approved": "approved",
+        "draft": "rejected",
+        "active": "promoted_to_active",
+        "retired": "retired",
     }
     _log_model_audit(model_id, action_map.get(new_status, new_status), old_status, new_status, user, comment)
     return get_model(model_id)
@@ -242,20 +274,25 @@ def promote_champion(model_id: str, user: str) -> dict:
     if model["status"] not in ("approved", "active"):
         raise ValueError(f"Only approved or active models can be promoted to champion (current: {model['status']})")
 
-    execute(f"""
+    execute(
+        f"""
         UPDATE {MODEL_REGISTRY_TABLE}
         SET is_champion = FALSE
         WHERE model_type = %s AND is_champion = TRUE
-    """, (model["model_type"],))
+    """,
+        (model["model_type"],),
+    )
 
-    execute(f"""
+    execute(
+        f"""
         UPDATE {MODEL_REGISTRY_TABLE}
         SET is_champion = TRUE
         WHERE model_id = %s
-    """, (model_id,))
+    """,
+        (model_id,),
+    )
 
-    _log_model_audit(model_id, "promoted_to_champion", None, None, user,
-                     f"Set as champion for {model['model_type']}")
+    _log_model_audit(model_id, "promoted_to_champion", None, None, user, f"Set as champion for {model['model_type']}")
     return get_model(model_id)
 
 
@@ -263,15 +300,18 @@ def compare_models(model_ids: list) -> list[dict]:
     """Return side-by-side comparison of models."""
     if not model_ids:
         return []
-    placeholders = ','.join(['%s'] * len(model_ids))
-    df = query_df(f"""
+    placeholders = ",".join(["%s"] * len(model_ids))
+    df = query_df(
+        f"""
         SELECT model_id, model_name, model_type, algorithm, version, description,
                status, product_type, parameters, performance_metrics,
                is_champion, created_by, created_at
         FROM {MODEL_REGISTRY_TABLE}
         WHERE model_id IN ({placeholders})
         ORDER BY created_at DESC
-    """, tuple(model_ids))
+    """,
+        tuple(model_ids),
+    )
 
     if df.empty:
         return []
@@ -280,27 +320,34 @@ def compare_models(model_ids: list) -> list[dict]:
 
 def get_model_audit_trail(model_id: str) -> list[dict]:
     """Full audit history for a model."""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT audit_id, model_id, action, old_status, new_status,
                performed_by, performed_at, comment
         FROM {MODEL_REGISTRY_AUDIT_TABLE}
         WHERE model_id = %s
         ORDER BY performed_at DESC
-    """, (model_id,))
+    """,
+        (model_id,),
+    )
 
     if df.empty:
         return []
     return df.to_dict("records")
 
 
-def _log_model_audit(model_id: str, action: str, old_status: str | None,
-                     new_status: str | None, user: str, comment: str):
+def _log_model_audit(
+    model_id: str, action: str, old_status: str | None, new_status: str | None, user: str, comment: str
+):
     audit_id = str(uuid.uuid4())
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {MODEL_REGISTRY_AUDIT_TABLE}
             (audit_id, model_id, action, old_status, new_status, performed_by, comment)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (audit_id, model_id, action, old_status, new_status, user, comment))
+    """,
+        (audit_id, model_id, action, old_status, new_status, user, comment),
+    )
 
 
 def generate_model_card(model_id: str) -> dict:
@@ -404,12 +451,18 @@ def compute_sensitivity(model_id: str, perturbation_pct: float = 10.0) -> dict:
         raise ValueError(f"Model {model_id} not found")
 
     params = model.get("parameters", {}) or {}
-    metrics = model.get("performance_metrics", {}) or {}
     factor = perturbation_pct / 100.0
 
     sensitivities = []
-    key_params = ["intercept", "unemployment_coeff", "gdp_coeff", "inflation_coeff",
-                  "base_pd", "base_lgd", "pd_lgd_correlation"]
+    key_params = [
+        "intercept",
+        "unemployment_coeff",
+        "gdp_coeff",
+        "inflation_coeff",
+        "base_pd",
+        "base_lgd",
+        "pd_lgd_correlation",
+    ]
 
     for param_name in key_params:
         base_value = params.get(param_name)
@@ -420,15 +473,17 @@ def compute_sensitivity(model_id: str, perturbation_pct: float = 10.0) -> dict:
         except (TypeError, ValueError):
             continue
 
-        sensitivities.append({
-            "parameter": param_name,
-            "base_value": round(base_val, 6),
-            "perturbed_up": round(base_val * (1 + factor), 6),
-            "perturbed_down": round(base_val * (1 - factor), 6),
-            "perturbation_pct": perturbation_pct,
-            "estimated_ecl_impact_up_pct": round(factor * 100 * abs(base_val) / max(abs(base_val), 0.01), 2),
-            "estimated_ecl_impact_down_pct": round(-factor * 100 * abs(base_val) / max(abs(base_val), 0.01), 2),
-        })
+        sensitivities.append(
+            {
+                "parameter": param_name,
+                "base_value": round(base_val, 6),
+                "perturbed_up": round(base_val * (1 + factor), 6),
+                "perturbed_down": round(base_val * (1 - factor), 6),
+                "perturbation_pct": perturbation_pct,
+                "estimated_ecl_impact_up_pct": round(factor * 100 * abs(base_val) / max(abs(base_val), 0.01), 2),
+                "estimated_ecl_impact_down_pct": round(-factor * 100 * abs(base_val) / max(abs(base_val), 0.01), 2),
+            }
+        )
 
     return {
         "model_id": model_id,
@@ -445,8 +500,9 @@ def check_recalibration_due(model_id: str, max_age_days: int = 365) -> dict:
     if not model:
         raise ValueError(f"Model {model_id} not found")
 
-    from datetime import datetime, timezone, timedelta
-    now = datetime.now(timezone.utc)
+    from datetime import datetime
+
+    now = datetime.now(UTC)
     created_at = model.get("created_at")
     approved_at = model.get("approved_at")
 
@@ -458,7 +514,7 @@ def check_recalibration_due(model_id: str, max_age_days: int = 365) -> dict:
             except Exception:
                 reference_date = now
         if reference_date.tzinfo is None:
-            reference_date = reference_date.replace(tzinfo=timezone.utc)
+            reference_date = reference_date.replace(tzinfo=UTC)
         age_days = (now - reference_date).days
     else:
         age_days = 0
@@ -479,6 +535,7 @@ def check_recalibration_due(model_id: str, max_age_days: int = 365) -> dict:
 def _parse_model_rows(df) -> list[dict]:
     """Parse JSONB columns in model registry DataFrame rows."""
     import pandas as _pd
+
     results = []
     for _, row in df.iterrows():
         d = row.to_dict()

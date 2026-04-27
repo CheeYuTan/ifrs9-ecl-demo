@@ -7,8 +7,8 @@ Implements EBA/GL/2017/16 calibration tests and discrimination metrics:
   - Stability: Population Stability Index (PSI)
   - Scoring: Brier score
 """
+
 import numpy as _np
-import pandas as pd
 from scipy import stats as _stats
 
 
@@ -69,8 +69,7 @@ def _compute_brier(predicted: list[float], actual: list[int]) -> float:
     return round(sum((p - a) ** 2 for p, a in zip(predicted, actual)) / len(predicted), 4)
 
 
-def _binomial_test(predicted_pd: float, n_obligors: int, n_defaults: int,
-                   confidence: float = 0.95) -> dict:
+def _binomial_test(predicted_pd: float, n_obligors: int, n_defaults: int, confidence: float = 0.95) -> dict:
     """
     Per-grade binomial test: is the observed default count within the
     confidence interval of the predicted PD × number of obligors?
@@ -79,7 +78,7 @@ def _binomial_test(predicted_pd: float, n_obligors: int, n_defaults: int,
     if n_obligors == 0:
         return {"pass": True, "p_value": 1.0, "detail": "No obligors"}
 
-    btest = _stats.binomtest(n_defaults, n_obligors, predicted_pd, alternative='greater')
+    btest = _stats.binomtest(n_defaults, n_obligors, predicted_pd, alternative="greater")
     p_value = btest.pvalue
     ci_upper = _stats.binom.ppf(confidence, n_obligors, predicted_pd)
 
@@ -95,8 +94,7 @@ def _binomial_test(predicted_pd: float, n_obligors: int, n_defaults: int,
     }
 
 
-def _jeffreys_test(predicted_pd: float, n_obligors: int, n_defaults: int,
-                   confidence: float = 0.95) -> dict:
+def _jeffreys_test(predicted_pd: float, n_obligors: int, n_defaults: int, confidence: float = 0.95) -> dict:
     """
     Bayesian alternative to binomial test using Jeffreys prior Beta(0.5, 0.5).
     More appropriate for low-default portfolios.
@@ -122,8 +120,7 @@ def _jeffreys_test(predicted_pd: float, n_obligors: int, n_defaults: int,
     }
 
 
-def _hosmer_lemeshow_test(predicted: list[float], actual: list[int],
-                          n_groups: int = 10) -> dict:
+def _hosmer_lemeshow_test(predicted: list[float], actual: list[int], n_groups: int = 10) -> dict:
     """
     Hosmer-Lemeshow goodness-of-fit test across PD deciles.
     Tests whether observed default rates match predicted rates across the
@@ -132,13 +129,16 @@ def _hosmer_lemeshow_test(predicted: list[float], actual: list[int],
     n = len(predicted)
     if n < n_groups * 5:
         return {
-            "chi_squared": 0.0, "p_value": 1.0, "df": n_groups - 2,
-            "pass": True, "detail": f"Insufficient data (n={n}, need {n_groups * 5})",
+            "chi_squared": 0.0,
+            "p_value": 1.0,
+            "df": n_groups - 2,
+            "pass": True,
+            "detail": f"Insufficient data (n={n}, need {n_groups * 5})",
             "groups": [],
         }
 
-    arr = _np.array(list(zip(predicted, actual)), dtype=[('pred', float), ('act', int)])
-    arr.sort(order='pred')
+    arr = _np.array(list(zip(predicted, actual)), dtype=[("pred", float), ("act", int)])
+    arr.sort(order="pred")
     groups = _np.array_split(arr, n_groups)
 
     chi_sq = 0.0
@@ -147,8 +147,8 @@ def _hosmer_lemeshow_test(predicted: list[float], actual: list[int],
         n_g = len(g)
         if n_g == 0:
             continue
-        obs_defaults = int(g['act'].sum())
-        exp_defaults = float(g['pred'].sum())
+        obs_defaults = int(g["act"].sum())
+        exp_defaults = float(g["pred"].sum())
         exp_non_defaults = n_g - exp_defaults
 
         if exp_defaults > 0:
@@ -157,14 +157,16 @@ def _hosmer_lemeshow_test(predicted: list[float], actual: list[int],
             obs_non_defaults = n_g - obs_defaults
             chi_sq += (obs_non_defaults - exp_non_defaults) ** 2 / exp_non_defaults
 
-        group_details.append({
-            "group": i + 1,
-            "n": n_g,
-            "avg_predicted_pd": round(float(g['pred'].mean()), 6),
-            "observed_dr": round(obs_defaults / n_g, 6),
-            "expected_defaults": round(exp_defaults, 2),
-            "observed_defaults": obs_defaults,
-        })
+        group_details.append(
+            {
+                "group": i + 1,
+                "n": n_g,
+                "avg_predicted_pd": round(float(g["pred"].mean()), 6),
+                "observed_dr": round(obs_defaults / n_g, 6),
+                "expected_defaults": round(exp_defaults, 2),
+                "observed_defaults": obs_defaults,
+            }
+        )
 
     df = max(1, n_groups - 2)
     p_value = 1.0 - _stats.chi2.cdf(chi_sq, df)

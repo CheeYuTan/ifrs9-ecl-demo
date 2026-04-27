@@ -7,22 +7,22 @@ Provides endpoints for the data mapping workflow:
   4. Apply mappings (ingest from UC to Lakebase)
   5. Check ingestion status
 """
+
 import logging
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional
 
 from domain.data_mapper import (
+    apply_mapping,
+    get_mapping_status,
+    get_uc_table_columns,
     list_uc_catalogs,
     list_uc_schemas,
     list_uc_tables,
-    get_uc_table_columns,
     preview_uc_table,
-    validate_mapping,
     suggest_mappings,
-    apply_mapping,
-    get_mapping_status,
+    validate_mapping,
 )
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
 
@@ -33,26 +33,26 @@ router = APIRouter(prefix="/api/data-mapping", tags=["data-mapping"])
 
 
 class PreviewRequest(BaseModel):
-    source_table: str
-    limit: int = 10
+    source_table: str = Field(min_length=1, max_length=512)
+    limit: int = Field(default=10, ge=1, le=1000)
 
 
 class ValidateRequest(BaseModel):
-    table_key: str
-    source_table: str
+    table_key: str = Field(min_length=1, max_length=256)
+    source_table: str = Field(min_length=1, max_length=512)
     mappings: dict[str, str]
 
 
 class SuggestRequest(BaseModel):
-    table_key: str
-    source_table: str
+    table_key: str = Field(min_length=1, max_length=256)
+    source_table: str = Field(min_length=1, max_length=512)
 
 
 class ApplyRequest(BaseModel):
-    table_key: str
-    source_table: str
+    table_key: str = Field(min_length=1, max_length=256)
+    source_table: str = Field(min_length=1, max_length=512)
     mappings: dict[str, str]
-    mode: str = "overwrite"
+    mode: str = Field(default="overwrite", pattern=r"^(overwrite|append)$")
 
 
 # ── Browse Unity Catalog ────────────────────────────────────────────────────

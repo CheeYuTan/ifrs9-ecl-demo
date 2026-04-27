@@ -4,36 +4,44 @@ Configuration audit logging for IFRS 9 ECL Platform.
 Tracks changes to admin configuration with old/new value capture
 for IAS 8 change-in-estimate disclosure compliance.
 """
+
 import json
 import logging
 
-from db.pool import query_df, execute, SCHEMA
+from db.pool import SCHEMA, execute, query_df
 
 log = logging.getLogger(__name__)
 
 CONFIG_AUDIT_TABLE = f"{SCHEMA}.config_audit_log"
 
 
-def log_config_change(section: str, key: str | None, old_value, new_value,
-                      changed_by: str = "admin"):
-    execute(f"""
+def log_config_change(section: str, key: str | None, old_value, new_value, changed_by: str = "admin"):
+    execute(
+        f"""
         INSERT INTO {CONFIG_AUDIT_TABLE} (section, config_key, old_value, new_value, changed_by)
         VALUES (%s, %s, %s, %s, %s)
-    """, (section, key, json.dumps(old_value, default=str),
-          json.dumps(new_value, default=str), changed_by))
+    """,
+        (section, key, json.dumps(old_value, default=str), json.dumps(new_value, default=str), changed_by),
+    )
 
 
 def get_config_audit_log(section: str | None = None, limit: int = 100) -> list[dict]:
     if section:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT * FROM {CONFIG_AUDIT_TABLE}
             WHERE section = %s ORDER BY id DESC LIMIT %s
-        """, (section, limit))
+        """,
+            (section, limit),
+        )
     else:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT * FROM {CONFIG_AUDIT_TABLE}
             ORDER BY id DESC LIMIT %s
-        """, (limit,))
+        """,
+            (limit,),
+        )
     if df.empty:
         return []
     records = []
@@ -50,8 +58,7 @@ def get_config_audit_log(section: str | None = None, limit: int = 100) -> list[d
     return records
 
 
-def get_config_diff(start_time: str, end_time: str | None = None,
-                    section: str | None = None) -> list[dict]:
+def get_config_diff(start_time: str, end_time: str | None = None, section: str | None = None) -> list[dict]:
     """Get config changes between two timestamps.
 
     Returns a list of changes with section, key, old_value, new_value, changed_by,
@@ -66,12 +73,15 @@ def get_config_diff(start_time: str, end_time: str | None = None,
     if section:
         where += " AND section = %s"
         params.append(section)
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT section, config_key, old_value, new_value, changed_by, changed_at
         FROM {CONFIG_AUDIT_TABLE}
         {where}
         ORDER BY changed_at ASC
-    """, tuple(params))
+    """,
+        tuple(params),
+    )
     if df.empty:
         return []
     records = []

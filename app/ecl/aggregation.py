@@ -5,13 +5,14 @@ Builds portfolio summaries, scenario results, product-scenario breakdowns,
 stage summaries, convergence diagnostics, and run metadata from raw
 simulation outputs.
 """
-import time
+
 import logging
+import time
 
 import numpy as np
 import pandas as pd
 
-from ecl.helpers import _emit, _df_to_records
+from ecl.helpers import _df_to_records, _emit
 
 log = logging.getLogger(__name__)
 
@@ -35,11 +36,16 @@ def aggregate_results(
 ) -> dict:
     """Aggregate raw simulation arrays into the final result dict."""
     t_agg_start = time.time()
-    _emit(progress_callback, {
-        "phase": "aggregating", "step": "aggregating",
-        "message": "Aggregating results across scenarios...",
-        "progress": 92, "elapsed": round(time.time() - t0, 2),
-    })
+    _emit(
+        progress_callback,
+        {
+            "phase": "aggregating",
+            "step": "aggregating",
+            "message": "Aggregating results across scenarios...",
+            "progress": 92,
+            "elapsed": round(time.time() - t0, 2),
+        },
+    )
 
     loans_df["weighted_ecl"] = loan_weighted_ecl
 
@@ -63,16 +69,18 @@ def aggregate_results(
     for sc in scenarios:
         paths = scenario_ecl_paths[sc]
         ecl_mean = float(paths.mean())
-        scenario_results.append({
-            "scenario": sc,
-            "weight": weights[sc],
-            "total_ecl": round(ecl_mean, 2),
-            "ecl_mean": round(ecl_mean, 2),
-            "ecl_p50": round(float(np.percentile(paths, 50)), 2),
-            "ecl_p75": round(float(np.percentile(paths, 75)), 2),
-            "ecl_p95": round(float(np.percentile(paths, 95)), 2),
-            "ecl_p99": round(float(np.percentile(paths, 99)), 2),
-        })
+        scenario_results.append(
+            {
+                "scenario": sc,
+                "weight": weights[sc],
+                "total_ecl": round(ecl_mean, 2),
+                "ecl_mean": round(ecl_mean, 2),
+                "ecl_p50": round(float(np.percentile(paths, 50)), 2),
+                "ecl_p75": round(float(np.percentile(paths, 75)), 2),
+                "ecl_p95": round(float(np.percentile(paths, 95)), 2),
+                "ecl_p99": round(float(np.percentile(paths, 99)), 2),
+            }
+        )
 
     # Product x scenario breakdown
     product_scenario = []
@@ -81,11 +89,13 @@ def aggregate_results(
         sc_ecl = scenario_ecl_totals[sc]
         for prod in unique_products:
             mask = products == prod
-            product_scenario.append({
-                "product_type": prod,
-                "scenario": sc,
-                "total_ecl": round(float(sc_ecl[mask].sum()), 2),
-            })
+            product_scenario.append(
+                {
+                    "product_type": prod,
+                    "scenario": sc,
+                    "total_ecl": round(float(sc_ecl[mask].sum()), 2),
+                }
+            )
 
     # Stage summary
     stage_summary = (
@@ -105,11 +115,10 @@ def aggregate_results(
     for prod in unique_products:
         mask = products == prod
         sim_ecls = product_sim_ecls[prod]
-        prod_mean = float(sim_ecls.mean()) if n_sims > 0 else 0.0
-        prod_std = float(sim_ecls.std()) if n_sims > 1 else 0.0
-        se = prod_std / (n_sims ** 0.5) if n_sims > 0 else 0.0
+        prod_std = float(np.nan_to_num(sim_ecls.std(), nan=0.0)) if n_sims > 1 else 0.0
+        se = prod_std / (n_sims**0.5) if n_sims > 0 else 0.0
         ci_width = 1.96 * se
-        prod_total = float(loan_weighted_ecl[mask].sum())
+        prod_total = float(np.nan_to_num(loan_weighted_ecl[mask].sum(), nan=0.0))
         convergence_by_product[prod] = {
             "mean_ecl": round(prod_total, 2),
             "std_ecl": round(prod_std, 2),
@@ -128,26 +137,34 @@ def aggregate_results(
 
     log.info(
         "Simulation complete: %d loans, %d scenarios, %d sims in %.1fs",
-        n_loans, len(scenarios), n_sims, duration,
+        n_loans,
+        len(scenarios),
+        n_sims,
+        duration,
     )
 
-    total_ecl = float(loan_weighted_ecl.sum())
+    total_ecl = float(np.nan_to_num(loan_weighted_ecl.sum(), nan=0.0))
     t_agg_done = time.time()
     agg_time = round(t_agg_done - t_agg_start, 2)
     compute_time = round(duration - load_time - agg_time, 2)
-    _emit(progress_callback, {
-        "phase": "done", "step": "complete",
-        "message": f"Simulation complete: {n_loans:,} loans x {len(scenarios)} scenarios x {n_sims:,} sims in {duration:.1f}s",
-        "progress": 100, "elapsed": round(duration, 2),
-        "detail": {
-            "total_ecl": round(total_ecl, 2),
-            "duration": round(duration, 2),
-            "load_time": load_time,
-            "compute_time": compute_time,
-            "aggregation_time": agg_time,
-            "loans_per_second": round(n_loans * len(scenarios) / duration, 0) if duration > 0 else 0,
+    _emit(
+        progress_callback,
+        {
+            "phase": "done",
+            "step": "complete",
+            "message": f"Simulation complete: {n_loans:,} loans x {len(scenarios)} scenarios x {n_sims:,} sims in {duration:.1f}s",
+            "progress": 100,
+            "elapsed": round(duration, 2),
+            "detail": {
+                "total_ecl": round(total_ecl, 2),
+                "duration": round(duration, 2),
+                "load_time": load_time,
+                "compute_time": compute_time,
+                "aggregation_time": agg_time,
+                "loans_per_second": round(n_loans * len(scenarios) / duration, 0) if duration > 0 else 0,
+            },
         },
-    })
+    )
 
     return {
         "portfolio_summary": _df_to_records(portfolio_summary),

@@ -80,13 +80,13 @@ class TestGenerateReport:
         assert resp.status_code == 400
         assert "Unknown report type" in resp.json()["detail"]
 
-    def test_generate_empty_report_type_returns_400(self, fastapi_client, mock_db):
-        """Empty string report_type is unknown — returns 400."""
+    def test_generate_empty_report_type_returns_422(self, fastapi_client, mock_db):
+        """Empty string report_type is now rejected by Pydantic min_length=1."""
         resp = fastapi_client.post(
             "/api/reports/generate/proj-001",
             json={"report_type": "", "user": "analyst"},
         )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
     def test_generate_backend_raises_value_error_returns_400(self, fastapi_client, mock_db):
         """ValueError from the backend becomes HTTP 400 (domain validation failure)."""
@@ -917,14 +917,13 @@ class TestPydanticValidation:
         resp = fastapi_client.post("/api/data-mapping/validate", json=body)
         assert resp.status_code == 422
 
-    def test_suggest_request_empty_strings_are_valid(self, fastapi_client, mock_db):
-        """Empty strings are technically valid Pydantic str fields."""
-        with patch("routes.data_mapping.suggest_mappings", return_value={}):
-            resp = fastapi_client.post(
-                "/api/data-mapping/suggest",
-                json={"table_key": "", "source_table": ""},
-            )
-        assert resp.status_code == 200
+    def test_suggest_request_empty_strings_rejected(self, fastapi_client, mock_db):
+        """Empty strings are now rejected by Pydantic min_length=1."""
+        resp = fastapi_client.post(
+            "/api/data-mapping/suggest",
+            json={"table_key": "", "source_table": ""},
+        )
+        assert resp.status_code == 422
 
     def test_generate_report_body_entirely_absent_returns_422(self, fastapi_client, mock_db):
         """POST with no body at all fails Pydantic (report_type is required)."""

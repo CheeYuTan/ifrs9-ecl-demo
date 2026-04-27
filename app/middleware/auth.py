@@ -11,13 +11,12 @@ Provides FastAPI dependencies for:
   - require_permission(action): Check user has specific permission
   - require_not_same_user(project_field): Segregation of duties
 """
+
 import hashlib
 import json
 import logging
-from functools import lru_cache
-from typing import Optional
 
-from fastapi import Request, HTTPException, Depends
+from fastapi import HTTPException, Request
 
 log = logging.getLogger(__name__)
 
@@ -33,16 +32,15 @@ ANONYMOUS_USER = {
 def get_current_user(request: Request) -> dict:
     """Extract authenticated user from request headers."""
     user_id = (
-        request.headers.get("X-Forwarded-User")
-        or request.headers.get("X-User-Id")
-        or request.headers.get("x-user-id")
+        request.headers.get("X-Forwarded-User") or request.headers.get("X-User-Id") or request.headers.get("x-user-id")
     )
 
     if not user_id:
         return dict(ANONYMOUS_USER)
 
     try:
-        from governance.rbac import get_user, ROLE_PERMISSIONS
+        from governance.rbac import ROLE_PERMISSIONS, get_user
+
         user = get_user(user_id)
         if user:
             return user
@@ -69,6 +67,7 @@ def require_permission(action: str):
     In Databricks Apps, the X-Forwarded-User header is always set by the OAuth proxy.
     In local dev/testing (no header), RBAC is bypassed to allow unauthenticated access.
     """
+
     def _check(request: Request):
         has_auth_header = bool(
             request.headers.get("X-Forwarded-User")
@@ -80,14 +79,15 @@ def require_permission(action: str):
 
         user = get_current_user(request)
         from governance.rbac import ROLE_PERMISSIONS
+
         role = user.get("role", "analyst")
         perms = ROLE_PERMISSIONS.get(role, set())
         if action not in perms:
             raise HTTPException(
-                status_code=403,
-                detail=f"Permission denied: role '{role}' does not have '{action}' permission"
+                status_code=403, detail=f"Permission denied: role '{role}' does not have '{action}' permission"
             )
         return user
+
     return _check
 
 
@@ -100,6 +100,7 @@ def require_project_access(min_role: str = "viewer", project_id_param: str = "pr
 
     Returns the user dict enriched with ``project_role``.
     """
+
     def _check(request: Request):
         has_auth_header = bool(
             request.headers.get("X-Forwarded-User")
@@ -123,14 +124,13 @@ def require_project_access(min_role: str = "viewer", project_id_param: str = "pr
             raise HTTPException(400, "Missing project_id in path")
 
         from governance.project_permissions import check_project_access
+
         result = check_project_access(user["user_id"], pid, min_role)
         if not result["allowed"]:
-            raise HTTPException(
-                403,
-                f"Project access denied: {result['reason']}"
-            )
+            raise HTTPException(403, f"Project access denied: {result['reason']}")
         user["project_role"] = result["effective_role"]
         return user
+
     return _check
 
 
@@ -139,6 +139,7 @@ def require_admin():
 
     Anonymous (no auth header) bypasses the check (dev mode).
     """
+
     def _check(request: Request):
         has_auth_header = bool(
             request.headers.get("X-Forwarded-User")
@@ -150,32 +151,32 @@ def require_admin():
 
         user = get_current_user(request)
         if user.get("role") != "admin":
-            raise HTTPException(
-                403,
-                f"Admin access required. Current role: '{user.get('role')}'"
-            )
+            raise HTTPException(403, f"Admin access required. Current role: '{user.get('role')}'")
         return user
+
     return _check
 
 
 def require_project_not_locked(project_id_param: str = "project_id"):
     """FastAPI dependency that blocks mutations on signed-off projects."""
+
     def _check(request: Request, **kwargs):
         pid = request.path_params.get(project_id_param)
         if not pid:
             return
         try:
             from domain.workflow import get_project
+
             project = get_project(pid)
             if project and project.get("signed_off"):
                 raise HTTPException(
-                    status_code=403,
-                    detail=f"Project {pid} is signed off and immutable. No modifications allowed."
+                    status_code=403, detail=f"Project {pid} is signed off and immutable. No modifications allowed."
                 )
         except HTTPException:
             raise
         except Exception:
             pass
+
     return _check
 
 

@@ -105,6 +105,7 @@ vi.mock('../lib/api', () => ({
     eclByScenarioProduct: vi.fn().mockResolvedValue([]),
     eclByCohort: vi.fn().mockResolvedValue([]),
     simulationDefaults: vi.fn().mockResolvedValue({ n_simulations: 500, products: [] }),
+    listBacktests: vi.fn().mockResolvedValue([]),
     getMyProjectRole: vi.fn().mockResolvedValue({ user_id: 'test-user', project_role: 'owner', rbac_role: 'admin' }),
   },
 }));

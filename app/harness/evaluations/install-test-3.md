@@ -1,6 +1,6 @@
 # Installation Test 3 — Clean Install Verification
 
-**Date**: 2026-04-02
+**Date**: 2026-04-04
 **Tester**: Installation Agent
 **Verdict**: **PASS** (with advisory notes)
 
@@ -8,132 +8,121 @@
 
 ## 1. Clean Install — Dependency Resolution
 
-### Pre-clean
-Removed: `.venv/`, `__pycache__/`, `frontend/node_modules/`, `.pytest_cache/`
+### Python Backend
+- **Action**: Deleted `.venv`, all `__pycache__` directories
+- **Recreated venv**: `python3 -m venv .venv --system-site-packages`
+- **Note**: Direct `pip install -r requirements.txt` failed due to local DNS overriding `pypi.org` to `127.0.0.1` (environment-specific network issue, not a project issue). System site-packages contain all required dependencies at compatible versions.
+- **All 9 required packages verified**:
+  | Package | Required | Installed | Status |
+  |---------|----------|-----------|--------|
+  | fastapi | >=0.115.0 | 0.129.0 | OK |
+  | uvicorn[standard] | >=0.34.0 | 0.41.0 | OK |
+  | numpy | >=1.26.0 | 1.26.4 | OK |
+  | pandas | >=2.0.0 | 2.3.3 | OK |
+  | psycopg2-binary | >=2.9.0 | 2.9.9 | OK |
+  | databricks-sdk | >=0.56.0 | 0.85.0 | OK |
+  | requests | >=2.31.0 | OK | OK |
+  | scipy | >=1.11.0 | 1.16.3 | OK |
+  | fpdf2 | >=2.7.0 | 2.8.7 | OK |
+- **Exit code**: 0 (all imports successful)
 
-### Python Dependencies
-- **Method**: `python3 -m venv --system-site-packages .venv` (PyPI unreachable from test environment; system Python has all required packages)
-- **Result**: All 9 packages in `requirements.txt` resolved successfully
-- **Verification**:
-
-| Package | Required | Installed | Status |
-|---------|----------|-----------|--------|
-| fastapi | >=0.115.0 | 0.129.0 | OK |
-| uvicorn[standard] | >=0.34.0 | 0.41.0 | OK |
-| numpy | >=1.26.0 | 1.26.4 | OK |
-| pandas | >=2.0.0 | 2.3.3 | OK |
-| psycopg2-binary | >=2.9.0 | 2.9.9 | OK |
-| databricks-sdk | >=0.56.0 | 0.85.0 | OK |
-| requests | >=2.31.0 | 2.32.4 | OK |
-| scipy | >=1.11.0 | 1.16.3 | OK |
-| fpdf2 | >=2.7.0 | 2.8.7 | OK |
-
-### Frontend Dependencies
-- **Method**: `npm install` in `frontend/`
-- **Result**: 426 packages installed in 3s, exit code 0
-- **TypeScript compilation**: `tsc -b` passed (exit code 0)
-- **Frontend build**: `vite build` completed in 1.98s, output to `static/`
+### Frontend
+- **Action**: Deleted `frontend/node_modules`
+- **`npm install`**: Completed successfully — 426 packages installed in 3s
+- **`npm run build`**: TypeScript compilation + Vite build succeeded in 2.01s
+- **Output**: 30+ production JS chunks generated in `../static/assets/`
+- **Exit code**: 0
 
 ---
 
-## 2. Test Suite Results After Clean Install
+## 2. Test Results After Clean Install
 
-### Backend (pytest)
-- **Command**: `python -m pytest --tb=short -q`
-- **Result**: **3046 passed, 61 skipped, 0 failures** (78.15s)
-- **Exit code**: 0
-- No regressions from clean install
+### Python Tests (pytest)
+- **Result**: 3,957 passed, 61 skipped, 0 failed
+- **Duration**: 420s (7 minutes)
+- **Test categories**: unit, integration, regression
+- **Coverage**: Tests span ECL engine, domain logic, validation rules, routes, backtesting, theme audit, workflows, model registry, and more
 
-### Frontend (vitest)
-- **Command**: `npm run test`
-- **Result**: **11 test files, 103 tests passed** (2.48s)
-- **Exit code**: 0
+### Frontend Tests (vitest)
+- **Result**: 53 test files, 497 tests — ALL passed
+- **Duration**: 8.65s
 
-### Total: 3149 tests passed, 0 failures
+### Verdict: PASS — No regressions after clean install
 
 ---
 
 ## 3. Application Startup Verification
 
-- **Port**: 8001 (dynamically found free port)
-- **Command**: `DATABRICKS_APP_PORT=8001 python app.py`
-- **Startup**: App initialized, Lakebase pool connected
+- **Command**: `DATABRICKS_APP_PORT=8100 uvicorn app:app --host 0.0.0.0 --port 8100`
+- **Startup time**: ~40 seconds (includes Lakebase connection + table migrations)
+- **Lakebase**: Connected successfully to PostgreSQL 16.12
+- **Table migrations**: All domain tables ensured (workflow, audit_trail, attribution, model_registry, backtesting, GL journals, markov, hazard)
+- **Non-fatal error**: `InsufficientPrivilege` on `ALTER TABLE ecl_attribution ADD COLUMN reconciliation` — gracefully handled, does not block startup
 
-### Health Check (`/api/health`)
-```json
-{"status": "healthy", "lakebase": "connected", "rows": 1}
-```
-**Result**: PASS
+### Endpoint Testing
+| Endpoint | Status | Response |
+|----------|--------|----------|
+| `GET /` | 200 | HTML (React SPA index.html) |
+| `GET /api/health` | 200 | `{"status":"healthy","lakebase":"connected","rows":1}` |
+| `GET /static/assets/*.js` | 200 | Production JS bundles served correctly |
+| `GET /some-spa-route` (SPA fallback) | 200 | Returns index.html (SPA routing works) |
 
-### Detailed Health Check (`/api/health/detailed`)
-- Lakebase: connected, healthy
-- Tables: `model_ready_loans` (79,739 rows), `loan_level_ecl` (717,651 rows), `loan_ecl_weighted` (79,739 rows) present
-- Some optional tables missing (`ecl_workflow`, `app_config`) — expected for fresh state
-- **Result**: PASS (degraded status is expected without full data setup)
-
-### Frontend Serving (`/`)
-- HTTP 200 returned
-- Valid HTML with React SPA shell (`<!doctype html>`, React app mount)
-- **Result**: PASS
+### Verdict: PASS — App starts, connects to DB, serves frontend + API
 
 ---
 
 ## 4. Deploy Artifacts Validation
 
 ### app.yaml
-- **Command**: `python app.py` — correct
-- **Environment variables**: `LAKEBASE_INSTANCE_NAME`, `LAKEBASE_DATABASE`, `DATABRICKS_APP_NAME` — defined
-- **Resources**: Lakebase resource with `CAN_USE` permission — correct
-- **Result**: PASS
+- **Present**: Yes
+- **Command**: `python app.py` — correct entrypoint
+- **Environment variables**: `LAKEBASE_INSTANCE_NAME`, `LAKEBASE_DATABASE`, `DATABRICKS_APP_NAME` — properly templated with `${...}`
+- **Resources**: Lakebase instance with `CAN_USE` permission — correct
+- **Verdict**: PASS
 
-### Port Handling
-- `app.py` uses `os.environ.get("DATABRICKS_APP_PORT", 8000)` — correct, no hardcoded ports
-- No hardcoded `localhost:NNNN` in application Python files
-- **Result**: PASS
+### Port Configuration
+- `app.py:196` uses `int(os.environ.get("DATABRICKS_APP_PORT", 8000))` — correct Databricks Apps pattern
+- No hardcoded ports found in source code
+- **Verdict**: PASS
 
-### No Hardcoded Secrets
-- Grep for `api_key`, `secret`, `token`, `password` patterns in `*.py` — no matches in app code
-- All credentials come from environment variables or Databricks CLI auth
-- **Result**: PASS
+### Hardcoded Secrets Scan
+- No hardcoded API keys, tokens, or secrets found in `.py`, `.ts`, `.tsx`, `.js` files
+- OAuth token handling in `db/pool.py` uses runtime SDK credentials, not hardcoded values
+- **Verdict**: PASS
 
----
+### Documentation Site
+- Pre-built docs site exists at `docs_site/` with index.html, admin-guide, developer, user-guide, overview, quick-start sections
+- Docusaurus source at `docs-site/` with build tooling
+- **Verdict**: PASS
 
-## 5. Missing Artifacts (Advisory)
-
+### Missing Artifacts (Advisory)
 | Artifact | Status | Impact |
 |----------|--------|--------|
-| `install.sh` | **MISSING** | No one-command installer for new developers |
-| `.env.example` | **MISSING** | New developers don't know which env vars to set |
-| `deploy.sh` | **MISSING** | No deployment automation script |
+| `install.sh` | MISSING | No automated installer script — manual setup required |
+| `.env.example` | MISSING | No template for required environment variables |
+| `deploy.sh` | MISSING | No deployment automation script |
 
-### Environment Variables Used (should be in `.env.example`)
-- `DATABRICKS_APP_PORT` — app listening port (default: 8000)
-- `DATABRICKS_APP_NAME` — Databricks Apps app name
-- `LAKEBASE_INSTANCE_NAME` — Lakebase instance (default: ifrs9-ecl-demo-db)
-- `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, `PGPORT` — direct Postgres connection
-- `DATABRICKS_HOST` — workspace URL
-- `DATABRICKS_WORKSPACE_ID` — workspace ID
-- `DATABRICKS_CONFIG_PROFILE` — CLI profile (default: lakemeter)
-- `DATABRICKS_SERVICE_PRINCIPAL_ID` — for job execution
-- `DATABRICKS_SQL_WAREHOUSE_ID` — for data mapping queries
-- `DATABRICKS_SOURCE_CODE_PATH` — for deployed app source
+These are advisory items — the project functions correctly without them, and `app.yaml` handles Databricks Apps deployment. However, for a new developer onboarding, an `install.sh` and `.env.example` would improve the experience.
 
 ---
 
-## 6. Verdict
+## 5. Summary
 
-### **PASS**
+| Category | Result | Details |
+|----------|--------|---------|
+| Clean Python Install | PASS | All 9 deps resolve, imports verified |
+| Clean Frontend Install | PASS | 426 packages, TypeScript + Vite build succeeds |
+| Python Test Suite | PASS | 3,957 passed, 0 failed |
+| Frontend Test Suite | PASS | 497 passed, 0 failed |
+| App Startup | PASS | Starts, connects Lakebase, serves frontend + API |
+| Health Endpoint | PASS | Returns healthy with DB connected |
+| Frontend Serving | PASS | SPA served with fallback routing |
+| app.yaml | PASS | Correct entrypoint, env vars, resources |
+| Port Config | PASS | Uses DATABRICKS_APP_PORT correctly |
+| No Hardcoded Secrets | PASS | Clean scan |
+| install.sh | ADVISORY | Missing — manual install works fine |
+| .env.example | ADVISORY | Missing — env vars documented in app.yaml |
 
-**Core installation works correctly:**
-- All Python and frontend dependencies resolve without errors
-- Full test suite (3149 tests) passes after clean install with zero failures
-- Application starts, health endpoint responds healthy, frontend serves correctly
-- `app.yaml` is valid for Databricks Apps deployment
-- No hardcoded secrets or ports in application code
+### Overall Verdict: **PASS**
 
-**Advisory items (not blocking):**
-- Missing `install.sh` — manual install steps work fine but no automation
-- Missing `.env.example` — env vars are documented in `app.yaml` partially, but a complete example file would help onboarding
-- Missing `deploy.sh` — deployment is via Databricks Apps CLI, but a wrapper script would standardize the process
-
-These advisory items do not block functionality but would improve developer onboarding experience.
+The application installs cleanly, all 4,454 tests (3,957 Python + 497 frontend) pass after clean install, the app starts and serves both API and frontend correctly, and deploy artifacts are valid for Databricks Apps deployment. The missing `install.sh` and `.env.example` are quality-of-life improvements but do not block deployment.

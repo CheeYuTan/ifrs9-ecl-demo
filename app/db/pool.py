@@ -7,11 +7,12 @@ Token refresh: OAuth tokens last ~1 hour. A background thread proactively
 refreshes the connection pool every 45 minutes so queries never hit an
 expired token.
 """
-import os
-import time
-import uuid
+
 import logging
+import os
 import threading
+import uuid
+
 import pandas as pd
 import psycopg2
 import psycopg2.pool
@@ -30,6 +31,7 @@ def load_schema_from_config():
         return
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         ds = cfg.get("data_sources", {})
         SCHEMA = ds.get("lakebase_schema", SCHEMA)
@@ -38,6 +40,7 @@ def load_schema_from_config():
         log.info("Loaded schema=%s prefix=%s from admin_config", SCHEMA, PREFIX)
     except Exception:
         log.debug("Could not load schema from admin_config, using defaults")
+
 
 TOKEN_REFRESH_INTERVAL = 45 * 60  # 45 minutes (tokens last ~60 min)
 
@@ -60,25 +63,38 @@ def init_pool():
         pg_port = os.environ.get("PGPORT", "5432")
 
         if pg_host and pg_user and pg_pass:
-            log.info("Connecting to Lakebase via auto-injected env vars: host=%s db=%s user=%s", pg_host, pg_db, pg_user)
+            log.info(
+                "Connecting to Lakebase via auto-injected env vars: host=%s db=%s user=%s", pg_host, pg_db, pg_user
+            )
             _pool = psycopg2.pool.ThreadedConnectionPool(
-                minconn=2, maxconn=10,
-                host=pg_host, port=pg_port, database=pg_db,
-                user=pg_user, password=pg_pass, sslmode="require",
+                minconn=2,
+                maxconn=10,
+                host=pg_host,
+                port=pg_port,
+                database=pg_db,
+                user=pg_user,
+                password=pg_pass,
+                sslmode="require",
             )
         elif pg_host and pg_user:
             log.info("PGPASSWORD not set, generating OAuth token for user=%s host=%s", pg_user, pg_host)
             from databricks.sdk import WorkspaceClient
+
             w = WorkspaceClient()
             token = w.config.authenticate()
             if isinstance(token, dict):
                 oauth_token = token.get("Authorization", "").replace("Bearer ", "")
             else:
-                oauth_token = getattr(token, 'token', str(token))
+                oauth_token = getattr(token, "token", str(token))
             _pool = psycopg2.pool.ThreadedConnectionPool(
-                minconn=2, maxconn=10,
-                host=pg_host, port=pg_port, database=pg_db,
-                user=pg_user, password=oauth_token, sslmode="require",
+                minconn=2,
+                maxconn=10,
+                host=pg_host,
+                port=pg_port,
+                database=pg_db,
+                user=pg_user,
+                password=oauth_token,
+                sslmode="require",
             )
         else:
             log.info("PGHOST not set, falling back to CLI-based connection")
@@ -94,6 +110,7 @@ def init_pool():
             _pool.putconn(conn)
 
         from domain.workflow import ensure_workflow_table
+
         ensure_workflow_table()
         load_schema_from_config()
 
@@ -107,6 +124,7 @@ def init_pool():
 def _init_pool_via_sdk():
     global _pool
     from databricks.sdk import WorkspaceClient
+
     inst_name = os.environ.get("LAKEBASE_INSTANCE_NAME", "ifrs9-ecl-demo-db")
 
     is_app = bool(os.environ.get("DATABRICKS_APP_NAME"))
@@ -125,24 +143,32 @@ def _init_pool_via_sdk():
     me = w.current_user.me()
 
     _pool = psycopg2.pool.ThreadedConnectionPool(
-        minconn=2, maxconn=10,
-        host=host, port=5432, database="databricks_postgres",
-        user=me.user_name, password=cred.token, sslmode="require",
+        minconn=2,
+        maxconn=10,
+        host=host,
+        port=5432,
+        database="databricks_postgres",
+        user=me.user_name,
+        password=cred.token,
+        sslmode="require",
     )
 
 
 def _is_auth_error(exc):
     msg = str(exc).lower()
-    return any(pattern in msg for pattern in (
-        "invalid authorization",
-        "password authentication failed",
-        "authentication failed",
-        "token expired",
-        "token is expired",
-        "ssl connection has been closed",
-        "connection reset",
-        "server closed the connection unexpectedly",
-    )) or ("fatal" in msg and "login" in msg)
+    return any(
+        pattern in msg
+        for pattern in (
+            "invalid authorization",
+            "password authentication failed",
+            "authentication failed",
+            "token expired",
+            "token is expired",
+            "ssl connection has been closed",
+            "connection reset",
+            "server closed the connection unexpectedly",
+        )
+    ) or ("fatal" in msg and "login" in msg)
 
 
 def _token_refresh_loop():
@@ -254,6 +280,14 @@ def execute(sql: str, params: tuple | None = None, _retry: bool = True):
                 _pool.putconn(conn)
             except Exception:
                 pass
+
+
+def safe_comment(table: str, comment: str) -> None:
+    """Set table comment, ignoring InsufficientPrivilege on shared Lakebase."""
+    try:
+        execute(f"COMMENT ON TABLE {table} IS %s", (comment,))
+    except Exception:
+        pass
 
 
 def _t(name: str) -> str:

@@ -7,12 +7,12 @@ Handles:
   - Validating column mappings (completeness + type compatibility)
   - Applying mappings: read from UC, transform, write to Lakebase
 """
+
 import logging
 import re
-from typing import Optional
 
-import backend
 import admin_config
+import backend
 
 log = logging.getLogger(__name__)
 
@@ -34,12 +34,13 @@ PG_TYPE_MAP = {
 def _get_workspace_client():
     """Lazy-load WorkspaceClient."""
     from databricks.sdk import WorkspaceClient
+
     return WorkspaceClient()
 
 
 def _safe_identifier(name: str) -> str:
     """Validate identifier to prevent SQL injection."""
-    if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_.\-]*$', name):
+    if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_.\-]*$", name):
         raise ValueError(f"Invalid identifier: {name}")
     return name
 
@@ -73,10 +74,12 @@ def list_uc_tables(catalog: str, schema: str) -> list[dict]:
     """List tables in a Unity Catalog schema."""
     try:
         w = _get_workspace_client()
-        tables = list(w.tables.list(
-            catalog_name=_safe_identifier(catalog),
-            schema_name=_safe_identifier(schema),
-        ))
+        tables = list(
+            w.tables.list(
+                catalog_name=_safe_identifier(catalog),
+                schema_name=_safe_identifier(schema),
+            )
+        )
         return [
             {
                 "name": t.name,
@@ -129,6 +132,7 @@ def preview_uc_table(full_table_name: str, limit: int = 10) -> dict:
         w = _get_workspace_client()
         # Use statement execution to query UC table
         import os
+
         warehouse_id = os.environ.get("DATABRICKS_SQL_WAREHOUSE_ID", "")
         if not warehouse_id:
             # Try to find a warehouse
@@ -137,9 +141,13 @@ def preview_uc_table(full_table_name: str, limit: int = 10) -> dict:
                 warehouse_id = warehouses[0].id
 
         if not warehouse_id:
-            return {"error": "No SQL warehouse available for preview. Set DATABRICKS_SQL_WAREHOUSE_ID.", "columns": [], "rows": [], "total_rows": 0}
+            return {
+                "error": "No SQL warehouse available for preview. Set DATABRICKS_SQL_WAREHOUSE_ID.",
+                "columns": [],
+                "rows": [],
+                "total_rows": 0,
+            }
 
-        from databricks.sdk.service.sql import StatementState
         # Get row count
         count_stmt = w.statement_execution.execute_statement(
             warehouse_id=warehouse_id,
@@ -160,10 +168,7 @@ def preview_uc_table(full_table_name: str, limit: int = 10) -> dict:
         columns = []
         rows = []
         if preview_stmt.manifest and preview_stmt.manifest.schema and preview_stmt.manifest.schema.columns:
-            columns = [
-                {"name": c.name, "type": c.type_text or "STRING"}
-                for c in preview_stmt.manifest.schema.columns
-            ]
+            columns = [{"name": c.name, "type": c.type_text or "STRING"} for c in preview_stmt.manifest.schema.columns]
 
         if preview_stmt.result and preview_stmt.result.data_array:
             col_names = [c["name"] for c in columns]
@@ -234,7 +239,12 @@ def validate_mapping(
     # Get source table columns
     source_columns = get_uc_table_columns(source_table)
     if not source_columns:
-        return {"valid": False, "errors": [f"Cannot read columns from source table: {source_table}"], "warnings": [], "columns": []}
+        return {
+            "valid": False,
+            "errors": [f"Cannot read columns from source table: {source_table}"],
+            "warnings": [],
+            "columns": [],
+        }
 
     source_col_map = {c["name"]: c for c in source_columns}
     errors = []
@@ -249,29 +259,33 @@ def validate_mapping(
 
         if not mapped_source:
             errors.append(f"Mandatory column '{ecl_name}' is not mapped")
-            columns.append({
-                "ecl_column": ecl_name,
-                "ecl_type": ecl_type,
-                "source_column": None,
-                "source_type": None,
-                "status": "unmapped",
-                "is_mandatory": True,
-                "description": col_def.get("description", ""),
-            })
+            columns.append(
+                {
+                    "ecl_column": ecl_name,
+                    "ecl_type": ecl_type,
+                    "source_column": None,
+                    "source_type": None,
+                    "status": "unmapped",
+                    "is_mandatory": True,
+                    "description": col_def.get("description", ""),
+                }
+            )
             continue
 
         source_col = source_col_map.get(mapped_source)
         if not source_col:
             errors.append(f"Mandatory column '{ecl_name}' mapped to '{mapped_source}' which does not exist in source")
-            columns.append({
-                "ecl_column": ecl_name,
-                "ecl_type": ecl_type,
-                "source_column": mapped_source,
-                "source_type": None,
-                "status": "source_missing",
-                "is_mandatory": True,
-                "description": col_def.get("description", ""),
-            })
+            columns.append(
+                {
+                    "ecl_column": ecl_name,
+                    "ecl_type": ecl_type,
+                    "source_column": mapped_source,
+                    "source_type": None,
+                    "status": "source_missing",
+                    "is_mandatory": True,
+                    "description": col_def.get("description", ""),
+                }
+            )
             continue
 
         source_type = source_col.get("type", "STRING")
@@ -291,16 +305,18 @@ def validate_mapping(
                 f"is not compatible with expected {ecl_type}"
             )
 
-        columns.append({
-            "ecl_column": ecl_name,
-            "ecl_type": ecl_type,
-            "source_column": mapped_source,
-            "source_type": source_type,
-            "status": status,
-            "is_mandatory": True,
-            "type_compatible": type_ok,
-            "description": col_def.get("description", ""),
-        })
+        columns.append(
+            {
+                "ecl_column": ecl_name,
+                "ecl_type": ecl_type,
+                "source_column": mapped_source,
+                "source_type": source_type,
+                "status": status,
+                "is_mandatory": True,
+                "type_compatible": type_ok,
+                "description": col_def.get("description", ""),
+            }
+        )
 
     # Check optional columns
     for col_def in table_cfg.get("optional_columns", []):
@@ -309,30 +325,34 @@ def validate_mapping(
         mapped_source = mappings.get(ecl_name)
 
         if not mapped_source:
-            columns.append({
-                "ecl_column": ecl_name,
-                "ecl_type": ecl_type,
-                "source_column": None,
-                "source_type": None,
-                "status": "unmapped_optional",
-                "is_mandatory": False,
-                "description": col_def.get("description", ""),
-                "default": col_def.get("default", "null"),
-            })
+            columns.append(
+                {
+                    "ecl_column": ecl_name,
+                    "ecl_type": ecl_type,
+                    "source_column": None,
+                    "source_type": None,
+                    "status": "unmapped_optional",
+                    "is_mandatory": False,
+                    "description": col_def.get("description", ""),
+                    "default": col_def.get("default", "null"),
+                }
+            )
             continue
 
         source_col = source_col_map.get(mapped_source)
         if not source_col:
             warnings.append(f"Optional column '{ecl_name}' mapped to '{mapped_source}' which does not exist in source")
-            columns.append({
-                "ecl_column": ecl_name,
-                "ecl_type": ecl_type,
-                "source_column": mapped_source,
-                "source_type": None,
-                "status": "source_missing",
-                "is_mandatory": False,
-                "description": col_def.get("description", ""),
-            })
+            columns.append(
+                {
+                    "ecl_column": ecl_name,
+                    "ecl_type": ecl_type,
+                    "source_column": mapped_source,
+                    "source_type": None,
+                    "status": "source_missing",
+                    "is_mandatory": False,
+                    "description": col_def.get("description", ""),
+                }
+            )
             continue
 
         source_type = source_col.get("type", "STRING")
@@ -350,16 +370,18 @@ def validate_mapping(
                 f"may not be compatible with expected {ecl_type}"
             )
 
-        columns.append({
-            "ecl_column": ecl_name,
-            "ecl_type": ecl_type,
-            "source_column": mapped_source,
-            "source_type": source_type,
-            "status": status,
-            "is_mandatory": False,
-            "type_compatible": type_ok,
-            "description": col_def.get("description", ""),
-        })
+        columns.append(
+            {
+                "ecl_column": ecl_name,
+                "ecl_type": ecl_type,
+                "source_column": mapped_source,
+                "source_type": source_type,
+                "status": status,
+                "is_mandatory": False,
+                "type_compatible": type_ok,
+                "description": col_def.get("description", ""),
+            }
+        )
 
     return {
         "valid": len(errors) == 0,
@@ -483,6 +505,7 @@ def apply_mapping(
 
         # Execute via Databricks SDK
         import os
+
         w = _get_workspace_client()
         warehouse_id = os.environ.get("DATABRICKS_SQL_WAREHOUSE_ID", "")
         if not warehouse_id:
@@ -515,11 +538,8 @@ def apply_mapping(
         total_written = 0
 
         for i in range(0, len(rows), batch_size):
-            batch = rows[i:i + batch_size]
-            placeholders = ", ".join(
-                "(" + ", ".join(["%s"] * len(col_names)) + ")"
-                for _ in batch
-            )
+            batch = rows[i : i + batch_size]
+            placeholders = ", ".join("(" + ", ".join(["%s"] * len(col_names)) + ")" for _ in batch)
             col_list = ", ".join(f'"{c}"' for c in col_names)
             insert_sql = f"INSERT INTO {target_table} ({col_list}) VALUES {placeholders}"
 

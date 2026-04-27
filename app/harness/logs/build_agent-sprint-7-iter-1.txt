@@ -1,14 +1,25 @@
 EXIT CODE: 0
-DURATION: 1033s
+DURATION: 755s
 
 --- STDOUT ---
 Sprint 7 build complete. Summary:
 
-- **120 new tests** across 30+ test classes covering 10+ domain modules
-- **1 bug found & fixed**: numpy types not JSON-serializable in `domain/backtesting.py` (line 305) — added `_json_default()` handler + 5 regression tests
-- **Full suite**: 3,728 passed, 0 failed, 61 skipped
-- **Files**: `tests/unit/test_qa_sprint_7_domain_analytical.py` (new), `domain/backtesting.py` (bug fix)
-- **Committed**: `ad88c26`
+**Developer Reference — 5 pages finalized:**
+- `architecture.md` — System design, module structure, middleware, deployment
+- `api-reference.md` — All 162+ endpoints across 16 domain groups
+- `data-model.md` — Complete table specifications and entity relationships
+- `ecl-engine.md` — Monte Carlo, Cholesky, Markov chains, hazard models, validation rules
+- `testing.md` — Framework, fixtures, conventions, examples
+
+**Changes made:**
+- Added "What's Next?" cross-reference sections to all 5 developer pages
+- Fixed 3 Sprint 6 regression bugs (BUG-S6-1, BUG-S6-2, BUG-S6-3) — removed raw API endpoints and developer-focused content from admin guide pages
+
+**Verification:**
+- `npm run build`: 0 errors, 0 warnings
+- `pytest`: 3957 passed, 61 skipped
+- Deployed to `docs_site/`
+- Committed as `437e4d4`
 
 
 --- STDERR ---

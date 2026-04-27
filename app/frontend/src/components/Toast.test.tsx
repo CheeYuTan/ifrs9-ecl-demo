@@ -101,4 +101,68 @@ describe('Toast', () => {
     expect(screen.getByText('Toast A')).toBeInTheDocument();
     expect(screen.getByText('Toast B')).toBeInTheDocument();
   });
+
+  it('shows toast with long message', async () => {
+    const user = userEvent.setup();
+    const longMsg = 'A'.repeat(200);
+    render(
+      <ToastProvider>
+        <ToastTrigger message={longMsg} />
+      </ToastProvider>
+    );
+    await user.click(screen.getByText('Show Toast'));
+    expect(screen.getByText(longMsg)).toBeInTheDocument();
+  });
+
+  it('shows toast with special characters', async () => {
+    const user = userEvent.setup();
+    render(
+      <ToastProvider>
+        <ToastTrigger message="Error: <script>alert('xss')</script>" type="error" />
+      </ToastProvider>
+    );
+    await user.click(screen.getByText('Show Toast'));
+    expect(screen.getByText("Error: <script>alert('xss')</script>")).toBeInTheDocument();
+  });
+
+  it('renders toast container in DOM', () => {
+    const { container } = render(
+      <ToastProvider>
+        <div>Content</div>
+      </ToastProvider>
+    );
+    expect(container).toBeTruthy();
+  });
+
+  it('multiple providers nest without error', () => {
+    render(
+      <ToastProvider>
+        <ToastProvider>
+          <div>Nested</div>
+        </ToastProvider>
+      </ToastProvider>
+    );
+    expect(screen.getByText('Nested')).toBeInTheDocument();
+  });
+
+  it('rapid-fires multiple toasts', async () => {
+    const user = userEvent.setup();
+    function RapidTrigger() {
+      const { toast } = useToast();
+      return <button onClick={() => {
+        toast('Toast 1', 'success');
+        toast('Toast 2', 'error');
+        toast('Toast 3', 'info');
+      }}>Fire All</button>;
+    }
+    render(
+      <ToastProvider>
+        <RapidTrigger />
+      </ToastProvider>
+    );
+    await user.click(screen.getByText('Fire All'));
+    expect(screen.getByText('Toast 1')).toBeInTheDocument();
+    expect(screen.getByText('Toast 2')).toBeInTheDocument();
+    expect(screen.getByText('Toast 3')).toBeInTheDocument();
+  });
 });

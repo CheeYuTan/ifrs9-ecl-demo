@@ -1,14 +1,15 @@
 """Audit trail API routes for IFRS 9 ECL Platform."""
+
 import re
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse
 
 from domain.audit_trail import (
+    export_audit_package,
     get_audit_trail,
     verify_audit_chain,
-    export_audit_package,
 )
 from domain.config_audit import get_config_audit_log, get_config_diff
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/api/audit", tags=["audit"])
 
@@ -41,13 +42,25 @@ def get_project_audit_trail(
     project_id = _validate_project_id(project_id)
     trail = get_audit_trail(project_id)
     if not trail:
-        return {"project_id": project_id, "chain_verification": {"valid": True, "entries": 0},
-                "total": 0, "offset": offset, "limit": limit, "entries": []}
+        return {
+            "project_id": project_id,
+            "chain_verification": {"valid": True, "entries": 0},
+            "total": 0,
+            "offset": offset,
+            "limit": limit,
+            "entries": [],
+        }
     verification = verify_audit_chain(project_id)
     total = len(trail)
-    page = trail[offset:offset + limit]
-    return {"project_id": project_id, "chain_verification": verification,
-            "total": total, "offset": offset, "limit": limit, "entries": page}
+    page = trail[offset : offset + limit]
+    return {
+        "project_id": project_id,
+        "chain_verification": verification,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "entries": page,
+    }
 
 
 @router.get("/{project_id}/verify")

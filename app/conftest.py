@@ -1,9 +1,9 @@
 # conftest.py for app/ subdirectory
 # Ensures pytest can discover tests from the project root's tests/ directory
 # when run from this directory via the app/tests -> ../tests symlink.
-import sys
-import os
 import importlib
+import os
+import sys
 
 # Add the project root to sys.path so test imports resolve
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,9 +15,7 @@ if _project_root not in sys.path:
 # runs from app/ (which finds this conftest first).
 _root_conftest_path = os.path.join(_project_root, "tests", "conftest.py")
 if os.path.exists(_root_conftest_path):
-    _spec = importlib.util.spec_from_file_location(
-        "root_conftest", _root_conftest_path
-    )
+    _spec = importlib.util.spec_from_file_location("root_conftest", _root_conftest_path)
     _root_conftest = importlib.util.module_from_spec(_spec)
     try:
         _spec.loader.exec_module(_root_conftest)

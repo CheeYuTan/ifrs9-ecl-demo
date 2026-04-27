@@ -1,10 +1,16 @@
 """Simulation routes — /api/simulate*"""
-import json, queue, threading, logging
+
+import json
+import logging
+import queue
+import threading
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+
 from routes._utils import DecimalEncoder
+from utils.cache import get_cache
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +21,7 @@ def _get_simulation_cap() -> int:
     """Get max simulation count from admin config, default 50000."""
     try:
         import admin_config
+
         cfg = admin_config.get_config()
         model = cfg.get("model", cfg.get("model_config", {}))
         params = model.get("default_parameters", model.get("default_params", {}))
@@ -27,6 +34,7 @@ def _persist_simulation_run(result: dict, config: "SimulationConfig"):
     """Persist simulation run metadata including seed to model_runs DB."""
     try:
         from domain.model_runs import save_model_run
+
         metadata = result.get("run_metadata", {})
         run_id = f"sim_{metadata.get('timestamp', 'unknown')}"
         products = [p["product_type"] for p in result.get("ecl_by_product", [])]
@@ -37,7 +45,9 @@ def _persist_simulation_run(result: dict, config: "SimulationConfig"):
             "total_gca": sum(float(p.get("total_gca", 0)) for p in result.get("ecl_by_product", [])),
             "duration_seconds": metadata.get("duration_seconds"),
             "convergence_by_product": metadata.get("convergence_by_product", {}),
-            "ecl_by_product": {p["product_type"]: float(p.get("total_ecl", 0)) for p in result.get("ecl_by_product", [])},
+            "ecl_by_product": {
+                p["product_type"]: float(p.get("total_ecl", 0)) for p in result.get("ecl_by_product", [])
+            },
         }
         save_model_run(
             run_id=run_id,
@@ -54,15 +64,15 @@ def _persist_simulation_run(result: dict, config: "SimulationConfig"):
 
 
 class SimulationConfig(BaseModel):
-    n_simulations: int = 1000
-    pd_lgd_correlation: float = 0.30
-    aging_factor: float = 0.08
-    pd_floor: float = 0.001
-    pd_cap: float = 0.95
-    lgd_floor: float = 0.01
-    lgd_cap: float = 0.95
-    scenario_weights: Optional[dict[str, float]] = None
-    random_seed: Optional[int] = None
+    n_simulations: int = Field(default=1000, ge=1, le=100000)
+    pd_lgd_correlation: float = Field(default=0.30, ge=-1.0, le=1.0)
+    aging_factor: float = Field(default=0.08, ge=0.0, le=1.0)
+    pd_floor: float = Field(default=0.001, ge=0.0, le=1.0)
+    pd_cap: float = Field(default=0.95, ge=0.0, le=1.0)
+    lgd_floor: float = Field(default=0.01, ge=0.0, le=1.0)
+    lgd_cap: float = Field(default=0.95, ge=0.0, le=1.0)
+    scenario_weights: dict[str, float] | None = None
+    random_seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
     use_databricks_job: bool = False
 
 
@@ -108,22 +118,29 @@ def _transform_simulation_result(raw: dict, config) -> dict:
 def _run_pre_checks(config: SimulationConfig) -> list[dict]:
     """Run IFRS 9 pre-calculation validation checks against live portfolio data."""
     try:
-        from domain.validation_rules import run_all_pre_calculation_checks, has_critical_failures
         import backend
+        from domain.validation_rules import run_all_pre_calculation_checks
+
         loans_df = backend.query_df(f"""
             SELECT current_lifetime_pd, effective_interest_rate,
                    remaining_months, gross_carrying_amount,
                    assessed_stage, days_past_due
-            FROM {backend._t('model_ready_loans')}
+            FROM {backend._t("model_ready_loans")}
             LIMIT 10000
         """)
         if loans_df.empty:
             return []
         weights = config.scenario_weights or {}
-        stage_dpd = list(zip(
-            loans_df["assessed_stage"].fillna(1).astype(int).tolist(),
-            loans_df["days_past_due"].fillna(0).astype(int).tolist(),
-        )) if "days_past_due" in loans_df.columns else None
+        stage_dpd = (
+            list(
+                zip(
+                    loans_df["assessed_stage"].fillna(1).astype(int).tolist(),
+                    loans_df["days_past_due"].fillna(0).astype(int).tolist(),
+                )
+            )
+            if "days_past_due" in loans_df.columns
+            else None
+        )
         return run_all_pre_calculation_checks(
             scenario_weights=weights,
             pd_values=loans_df["current_lifetime_pd"].dropna().tolist(),
@@ -143,14 +160,19 @@ def _run_pre_checks(config: SimulationConfig) -> list[dict]:
 def run_simulation(config: SimulationConfig):
     """Run Monte Carlo ECL simulation with custom parameters."""
     from domain.validation_rules import has_critical_failures
+
     pre_checks = _run_pre_checks(config)
     if has_critical_failures(pre_checks):
-        raise HTTPException(400, detail={
-            "message": "Pre-calculation validation failed with critical errors",
-            "validation_results": pre_checks,
-        })
+        raise HTTPException(
+            400,
+            detail={
+                "message": "Pre-calculation validation failed with critical errors",
+                "validation_results": pre_checks,
+            },
+        )
     try:
         import ecl_engine
+
         raw = ecl_engine.run_simulation(
             n_sims=config.n_simulations,
             pd_lgd_correlation=config.pd_lgd_correlation,
@@ -165,6 +187,7 @@ def run_simulation(config: SimulationConfig):
         result = _transform_simulation_result(raw, config)
         result["validation_results"] = pre_checks
         _persist_simulation_run(result, config)
+        get_cache().invalidate_prefix("queries:")
         return result
     except Exception as e:
         log.exception("Simulation failed")
@@ -181,6 +204,7 @@ def simulation_defaults():
     """
     try:
         import ecl_engine
+
         raw = ecl_engine.get_defaults()
         params = raw.get("default_params", {})
         return {
@@ -213,6 +237,7 @@ async def simulate_stream(config: SimulationConfig):
     def run_in_thread():
         try:
             import ecl_engine
+
             raw = ecl_engine.run_simulation(
                 n_sims=config.n_simulations,
                 pd_lgd_correlation=config.pd_lgd_correlation,
@@ -264,6 +289,7 @@ def simulate_via_job(config: SimulationConfig):
     """Run Monte Carlo simulation as a Databricks Job for scalable compute."""
     try:
         import jobs
+
         result = jobs.trigger_monte_carlo_job(
             n_simulations=config.n_simulations,
             pd_lgd_correlation=config.pd_lgd_correlation,
@@ -300,7 +326,7 @@ def validate_simulation(config: SimulationConfig):
     if config.scenario_weights:
         total = sum(config.scenario_weights.values())
         if abs(total - 1.0) > 0.01:
-            errors.append(f"Scenario weights must sum to 100% (currently {total*100:.1f}%)")
+            errors.append(f"Scenario weights must sum to 100% (currently {total * 100:.1f}%)")
 
     if config.n_simulations > 2000:
         warnings.append(f"Running {config.n_simulations:,} simulations may take 3-5 minutes for ~84K loans")
@@ -328,6 +354,7 @@ def compare_simulation_runs(run_a: str, run_b: str):
     """Compare two simulation runs by product, stage, and scenario deltas."""
     try:
         from domain.model_runs import get_model_run
+
         a = get_model_run(run_a)
         b = get_model_run(run_b)
         if not a or not b:
@@ -345,19 +372,34 @@ def compare_simulation_runs(run_a: str, run_b: str):
             if isinstance(val_a, (int, float)) and isinstance(val_b, (int, float)):
                 abs_delta = round(val_b - val_a, 4)
                 pct_delta = round((val_b - val_a) / val_a * 100, 2) if val_a != 0 else None
-                deltas.append({"metric": key, "run_a": val_a, "run_b": val_b,
-                               "absolute_delta": abs_delta, "relative_delta_pct": pct_delta})
+                deltas.append(
+                    {
+                        "metric": key,
+                        "run_a": val_a,
+                        "run_b": val_b,
+                        "absolute_delta": abs_delta,
+                        "relative_delta_pct": pct_delta,
+                    }
+                )
 
         # Per-product ECL breakdown comparison
         product_deltas = _build_product_deltas(summary_a, summary_b)
 
         return {
-            "run_a": {"run_id": run_a, "timestamp": str(a.get("run_timestamp")),
-                      "type": a.get("run_type"), "products": a.get("products"),
-                      "seed": summary_a.get("random_seed")},
-            "run_b": {"run_id": run_b, "timestamp": str(b.get("run_timestamp")),
-                      "type": b.get("run_type"), "products": b.get("products"),
-                      "seed": summary_b.get("random_seed")},
+            "run_a": {
+                "run_id": run_a,
+                "timestamp": str(a.get("run_timestamp")),
+                "type": a.get("run_type"),
+                "products": a.get("products"),
+                "seed": summary_a.get("random_seed"),
+            },
+            "run_b": {
+                "run_id": run_b,
+                "timestamp": str(b.get("run_timestamp")),
+                "type": b.get("run_type"),
+                "products": b.get("products"),
+                "seed": summary_b.get("random_seed"),
+            },
             "deltas": deltas,
             "product_deltas": product_deltas,
             "summary": {
@@ -384,11 +426,13 @@ def _build_product_deltas(summary_a: dict, summary_b: dict) -> list[dict]:
         vb = float(ecl_b.get(prod, 0))
         abs_delta = round(vb - va, 2)
         pct_delta = round((vb - va) / va * 100, 2) if va != 0 else None
-        result.append({
-            "product_type": prod,
-            "run_a_ecl": va,
-            "run_b_ecl": vb,
-            "absolute_delta": abs_delta,
-            "relative_delta_pct": pct_delta,
-        })
+        result.append(
+            {
+                "product_type": prod,
+                "run_a_ecl": va,
+                "run_b_ecl": vb,
+                "absolute_delta": abs_delta,
+                "relative_delta_pct": pct_delta,
+            }
+        )
     return result

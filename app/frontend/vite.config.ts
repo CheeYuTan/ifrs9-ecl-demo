@@ -10,6 +10,8 @@ export default defineConfig({
   build: {
     outDir: '../static',
     emptyOutDir: true,
+    sourcemap: true,
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: {

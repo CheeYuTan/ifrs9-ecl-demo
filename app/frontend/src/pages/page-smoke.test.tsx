@@ -121,6 +121,7 @@ vi.mock('../lib/api', () => ({
     modelRuns: vi.fn().mockResolvedValue([]),
     jobRuns: vi.fn().mockResolvedValue([]),
     simulationDefaults: vi.fn().mockResolvedValue({ n_simulations: 500, pd_lgd_correlation: 0.3, aging_factor: 1.0, pd_floor: 0.001, pd_cap: 0.999, lgd_floor: 0.05, lgd_cap: 0.95, scenario_weights: {}, products: [] }),
+    listBacktests: vi.fn().mockResolvedValue([]),
     lossAllowanceByStage: vi.fn().mockResolvedValue([]),
     eclByScenarioProduct: vi.fn().mockResolvedValue([]),
     simulationValidate: vi.fn().mockResolvedValue({ errors: [], warnings: [] }),

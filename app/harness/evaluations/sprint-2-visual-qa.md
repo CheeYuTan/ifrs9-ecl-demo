@@ -1,90 +1,217 @@
-# Sprint 2 Visual QA Report
+# Sprint 2 Visual QA Report — User Guide Workflow Steps 1-4 (Iteration 5)
 
-**Sprint**: 2 — Backend API: Simulation & Satellite Model Tests
-**Date**: 2026-04-02
+**Sprint**: 2 (Docs Transformation)
+**Iteration**: 5 (final)
+**Date**: 2026-04-04
 **Quality Target**: 9.5/10
-**Iteration**: 2
 
 ## Context
 
-Sprint 2 is a QA audit sprint — no new UI features were built. The sprint added 150 backend tests covering 18 API endpoints in `routes/simulation.py` (6 endpoints) and `routes/satellite.py` (12 endpoints). Iteration 2 added 22 tests to reach the 150-test contract target per evaluator feedback (was 128 in iteration 1).
+Sprint 2 delivers four User Guide pages for the first four steps of the IFRS 9 ECL workflow. Iteration 2 expanded Steps 1-3 to meet the ≥150 line contract minimum. Iterations 3-5 verified all fixes remain in place, rebuilt, and redeployed.
+
+| Page | Lines (iter 1) | Lines (iter 2-5) | Target |
+|------|---------------|------------------|--------|
+| Step 1: Create Project | 121 | 151 | ≥150 |
+| Step 2: Data Processing | 130 | 153 | ≥150 |
+| Step 3: Data Control | 141 | 153 | ≥150 |
+| Step 4: Satellite Models | 176 | 176 | ≥150 |
+
+Total: 633 lines of business-user documentation.
 
 ## Test Method
 
-Chrome DevTools MCP tools were not available in this session. Testing was performed via:
-1. Direct HTTP verification of all 18 endpoints against the live dev server (port 8000)
-2. Error handling verification (422, 404, 400 status codes with structured messages)
-3. Frontend static asset serving verification
-4. Full automated test suite execution
+Testing performed via:
+1. HTTP status verification (curl, port 3000) — all 4 pages return 200
+2. Fresh `npm run build` — 0 errors, 0 warnings (verified independently)
+3. Source markdown audit — content quality, IFRS 9 compliance, anti-pattern checks
+4. Internal link target verification — all linked pages confirmed via HTTP 200
+5. Image file verification — all 7 referenced images confirmed on disk
+6. Sitemap verification — all 4 step pages present in sitemap.xml
+7. Dark mode configuration verification
+8. IFRS 9 terminology audit across all 4 pages
+9. Sidebar structure audit from sidebars.ts
+10. Regression check — Sprint 1 pages (overview, quick-start, workflow-overview) still load
 
-Since Sprint 2 made no UI changes, endpoint-level + test suite verification is the appropriate QA approach.
+## Page Rendering Verification
 
-## Endpoint Verification
+All 4 pages return HTTP 200 and build correctly into static HTML:
 
-### Simulation Endpoints: 6/6 verified
-- `POST /api/simulate` — Returns pre-calculation validation results (correct for project at step 2)
-- `GET /api/simulation-defaults` — Returns full defaults with n_simulations, correlations, 8 scenario weights
-- `POST /api/simulate-validate` — Validates params correctly; rejects n_sims > 50,000 with error message
-- `POST /api/simulate-stream` — Returns SSE stream with keepalive events
-- `POST /api/simulate-job` — Returns run_id, job_id, run_url for Databricks job
-- `GET /api/simulation/compare` — 404 for nonexistent runs; 422 for missing query params
+| Page | HTTP | Admonitions | Tables | H2 | H3 | Images | Status |
+|------|------|-------------|--------|----|----|--------|--------|
+| Step 1 | 200 | 6 | 3 | 7 | 5 | 1 | PASS |
+| Step 2 | 200 | 8 | 4 | 5 | 7 | 2 | PASS |
+| Step 3 | 200 | 7 | 5 | 5 | 5 | 2 | PASS |
+| Step 4 | 200 | 7 | 3 | 5 | 7 | 2 | PASS |
 
-### Satellite Endpoints: 12/12 verified
-All endpoints return correct HTTP status codes and structured data. Error cases (missing product param, nonexistent run_id) handled properly with 422/404.
+## Regression Check — Sprint 1
 
-## Error Handling Quality
+| Page | HTTP | Status |
+|------|------|--------|
+| /docs/overview | 200 | PASS |
+| /docs/quick-start | 200 | PASS |
+| /docs/user-guide/workflow-overview | 200 | PASS |
 
-All error paths tested return appropriate responses:
-- **422**: Missing required fields return per-field error details with location info
-- **404**: Nonexistent resources return descriptive messages
-- **400**: Validation failures return rule-by-rule results with severity levels (CRITICAL/HIGH/MEDIUM)
-- **Boundary validation**: n_simulations=50000 accepted, n_simulations=50001 rejected
+No regression detected.
 
-## Frontend Verification
+## Navigation Verification
 
-- HTML shell: 200 (valid doctype, root div, 8 tags)
-- JS bundle: 200 (285,909 bytes)
-- CSS bundle: 200 (129,906 bytes)
-- API health: `{status: "healthy", lakebase: "connected"}`
+### Sidebar (20+ items)
+- Getting Started: overview, quick-start
+- User Guide: workflow-overview + all 18 step/feature pages (Steps 1-8, plus model-registry, backtesting, etc.)
+- Admin Guide: collapsed, present
+- Developer Reference: collapsed, present
 
-No frontend regressions — no UI changes were made in Sprint 2.
+### Forward Chain (What's Next)
+- Step 1 → Step 2: PASS (HTTP 200)
+- Step 2 → Step 3: PASS (HTTP 200)
+- Step 3 → Step 4: PASS (HTTP 200)
+- Step 4 → Step 5: PASS (HTTP 200)
 
-## Test Suite Results
+### Back-links (Prerequisites)
+- Step 1 ← Quick Start: PASS (HTTP 200)
+- Step 2 ← Step 1: PASS (HTTP 200)
+- Step 3 ← Step 2: PASS (HTTP 200)
+- Step 4 ← Step 3: PASS (HTTP 200)
 
-| Suite | Result |
+### Cross-references
+- Step 4 → Admin Guide (Model Configuration): PASS (HTTP 200)
+
+### Navbar
+- Brand: "IFRS 9 ECL" — present
+- User Guide, Admin Guide, Developer Reference links — present
+- Color Mode Toggle — present
+
+## Image Verification
+
+| Image | Page | Size | Type |
+|-------|------|------|------|
+| step-1-create-project.png | Step 1 | 1,888B | Placeholder |
+| step-2-stage-distribution.png | Step 2 | 1,888B | Placeholder |
+| portfolio-dashboard.png | Step 2 | 248KB | Real screenshot |
+| step-3-data-control.png | Step 3 | 1,888B | Placeholder |
+| step-3-approval-form.png | Step 3 | 1,888B | Placeholder |
+| step-4-run-pipeline.png | Step 4 | 1,888B | Placeholder |
+| step-4-model-comparison.png | Step 4 | 1,888B | Placeholder |
+
+6 of 7 are placeholder grey rectangles — known limitation per handoff, to be replaced during documentation batch.
+
+## Persona Compliance Audit
+
+**Zero violations across all 4 pages.**
+
+| Check | Step 1 | Step 2 | Step 3 | Step 4 |
+|-------|--------|--------|--------|--------|
+| No Python/JSON code blocks | PASS | PASS | PASS | PASS |
+| No API endpoint references | PASS | PASS | PASS | PASS |
+| No test file references | PASS | PASS | PASS | PASS |
+| Business-language only | PASS | PASS | PASS | PASS |
+
+## IFRS 9 Terminology Audit
+
+Correct IFRS 9 terms used throughout — no incorrect generic terms found:
+
+| Term | Step 1 | Step 2 | Step 3 | Step 4 |
+|------|--------|--------|--------|--------|
+| ECL | 13 | 9 | 5 | 4 |
+| PD | — | 11 | 5 | 3 |
+| LGD | — | — | 2 | 3 |
+| SICR | — | 2 | — | — |
+| Stage 1/2/3 | — | 13 | 2 | — |
+| IFRS 9 | 3 | 3 | 1 | 1 |
+
+No instances of incorrect terms: "risk score" (0), "loss amount" (0), "loan balance" (0), "risk category" (0).
+
+## Content Structure Audit
+
+All 4 pages follow the spec template:
+
+| Required Section | Step 1 | Step 2 | Step 3 | Step 4 |
+|-----------------|--------|--------|--------|--------|
+| Frontmatter | Yes | Yes | Yes | Yes |
+| Introduction (IFRS 9 context) | Yes | Yes | Yes | Yes |
+| :::info Prerequisites | Yes | Yes | Yes | Yes |
+| What You'll Do | Yes | Yes | Yes | Yes |
+| Step-by-Step Instructions | 5 steps | 7 steps | 5 steps | 7 steps |
+| Tables explaining UI elements | 3 | 4 | 5 | 3 |
+| Understanding the Results | Yes | Yes | Yes | Yes |
+| Tips & Best Practices | Yes | Yes | Yes | Yes |
+| What's Next? | Yes | Yes | Yes | Yes |
+
+## Iteration 2 Additions Verified
+
+All evaluator-requested changes from iteration 1 are present and rendering correctly:
+
+| Addition | Page | Verified |
+|----------|------|----------|
+| Resuming an Existing Project (5-step subsection) | Step 1 | PASS |
+| Common Project ID Patterns (3 naming conventions) | Step 1 | PASS |
+| State-transition narrative (Pending → Completed → Rejected → rework) | Step 1 | PASS |
+| Reading the Charts (Step 6 — bar heights, colors, drill-down, 5 anomaly patterns) | Step 2 | PASS |
+| Bookmark Key Observations tip | Step 2 | PASS |
+| Zero or Missing Values caution (PD=0, EIR=0 implications) | Step 2 | PASS |
+| 3-decision framework (Critical? → DQ Score? → Explainable?) | Step 3 | PASS |
+| Audit Expectations caution | Step 3 | PASS |
+
+## Design Consistency
+
+- All pages use identical heading hierarchy (H1 title → H2 sections → H3 numbered steps)
+- Admonition types used consistently: :::info for prerequisites, :::tip for advice, :::warning for pitfalls, :::caution for risk areas
+- Table formatting consistent across all pages
+- Screenshot placeholder naming consistent: `step-N-feature.png`
+- Sidebar positions sequential: 2, 3, 4, 5
+
+## Dark Mode
+
+- `respectPrefersColorScheme: true` configured in `docusaurus.config.ts`
+- No hardcoded white/black colors in custom CSS files
+- Color mode toggle button present in navbar
+- Docusaurus default theme handles dark mode for all standard elements
+
+## Build Verification
+
+| Check | Result |
 |-------|--------|
-| Sprint 2 tests | **150 passed** in 0.63s |
-| Full backend suite | **2868 passed, 61 skipped, 0 failed** in 114s |
-| Regressions | **Zero** |
-
-### Iteration 2 additions (22 tests)
-- Exact boundary tests: n_simulations at 50000/50001
-- Scenario weight tolerance: 0.999, 1.001 (pass), 0.5 (fail)
-- Scaling checks: estimated_seconds and memory scale with n_sims
-- Comparison specifics: improved/degraded counts, identical runs, missing params
-- Model runs: extra fields ignored, full payload round trip
-- Drilldown: dimension param, single product
-- Cohort: multi-product mixed, multi-stage per cohort
-- Defaults structure: key presence, numeric types, scenarios list
-
-## Bugs Found
-
-**None.** All 18 endpoints behave correctly with proper error handling and data formats.
+| `npm run build` | 0 errors, 0 warnings |
+| All internal links resolve | All link targets verified via HTTP 200 |
+| Sidebar position ordering | Sequential (2, 3, 4, 5) |
+| Static build generated | Yes, deployed to docs_site/ |
+| Sitemap | All 4 step pages present |
 
 ## Lighthouse / Accessibility
 
-Not available (Chrome DevTools MCP not in session). Frontend continues to serve correctly.
+Chrome DevTools MCP not available in this session. Docusaurus provides semantic HTML, proper heading hierarchy, ARIA landmarks, and skip-to-content links by default. No custom CSS overrides that would break accessibility.
+
+## Bugs Found
+
+**None.**
+
+## Interaction Manifest Summary
+
+See `sprint-2-manifest.md` for the full element-by-element manifest.
+
+| Status | Count |
+|--------|-------|
+| TESTED | 89 |
+| BUG | 0 |
+| SKIPPED | 0 |
+| PENDING | 0 |
 
 ## Recommendation
 
 ### PROCEED
 
-Sprint 2 meets all contract targets:
-1. 150 tests (contract target: 150) — all passing
-2. 18/18 endpoints verified live with correct behavior
-3. Error handling comprehensive: 422, 404, 400 with structured messages
-4. Zero regressions: 2868 total tests pass
-5. Iteration 2 closed the evaluator's gap (128 -> 150 tests)
-6. Boundary value tests cover exact limits (50000/50001, weight sums)
+Sprint 2 iteration 5 (final) meets all acceptance criteria:
 
-No blocking issues found.
+1. **4/4 pages at ≥150 lines** — all meet the contract minimum (151, 153, 153, 176)
+2. **Zero persona violations** — no Python, JSON, API, or test references in User Guide
+3. **Zero broken links** — all internal cross-references resolve (verified via HTTP 200)
+4. **Correct IFRS 9 terminology** — all domain terms accurate, no incorrect generic terms
+5. **Sequential navigation** — forward chain (Step 1→2→3→4→5) and back-links all verified
+6. **Clean build** — `npm run build` produces 0 errors, 0 warnings
+7. **All iteration 2 additions present** — 8 evaluator-requested changes verified
+8. **Dark mode supported** — config enabled, no hardcoded colors
+9. **Consistent design** — heading hierarchy, admonitions, tables, and naming uniform
+10. **No regression** — Sprint 1 pages all still load correctly
+11. **Sitemap complete** — all 4 step pages included
+
+No blocking issues. Ready for Evaluator.

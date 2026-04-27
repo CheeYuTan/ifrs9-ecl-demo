@@ -67,9 +67,9 @@ export default function JobRunLink({ run, label = 'Databricks Job Run', compact 
 
   return (
     <div className={`flex items-start gap-3 p-3 rounded-lg border ${
-      isRunning ? 'bg-blue-50/50 border-blue-200' :
-      isSuccess ? 'bg-emerald-50/50 border-emerald-100' :
-      isFailed ? 'bg-red-50/50 border-red-100' :
+      isRunning ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/50' :
+      isSuccess ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800/50' :
+      isFailed ? 'bg-red-50/50 border-red-100 dark:bg-red-900/20 dark:border-red-800/50' :
       'bg-slate-50/50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700'
     }`}>
       <Play size={16} className={`mt-0.5 flex-shrink-0 ${

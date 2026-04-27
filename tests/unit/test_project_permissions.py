@@ -122,7 +122,7 @@ class TestEnsureTable:
 # ---------------------------------------------------------------------------
 
 class TestGetEffectiveRole:
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_admin_override(self, mock_user, mock_proj, mock_member):
@@ -131,7 +131,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("usr-004", "proj-1")
         assert result == "owner"
 
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_owner_by_project_field(self, mock_user, mock_proj, mock_member):
@@ -141,7 +141,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("usr-owner", "proj-1")
         assert result == "owner"
 
-    @patch("governance.project_members.get_project_member")
+    @patch("governance.project_permissions.get_project_member")
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_member_role(self, mock_user, mock_proj, mock_member):
@@ -152,7 +152,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("usr-001", "proj-1")
         assert result == "editor"
 
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_no_access(self, mock_user, mock_proj, mock_member):
@@ -162,7 +162,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("usr-001", "proj-1")
         assert result is None
 
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project", return_value=None)
     @patch("governance.rbac.get_user")
     def test_nonexistent_project(self, mock_user, mock_proj, mock_member):
@@ -171,7 +171,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("usr-001", "no-such-proj")
         assert result is None
 
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user", return_value=None)
     def test_nonexistent_user(self, mock_user, mock_proj, mock_member):
@@ -180,7 +180,7 @@ class TestGetEffectiveRole:
         result = get_effective_role("no-such-user", "proj-1")
         assert result is None
 
-    @patch("governance.project_members.get_project_member")
+    @patch("governance.project_permissions.get_project_member")
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_admin_beats_member_role(self, mock_user, mock_proj, mock_member):
@@ -250,7 +250,7 @@ class TestPermissionMatrix:
         ("approver", "owner"),
         ("admin", "owner"),
     ])
-    @patch("governance.project_members.get_project_member", return_value=None)
+    @patch("governance.project_permissions.get_project_member", return_value=None)
     @patch("domain.workflow.get_project")
     @patch("governance.rbac.get_user")
     def test_all_rbac_roles_as_owner(self, mock_user, mock_proj, mock_member,

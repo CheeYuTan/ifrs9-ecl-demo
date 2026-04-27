@@ -1,9 +1,12 @@
 """Markov chain routes — /api/markov/*"""
-import json, logging
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional
+
+import json
+import logging
+
 import backend
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
 from routes._utils import DecimalEncoder
 
 log = logging.getLogger(__name__)
@@ -12,16 +15,18 @@ router = APIRouter(prefix="/api/markov", tags=["markov"])
 
 
 class MarkovEstimateRequest(BaseModel):
-    product_type: Optional[str] = None
-    segment: Optional[str] = None
+    product_type: str | None = Field(default=None, max_length=128)
+    segment: str | None = Field(default=None, max_length=128)
+
 
 class MarkovForecastRequest(BaseModel):
-    matrix_id: str
-    initial_distribution: list[float]
-    horizon_months: int = 60
+    matrix_id: str = Field(min_length=1, max_length=128)
+    initial_distribution: list[float] = Field(min_length=1, max_length=20)
+    horizon_months: int = Field(default=60, ge=1, le=360)
+
 
 class MarkovCompareRequest(BaseModel):
-    matrix_ids: list[str]
+    matrix_ids: list[str] = Field(min_length=2, max_length=10)
 
 
 @router.post("/estimate")
@@ -33,13 +38,15 @@ def markov_estimate(body: MarkovEstimateRequest):
         log.exception("Failed to estimate transition matrix")
         raise HTTPException(500, f"Failed to estimate transition matrix: {e}")
 
+
 @router.get("/matrices")
-def markov_list_matrices(product_type: Optional[str] = None):
+def markov_list_matrices(product_type: str | None = None):
     try:
         matrices = backend.list_transition_matrices(product_type)
         return json.loads(json.dumps(matrices, cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list matrices: {e}")
+
 
 @router.get("/matrix/{matrix_id}")
 def markov_get_matrix(matrix_id: str):
@@ -53,6 +60,7 @@ def markov_get_matrix(matrix_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to get matrix: {e}")
 
+
 @router.post("/forecast")
 def markov_forecast(body: MarkovForecastRequest):
     try:
@@ -64,6 +72,7 @@ def markov_forecast(body: MarkovForecastRequest):
         log.exception("Failed to forecast stage distribution")
         raise HTTPException(500, f"Failed to forecast: {e}")
 
+
 @router.get("/lifetime-pd/{matrix_id}")
 def markov_lifetime_pd(matrix_id: str, max_months: int = 60):
     try:
@@ -74,6 +83,7 @@ def markov_lifetime_pd(matrix_id: str, max_months: int = 60):
     except Exception as e:
         log.exception("Failed to compute lifetime PD")
         raise HTTPException(500, f"Failed to compute lifetime PD: {e}")
+
 
 @router.post("/compare")
 def markov_compare(body: MarkovCompareRequest):

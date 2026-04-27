@@ -1,7 +1,9 @@
 """Shared utilities for route modules."""
-import json, math
+
+import json
+import math
+from datetime import date, datetime
 from decimal import Decimal
-from datetime import datetime, date
 
 
 class _SafeEncoder(json.JSONEncoder):
@@ -11,6 +13,7 @@ class _SafeEncoder(json.JSONEncoder):
         if isinstance(o, (datetime, date)):
             return o.isoformat()
         return super().default(o)
+
 
 DecimalEncoder = _SafeEncoder
 

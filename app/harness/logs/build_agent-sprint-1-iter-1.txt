@@ -1,14 +1,20 @@
 EXIT CODE: 0
-DURATION: 476s
+DURATION: 1120s
 
 --- STDOUT ---
-Sprint 1 build complete. Summary:
+Sprint 1 Build Agent complete. Summary:
 
-- **140 new tests** in `tests/unit/test_qa_sprint_1_core_routes.py`
-- Covers all **47 endpoints** across `routes/projects.py` (10), `routes/data.py` (32), and `routes/setup.py` (5)
-- Full test suite: **2559 passed, 61 skipped, 0 failures**
-- No bugs found in the route layer
-- Committed as `6cb5df1`
+**New files:**
+- `governance/project_permissions.py` (190 lines) — Core permission engine with `check_project_access()`, `get_effective_role()`, role hierarchy, CRUD for project_members, `transfer_ownership()`, audit trail integration
+- `tests/unit/test_project_permissions.py` — 65 tests covering permission matrix (RBAC role x project role), admin override, owner resolution, CRUD, transfer ownership, audit integration, edge cases
+
+**Modified files:**
+- `domain/workflow.py` — Added `owner_id` column to ecl_workflow, backfill existing projects, updated `create_project()` signature, wired `ensure_project_members_table()` into init chain
+- `backend.py` — Re-exports for all project_permissions public symbols
+
+**Test results:** 65 new tests passing, 103 total passing (including related modules), zero regressions.
+
+Ready for Visual QA / Evaluator handoff.
 
 
 --- STDERR ---

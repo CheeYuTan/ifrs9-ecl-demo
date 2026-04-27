@@ -3,14 +3,15 @@
 REST API for managing per-project role assignments (Layer 2).
 All endpoints enforce project-level access via require_project_access.
 """
-import logging
-from fastapi import APIRouter, HTTPException, Request, Depends
-from pydantic import BaseModel
 
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException
 from middleware.auth import (
-    get_current_user,
     require_project_access,
 )
+from pydantic import BaseModel, Field
+
 from routes._utils import serialize_project
 
 log = logging.getLogger(__name__)
@@ -19,12 +20,12 @@ router = APIRouter(prefix="/api/projects", tags=["project-members"])
 
 
 class AddMemberRequest(BaseModel):
-    user_id: str
-    role: str  # viewer | editor | manager
+    user_id: str = Field(min_length=1, max_length=256)
+    role: str = Field(pattern=r"^(viewer|editor|manager)$")
 
 
 class TransferOwnershipRequest(BaseModel):
-    new_owner_id: str
+    new_owner_id: str = Field(min_length=1, max_length=256)
 
 
 @router.get("/{project_id}/members")
@@ -33,9 +34,9 @@ def list_members(
     user: dict = Depends(require_project_access("viewer")),
 ):
     """List all members of a project (excludes owner — owner is on ecl_workflow)."""
+    from domain.workflow import get_project
     from governance.project_members import list_project_members
     from governance.rbac import get_user
-    from domain.workflow import get_project
 
     project = get_project(project_id)
     if not project:
@@ -47,11 +48,13 @@ def list_members(
     enriched = []
     for m in members:
         u = get_user(m["user_id"])
-        enriched.append({
-            **m,
-            "display_name": u["display_name"] if u else m["user_id"],
-            "email": u["email"] if u else "",
-        })
+        enriched.append(
+            {
+                **m,
+                "display_name": u["display_name"] if u else m["user_id"],
+                "email": u["email"] if u else "",
+            }
+        )
 
     # Include owner info
     owner_id = project.get("owner_id")
@@ -63,7 +66,9 @@ def list_members(
             "user_id": owner_id,
             "display_name": owner_user["display_name"] if owner_user else owner_id,
             "email": owner_user["email"] if owner_user else "",
-        } if owner_id else None,
+        }
+        if owner_id
+        else None,
         "members": enriched,
     }
 
@@ -78,9 +83,7 @@ def add_member(
     from governance.project_members import add_project_member
 
     try:
-        member = add_project_member(
-            project_id, body.user_id, body.role, user["user_id"]
-        )
+        member = add_project_member(project_id, body.user_id, body.role, user["user_id"])
         return member
     except ValueError as e:
         raise HTTPException(422, str(e))

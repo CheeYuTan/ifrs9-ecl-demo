@@ -2,20 +2,24 @@
 IFRS 9 ECL — FastAPI Backend serving React frontend + embedded documentation.
 Powered by Databricks Lakebase.
 """
-import os, logging, json
+
+import json
+import logging
+import os
 from contextlib import asynccontextmanager
+from datetime import date, datetime
 from decimal import Decimal
-from datetime import datetime, date
-from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+
 import backend
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Structured logging with consistent format
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(name)s %(message)s',
-    datefmt='%Y-%m-%dT%H:%M:%S',
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
 )
 log = logging.getLogger(__name__)
 
@@ -28,12 +32,14 @@ class _SafeEncoder(json.JSONEncoder):
             return o.isoformat()
         return super().default(o)
 
+
 DecimalEncoder = _SafeEncoder
 
 
 def _sanitize(obj):
     """Recursively replace NaN/Inf floats with None for JSON safety."""
     import math
+
     if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
         return None
     if isinstance(obj, dict):
@@ -54,6 +60,15 @@ async def lifespan(app):
     backend.init_pool()
     log.info("Lakebase ready.")
     yield
+    log.info("Shutting down — clearing caches and closing pool...")
+    from utils.cache import get_cache
+    get_cache().clear()
+    if backend._pool:
+        try:
+            backend._pool.closeall()
+        except Exception:
+            pass
+    log.info("Shutdown complete.")
 
 
 app = FastAPI(
@@ -65,15 +80,35 @@ app = FastAPI(
 )
 
 # Production middleware — order matters: outermost first
-from middleware.request_id import RequestIDMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from middleware.analytics import AnalyticsMiddleware
 from middleware.error_handler import ErrorHandlerMiddleware
+from middleware.rate_limiter import RateLimiterMiddleware
+from middleware.request_id import RequestIDMiddleware
+from middleware.perf import PerfMiddleware
+from middleware.security_headers import SecurityHeadersMiddleware
+
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(PerfMiddleware)
 app.add_middleware(ErrorHandlerMiddleware)
+app.add_middleware(RateLimiterMiddleware, max_requests=100, window_seconds=60)
 app.add_middleware(AnalyticsMiddleware)
 app.add_middleware(RequestIDMiddleware)
 
+_cors_origins_raw = os.environ.get("CORS_ORIGINS", "")
+_cors_origins = json.loads(_cors_origins_raw) if _cors_origins_raw else []
+_cors_allow_all = not _cors_origins or _cors_origins == ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if _cors_allow_all else _cors_origins,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "X-User-Id", "X-Forwarded-User", "X-Request-ID"],
+    allow_credentials=not _cors_allow_all,
+)
+
 
 # ── Health check ─────────────────────────────────────────────────────────────
+
 
 @app.get("/api/health")
 def health_check():
@@ -88,33 +123,34 @@ def health_check():
 def health_check_detailed():
     """Detailed health check — verifies Lakebase, tables, config, scipy."""
     from domain.health import run_health_check
+
     return run_health_check()
 
 
 # ── Register route modules ───────────────────────────────────────────────────
 
-from routes.projects import router as projects_router
-from routes.data import router as data_router
-from routes.models import router as models_router
-from routes.satellite import router as satellite_router
-from routes.attribution import router as attribution_router
-from routes.gl_journals import router as gl_journals_router
-from routes.jobs import router as jobs_router
-from routes.simulation import router as simulation_router
-from routes.markov import router as markov_router
-from routes.backtesting import router as backtesting_router
-from routes.hazard import router as hazard_router
-from routes.setup import router as setup_router
 from routes.admin import router as admin_router
+from routes.advanced import router as advanced_router
+from routes.analytics import router as analytics_router
+from routes.attribution import router as attribution_router
+from routes.audit import router as audit_router
+from routes.auth import router as auth_router
+from routes.backtesting import router as backtesting_router
+from routes.data import router as data_router
+from routes.data_mapping import router as data_mapping_router
+from routes.gl_journals import router as gl_journals_router
+from routes.hazard import router as hazard_router
+from routes.jobs import router as jobs_router
+from routes.markov import router as markov_router
+from routes.models import router as models_router
+from routes.period_close import router as period_close_router
+from routes.project_members import router as project_members_router
+from routes.projects import router as projects_router
 from routes.rbac import router as rbac_router
 from routes.reports import router as reports_router
-from routes.advanced import router as advanced_router
-from routes.audit import router as audit_router
-from routes.data_mapping import router as data_mapping_router
-from routes.period_close import router as period_close_router
-from routes.analytics import router as analytics_router
-from routes.project_members import router as project_members_router
-from routes.auth import router as auth_router
+from routes.satellite import router as satellite_router
+from routes.setup import router as setup_router
+from routes.simulation import router as simulation_router
 
 app.include_router(projects_router)
 app.include_router(data_router)
@@ -149,8 +185,10 @@ _project_root = os.path.dirname(_app_dir)
 _embedded_docs = os.path.join(_app_dir, "docs_site")
 _docusaurus_build = os.path.join(_project_root, "docs", "build")
 docs_dir = (
-    _embedded_docs if os.path.isdir(_embedded_docs)
-    else _docusaurus_build if os.path.isdir(_docusaurus_build)
+    _embedded_docs
+    if os.path.isdir(_embedded_docs)
+    else _docusaurus_build
+    if os.path.isdir(_docusaurus_build)
     else os.path.join(_project_root, "docs")
 )
 screenshots_dir = os.path.join(_project_root, "screenshots")
@@ -192,6 +230,7 @@ if os.path.isdir(static_dir):
         # Never intercept /api/* or /docs/* routes
         if full_path.startswith("api/") or full_path.startswith("docs/"):
             from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail="Not found")
         file_path = os.path.join(static_dir, full_path)
         if os.path.isfile(file_path):
@@ -201,5 +240,6 @@ if os.path.isdir(static_dir):
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.environ.get("DATABRICKS_APP_PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)

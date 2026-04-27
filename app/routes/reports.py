@@ -1,10 +1,13 @@
 """Regulatory report routes — /api/reports/*"""
-import json, logging
+
+import json
+import logging
+
+import backend
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import Optional
-import backend
+from pydantic import BaseModel, Field
+
 from routes._utils import DecimalEncoder
 
 log = logging.getLogger(__name__)
@@ -12,9 +15,13 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 
+VALID_REPORT_TYPES = {"ifrs7_disclosure", "ecl_movement", "stage_migration", "sensitivity_analysis", "concentration_risk"}
+
+
 class GenerateReportRequest(BaseModel):
-    report_type: str
-    user: str = "system"
+    report_type: str = Field(min_length=1, max_length=64)
+    user: str = Field(default="system", max_length=256)
+
 
 class FinalizeReportRequest(BaseModel):
     pass
@@ -43,13 +50,15 @@ def generate_report(project_id: str, body: GenerateReportRequest):
         log.exception("Failed to generate report")
         raise HTTPException(500, f"Failed to generate report: {e}")
 
+
 @router.get("")
-def list_reports(project_id: Optional[str] = None, report_type: Optional[str] = None):
+def list_reports(project_id: str | None = None, report_type: str | None = None):
     try:
         reports = backend.list_reports(project_id, report_type)
         return json.loads(json.dumps(reports, cls=DecimalEncoder))
     except Exception as e:
         raise HTTPException(500, f"Failed to list reports: {e}")
+
 
 @router.get("/{report_id}")
 def get_report(report_id: str):
@@ -63,13 +72,16 @@ def get_report(report_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to get report: {e}")
 
+
 @router.get("/{report_id}/export")
 def export_report(report_id: str):
     try:
         rows = backend.export_report_csv(report_id)
         if not rows:
             raise HTTPException(404, "Report not found or empty")
-        import io, csv
+        import csv
+        import io
+
         output = io.StringIO()
         if rows:
             writer = csv.DictWriter(output, fieldnames=rows[0].keys())
@@ -86,6 +98,7 @@ def export_report(report_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to export report: {e}")
 
+
 @router.post("/{report_id}/finalize")
 def finalize_report(report_id: str):
     try:
@@ -98,34 +111,35 @@ def finalize_report(report_id: str):
     except Exception as e:
         raise HTTPException(500, f"Failed to finalize report: {e}")
 
-@router.get('/{report_id}/export/pdf')
+
+@router.get("/{report_id}/export/pdf")
 def export_report_pdf(report_id: str):
     try:
         report = backend.get_report(report_id)
         if not report:
-            raise HTTPException(404, 'Report not found')
+            raise HTTPException(404, "Report not found")
         from reporting.pdf_export import generate_report_pdf
+
         # Build report dict with sections from report_data
-        report_data = report.get('report_data', {})
+        report_data = report.get("report_data", {})
         if isinstance(report_data, str):
             report_data = json.loads(report_data)
         pdf_input = {
-            'report_type': report.get('report_type', report_data.get('report_type', '')),
-            'project_id': report.get('project_id', report_data.get('project_id', '')),
-            'report_date': report.get('report_date', report_data.get('report_date', '')),
-            'sections': report_data.get('sections', {}),
-            'generated_at': report_data.get('generated_at', ''),
-            'status': report.get('status', 'draft'),
+            "report_type": report.get("report_type", report_data.get("report_type", "")),
+            "project_id": report.get("project_id", report_data.get("project_id", "")),
+            "report_date": report.get("report_date", report_data.get("report_date", "")),
+            "sections": report_data.get("sections", {}),
+            "generated_at": report_data.get("generated_at", ""),
+            "status": report.get("status", "draft"),
         }
         pdf_bytes = generate_report_pdf(pdf_input)
         return StreamingResponse(
             iter([pdf_bytes]),
-            media_type='application/pdf',
-            headers={'Content-Disposition': f'attachment; filename={report_id}.pdf'},
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={report_id}.pdf"},
         )
     except HTTPException:
         raise
     except Exception as e:
-        log.exception('Failed to export PDF')
-        raise HTTPException(500, f'Failed to export PDF: {e}')
-
+        log.exception("Failed to export PDF")
+        raise HTTPException(500, f"Failed to export PDF: {e}")

@@ -33,7 +33,7 @@
   "last_install_test": 0,
   "last_integration_test": 0,
   "context_resets": 0,
-  "current_iteration": 1,
+  "current_iteration": 2,
   "iteration_5_status": "BUILD_COMPLETE",
   "min_iterations_before_debt": 4,
   "max_iterations": 5,
@@ -41,6 +41,6 @@
   "build_command": "cd /Users/steven.tan/Expected\\ Credit\\ Losses/app/frontend && npm run build",
   "deploy_command": "databricks apps deploy ifrs9-ecl-demo --source-code-path /Workspace/Users/steven.tan@databricks.com/ifrs9-ecl-demo/app --profile lakemeter",
   "last_action": "Sprint 3 iteration 1: Frontend Permission Infrastructure built. Backend auth endpoints + permissions.ts + usePermissions/useCurrentUser hooks + Sidebar admin gating. pytest 4214 passed/0 failed, vitest 540 passed, npm build SUCCESS.",
-  "last_updated": "2026-04-05T13:20:00",
+  "last_updated": "2026-04-05T13:31:51",
   "score_trajectory": []
 }

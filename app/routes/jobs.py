@@ -3,12 +3,13 @@
 Job triggers require authenticated user with run_backtests RBAC permission.
 Anonymous dev mode bypasses the check.
 """
+
 import logging
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-from typing import Optional
+
 import jobs
+from fastapi import APIRouter, Depends, HTTPException
 from middleware.auth import require_permission
+from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
 
@@ -16,18 +17,17 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
 class TriggerJobRequest(BaseModel):
-    job_key: str = "satellite_ecl_sync"
-    enabled_models: Optional[list[str]] = None
-    # Monte Carlo parameters
-    n_simulations: Optional[int] = None
-    pd_lgd_correlation: Optional[float] = None
-    aging_factor: Optional[float] = None
-    pd_floor: Optional[float] = None
-    pd_cap: Optional[float] = None
-    lgd_floor: Optional[float] = None
-    lgd_cap: Optional[float] = None
-    random_seed: Optional[int] = None
-    scenario_weights: Optional[dict[str, float]] = None
+    job_key: str = Field(default="satellite_ecl_sync", max_length=128)
+    enabled_models: list[str] | None = None
+    n_simulations: int | None = Field(default=None, ge=1, le=100000)
+    pd_lgd_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
+    aging_factor: float | None = Field(default=None, ge=0.0, le=1.0)
+    pd_floor: float | None = Field(default=None, ge=0.0, le=1.0)
+    pd_cap: float | None = Field(default=None, ge=0.0, le=1.0)
+    lgd_floor: float | None = Field(default=None, ge=0.0, le=1.0)
+    lgd_cap: float | None = Field(default=None, ge=0.0, le=1.0)
+    random_seed: int | None = Field(default=None, ge=0, le=2**31 - 1)
+    scenario_weights: dict[str, float] | None = None
 
 
 @router.post("/trigger")
@@ -72,6 +72,7 @@ def trigger_job(
         log.exception("Failed to trigger job")
         raise HTTPException(500, f"Failed to trigger job: {e}")
 
+
 @router.get("/run/{run_id}")
 def get_job_run_status(run_id: int):
     try:
@@ -80,6 +81,7 @@ def get_job_run_status(run_id: int):
         log.exception("Failed to get run status")
         raise HTTPException(500, f"Failed to get run status: {e}")
 
+
 @router.get("/runs/{job_key}")
 def list_job_runs(job_key: str, limit: int = 10):
     try:
@@ -87,6 +89,7 @@ def list_job_runs(job_key: str, limit: int = 10):
     except Exception as e:
         log.exception("Failed to list job runs")
         raise HTTPException(500, f"Failed to list job runs: {e}")
+
 
 @router.get("/config")
 def get_jobs_config():
@@ -98,6 +101,7 @@ def get_jobs_config():
         "workspace_id": jobs._ws_id(),
         **status,
     }
+
 
 @router.post("/provision")
 def provision_jobs():

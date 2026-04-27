@@ -57,6 +57,15 @@ Generate IFRS 7 disclosure reports (paragraphs 35H through 35N), GL journal entr
 ### Approval Workflow
 A maker-checker process with segregation of duties ensures that the person who runs the model is not the same person who signs off on results. Every approval is hash-verified and immutably logged.
 
+### ECL Attribution
+A waterfall analysis decomposes ECL movements between reporting periods into individual drivers — new originations, derecognitions, stage transfers, parameter changes, scenario shifts, overlays, and write-offs — satisfying the IFRS 7.35I reconciliation requirement.
+
+### Markov Chains & Hazard Models
+Transition matrices and survival models estimate how borrowers move between credit states over time. These forward-looking tools produce the lifetime PD term structures that feed directly into the ECL calculation.
+
+### Advanced Risk Parameters
+Data-driven cure rate analysis, credit conversion factors (CCF) for off-balance-sheet exposures, and collateral haircut estimation replace conservative regulatory defaults with parameters calibrated to your portfolio history.
+
 ## Who Uses This Platform
 
 | Role | How They Use It |
@@ -81,3 +90,4 @@ A maker-checker process with segregation of duties ensures that the person who r
 - **New to the platform?** Start with the [Quick Start Guide](quick-start) to create your first ECL project
 - **Want the full workflow?** Read the [8-Step ECL Workflow Overview](user-guide/workflow-overview)
 - **Setting up the system?** See the [Admin Guide](admin-guide/setup-installation) for installation and configuration
+- **Common questions?** Browse the [FAQ](user-guide/faq) for answers organized by topic

@@ -1,28 +1,14 @@
 EXIT CODE: 0
-DURATION: 350s
+DURATION: 254s
 
 --- STDOUT ---
-Spec phase complete. Files written:
+Spec phase complete. Three files written:
 
-- **`harness/spec.md`** — 10-sprint comprehensive QA audit plan covering all 107+ API endpoints, 9 ECL engine modules, 24 domain logic files, 25+ frontend pages, middleware, integration flows, and production readiness
-- **`harness/state.json`** — Initialized with quality target 9.5, 10 planned sprints, baseline of 2,583 existing tests
-- **`harness/progress.md`** — Sprint tracking table, all 10 sprints PENDING
+- **`harness/spec.md`**: Full spec with two-layer permission model architecture, database schema changes (new `project_members` table + `owner_id` column on `ecl_workflow`), combined permission logic, 5 sprints, test strategy, and existing pattern references.
+- **`harness/state.json`**: Initialized with `spec_complete: true`, quality target 9.5, all 5 sprints in `remaining_spec_items`, ready for Sprint 1.
+- **`harness/progress.md`**: Sprint table with all 5 sprints PENDING, baseline of 4108 tests.
 
-**Sprint breakdown**:
-1. Core Workflow & Data endpoints (42+)
-2. Simulation & Satellite Model (18+)
-3. Model Registry, Backtesting, Markov, Hazard (24+)
-4. GL Journals, Reports, RBAC, Audit, Admin (45+)
-5. ECL Engine Monte Carlo correctness (9 files, formula verification)
-6. Domain Logic — Workflow, Queries, Attribution, Validation (8 modules)
-7. Domain Logic — Registry, Backtesting, Markov, Hazard, Advanced (10+ modules)
-8. Frontend Components & Pages (target 200+ tests from 103)
-9. Middleware, Cross-Cutting & Integration flows (6 E2E scenarios)
-10. Production Readiness & Final Gap Analysis
-
-**Targets**: Backend 2,480 -> 3,000+, Frontend 103 -> 200+, 100% API endpoint coverage, zero regressions.
-
-The next agent (Build Agent) should start Sprint 1 immediately.
+The spec follows existing patterns exactly: `governance/rbac.py` style for `project_permissions.py`, `middleware/auth.py` style for `require_project_access()`, `domain/audit_trail.py` for audit logging. The next agent (Build) should start Sprint 1: Backend Permission Engine.
 
 
 --- STDERR ---

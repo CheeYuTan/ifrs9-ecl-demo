@@ -1,13 +1,21 @@
 EXIT CODE: 0
-DURATION: 973s
+DURATION: 910s
 
 --- STDOUT ---
-Sprint 6 complete. Summary:
+Sprint 6 iteration 1 is complete. Summary:
 
-- **189 new tests** across 8 domain modules in `tests/unit/test_qa_sprint_6_domain_logic.py`
-- **3,601 total pytest** (up from 3,412), **0 failures**, **0 regressions**
-- Covers: workflow state machine, all 27 query functions, IFRS 7.35I attribution waterfall, 23+ validation rules (including D7-D10, DA-1 to DA-6 domain accuracy), data mapper validation/suggestions, audit chain verification, config diff
-- Committed as `52e08d6`
+**What was done:**
+- Wrote sprint contract (`harness/contracts/sprint-6.md`)
+- Rewrote all 9 Admin Guide pages for strict persona compliance:
+  - **3 major rewrites**: theme-customization.md, app-settings.md, user-management.md — removed all developer code (Python, TypeScript, CSS, SQL DDL, JSON API payloads)
+  - **3 moderate cleanups**: data-mapping.md, jobs-pipelines.md, model-configuration.md — replaced JSON request/response bodies with admin-oriented descriptions
+  - **3 light cleanups**: setup-installation.md, system-administration.md, troubleshooting.md — replaced code blocks with plain descriptions
+- Added "What's Next?" cross-reference sections to all 9 pages
+- Verified zero Python/TS/CSS/SQL/JSON code blocks remain
+- Build: 0 errors, deployed to `docs_site/`
+- Committed: `1d96392`
+
+**Files changed**: 9 admin guide pages + contract + handoff + state.json + progress.md (13 files, +599/-1417 lines — net reduction from removing code blocks)
 
 
 --- STDERR ---

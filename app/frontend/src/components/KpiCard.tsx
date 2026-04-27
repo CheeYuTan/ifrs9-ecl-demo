@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -20,7 +21,7 @@ const themes: Record<string, { bg: string; iconBg: string; border: string }> = {
   teal: { bg: 'from-teal-50 to-white dark:from-teal-950/30 dark:to-transparent', iconBg: 'bg-teal-500/10 text-teal-600 dark:text-teal-400', border: 'border-teal-100/50 dark:border-teal-800/30' },
 };
 
-export default function KpiCard({ title, value, subtitle, icon, color = 'blue' }: Props) {
+function KpiCard({ title, value, subtitle, icon, color = 'blue' }: Props) {
   const t = themes[color] || themes.blue;
 
   return (
@@ -47,3 +48,5 @@ export default function KpiCard({ title, value, subtitle, icon, color = 'blue' }
     </motion.div>
   );
 }
+
+export default memo(KpiCard);

@@ -9,12 +9,13 @@ Complies with:
   - SOX Section 302 (management attestation)
   - BCBS 239 (data governance and traceability)
 """
+
 import hashlib
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from db.pool import query_df, execute, SCHEMA
+from db.pool import SCHEMA, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,10 @@ def ensure_audit_tables():
             created_at      TIMESTAMP DEFAULT NOW()
         )
     """)
-    execute(f"COMMENT ON TABLE {AUDIT_TABLE} IS 'ifrs9ecl: Immutable hash-chained audit log'")
+    try:
+        execute(f"COMMENT ON TABLE {AUDIT_TABLE} IS 'ifrs9ecl: Immutable hash-chained audit log'")
+    except Exception:
+        pass
     execute(f"""
         CREATE TABLE IF NOT EXISTS {CONFIG_AUDIT_TABLE} (
             id              SERIAL PRIMARY KEY,
@@ -50,29 +54,40 @@ def ensure_audit_tables():
             changed_at      TIMESTAMP DEFAULT NOW()
         )
     """)
-    execute(f"COMMENT ON TABLE {CONFIG_AUDIT_TABLE} IS 'ifrs9ecl: Configuration change tracking'")
+    try:
+        execute(f"COMMENT ON TABLE {CONFIG_AUDIT_TABLE} IS 'ifrs9ecl: Configuration change tracking'")
+    except Exception:
+        pass
     log.info("Ensured audit trail tables exist")
 
 
-def _compute_hash(previous_hash: str, event_type: str, entity_id: str,
-                  action: str, detail: dict, created_at: str) -> str:
-    payload = json.dumps({
-        "previous_hash": previous_hash,
-        "event_type": event_type,
-        "entity_id": entity_id,
-        "action": action,
-        "detail": detail,
-        "created_at": created_at,
-    }, sort_keys=True, default=str)
+def _compute_hash(
+    previous_hash: str, event_type: str, entity_id: str, action: str, detail: dict, created_at: str
+) -> str:
+    payload = json.dumps(
+        {
+            "previous_hash": previous_hash,
+            "event_type": event_type,
+            "entity_id": entity_id,
+            "action": action,
+            "detail": detail,
+            "created_at": created_at,
+        },
+        sort_keys=True,
+        default=str,
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _get_last_hash(project_id: str | None) -> str:
     if project_id:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT entry_hash FROM {AUDIT_TABLE}
             WHERE project_id = %s ORDER BY id DESC LIMIT 1
-        """, (project_id,))
+        """,
+            (project_id,),
+        )
     else:
         df = query_df(f"""
             SELECT entry_hash FROM {AUDIT_TABLE}
@@ -93,16 +108,29 @@ def append_audit_entry(
     detail: dict | None = None,
 ) -> dict:
     detail = detail or {}
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     previous_hash = _get_last_hash(project_id)
     entry_hash = _compute_hash(previous_hash, event_type, entity_id, action, detail, now)
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {AUDIT_TABLE}
             (project_id, event_type, entity_type, entity_id, action, performed_by, detail, previous_hash, entry_hash, created_at)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (project_id, event_type, entity_type, entity_id, action, performed_by,
-          json.dumps(detail, default=str), previous_hash, entry_hash, now))
+    """,
+        (
+            project_id,
+            event_type,
+            entity_type,
+            entity_id,
+            action,
+            performed_by,
+            json.dumps(detail, default=str),
+            previous_hash,
+            entry_hash,
+            now,
+        ),
+    )
 
     return {
         "project_id": project_id,
@@ -119,10 +147,13 @@ def append_audit_entry(
 
 
 def get_audit_trail(project_id: str) -> list[dict]:
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT * FROM {AUDIT_TABLE}
         WHERE project_id = %s ORDER BY id ASC
-    """, (project_id,))
+    """,
+        (project_id,),
+    )
     if df.empty:
         return []
     records = []
@@ -150,9 +181,12 @@ def verify_audit_chain(project_id: str) -> dict:
             broken_at = i
             break
         recomputed = _compute_hash(
-            entry["previous_hash"], entry["event_type"],
-            entry["entity_id"], entry["action"],
-            entry["detail"], entry["created_at"],
+            entry["previous_hash"],
+            entry["event_type"],
+            entry["entity_id"],
+            entry["action"],
+            entry["detail"],
+            entry["created_at"],
         )
         if recomputed != str(entry["entry_hash"]):
             broken_at = i
@@ -169,13 +203,12 @@ def verify_audit_chain(project_id: str) -> dict:
 
 
 def export_audit_package(project_id: str) -> dict:
-    from domain.config_audit import get_config_audit_log
     trail = get_audit_trail(project_id)
     chain_status = verify_audit_chain(project_id)
     config_log = get_config_audit_log(limit=500)
     return {
         "project_id": project_id,
-        "export_timestamp": datetime.now(timezone.utc).isoformat(),
+        "export_timestamp": datetime.now(UTC).isoformat(),
         "chain_verification": chain_status,
         "audit_entries": trail,
         "config_changes": config_log,
@@ -183,4 +216,4 @@ def export_audit_package(project_id: str) -> dict:
 
 
 # Re-export for backward compatibility
-from domain.config_audit import log_config_change, get_config_audit_log, get_config_diff  # noqa: E402, F401
+from domain.config_audit import get_config_audit_log, get_config_diff, log_config_change  # noqa: E402, F401

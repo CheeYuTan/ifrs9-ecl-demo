@@ -1,21 +1,25 @@
 EXIT CODE: 0
-DURATION: 389s
+DURATION: 220s
 
 --- STDOUT ---
-## Visual QA Complete
+## Visual QA Complete — Sprint 3
 
 **Recommendation: PROCEED**
 
-### Summary
-- **178/178** Sprint 3 tests pass, **3,046 total** backend tests pass (0 regressions)
-- **11/11** frontend routes serve HTTP 200
-- **22/23** Sprint 3 API endpoints respond correctly
-- **Dark mode** consistent across all pages, no white flashes
-- **1 bug found** (BUG-3-001: backtest run DB schema error) — **pre-existing**, not a Sprint 3 regression
+Results summary:
+- **4 pages** tested: Step 5 (Model Execution), Step 6 (Stress Testing), Step 7 (Overlays), Step 8 (Sign-Off)
+- **All pages return 200** on the live dev server
+- **Build succeeds** with 0 errors
+- **All cross-references resolve** (11 internal links verified)
+- **Full regression**: 33/33 sidebar pages return 200
+- **Persona isolation**: Zero violations (no code blocks, API refs, or Python/JSON in User Guide)
+- **Structural consistency**: All 4 pages follow identical pattern (Prerequisites, What You'll Do, Step-by-Step, Understanding, Tips, What's Next)
+- **Content quality**: Rich tables (21-36 rows/page), generous admonitions (5-8/page), correct IFRS 9 terminology
+- **62 elements tested**, 0 bugs, 0 skipped, 0 pending
 
-### Reports Written
-- `harness/evaluations/sprint-3-manifest.md` — full interaction manifest (45 elements, 0 PENDING)
-- `harness/evaluations/sprint-3-visual-qa.md` — complete VQA report with recommendation
+Reports written to:
+- `harness/evaluations/sprint-3-manifest.md`
+- `harness/evaluations/sprint-3-visual-qa.md`
 
 
 --- STDERR ---

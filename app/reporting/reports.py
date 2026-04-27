@@ -23,25 +23,18 @@ Sub-modules:
 # ── Low-level deps re-exported for backward-compatible test patching ──────
 import json as _json  # noqa: F401
 import logging  # noqa: F401
-from datetime import datetime as _dt, timezone as _tz  # noqa: F401
+from datetime import datetime as _dt  # noqa: F401
 
-from db.pool import query_df, execute, _t, SCHEMA  # noqa: F401
+from db.pool import SCHEMA, _t, execute, query_df  # noqa: F401
+from domain.attribution import compute_attribution, get_attribution  # noqa: F401
 from domain.workflow import get_project  # noqa: F401
-from domain.attribution import get_attribution, compute_attribution  # noqa: F401
 
 log = logging.getLogger(__name__)  # noqa: F811
 
 # ── Shared helpers & constants ────────────────────────────────────────────
-from reporting.report_helpers import (  # noqa: F401
-    REPORT_TABLE,
-    ensure_report_tables,
-    _report_id,
-)
-
-# ── IFRS 7 Disclosure ────────────────────────────────────────────────────
-from reporting.ifrs7_disclosure import (  # noqa: F401
-    generate_ifrs7_disclosure,
-    _get_prior_period_35h,
+# ── Concentration Risk ───────────────────────────────────────────────────
+from reporting.concentration_report import (  # noqa: F401
+    generate_concentration_report,
 )
 
 # ── ECL Movement ─────────────────────────────────────────────────────────
@@ -49,9 +42,23 @@ from reporting.ecl_movement import (  # noqa: F401
     generate_ecl_movement_report,
 )
 
-# ── Stage Migration ──────────────────────────────────────────────────────
-from reporting.stage_migration import (  # noqa: F401
-    generate_stage_migration_report,
+# ── IFRS 7 Disclosure ────────────────────────────────────────────────────
+from reporting.ifrs7_disclosure import (  # noqa: F401
+    _get_prior_period_35h,
+    generate_ifrs7_disclosure,
+)
+
+# ── Report CRUD ──────────────────────────────────────────────────────────
+from reporting.report_crud import (  # noqa: F401
+    export_report_csv,
+    finalize_report,
+    get_report,
+    list_reports,
+)
+from reporting.report_helpers import (  # noqa: F401
+    REPORT_TABLE,
+    _report_id,
+    ensure_report_tables,
 )
 
 # ── Sensitivity Analysis ─────────────────────────────────────────────────
@@ -59,15 +66,7 @@ from reporting.sensitivity_report import (  # noqa: F401
     generate_sensitivity_report,
 )
 
-# ── Concentration Risk ───────────────────────────────────────────────────
-from reporting.concentration_report import (  # noqa: F401
-    generate_concentration_report,
-)
-
-# ── Report CRUD ──────────────────────────────────────────────────────────
-from reporting.report_crud import (  # noqa: F401
-    list_reports,
-    get_report,
-    finalize_report,
-    export_report_csv,
+# ── Stage Migration ──────────────────────────────────────────────────────
+from reporting.stage_migration import (  # noqa: F401
+    generate_stage_migration_report,
 )

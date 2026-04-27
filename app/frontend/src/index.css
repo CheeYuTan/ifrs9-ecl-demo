@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Use class-based dark mode (toggled on <html>) instead of the v4 default
+   that keys off OS prefers-color-scheme. Without this, dark:* utilities
+   silently do nothing when the user's OS is in light mode. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand: #00D09C;
   --color-brand-dark: #00B386;
@@ -225,33 +230,37 @@ body {
    SHARED COMPONENT CLASSES — single source of truth
    ============================================================ */
 
-/* Form inputs, selects, textareas */
-.form-input {
-  width: 100%;
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
-  padding-right: 0.75rem;
-  padding-left: 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  outline: none;
-}
-.form-input:focus {
-  border-color: var(--color-brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
-}
-.form-input::placeholder { color: var(--text-muted); }
-.dark .form-input {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-.dark .form-input:focus {
-  border-color: var(--color-brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 20%, transparent);
+/* Form inputs, selects, textareas
+   Wrapped in @layer components so Tailwind utility classes (e.g. pl-11 for
+   icon-prefixed inputs) can override the base padding. */
+@layer components {
+  .form-input {
+    width: 100%;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+  .form-input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 15%, transparent);
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .dark .form-input {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .dark .form-input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 20%, transparent);
+  }
 }
 
 /* Form labels — WCAG AA requires 4.5:1 contrast */

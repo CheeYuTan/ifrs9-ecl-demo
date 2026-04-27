@@ -1,93 +1,96 @@
 # Sprint 3 Interaction Manifest
 
-Sprint 3 is a **backend API testing sprint** — 178 new tests for Model Registry, Backtesting, Markov Chain, and Hazard Model endpoints. No UI changes were made. This manifest covers live API endpoint testing and UI page verification.
+## Testing Method
+HTTP-based testing of the live Docusaurus dev server on localhost:3000. All pages verified via HTTP response codes, content analysis of source markdown, and build verification.
 
-## API Endpoint Testing (Sprint 3 Scope)
+## Sprint 3 Pages — Content Elements
 
-| Endpoint | Method | Action | Result | Status |
-|----------|--------|--------|--------|--------|
-| `/api/models` | GET | List models (project_id=1) | 200, returns list of 8 models | TESTED |
-| `/api/models` | POST | Create model (name, type, version) | 200, model created | TESTED |
-| `/api/models/99999` | GET | Get non-existent model | 404, "Model not found" | TESTED |
-| `/api/models/1/status` | PUT | Invalid status transition | 422, validation error | TESTED |
-| `/api/models` | POST | Missing required fields | 422, validation error | TESTED |
-| `/api/models/compare` | POST | Compare models (string IDs required) | 422, type validation (expects string IDs) | TESTED |
-| `/api/models/1/audit` | GET | Get audit trail | 200, returns empty list | TESTED |
-| `/api/backtest/run` | POST | Run PD backtest | 500, **BUG**: DB schema error — `detail` column missing | BUG |
-| `/api/backtest/results` | GET | List backtest results | 200, returns list of 1 | TESTED |
-| `/api/backtest/trend/PD` | GET | Get PD trend | 200, returns list of 1 | TESTED |
-| `/api/markov/estimate` | POST | Estimate transition matrix | 200, returns matrix with all fields | TESTED |
-| `/api/markov/matrices` | GET | List matrices | 200, returns list | TESTED |
-| `/api/markov/matrix/99999` | GET | Get non-existent matrix | 404, "Matrix not found" | TESTED |
-| `/api/markov/forecast` | POST | Forecast (missing required field) | 422, `initial_distribution` required | TESTED |
-| `/api/markov/lifetime-pd/1` | GET | Get lifetime PD | 404, "Matrix 1 not found" (no data) | TESTED |
-| `/api/markov/compare` | POST | Compare matrices | 422, type validation (string IDs) | TESTED |
-| `/api/hazard/estimate` | POST | Estimate Cox PH model | 200, returns model with coefficients | TESTED |
-| `/api/hazard/models` | GET | List hazard models | 200, returns list | TESTED |
-| `/api/hazard/estimate` | POST | Invalid model type | 400, correct error | TESTED |
-| `/api/hazard/survival-curve` | POST | Survival curve (string ID required) | 422, type validation | TESTED |
-| `/api/hazard/term-structure/1` | GET | Get term structure | 200, returns structure | TESTED |
-| `/api/hazard/compare` | POST | Compare models | 422, type validation (string IDs) | TESTED |
+### Step 5: Model Execution (`/docs/user-guide/step-5-model-execution`)
 
-**API Summary**: 22/23 endpoints TESTED, 1 BUG found (backtest run DB schema error)
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK | TESTED |
+| Frontmatter | Metadata | Verify sidebar_position=6, title, description | Correct | TESTED |
+| Prerequisites admonition | Content | Verify :::info block with link to Step 4 | Present, link resolves (200) | TESTED |
+| Cross-ref: Step 4 | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: Step 6 | Link | Follow link | 200 OK | TESTED |
+| Screenshot: step-5-results.png | Image | Verify loads | 200 OK (placeholder) | TESTED |
+| Tables (simulation params, results) | Content | Verify rendered | 5 tables, 21 rows | TESTED |
+| Admonitions (tip, warning, caution) | Content | Verify rendered | 7 admonitions | TESTED |
+| Heading hierarchy | Structure | Verify H1->H2->H3 | Correct | TESTED |
+| Persona isolation | Compliance | No code blocks/API refs/Python/JSON | 0 violations | TESTED |
 
-## UI Page Verification
+### Step 6: Stress Testing (`/docs/user-guide/step-6-stress-testing`)
 
-| Page | Route | Action | Result | Status |
-|------|-------|--------|--------|--------|
-| Home | `/` | Navigate, verify rendering | 200, project creation form visible, workflow steps shown | TESTED |
-| Model Registry | `/models` | Navigate, verify data | 200, 8 models shown in table, KPI cards populated | TESTED |
-| Backtesting | `/backtesting` | Navigate | 200, loading spinner (pre-existing, data-dependent) | TESTED |
-| Markov Chains | `/markov` | Navigate | 200, loading/empty state with icon | TESTED |
-| Hazard Models | `/hazard` | Navigate | 200, loading spinner (pre-existing, data-dependent) | TESTED |
-| GL Journals | `/gl-journals` | Navigate, verify data | 200, 12 journal entries, KPI cards, tabs working | TESTED |
-| Reports | `/reports` | Navigate, verify data | 200, 9 reports, 5 report types, generate cards | TESTED |
-| Admin | `/admin` | Navigate, verify tabs | 200, data mapping tab active, connection shown | TESTED |
-| Approvals | `/approval` | Navigate | 200, loading spinner (pre-existing) | TESTED |
-| Attribution | `/attribution` | Navigate | 200, blank/empty page (pre-existing) | TESTED |
-| Advanced | `/advanced` | Navigate | 200, 3 tabs visible (Cure Rates, CCF, Collateral) | TESTED |
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK | TESTED |
+| Frontmatter | Metadata | Verify sidebar_position=7, title, description | Correct | TESTED |
+| Prerequisites admonition | Content | Verify :::info block with link to Step 5 | Present, link resolves (200) | TESTED |
+| Cross-ref: Step 5 | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: Step 7 | Link | Follow link | 200 OK | TESTED |
+| 5 analysis tabs documented | Content | Verify all 5 tabs covered | All present | TESTED |
+| Tables (metrics, presets, views) | Content | Verify rendered | 6 tables, 30 rows | TESTED |
+| Admonitions (tip, warning, caution) | Content | Verify rendered | 8 admonitions | TESTED |
+| Heading hierarchy | Structure | Verify H1->H2->H3 | Correct | TESTED |
+| Persona isolation | Compliance | No code blocks/API refs/Python/JSON | 0 violations | TESTED |
 
-**UI Summary**: 11/11 routes return HTTP 200. 0 regressions from Sprint 3 changes (test files only).
+### Step 7: Overlays (`/docs/user-guide/step-7-overlays`)
 
-## Dark Mode Verification
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK | TESTED |
+| Frontmatter | Metadata | Verify sidebar_position=8, title, description | Correct | TESTED |
+| Prerequisites admonition | Content | Verify :::info with Step 6 link, role requirement | Present, link resolves (200) | TESTED |
+| Cross-ref: Step 6 | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: Step 8 | Link | Follow link | 200 OK | TESTED |
+| Screenshot: step-7-waterfall.png | Image | Verify loads | 200 OK (placeholder) | TESTED |
+| IFRS 9 B5.5.17 categories (a-e) | Content | Verify 5 categories | All 5 present | TESTED |
+| Overlay register columns | Content | Verify all fields | 9 columns documented | TESTED |
+| Tables (governance, fields, register) | Content | Verify rendered | 6 tables, 34 rows | TESTED |
+| Admonitions | Content | Verify rendered | 5 admonitions | TESTED |
+| Persona isolation | Compliance | No code blocks/API refs/Python/JSON | 0 violations | TESTED |
 
-| Page | Light Mode | Dark Mode | Consistency | Status |
-|------|-----------|-----------|-------------|--------|
-| Models | Data table with 8 models | Loading/empty state (data-dependent) | Theme applied | TESTED |
-| Backtesting | Loading spinner | Loading spinner | Consistent | TESTED |
-| GL Journals | Full ledger, 12 entries | Full ledger, proper contrast | Excellent | TESTED |
-| Reports | Report types + table | Cards + dark background | Good | TESTED |
-| Admin | Tabs + connection info | Tabs + dark theme | Good | TESTED |
-| Advanced | Tabs visible, loading content | Tabs, loading content | Consistent | TESTED |
-| Attribution | Blank | Dark background, blank | Consistent | TESTED |
-| Approval | Loading spinner | Loading spinner | Consistent | TESTED |
-| Markov | Loading/empty | Dark background, loading | Consistent | TESTED |
-| Hazard | Loading spinner | Loading spinner | Consistent | TESTED |
+### Step 8: Sign-Off (`/docs/user-guide/step-8-sign-off`)
 
-**Dark Mode Summary**: No white flashes detected. Theme consistently applied across all pages.
+| Element | Type | Action | Result | Status |
+|---------|------|--------|--------|--------|
+| Page load | Navigation | HTTP GET | 200 OK | TESTED |
+| Frontmatter | Metadata | Verify sidebar_position=9, title, description | Correct | TESTED |
+| Prerequisites admonition | Content | Verify :::info with Step 7, role, segregation note | Present, link resolves (200) | TESTED |
+| Cross-ref: Step 7 | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: regulatory-reports | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: gl-journals | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: step-1-create-project | Link | Follow link | 200 OK | TESTED |
+| Cross-ref: attribution | Link | Follow link | 200 OK | TESTED |
+| Screenshot: step-8-summary.png | Image | Verify loads | 200 OK (placeholder) | TESTED |
+| Attribution waterfall (IFRS 7.35I) | Content | 10 movement types | All 10 present | TESTED |
+| 4-point attestation checklist | Content | Verify all 4 statements | All 4 present | TESTED |
+| Tables (disclosure, top 10, waterfall, audit) | Content | Verify rendered | 5 tables, 36 rows | TESTED |
+| Admonitions | Content | Verify rendered | 7 admonitions | TESTED |
+| Persona isolation | Compliance | No code blocks/API refs/Python/JSON | 0 violations | TESTED |
 
-## pytest Suite Verification
+## Sidebar Navigation
 
-| Test Suite | Result | Status |
-|-----------|--------|--------|
-| Sprint 3 tests (178 tests) | 178 passed in 0.86s | TESTED |
-| Full backend suite (3046 tests) | 3046 passed, 61 skipped, 0 failed in 78.4s | TESTED |
-| Regressions from prior 2868 tests | Zero regressions | TESTED |
+| Element | Action | Result | Status |
+|---------|--------|--------|--------|
+| User Guide category | Verify contains all 8 steps | All present in sidebars.ts | TESTED |
+| Step 5 sidebar_position | Verify = 6 | Correct | TESTED |
+| Step 6 sidebar_position | Verify = 7 | Correct | TESTED |
+| Step 7 sidebar_position | Verify = 8 | Correct | TESTED |
+| Step 8 sidebar_position | Verify = 9 | Correct | TESTED |
 
-## Bugs Found
+## Regression — All 33 Sidebar Pages
 
-| ID | Severity | Description | Sprint 3 Related? |
-|----|----------|-------------|-------------------|
-| BUG-3-001 | MAJOR | `POST /api/backtest/run` returns 500 — DB schema error: `column "detail" of relation "backtest_metrics" does not exist` | NO (pre-existing DB schema issue) |
+| Test | Result | Status |
+|------|--------|--------|
+| All 33 pages return HTTP 200 | 33/33 pass | TESTED |
+| Build (`npm run build`) | SUCCESS, 0 errors | TESTED |
 
-## Element Count Summary
+## Summary
 
-- API endpoints tested: 22
-- UI pages verified: 11
-- Dark mode pages verified: 10
-- pytest suites verified: 2
-- Total elements: 45
-- TESTED: 44
-- BUG: 1 (pre-existing, not Sprint 3 regression)
-- PENDING: 0
-- SKIPPED: 0
+- **Total elements tested**: 62
+- **TESTED**: 62
+- **BUG**: 0
+- **SKIPPED**: 0
+- **PENDING**: 0

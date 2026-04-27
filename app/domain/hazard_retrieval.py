@@ -2,11 +2,10 @@
 
 import json as _json
 import logging
-import pandas as pd
 
 from db.pool import query_df
 
-from domain.hazard_tables import HAZARD_MODEL_TABLE, HAZARD_CURVE_TABLE
+from domain.hazard_tables import HAZARD_CURVE_TABLE, HAZARD_MODEL_TABLE
 
 log = logging.getLogger(__name__)
 
@@ -25,12 +24,15 @@ def get_hazard_model(model_id: str) -> dict | None:
             except Exception:
                 pass
 
-    curves_df = query_df(f"""
+    curves_df = query_df(
+        f"""
         SELECT curve_id, segment, time_points, survival_probs, hazard_rates
         FROM {HAZARD_CURVE_TABLE}
         WHERE model_id = %s
         ORDER BY segment
-    """, (model_id,))
+    """,
+        (model_id,),
+    )
     curves = []
     for _, c in curves_df.iterrows():
         cd = c.to_dict()
@@ -57,14 +59,17 @@ def list_hazard_models(model_type: str | None = None, product_type: str | None =
         conditions.append("product_type = %s")
         params.append(product_type)
     where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-    df = query_df(f"""
+    df = query_df(
+        f"""
         SELECT model_id, model_type, estimation_date, concordance_index,
                log_likelihood, aic, bic, product_type, segment,
                n_observations, n_events, created_at
         FROM {HAZARD_MODEL_TABLE}
         {where}
         ORDER BY created_at DESC
-    """, tuple(params) if params else None)
+    """,
+        tuple(params) if params else None,
+    )
     if df.empty:
         return []
     return df.to_dict("records")

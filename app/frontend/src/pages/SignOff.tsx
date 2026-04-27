@@ -58,6 +58,7 @@ export default function SignOff({ project, onSignOff }: Props) {
   const [showSignOffConfirm, setShowSignOffConfirm] = useState(false);
   const [attestations, setAttestations] = useState([false, false, false, false]);
   const [hashStatus, setHashStatus] = useState<{status: string; match?: boolean; stored_hash?: string} | null>(null);
+  const [adminConfig, setAdminConfig] = useState<any>(null);
   const allAttested = attestations.every(Boolean);
 
   const loadAttribution = useCallback(async () => {
@@ -79,6 +80,10 @@ export default function SignOff({ project, onSignOff }: Props) {
   const isSigned = !!project?.signed_off_by;
 
   useEffect(() => {
+    fetch('/api/admin/config').then(r => r.ok ? r.json() : null).then(d => { if (d) setAdminConfig(d); }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (project && isSigned) {
       api.verifyHash(project.project_id).then(setHashStatus).catch(() => setHashStatus({ status: 'error' }));
     }
@@ -88,7 +93,7 @@ export default function SignOff({ project, onSignOff }: Props) {
     if (!project || project.current_step < 7) return;
     const fetchWithRetry = async (fn: () => Promise<any>, retries = 2): Promise<any> => {
       for (let i = 0; i <= retries; i++) {
-        try { return await fn(); } catch (e) { if (i === retries) return []; }
+        try { return await fn(); } catch (_e) { if (i === retries) return []; }
       }
       return [];
     };
@@ -141,7 +146,7 @@ export default function SignOff({ project, onSignOff }: Props) {
       return rows.map(r => ({ ...r, total: r.s1 + r.s2 + r.s3 }));
     }
 
-    let stageEcl: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+    const stageEcl: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
     if (lossAllowance.length) {
       lossAllowance.forEach((r: any) => {
         const stage = Number(r.assessed_stage);
@@ -150,10 +155,13 @@ export default function SignOff({ project, onSignOff }: Props) {
     }
     if (stageEcl[1] === 0 && stageEcl[2] === 0 && stageEcl[3] === 0) return null;
     const closing = { s1: stageEcl[1], s2: stageEcl[2], s3: stageEcl[3] };
-    // Illustrative growth factors for opening balance estimation when no prior-period data exists.
-    // Stage 1: 8% growth (low-risk portfolio expansion), Stage 2: 15% (SICR migration),
-    // Stage 3: 22% (default accumulation). These are replaced by actual attribution data when available.
-    const growth = { s1: 1.08, s2: 1.15, s3: 1.22 };
+    const defaultGrowth = { s1: 1.08, s2: 1.15, s3: 1.22 };
+    const cfgGrowth = adminConfig?.opening_balance_growth;
+    const growth = {
+      s1: cfgGrowth?.s1 ?? defaultGrowth.s1,
+      s2: cfgGrowth?.s2 ?? defaultGrowth.s2,
+      s3: cfgGrowth?.s3 ?? defaultGrowth.s3,
+    };
     const opening = { s1: closing.s1 / growth.s1, s2: closing.s2 / growth.s2, s3: closing.s3 / growth.s3 };
     const remeasurement = { s1: closing.s1 - opening.s1, s2: closing.s2 - opening.s2, s3: closing.s3 - opening.s3 };
     const rows = [
@@ -162,7 +170,7 @@ export default function SignOff({ project, onSignOff }: Props) {
       { movement: 'Closing balance', s1: closing.s1, s2: closing.s2, s3: closing.s3, bold: true },
     ];
     return rows.map(r => ({ ...r, total: r.s1 + r.s2 + r.s3 }));
-  }, [lossAllowance, attribution]);
+  }, [lossAllowance, attribution, adminConfig]);
 
   if (!project || project.current_step < 7) return <LockedBanner requiredStep={7} />;
   if (loading) return <PageLoader />;

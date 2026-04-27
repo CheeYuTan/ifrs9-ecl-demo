@@ -44,6 +44,7 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
   const [products, setProducts] = useState<any[]>([]);
   const [eclCohortByProduct, setEclCohortByProduct] = useState<Record<string, any[]>>({});
   const [adminConfig, setAdminConfig] = useState<any>(null);
+  const [backtestResults, setBacktestResults] = useState<any[]>([]);
 
   const scenColors = useMemo(() => buildScenarioColorMap(scenario), [scenario]);
 
@@ -54,6 +55,9 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
     fetch('/api/admin/config')
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setAdminConfig(data); })
+      .catch(() => {});
+    api.listBacktests()
+      .then(results => { if (Array.isArray(results)) setBacktestResults(results); })
       .catch(() => {});
   }, []);
 
@@ -433,12 +437,14 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                 Model Risk Management (MRM) performs independent validation annually. The following metrics are from the most recent
                 backtesting exercise comparing predicted vs. actual default rates over a 12-month observation window.
               </p>
-              <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <Info size={12} className="text-amber-600 flex-shrink-0" />
-                <p className="text-[11px] text-amber-700 dark:text-amber-400">
-                  These metrics are illustrative placeholders derived from model parameters. For computed backtesting results with statistical tests, see the dedicated Backtesting page.
-                </p>
-              </div>
+              {backtestResults.length === 0 && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <Info size={12} className="text-amber-600 flex-shrink-0" />
+                  <p className="text-[11px] text-amber-700 dark:text-amber-400">
+                    No backtesting results found. Run backtesting from the dedicated Backtesting page to view validation metrics here.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                   { metric: 'Gini Coefficient', value: '0.72', status: 'green', threshold: '> 0.60' },
@@ -466,33 +472,41 @@ export default function ModelExecution({ project, onApprove, onReject }: Props) 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {products.length > 0 ? products.map(p => {
-                      const predicted = Number(((p.base_lgd ?? 0.05) * 100 * 0.6).toFixed(1));
-                      const actual = Number(((p.base_lgd ?? 0.05) * 100 * 0.55).toFixed(1));
-                      const ratio = actual > 0 ? Number((predicted / actual).toFixed(2)) : 1;
-                      const tl = ratio >= 0.8 && ratio <= 1.2 ? 'GREEN' : ratio >= 0.7 && ratio <= 1.3 ? 'AMBER' : 'RED';
-                      const color = tl === 'GREEN' ? 'text-emerald-600 bg-emerald-50' : tl === 'AMBER' ? 'text-amber-600 bg-amber-50' : 'text-red-600 bg-red-50';
+                    {backtestResults.length > 0 ? backtestResults.map(bt => {
+                      const predicted = bt.predicted_rate != null ? Number((bt.predicted_rate * 100).toFixed(1)) : null;
+                      const actual = bt.actual_rate != null ? Number((bt.actual_rate * 100).toFixed(1)) : null;
+                      const ratio = predicted != null && actual != null && actual > 0 ? Number((predicted / actual).toFixed(2)) : null;
+                      const tl = ratio != null ? (ratio >= 0.8 && ratio <= 1.2 ? 'GREEN' : ratio >= 0.7 && ratio <= 1.3 ? 'AMBER' : 'RED') : '—';
+                      const color = tl === 'GREEN' ? 'text-emerald-600 bg-emerald-50' : tl === 'AMBER' ? 'text-amber-600 bg-amber-50' : tl === 'RED' ? 'text-red-600 bg-red-50' : 'text-slate-500 bg-slate-50';
                       return (
-                        <tr key={p.product_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                          <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatProductName(p.product_type)}</td>
-                          <td className="py-2 px-3 text-center font-mono">{predicted}%</td>
-                          <td className="py-2 px-3 text-center font-mono">{actual}%</td>
-                          <td className="py-2 px-3 text-center font-mono">{ratio.toFixed(2)}x</td>
+                        <tr key={bt.backtest_id || bt.model_type} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{bt.model_type || '—'}</td>
+                          <td className="py-2 px-3 text-center font-mono">{predicted != null ? `${predicted}%` : '—'}</td>
+                          <td className="py-2 px-3 text-center font-mono">{actual != null ? `${actual}%` : '—'}</td>
+                          <td className="py-2 px-3 text-center font-mono">{ratio != null ? `${ratio.toFixed(2)}x` : '—'}</td>
                           <td className="py-2 px-3 text-center"><span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${color}`}>{tl}</span></td>
                         </tr>
                       );
                     }) : (
-                      <tr><td colSpan={5} className="py-4 text-center text-slate-400">Loading product data…</td></tr>
+                      <tr><td colSpan={5} className="py-4 text-center text-slate-400">No backtesting results available. Run backtesting from the Backtesting page.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
-              <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200 mt-2">
-                <p className="text-[11px] text-emerald-700">
-                  All products pass the traffic light test (P/A ratio within 0.80–1.20). Model is considered well-calibrated.
-                  Last validation date: October 2025. Next scheduled: April 2026. Validated by: Independent Model Validation Unit.
-                </p>
-              </div>
+              {backtestResults.length > 0 ? (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800 mt-2">
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                    Backtesting results sourced from the Backtesting module ({backtestResults.length} model{backtestResults.length !== 1 ? 's' : ''} tested).
+                    Visit the Backtesting page for detailed cohort analysis and statistical tests.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 border border-slate-200 dark:border-slate-700 mt-2">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    No backtesting data available. Run backtesting from the dedicated Backtesting page to populate this section with actual validation metrics.
+                  </p>
+                </div>
+              )}
             </div>
           </CollapsibleSection>
 

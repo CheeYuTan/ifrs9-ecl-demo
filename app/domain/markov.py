@@ -1,9 +1,8 @@
 import json as _json
-import uuid
 import logging
-import pandas as pd
+import uuid
 
-from db.pool import query_df, execute, _t, SCHEMA
+from db.pool import SCHEMA, _t, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -60,14 +59,17 @@ def estimate_transition_matrix(product_type: str | None = None, segment: str | N
 
     where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
-    mig_df = query_df(f"""
+    mig_df = query_df(
+        f"""
         SELECT original_stage, assessed_stage,
                SUM(loan_count) as loan_count
-        FROM {_t('ifrs7_stage_migration')}
+        FROM {_t("ifrs7_stage_migration")}
         {where}
         GROUP BY original_stage, assessed_stage
         ORDER BY original_stage, assessed_stage
-    """, tuple(params) if params else None)
+    """,
+        tuple(params) if params else None,
+    )
 
     n_states = 4  # Stage 1, Stage 2, Stage 3, Default
     matrix = [[0.0] * n_states for _ in range(n_states)]
@@ -93,18 +95,24 @@ def estimate_transition_matrix(product_type: str | None = None, segment: str | N
         extra_where = f"WHERE {' AND '.join(cond_parts)}" if cond_parts else ""
 
         # Estimate default rate from actual historical defaults vs Stage 3 population
-        defaults_df = query_df(f"""
+        defaults_df = query_df(
+            f"""
             SELECT COUNT(*) as default_count
-            FROM {_t('historical_defaults')}
+            FROM {_t("historical_defaults")}
             {extra_where}
-        """, tuple(cond_params) if cond_params else None)
+        """,
+            tuple(cond_params) if cond_params else None,
+        )
 
-        dpd_df = query_df(f"""
+        dpd_df = query_df(
+            f"""
             SELECT assessed_stage, COUNT(*) as cnt
-            FROM {_t('model_ready_loans')}
+            FROM {_t("model_ready_loans")}
             {extra_where}
             GROUP BY assessed_stage
-        """, tuple(cond_params) if cond_params else None)
+        """,
+            tuple(cond_params) if cond_params else None,
+        )
 
         stage_counts = {}
         for _, row in dpd_df.iterrows():
@@ -115,8 +123,12 @@ def estimate_transition_matrix(product_type: str | None = None, segment: str | N
             n_defaults = int(defaults_df.iloc[0]["default_count"]) if not defaults_df.empty else 0
             if n_defaults > 0 and total_s3 > 0:
                 default_rate = min(n_defaults / total_s3, 0.95)
-                log.info("Estimated Stage 3→Default rate from data: %.4f (%d defaults / %d Stage 3)",
-                         default_rate, n_defaults, total_s3)
+                log.info(
+                    "Estimated Stage 3→Default rate from data: %.4f (%d defaults / %d Stage 3)",
+                    default_rate,
+                    n_defaults,
+                    total_s3,
+                )
             else:
                 default_rate = 0.15
                 log.warning("Insufficient default data — using fallback Stage 3→Default rate: %.2f", default_rate)
@@ -143,11 +155,14 @@ def estimate_transition_matrix(product_type: str | None = None, segment: str | N
         "matrix": [[round(v, 6) for v in row] for row in matrix],
     }
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {MARKOV_MATRIX_TABLE}
             (matrix_id, model_name, matrix_data, matrix_type, product_type, segment, methodology, n_observations)
         VALUES (%s, %s, %s, 'annual', %s, %s, 'cohort', %s)
-    """, (matrix_id, model_name, _json.dumps(matrix_data), product_type, segment, n_obs))
+    """,
+        (matrix_id, model_name, _json.dumps(matrix_data), product_type, segment, n_obs),
+    )
 
     return get_transition_matrix(matrix_id)
 
@@ -169,13 +184,16 @@ def get_transition_matrix(matrix_id: str) -> dict | None:
 
 def list_transition_matrices(product_type: str | None = None) -> list[dict]:
     if product_type:
-        df = query_df(f"""
+        df = query_df(
+            f"""
             SELECT matrix_id, model_name, estimation_date, matrix_type, product_type,
                    segment, methodology, n_observations, computed_at
             FROM {MARKOV_MATRIX_TABLE}
             WHERE product_type = %s
             ORDER BY computed_at DESC
-        """, (product_type,))
+        """,
+            (product_type,),
+        )
     else:
         df = query_df(f"""
             SELECT matrix_id, model_name, estimation_date, matrix_type, product_type,
@@ -213,8 +231,7 @@ def _mat_power(m: list[list[float]], power: int) -> list[list[float]]:
     return result
 
 
-def forecast_stage_distribution(matrix_id: str, initial_distribution: list[float],
-                                 horizon_months: int) -> dict:
+def forecast_stage_distribution(matrix_id: str, initial_distribution: list[float], horizon_months: int) -> dict:
     """Project future stage distribution using matrix exponentiation."""
     mat_record = get_transition_matrix(matrix_id)
     if not mat_record:
@@ -238,10 +255,12 @@ def forecast_stage_distribution(matrix_id: str, initial_distribution: list[float
         for j in range(n):
             for i in range(n):
                 dist[j] += initial_distribution[i] * p_n[i][j]
-        forecast_points.append({
-            "month": month,
-            **{states[k]: round(dist[k] * 100, 4) for k in range(n)},
-        })
+        forecast_points.append(
+            {
+                "month": month,
+                **{states[k]: round(dist[k] * 100, 4) for k in range(n)},
+            }
+        )
 
     forecast_id = str(uuid.uuid4())
     forecast_data = {
@@ -250,11 +269,14 @@ def forecast_stage_distribution(matrix_id: str, initial_distribution: list[float
         "points": forecast_points,
     }
 
-    execute(f"""
+    execute(
+        f"""
         INSERT INTO {MARKOV_FORECAST_TABLE}
             (forecast_id, matrix_id, horizon_months, forecast_data)
         VALUES (%s, %s, %s, %s)
-    """, (forecast_id, matrix_id, horizon_months, _json.dumps(forecast_data)))
+    """,
+        (forecast_id, matrix_id, horizon_months, _json.dumps(forecast_data)),
+    )
 
     return {
         "forecast_id": forecast_id,
@@ -286,10 +308,12 @@ def compute_lifetime_pd(matrix_id: str, max_months: int = 60) -> dict:
             cum_pd = 0.0
             for i in range(n):
                 cum_pd += initial[i] * p_n[i][default_idx]
-            curve.append({
-                "month": month,
-                "cumulative_pd": round(cum_pd * 100, 4),
-            })
+            curve.append(
+                {
+                    "month": month,
+                    "cumulative_pd": round(cum_pd * 100, 4),
+                }
+            )
         pd_curves[states[start_stage]] = curve
 
     return {

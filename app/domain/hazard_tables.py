@@ -1,9 +1,9 @@
 """Hazard model database table setup and portfolio data retrieval."""
 
 import logging
-import pandas as pd
 
-from db.pool import query_df, execute, _t, SCHEMA
+import pandas as pd
+from db.pool import SCHEMA, _t, execute, query_df
 
 log = logging.getLogger(__name__)
 
@@ -65,12 +65,15 @@ def _get_portfolio_hazard_data(product_type: str | None = None, segment: str | N
         conditions.append("segment = %s")
         params.append(segment)
     where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-    return query_df(f"""
+    return query_df(
+        f"""
         SELECT loan_id, product_type, segment, assessed_stage,
                days_past_due, current_lifetime_pd,
                gross_carrying_amount,
                COALESCE(remaining_months, 60) as remaining_term,
                vintage_cohort
-        FROM {_t('model_ready_loans')}
+        FROM {_t("model_ready_loans")}
         {where}
-    """, tuple(params) if params else None)
+    """,
+        tuple(params) if params else None,
+    )
